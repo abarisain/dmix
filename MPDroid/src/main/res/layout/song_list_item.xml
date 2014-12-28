@@ -13,8 +13,9 @@
      limitations under the License.
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="?attr/listItemHeight"
+    android:layout_height="@dimen/material_list_item_height_big"
     android:orientation="horizontal">
 
     <TextView
@@ -22,25 +23,16 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:paddingLeft="15dip"
-        android:paddingRight="15dip" />
-
-    <View
-        android:id="@+id/track_number_separator"
-        android:layout_width="0.75dip"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="8dip"
-        android:layout_marginTop="8dip"
-        android:layout_toRightOf="@+id/track_number"
-        android:background="?attr/listItemHorizontalSeparatorColor" />
+        android:paddingLeft="@dimen/material_list_item_element_horizontal_padding"
+        tools:text="01"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_toLeftOf="@+id/track_duration"
-        android:layout_toRightOf="@+id/track_number_separator"
+        android:layout_toRightOf="@+id/track_number"
         android:orientation="vertical"
-        android:paddingLeft="10dip">
+        android:paddingLeft="@dimen/material_list_item_element_horizontal_padding">
 
         <TextView
             android:id="@+id/track_title"
@@ -50,7 +42,8 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceListItem"
+            tools:text="Into The Galaxy"/>
 
         <TextView
             android:id="@+id/track_artist"
@@ -61,7 +54,9 @@
             android:gravity="center_vertical"
             android:paddingBottom="5dip"
             android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+            android:textColor="?attr/listItemSecondaryTextColor"
+            tools:text="Artist"/>
     </LinearLayout>
 
     <TextView
@@ -70,6 +65,7 @@
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
         android:gravity="center_vertical"
-        android:paddingLeft="15dip"
-        android:paddingRight="15dip" />
+        android:paddingLeft="@dimen/material_list_item_element_horizontal_padding"
+        android:paddingRight="@dimen/material_list_item_element_horizontal_padding"
+        tools:text="4:54"/>
 </RelativeLayout>

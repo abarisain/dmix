@@ -15,6 +15,7 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -22,75 +23,85 @@
     android:focusable="false"
     tools:ignore="InconsistentLayout">
 
-    <RelativeLayout
+    <FrameLayout
         android:id="@+id/albumCoverFrame"
-        android:layout_width="80dip"
-        android:layout_height="80dip"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginBottom="5dip">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <ImageView
+        <com.namelessdev.mpdroid.ui.SquareImageView
             android:id="@+id/albumCover"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
             android:contentDescription="@string/albumCover"
             android:scaleType="fitCenter"
             android:src="?attr/noCoverArtIcon" />
 
         <ProgressBar
             android:id="@+id/albumCoverProgress"
-            style="?android:attr/progressBarStyleSmall"
+            style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_gravity="center"
             android:visibility="invisible" />
-    </RelativeLayout>
+    </FrameLayout>
 
-    <TextView
-        android:id="@+id/tracks_artist"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5dip"
-        android:layout_marginLeft="8dip"
-        android:layout_marginTop="8dip"
-        android:layout_toRightOf="@+id/albumCoverFrame"
-        android:ellipsize="end"
-        android:gravity="center_vertical"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/tracks_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tracks_artist"
-        android:layout_marginBottom="10dip"
-        android:layout_marginLeft="8dip"
-        android:layout_toRightOf="@+id/albumCoverFrame"
-        android:ellipsize="end"
-        android:gravity="center_vertical"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <include
-        android:id="@+id/list_separator_layout"
-        layout="@layout/list_separator"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/albumCoverFrame" />
-
-    <ImageButton
+    <com.melnykov.fab.FloatingActionButton
         android:id="@+id/album_menu"
-        android:layout_width="40dip"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/list_separator_layout"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_alignParentRight="true"
-        android:background="?android:attr/actionBarItemBackground"
-        android:contentDescription="@string/menuButton"
-        android:paddingLeft="20dip"
-        android:paddingRight="20dip"
-        android:paddingTop="20dip"
-        android:src="?attr/menuButton" />
+        android:layout_below="@+id/albumCoverFrame"
+        android:layout_marginRight="32dp"
+        android:layout_marginTop="-32dp"
+        android:src="?attr/playIcon"
+        fab:fab_colorNormal="@color/fab_color"
+        fab:fab_colorPressed="@color/fab_color_pressed"
+        fab:fab_colorRipple="@color/fab_color_ripple" />
+
+    <RelativeLayout
+        android:id="@+id/tracks_info_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/albumCoverFrame"
+        android:paddingBottom="10dp"
+        android:paddingLeft="@dimen/material_list_item_element_horizontal_padding"
+        android:paddingTop="10dp">
+
+        <TextView
+            android:id="@+id/tracks_album"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            tools:text="Album Name" />
+
+        <TextView
+            android:id="@+id/tracks_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tracks_album"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            tools:text="Artist Name" />
+
+        <TextView
+            android:id="@+id/tracks_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tracks_artist"
+            android:layout_marginTop="8dp"
+            android:alpha="60"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textSize="12sp"
+            tools:text="Artist" />
+    </RelativeLayout>
 
 </RelativeLayout>

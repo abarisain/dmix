@@ -68,6 +68,7 @@
         <item name="android:windowBackground">@color/nowplaying_background</item>
         <item name="android:colorBackgroundCacheHint">@color/nowplaying_background</item>
         <item name="android:colorBackground">@color/nowplaying_background</item>
+        <item name="listItemSecondaryTextColor">@color/list_item_secondary_text_color</item>
     </style>
 
     <style name="AppTheme.Light" parent="@style/AppThemeBase.Light">
@@ -104,6 +105,7 @@
         <item name="volumeIcon">@drawable/ic_action_volume_light</item>
         <item name="playQueueIcon">@drawable/ic_action_play_queue_light</item>
         <item name="overflowButton">@android:style/Widget.Holo.Light.ActionButton.Overflow</item>
+        <item name="listItemSecondaryTextColor">@color/list_item_secondary_text_color_light</item>
     </style>
 
     <style name="AppTheme.Settings" parent="@style/AppTheme.Light"></style>
