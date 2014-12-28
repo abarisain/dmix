@@ -93,7 +93,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.library_tabs);
+        setContentView(R.layout.activity_simple_library);
 
         final LayoutInflater inflater = (LayoutInflater) getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);

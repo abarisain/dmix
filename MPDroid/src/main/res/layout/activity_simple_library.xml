@@ -27,12 +27,6 @@
         android:layout_height="0dip"
         android:layout_weight="1" />
 
-    <View
-        android:id="@+id/now_playing_small_separator"
-        android:layout_width="match_parent"
-        android:layout_height="2dip"
-        android:background="@color/now_playing_small_separator" />
-
     <fragment
         android:id="@+id/now_playing_small_fragment"
         android:name="com.namelessdev.mpdroid.fragments.NowPlayingSmallFragment"
