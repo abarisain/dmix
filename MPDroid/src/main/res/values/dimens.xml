@@ -27,4 +27,7 @@
     <dimen name="locale_edit_seekbar_padding">20dp</dimen>
     <dimen name="nowplaying_small_fragment_height">48dp</dimen>
 
+    <dimen name="material_list_item_height_big">72dip</dimen>
+    <dimen name="material_list_item_element_horizontal_padding">16dip</dimen>
+
 </resources>

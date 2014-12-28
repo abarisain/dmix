@@ -72,7 +72,7 @@
                 android:maxLines="1"
                 android:text="Fooooooo"
                 android:textAppearance="?android:attr/textAppearanceListItemSecondary"
-                android:textColor="#8a000000" />
+                android:textColor="?attr/listItemSecondaryTextColor" />
 
             <ImageView
                 android:id="@+id/picture"

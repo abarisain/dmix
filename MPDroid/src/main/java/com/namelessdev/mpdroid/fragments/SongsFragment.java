@@ -21,6 +21,8 @@ import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
+import com.melnykov.fab.FloatingActionButton;
+import com.namelessdev.mpdroid.MPDroidActivities;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
@@ -33,9 +35,13 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v4.widget.PopupMenuCompat;
+import android.support.v7.graphics.Palette;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -71,7 +77,11 @@ public class SongsFragment extends BrowseFragment<Music> {
 
     CoverAsyncHelper mCoverHelper;
 
+    View mTracksInfoContainer;
+
     TextView mHeaderArtist;
+
+    TextView mHeaderAlbum;
 
     TextView mHeaderInfo;
 
@@ -233,19 +243,48 @@ public class SongsFragment extends BrowseFragment<Music> {
         final View headerView = inflater.inflate(R.layout.song_header, null, false);
         mCoverArt = (ImageView) view.findViewById(R.id.albumCover);
         if (mCoverArt != null) {
+            mTracksInfoContainer = view.findViewById(R.id.tracks_info_container);
             mHeaderArtist = (TextView) view.findViewById(R.id.tracks_artist);
+            mHeaderAlbum = (TextView) view.findViewById(R.id.tracks_album);
             mHeaderInfo = (TextView) view.findViewById(R.id.tracks_info);
             mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
             mAlbumMenu = (ImageButton) view.findViewById(R.id.album_menu);
         } else {
+            mTracksInfoContainer = headerView.findViewById(R.id.tracks_info_container);
             mHeaderArtist = (TextView) headerView.findViewById(R.id.tracks_artist);
+            mHeaderAlbum = (TextView) headerView.findViewById(R.id.tracks_album);
             mHeaderInfo = (TextView) headerView.findViewById(R.id.tracks_info);
             mCoverArt = (ImageView) headerView.findViewById(R.id.albumCover);
             mCoverArtProgress = (ProgressBar) headerView.findViewById(R.id.albumCoverProgress);
             mAlbumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
         }
 
-        mCoverArtListener = new AlbumCoverDownloadListener(mCoverArt, mCoverArtProgress, false);
+        mCoverArtListener = new AlbumCoverDownloadListener(mCoverArt, mCoverArtProgress, false) {
+            @Override
+            public void onCoverDownloaded(final CoverInfo cover) {
+                super.onCoverDownloaded(cover);
+                final Drawable d = mCoverArt.getDrawable();
+                if (d instanceof BitmapDrawable) {
+                    Palette.generateAsync(((BitmapDrawable) d).getBitmap(), new Palette.PaletteAsyncListener() {
+                        @Override
+                        public void onGenerated(final Palette palette) {
+                            Palette.Swatch vibrantColor = palette.getDarkVibrantSwatch();
+                            Palette.Swatch mutedColor = palette.getVibrantSwatch();
+                            if (mTracksInfoContainer != null && vibrantColor != null) {
+                                mTracksInfoContainer.setBackgroundColor(vibrantColor.getRgb());
+                                mHeaderAlbum.setTextColor(vibrantColor.getBodyTextColor());
+                                mHeaderArtist.setTextColor(vibrantColor.getBodyTextColor());
+                                mHeaderInfo.setTextColor(vibrantColor.getBodyTextColor());
+                            }
+                            if (mutedColor != null && mAlbumMenu instanceof FloatingActionButton) {
+                                ((FloatingActionButton) mAlbumMenu).setColorNormal(mutedColor.getRgb());
+                            }
+                        }
+                    });
+                }
+            }
+        };
+
         mCoverHelper = new CoverAsyncHelper();
         mCoverHelper.setCoverMaxSizeFromScreen(getActivity());
         final ViewTreeObserver vto = mCoverArt.getViewTreeObserver();
@@ -260,7 +299,7 @@ public class SongsFragment extends BrowseFragment<Music> {
         });
         mCoverHelper.addCoverDownloadListener(mCoverArtListener);
 
-        ((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
+        //((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
         ((ListView) mList).addHeaderView(headerView, null, false);
 
         mPopupMenu = new PopupMenu(getActivity(), mAlbumMenu);
@@ -366,6 +405,12 @@ public class SongsFragment extends BrowseFragment<Music> {
         return view;
     }
 
+    /*@Override
+    public void onAttach(final Activity activity) {
+        super.onAttach(activity);
+        ((MPDroidActivities.MPDroidActivity)activity).getSupportActionBar().hide();
+    }*/
+
     @Override
     public void onDestroyView() {
         mHeaderArtist = null;
@@ -432,6 +477,9 @@ public class SongsFragment extends BrowseFragment<Music> {
             fixedAlbumInfo = getFixedAlbumInfo();
             final String artist = fixedAlbumInfo.getArtistName();
             mHeaderArtist.setText(artist);
+            if (mHeaderAlbum != null) {
+                mHeaderAlbum.setText(fixedAlbumInfo.getAlbum());
+            }
             mHeaderInfo.setText(getHeaderInfoString());
             if (mCoverHelper != null) {
                 mCoverHelper.downloadCover(fixedAlbumInfo, true);

@@ -32,8 +32,13 @@
     <color name="notification_separator">#393939</color>
     <color name="actionbar_background_blue">#039be5</color>
     <color name="statusbar_background_blue">#0277bd</color>
+    <color name="fab_color">#039be5</color>
+    <color name="fab_color_pressed">#0277bd</color>
+    <color name="fab_color_ripple">#025e9d</color>
     <color name="accent_blue">#4fc3f7</color>
     <color name="accent_dark">#e0e0e0</color>
     <color name="nowplaying_slider_background_color">#ff1a1a1a</color>
     <color name="nowplaying_slider_background_color_light">#ffffffff</color>
+    <color name="list_item_secondary_text_color">#8affffff</color>
+    <color name="list_item_secondary_text_color_light">#8a000000</color>
 </resources>
