@@ -32,8 +32,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dip"
-                android:layout_weight="1"
-                android:paddingTop="?attr/actionBarSize">
+                android:layout_weight="1">
 
                 <FrameLayout
                     android:id="@+id/library_root_frame"

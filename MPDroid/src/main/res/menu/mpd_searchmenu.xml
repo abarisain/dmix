@@ -17,7 +17,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_search"
-        android:icon="@drawable/ic_action_search"
+        android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
         android:orderInCategory="2"
         app:showAsAction="always"
         android:title="@string/search" />

@@ -277,6 +277,8 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getSupportActionBar().hide();
+
         if (mApp.hasGooglePlayDeathWarningBeenDisplayed()
                 && !mApp.hasGooglePlayThankYouBeenDisplayed()) {
             new AlertDialog.Builder(this)
