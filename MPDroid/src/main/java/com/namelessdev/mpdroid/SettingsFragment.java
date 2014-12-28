@@ -20,8 +20,8 @@ import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatistics;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.subsystem.status.MPDStatistics;
 
 import android.app.Activity;
 import android.app.AlertDialog;

@@ -197,7 +197,7 @@ public class AlbumCache {
     }
 
     protected synchronized boolean isUpToDate() {
-        final Date mpdlast = mMPD.getStatistics().getDbUpdate();
+        final Date mpdlast = mMPD.getStatistics().getDBUpdateTime();
         Log.d(TAG, "lastupdate " + mLastUpdate + " mpd date " + mpdlast);
         return (null != mLastUpdate && null != mpdlast && mLastUpdate.after(mpdlast));
     }

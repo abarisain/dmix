@@ -43,6 +43,7 @@ import org.a0z.mpd.item.MusicBuilder;
 import org.a0z.mpd.item.PlaylistFile;
 import org.a0z.mpd.item.Stream;
 import org.a0z.mpd.subsystem.Sticker;
+import org.a0z.mpd.subsystem.status.MPDStatistics;
 import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import java.io.IOException;
