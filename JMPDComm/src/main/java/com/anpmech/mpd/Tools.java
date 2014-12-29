@@ -163,7 +163,16 @@ public final class Tools {
         int beginIndex = 0;
 
         for (final String line : response) {
-            if (key.equals(line.substring(0, line.indexOf(':'))) && iterator != beginIndex) {
+            final int index = line.indexOf(':');
+            final CharSequence formatted;
+
+            if (index == -1) {
+                formatted = line;
+            } else {
+                formatted = line.subSequence(0, index);
+            }
+
+            if (key.contentEquals(formatted) && iterator != beginIndex) {
                 if (ranges == null) {
                     final int capacity = response.size() / (iterator - beginIndex);
                     ranges = new ArrayList<>(capacity);
