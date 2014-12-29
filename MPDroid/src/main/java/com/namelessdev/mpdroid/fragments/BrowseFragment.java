@@ -382,21 +382,9 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         mLoadingTextView = (TextView) view.findViewById(R.id.loadingText);
         mNoResultView = view.findViewById(R.id.noResultLayout);
         mLoadingTextView.setText(getLoadingText());
-        mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
 
-        ToolbarHelper.showBackButton(this, mToolbar);
-        ToolbarHelper.addSearchView(getActivity(), mToolbar);
-        ToolbarHelper.addStandardMenuItemClickListener(this, mToolbar, new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(final MenuItem menuItem) {
-                return onToolbarMenuItemClick(menuItem);
-            }
-        });
-        onCreateToolbarMenu();
-        mToolbar.setTitle(getTitle());
-        updateToolbarVisibility();
-        // TODO : Add "refresh" menu item
-        // FIXME : Embedded fragments can't show their menu item. This is problematic, especially for FS and Streams.
+        setupStandardToolbar(view);
+
         return view;
     }
 
@@ -481,6 +469,24 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
             mList.setAdapter(getCustomListAdapter());
         }
         refreshFastScrollStyle();
+    }
+
+    protected void setupStandardToolbar(View rootview) {
+        mToolbar = (Toolbar) rootview.findViewById(R.id.toolbar);
+
+        ToolbarHelper.showBackButton(this, mToolbar);
+        ToolbarHelper.addSearchView(getActivity(), mToolbar);
+        ToolbarHelper.addStandardMenuItemClickListener(this, mToolbar, new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(final MenuItem menuItem) {
+                return onToolbarMenuItemClick(menuItem);
+            }
+        });
+        onCreateToolbarMenu();
+        mToolbar.setTitle(getTitle());
+        updateToolbarVisibility();
+        // TODO : Add "refresh" menu item
+        // FIXME : Embedded fragments can't show their menu item. This is problematic, especially for FS and Streams.
     }
 
     /**
