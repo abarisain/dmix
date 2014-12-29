@@ -73,6 +73,8 @@ public class AlbumsGridFragment extends AlbumsFragment {
         mLoadingTextView.setText(getLoadingText());
         mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
 
+        setupStandardToolbar(view);
+
         return view;
     }
 
