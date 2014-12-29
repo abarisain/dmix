@@ -26,7 +26,6 @@ import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
 
@@ -305,7 +304,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
             }
 
             playlistPosition++;
-            item.put(Artist.EXTRA, music.getArtist());
+            item.put(Music.TAG_ARTIST, music.getArtist());
             item.put(Music.TAG_TITLE, music.getTitle());
             item.put("marked", false);
             if (mIsPlayQueue && music.getSongId() == playingID) {
