@@ -184,17 +184,15 @@ public class FSFragment extends BrowseFragment {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setHasOptionsMenu(true);
         if (savedInstanceState != null) {
             init(savedInstanceState.getString(Directory.EXTRA));
         }
     }
 
     @Override
-    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-
-        inflater.inflate(R.menu.mpd_fsmenu, menu);
+    protected void onCreateToolbarMenu() {
+        super.onCreateToolbarMenu();
+        mToolbar.inflateMenu(R.menu.mpd_fsmenu);
     }
 
     @Override
@@ -231,9 +229,7 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        final boolean result;
-
+    protected boolean onToolbarMenuItemClick(final MenuItem item) {
         // Menu actions...
         if (item.getItemId() == R.id.menu_update) {
             mApp.oMPDAsyncHelper.execAsync(new Runnable() {
@@ -246,12 +242,10 @@ public class FSFragment extends BrowseFragment {
                     }
                 }
             });
-            result = true;
-        } else {
-            result = super.onOptionsItemSelected(item);
+            return true;
         }
 
-        return result;
+        return super.onToolbarMenuItemClick(item);
     }
 
     @Override

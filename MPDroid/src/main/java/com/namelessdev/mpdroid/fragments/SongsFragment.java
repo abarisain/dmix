@@ -88,7 +88,7 @@ public class SongsFragment extends BrowseFragment<Music> {
 
     TextView mHeaderInfo;
 
-    Toolbar mToolbar;
+    Toolbar mHeaderToolbar;
 
     PopupMenu mPopupMenu;
 
@@ -255,7 +255,7 @@ public class SongsFragment extends BrowseFragment<Music> {
             mHeaderArtist = (TextView) view.findViewById(R.id.tracks_artist);
             mHeaderAlbum = (TextView) view.findViewById(R.id.tracks_album);
             mHeaderInfo = (TextView) view.findViewById(R.id.tracks_info);
-            mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
+            mHeaderToolbar = (Toolbar) view.findViewById(R.id.toolbar);
             mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
             mAlbumMenu = (ImageButton) view.findViewById(R.id.album_menu);
         } else {
@@ -263,15 +263,15 @@ public class SongsFragment extends BrowseFragment<Music> {
             mHeaderArtist = (TextView) headerView.findViewById(R.id.tracks_artist);
             mHeaderAlbum = (TextView) headerView.findViewById(R.id.tracks_album);
             mHeaderInfo = (TextView) headerView.findViewById(R.id.tracks_info);
-            mToolbar = (Toolbar) headerView.findViewById(R.id.toolbar);
+            mHeaderToolbar = (Toolbar) headerView.findViewById(R.id.toolbar);
             mCoverArt = (ImageView) headerView.findViewById(R.id.albumCover);
             mCoverArtProgress = (ProgressBar) headerView.findViewById(R.id.albumCoverProgress);
             mAlbumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
         }
 
-        if (mToolbar != null) {
-            ToolbarHelper.addSearchView(getActivity(), mToolbar);
-            ToolbarHelper.showBackButton(this, mToolbar);
+        if (mHeaderToolbar != null) {
+            ToolbarHelper.addSearchView(getActivity(), mHeaderToolbar);
+            ToolbarHelper.showBackButton(this, mHeaderToolbar);
         }
 
         mCoverArtListener = new AlbumCoverDownloadListener(mCoverArt, mCoverArtProgress, false) {
@@ -422,6 +422,8 @@ public class SongsFragment extends BrowseFragment<Music> {
 
         updateFromItems();
 
+        updateToolbarVisibility();
+
         return view;
     }
 
@@ -480,6 +482,18 @@ public class SongsFragment extends BrowseFragment<Music> {
     public void onSaveInstanceState(final Bundle outState) {
         outState.putParcelable(Album.EXTRA, mAlbum);
         super.onSaveInstanceState(outState);
+    }
+
+    protected void hideToolbar() {
+        if (mHeaderToolbar != null) {
+            mHeaderToolbar.setVisibility(View.GONE);
+        }
+    }
+
+    protected void showToolbar() {
+        if (mHeaderToolbar != null) {
+            mHeaderToolbar.setVisibility(View.VISIBLE);
+        }
     }
 
     public void updateCover(final AlbumInfo albumInfo) {

@@ -297,9 +297,9 @@ public class StreamsFragment extends BrowseFragment<Stream> {
     }
 
     @Override
-    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.mpd_streamsmenu, menu);
+    protected void onCreateToolbarMenu() {
+        super.onCreateToolbarMenu();
+        mToolbar.inflateMenu(R.menu.mpd_streamsmenu);
     }
 
     @Override
@@ -345,13 +345,13 @@ public class StreamsFragment extends BrowseFragment<Stream> {
     }
 
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
+    protected boolean onToolbarMenuItemClick(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add:
                 addEdit();
                 return true;
             default:
-                return false;
+                return super.onToolbarMenuItemClick(item);
         }
     }
 

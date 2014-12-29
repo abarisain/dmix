@@ -113,6 +113,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
             actionBar.setCustomView(mTitleView);
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setDisplayShowCustomEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
         if (savedInstanceState == null) {
@@ -123,7 +124,9 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
             }
 
             if (rootFragment instanceof BrowseFragment) {
-                setTitle(((BrowseFragment<?>) rootFragment).getTitle());
+                getSupportActionBar().hide();
+            } else if (rootFragment instanceof OutputsFragment) {
+                setTitle(R.string.outputs);
             }
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 

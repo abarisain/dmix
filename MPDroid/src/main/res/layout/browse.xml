@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<<<<<<< HEAD
 <!--
   ~ Copyright (C) 2010-2015 The MPDroid Project
   ~
@@ -17,44 +18,23 @@
 
 <FrameLayout
     android:id="@+id/browse_root_frame"
+=======
+<LinearLayout
+    android:id="@+id/browse_root"
+>>>>>>> BrowseFragments can now show their own Toolbars, yay.
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
-    <ListView
-        android:id="@+id/list"
+    <include
+        layout="@layout/toolbar"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/browse_root_frame"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:fastScrollAlwaysVisible="true"
-        android:fastScrollEnabled="true"
-        android:scrollbarStyle="insideInset" />
-
-    <RelativeLayout
-        android:id="@+id/loadingLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:visibility="gone">
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
-
-        <TextView
-            android:id="@+id/loadingText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/progressBar"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="5dip"
-            android:text="@string/loading" />
-    </RelativeLayout>
-
-    <ScrollView
-        android:id="@+id/noResultLayout"
-        android:layout_width="fill_parent"
+<<<<<<< HEAD
         android:layout_height="fill_parent"
         android:orientation="horizontal"
         android:visibility="gone">
@@ -67,3 +47,55 @@
     </ScrollView>
 
 </FrameLayout>
+=======
+        android:layout_height="0dip"
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:fastScrollAlwaysVisible="true"
+            android:fastScrollEnabled="true"
+            android:scrollbarStyle="insideInset" />
+
+        <RelativeLayout
+            android:id="@+id/loadingLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
+
+            <TextView
+                android:id="@+id/loadingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/progressBar"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dip"
+                android:text="@string/loading" />
+        </RelativeLayout>
+
+        <ScrollView
+            android:id="@+id/noResultLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/no_result" />
+        </ScrollView>
+
+    </FrameLayout>
+</LinearLayout>
+>>>>>>> BrowseFragments can now show their own Toolbars, yay.

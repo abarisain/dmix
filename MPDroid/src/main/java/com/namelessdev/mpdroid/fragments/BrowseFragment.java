@@ -32,6 +32,7 @@ import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.ui.ToolbarHelper;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -42,6 +43,7 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -90,6 +92,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     private static final String TAG = "BrowseFragment";
 
+    private static final String ARGUMENT_EMBEDDED = "embedded";
+
     protected final MPDApplication mApp = MPDApplication.getInstance();
 
     final String mContext;
@@ -110,11 +114,14 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     protected View mNoResultView;
 
+    protected Toolbar mToolbar;
+
     private boolean mFirstUpdateDone = false;
 
     protected BrowseFragment(@StringRes final int rAdd, @StringRes final int rAdded,
             final String pContext) {
         super();
+
         mIrAdd = rAdd;
         mIrAdded = rAdded;
 
@@ -375,7 +382,21 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         mLoadingTextView = (TextView) view.findViewById(R.id.loadingText);
         mNoResultView = view.findViewById(R.id.noResultLayout);
         mLoadingTextView.setText(getLoadingText());
+        mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
 
+        ToolbarHelper.showBackButton(this, mToolbar);
+        ToolbarHelper.addSearchView(getActivity(), mToolbar);
+        ToolbarHelper.addStandardMenuItemClickListener(this, mToolbar, new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(final MenuItem menuItem) {
+                return onToolbarMenuItemClick(menuItem);
+            }
+        });
+        onCreateToolbarMenu();
+        mToolbar.setTitle(getTitle());
+        updateToolbarVisibility();
+        // TODO : Add "refresh" menu item
+        // FIXME : Embedded fragments can't show their menu item. This is problematic, especially for FS and Streams.
         return view;
     }
 
@@ -463,6 +484,20 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     /**
+     * Override this to add custom items to the Toolbar.
+     */
+    protected void onCreateToolbarMenu() {
+
+    }
+
+    /**
+     * Override this to add actions on toolbar menu item click
+     */
+    protected boolean onToolbarMenuItemClick(final MenuItem item) {
+        return false;
+    }
+
+    /**
      * This method is used for the fastcroll visibility decision.<br/> Don't override this if you
      * want to change the fastscroll style, override {@link #refreshFastScrollStyle(boolean)}
      * instead.
@@ -503,12 +538,64 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         }
     }
 
+    /**
+     * Set wether the fragment is embedded or not. An embedded BrowseFragment will not show a toolbar.
+     * @param embedded
+     */
+    public void setEmbedded(boolean embedded) {
+        Bundle arguments = getArguments();
+
+        if (arguments == null) {
+            arguments = new Bundle();
+        }
+
+        arguments.putBoolean(ARGUMENT_EMBEDDED, embedded);
+
+        setArguments(arguments);
+
+        updateToolbarVisibility();
+    }
+
     public void scrollToTop() {
         try {
             mList.setSelection(-1);
         } catch (final Exception e) {
             // What if the list is empty or some other bug ? I don't want any
             // crashes because of that
+        }
+    }
+
+    /**
+     * Override if you have your own toolbar
+     */
+    protected void hideToolbar() {
+        if (mToolbar != null) {
+            mToolbar.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Override if you have your own toolbar
+     */
+    protected void showToolbar() {
+        if (mToolbar != null) {
+            mToolbar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    protected void updateToolbarVisibility() {
+        boolean shouldShowToolbar = true;
+
+        final Bundle arguments = getArguments();
+
+        if (arguments != null) {
+            shouldShowToolbar = !arguments.getBoolean(ARGUMENT_EMBEDDED, false);
+        }
+
+        if (shouldShowToolbar) {
+            showToolbar();
+        } else {
+            hideToolbar();
         }
     }
 
