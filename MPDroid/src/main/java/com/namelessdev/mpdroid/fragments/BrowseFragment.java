@@ -512,10 +512,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         }
     }
 
-    public void setActivityTitle(final CharSequence title) {
-        getActivity().setTitle(title);
-    }
-
     /**
      * Update the view from the items list if items is set.
      */
