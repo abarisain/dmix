@@ -15,62 +15,74 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout
-    android:id="@+id/browse_root_frame"
+<LinearLayout
+    android:id="@+id/browse_root"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
-    <GridView
-        android:id="@+id/grid"
+    <include
+        layout="@layout/toolbar"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/browse_root_frame"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:columnWidth="150dip"
-        android:gravity="center"
-        android:horizontalSpacing="8dp"
-        android:listSelector="#00000000"
-        android:numColumns="auto_fit"
-        android:paddingLeft="8dip"
-        android:paddingRight="8dip"
-        android:scrollbarStyle="outsideOverlay"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="8dp" />
+        android:layout_height="0dip"
+        android:layout_weight="1">
 
-    <RelativeLayout
-        android:id="@+id/loadingLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:visibility="gone">
+        <GridView
+            android:id="@+id/grid"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:columnWidth="150dip"
+            android:gravity="center"
+            android:horizontalSpacing="8dp"
+            android:listSelector="#00000000"
+            android:numColumns="auto_fit"
+            android:paddingLeft="8dip"
+            android:paddingRight="8dip"
+            android:scrollbarStyle="outsideOverlay"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="8dp" />
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
+        <RelativeLayout
+            android:id="@+id/loadingLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:visibility="gone">
 
-        <TextView
-            android:id="@+id/loadingText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/progressBar"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="5dip"
-            android:text="@string/loading" />
-    </RelativeLayout>
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
 
-    <ScrollView
-        android:id="@+id/noResultLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="horizontal"
-        android:visibility="gone">
+            <TextView
+                android:id="@+id/loadingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/progressBar"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dip"
+                android:text="@string/loading" />
+        </RelativeLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/no_result" />
-    </ScrollView>
+        <ScrollView
+            android:id="@+id/noResultLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal"
+            android:visibility="gone">
 
-</FrameLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/no_result" />
+        </ScrollView>
+
+    </FrameLayout>
+</LinearLayout>
