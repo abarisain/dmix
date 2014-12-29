@@ -239,6 +239,7 @@ public class SongsFragment extends BrowseFragment<Music> {
         mList = (AbsListView) view.findViewById(R.id.list);
         registerForContextMenu(mList);
         mList.setOnItemClickListener(this);
+        mList.setFastScrollEnabled(false);
         if (mList instanceof ListView) {
             ((ListView) mList).setDivider(null);
         }
