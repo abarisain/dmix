@@ -26,6 +26,7 @@ import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.ui.ToolbarHelper;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
 
 import android.app.SearchManager;
@@ -394,6 +395,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     public boolean onCreateOptionsMenu(final Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.mpd_searchmenu, menu);
+        ToolbarHelper.manuallySetupSearchView(this,
+                (android.support.v7.widget.SearchView) menu.findItem(R.id.menu_search).getActionView());
         return true;
     }
 

@@ -32,6 +32,7 @@ import com.namelessdev.mpdroid.helpers.CoverInfo;
 import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.ui.ToolbarHelper;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
 import android.content.Intent;
@@ -269,31 +270,8 @@ public class SongsFragment extends BrowseFragment<Music> {
         }
 
         if (mToolbar != null) {
-            mToolbar.inflateMenu(R.menu.mpd_searchmenu);
-            mToolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final Activity a = getActivity();
-                    if (a != null) {
-                        a.onBackPressed();
-                    }
-                }
-            });
-            mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(final MenuItem menuItem) {
-                    switch (menuItem.getItemId()) {
-                        case R.id.menu_search:
-                            final Activity a = getActivity();
-                            if (a != null) {
-                                a.onSearchRequested();
-                            }
-                            return true;
-                    }
-                    return false;
-                }
-            });
+            ToolbarHelper.addSearchView(getActivity(), mToolbar);
+            ToolbarHelper.showBackButton(this, mToolbar);
         }
 
         mCoverArtListener = new AlbumCoverDownloadListener(mCoverArt, mCoverArtProgress, false) {

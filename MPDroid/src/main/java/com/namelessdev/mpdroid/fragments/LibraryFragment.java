@@ -23,8 +23,11 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.SettingsActivity;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
+import com.namelessdev.mpdroid.ui.ToolbarHelper;
 
 import android.app.Activity;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -33,6 +36,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -105,33 +109,9 @@ public class LibraryFragment extends Fragment {
 
         final Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.app_name);
-        toolbar.inflateMenu(R.menu.mpd_searchmenu);
         toolbar.inflateMenu(R.menu.mpd_main_menu);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(final MenuItem menuItem) {
-                final Activity activity = getActivity();
-                if (activity != null) {
-                    switch (menuItem.getItemId()) {
-                        case R.id.menu_search:
-                            activity.onSearchRequested();
-                            return true;
-                        case R.id.menu_outputs:
-                            final Intent outputIntent = new Intent(activity,
-                                    SimpleLibraryActivity.class);
-                            outputIntent.putExtra(OutputsFragment.EXTRA, "1");
-                            startActivity(outputIntent);
-                            return true;
-                        case R.id.menu_settings:
-                            final Intent settingsIntent = new Intent(activity,
-                                    SettingsActivity.class);
-                            startActivity(settingsIntent);
-                            return true;
-                    }
-                }
-                return false;
-            }
-        });
+        ToolbarHelper.addStandardMenuItemClickListener(this, toolbar, null);
+        ToolbarHelper.addSearchView(getActivity(), toolbar);
 
         return view;
     }
