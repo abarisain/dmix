@@ -326,7 +326,7 @@ public abstract class MPDConnection {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> sendCommand(final MPDCommand command) throws IOException, MPDException {
+    public List<String> send(final MPDCommand command) throws IOException, MPDException {
         return processCommand(command).getResponse();
     }
 
@@ -339,9 +339,9 @@ public abstract class MPDConnection {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> sendCommand(final String command, final String... args)
+    public List<String> send(final String command, final String... args)
             throws IOException, MPDException {
-        return sendCommand(new MPDCommand(command, args));
+        return send(new MPDCommand(command, args));
     }
 
     /**
@@ -356,9 +356,9 @@ public abstract class MPDConnection {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> sendCommand(final String command, final int[] nonfatalErrors,
+    public List<String> send(final String command, final int[] nonfatalErrors,
             final String... args) throws IOException, MPDException {
-        return sendCommand(new MPDCommand(command, nonfatalErrors, args));
+        return send(new MPDCommand(command, nonfatalErrors, args));
     }
 
     protected abstract void setInputStream(InputStreamReader inputStream);
@@ -501,7 +501,7 @@ public abstract class MPDConnection {
             }
 
             if (mPassword != null) {
-                sendCommand(MPDCommand.MPD_CMD_PASSWORD, mPassword);
+                send(MPDCommand.MPD_CMD_PASSWORD, mPassword);
             }
 
             return line;

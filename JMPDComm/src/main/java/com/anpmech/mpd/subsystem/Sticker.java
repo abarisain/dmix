@@ -195,7 +195,7 @@ public class Sticker {
         onlyMusicSupported(entry);
 
         if (isAvailable()) {
-            mConnection.sendCommand(CMD_ACTION_DELETE, CMD_STICKER_TYPE_SONG, entry.getFullPath(),
+            mConnection.send(CMD_ACTION_DELETE, CMD_STICKER_TYPE_SONG, entry.getFullPath(),
                     sticker);
         } else {
             Log.debug(TAG, STICKERS_NOT_AVAILABLE);
@@ -219,7 +219,7 @@ public class Sticker {
         final Map<Music, Map<String, String>> foundStickers;
         if (isAvailable()) {
             final List<String> response =
-                    mConnection.sendCommand(CMD_ACTION_FIND, entry.getFullPath(), name);
+                    mConnection.send(CMD_ACTION_FIND, entry.getFullPath(), name);
 
             /** Generate a map used to create the result. */
             final Map<String, Music> musicPair = getMusicPair(response);
@@ -271,7 +271,7 @@ public class Sticker {
         if (isAvailable()) {
             /** Do not throw exception when attempting to retrieve a non-existant sticker. */
             final int[] nonfatalErrors = {MPDException.ACK_ERROR_NO_EXIST};
-            final List<String> response = mConnection.sendCommand(CMD_ACTION_GET, nonfatalErrors,
+            final List<String> response = mConnection.send(CMD_ACTION_GET, nonfatalErrors,
                     CMD_STICKER_TYPE_SONG, entry.getFullPath(), name);
 
             if (response == null) {
@@ -368,7 +368,7 @@ public class Sticker {
         final boolean isAvailable = isAvailable();
 
         if (isAvailable) {
-            final List<String> response = mConnection.sendCommand(CMD_ACTION_LIST,
+            final List<String> response = mConnection.send(CMD_ACTION_LIST,
                     CMD_STICKER_TYPE_SONG, entry.getFullPath());
 
             if (response == null) {
@@ -412,7 +412,7 @@ public class Sticker {
         onlyMusicSupported(entry);
 
         if (isAvailable()) {
-            mConnection.sendCommand(CMD_ACTION_SET, CMD_STICKER_TYPE_SONG, entry.getFullPath(),
+            mConnection.send(CMD_ACTION_SET, CMD_STICKER_TYPE_SONG, entry.getFullPath(),
                     sticker, value);
         } else {
             Log.debug(TAG, STICKERS_NOT_AVAILABLE);

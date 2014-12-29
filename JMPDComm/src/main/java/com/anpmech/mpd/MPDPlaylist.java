@@ -143,7 +143,7 @@ public class MPDPlaylist {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void add(final FilesystemTreeEntry entry) throws IOException, MPDException {
-        mConnection.sendCommand(addCommand(entry.getFullPath()));
+        mConnection.send(addCommand(entry.getFullPath()));
     }
 
     /**
@@ -166,7 +166,7 @@ public class MPDPlaylist {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void addStream(final String url) throws IOException, MPDException {
-        mConnection.sendCommand(MPD_CMD_PLAYLIST_ADD, url);
+        mConnection.send(MPD_CMD_PLAYLIST_ADD, url);
     }
 
     /**
@@ -176,7 +176,7 @@ public class MPDPlaylist {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void clear() throws IOException, MPDException {
-        mConnection.sendCommand(clearCommand());
+        mConnection.send(clearCommand());
     }
 
     /**
@@ -198,7 +198,7 @@ public class MPDPlaylist {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     private Collection<Music> getFullPlaylist() throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(MPD_CMD_PLAYLIST_LIST);
+        final List<String> response = mConnection.send(MPD_CMD_PLAYLIST_LIST);
         return MusicBuilder.buildMusicFromList(response, false);
     }
 
@@ -220,7 +220,7 @@ public class MPDPlaylist {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void load(final String file) throws IOException, MPDException {
-        mConnection.sendCommand(loadCommand(file));
+        mConnection.send(loadCommand(file));
     }
 
     /**
@@ -232,7 +232,7 @@ public class MPDPlaylist {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void move(final int songId, final int to) throws IOException, MPDException {
-        mConnection.sendCommand(MPD_CMD_PLAYLIST_MOVE_ID, Integer.toString(songId),
+        mConnection.send(MPD_CMD_PLAYLIST_MOVE_ID, Integer.toString(songId),
                 Integer.toString(to));
     }
 
@@ -246,7 +246,7 @@ public class MPDPlaylist {
      * @see #move(int, int)
      */
     public void moveByPosition(final int from, final int to) throws IOException, MPDException {
-        mConnection.sendCommand(MPD_CMD_PLAYLIST_MOVE, Integer.toString(from),
+        mConnection.send(MPD_CMD_PLAYLIST_MOVE, Integer.toString(from),
                 Integer.toString(to));
     }
 
@@ -267,7 +267,7 @@ public class MPDPlaylist {
             final String endRange = Integer.toString(start + number);
             final String target = Integer.toString(to);
             mConnection
-                    .sendCommand(MPD_CMD_PLAYLIST_MOVE, beginRange + ':' + endRange, target);
+                    .send(MPD_CMD_PLAYLIST_MOVE, beginRange + ':' + endRange, target);
         }
     }
 
@@ -288,7 +288,7 @@ public class MPDPlaylist {
                 mList.replace(getFullPlaylist());
             } else if (mLastPlaylistVersion != newPlaylistVersion) {
                 final List<String> response =
-                        mConnection.sendCommand(MPD_CMD_PLAYLIST_CHANGES,
+                        mConnection.send(MPD_CMD_PLAYLIST_CHANGES,
                                 Integer.toString(mLastPlaylistVersion));
                 final Collection<Music> changes = MusicBuilder.buildMusicFromList(response, false);
 
@@ -426,7 +426,7 @@ public class MPDPlaylist {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void removePlaylist(final String file) throws IOException, MPDException {
-        mConnection.sendCommand(MPD_CMD_PLAYLIST_DELETE, file);
+        mConnection.send(MPD_CMD_PLAYLIST_DELETE, file);
     }
 
     /**
@@ -443,7 +443,7 @@ public class MPDPlaylist {
         } catch (final MPDException ignored) {
             /** We're removing it just in case it exists. */
         }
-        mConnection.sendCommand(MPD_CMD_PLAYLIST_SAVE, file);
+        mConnection.send(MPD_CMD_PLAYLIST_SAVE, file);
     }
 
     /**
@@ -453,7 +453,7 @@ public class MPDPlaylist {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void shuffle() throws IOException, MPDException {
-        mConnection.sendCommand(MPD_CMD_PLAYLIST_SHUFFLE);
+        mConnection.send(MPD_CMD_PLAYLIST_SHUFFLE);
     }
 
     /**
@@ -475,7 +475,7 @@ public class MPDPlaylist {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void swap(final int song1Id, final int song2Id) throws IOException, MPDException {
-        mConnection.sendCommand(MPD_CMD_PLAYLIST_SWAP_ID,
+        mConnection.send(MPD_CMD_PLAYLIST_SWAP_ID,
                 Integer.toString(song1Id), Integer.toString(song2Id));
     }
 
@@ -489,7 +489,7 @@ public class MPDPlaylist {
      * @see #swap(int, int)
      */
     public void swapByPosition(final int song1, final int song2) throws IOException, MPDException {
-        mConnection.sendCommand(MPD_CMD_PLAYLIST_SWAP, Integer.toString(song1),
+        mConnection.send(MPD_CMD_PLAYLIST_SWAP, Integer.toString(song1),
                 Integer.toString(song2));
     }
 

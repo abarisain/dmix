@@ -243,7 +243,7 @@ public class CommandQueue implements Iterable<MPDCommand> {
             Log.debug(TAG, toString(separated));
         }
 
-        return mpdConnection.sendCommand(mpdCommand);
+        return mpdConnection.send(mpdCommand);
     }
 
     /**

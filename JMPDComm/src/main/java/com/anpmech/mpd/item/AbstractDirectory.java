@@ -351,7 +351,7 @@ public abstract class AbstractDirectory extends Item<Directory> implements Files
     public void refresh(final MPDConnection connection) throws IOException, MPDException {
         final int cacheSize = 40; /** Approximate max number of lines per file entry. */
         final List<String> response =
-                connection.sendCommand(MPDCommand.MPD_CMD_LSDIR, getFullPath());
+                connection.send(MPDCommand.MPD_CMD_LSDIR, getFullPath());
         final Collection<String> lineCache = new ArrayList<>(cacheSize);
 
         final Map<String, Directory> directoryEntries = new HashMap<>(

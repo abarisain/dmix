@@ -184,7 +184,7 @@ public class Reflection {
      */
     private Collection<String> getList(final String command, final String element)
             throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(command);
+        final List<String> response = mConnection.send(command);
 
         Tools.parseResponse(response, element);
 

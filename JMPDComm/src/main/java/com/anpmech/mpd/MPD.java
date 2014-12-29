@@ -500,7 +500,7 @@ public class MPD {
         if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
             final String[] artistPair = getAlbumArtistPair(album);
 
-            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
+            mConnection.send(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
                     Music.TAG_ALBUM, album.getName(), artistPair[0], artistPair[1]);
         } else {
             addToPlaylist(playlist, getSongs(album));
@@ -511,7 +511,7 @@ public class MPD {
     public void addToPlaylist(final PlaylistFile playlist, final Artist artist)
             throws IOException, MPDException {
         if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
-            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
+            mConnection.send(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
                     Music.TAG_ARTIST, artist.getName());
         } else {
             addToPlaylist(playlist, getSongs(artist));
@@ -536,14 +536,14 @@ public class MPD {
     @SuppressWarnings("TypeMayBeWeakened")
     public void addToPlaylist(final PlaylistFile playlist, final FilesystemTreeEntry entry)
             throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlist.getFullPath(),
+        mConnection.send(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlist.getFullPath(),
                 entry.getFullPath());
     }
 
     public void addToPlaylist(final PlaylistFile playlist, final Genre genre)
             throws IOException, MPDException {
         if (mIdleConnection.isCommandAvailable(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST)) {
-            mConnection.sendCommand(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
+            mConnection.send(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
                     Music.TAG_GENRE, genre.getName());
         } else {
             final Collection<Music> music = find(Music.TAG_GENRE, genre.getName());
@@ -569,7 +569,7 @@ public class MPD {
         int vol = mStatus.getVolume() + modifier;
         vol = Math.max(MPDStatusMap.VOLUME_MIN, Math.min(MPDStatusMap.VOLUME_MAX, vol));
 
-        mConnection.sendCommand(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
+        mConnection.send(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
     }
 
     /**
@@ -579,7 +579,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void clearError() throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_CLEARERROR);
+        mConnection.send(MPDCommand.MPD_CMD_CLEARERROR);
     }
 
     /**
@@ -633,7 +633,7 @@ public class MPD {
     }
 
     public void disableOutput(final int id) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTDISABLE, Integer.toString(id));
+        mConnection.send(MPDCommand.MPD_CMD_OUTPUTDISABLE, Integer.toString(id));
     }
 
     /**
@@ -668,7 +668,7 @@ public class MPD {
     }
 
     public void enableOutput(final int id) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTENABLE, Integer.toString(id));
+        mConnection.send(MPDCommand.MPD_CMD_OUTPUTENABLE, Integer.toString(id));
     }
 
     /**
@@ -746,12 +746,12 @@ public class MPD {
 
     protected List<Music> genericSearch(final String searchCommand, final String[] args,
             final boolean sort) throws IOException, MPDException {
-        return MusicBuilder.buildMusicFromList(mConnection.sendCommand(searchCommand, args), sort);
+        return MusicBuilder.buildMusicFromList(mConnection.send(searchCommand, args), sort);
     }
 
     protected List<Music> genericSearch(final String searchCommand, final String type,
             final String strToFind) throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(searchCommand, type, strToFind);
+        final List<String> response = mConnection.send(searchCommand, type, strToFind);
 
         return MusicBuilder.buildMusicFromList(response, true);
     }
@@ -989,7 +989,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public Collection<MPDOutput> getOutputs() throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTS);
+        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_OUTPUTS);
 
         return MPDOutput.buildOutputsFromList(response);
     }
@@ -1031,7 +1031,7 @@ public class MPD {
      */
     public List<PlaylistFile> getPlaylists(final boolean sort)
             throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
+        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LISTPLAYLISTS);
         final List<PlaylistFile> result = new ArrayList<>(response.size());
         for (final String[] pair : Tools.splitResponse(response)) {
             if ("playlist".equals(pair[KEY])) {
@@ -1048,7 +1048,7 @@ public class MPD {
     }
 
     public List<Music> getSavedStreams() throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
+        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LISTPLAYLISTS);
         List<Music> savedStreams = null;
 
         for (final String[] pair : Tools.splitResponse(response)) {
@@ -1067,7 +1067,7 @@ public class MPD {
 
     public List<Music> getSongs(final Album album) throws IOException, MPDException {
         final List<Music> songs = MusicBuilder
-                .buildMusicFromList(mConnection.sendCommand(getSongsCommand(album)), true);
+                .buildMusicFromList(mConnection.send(getSongsCommand(album)), true);
 
         if (album.hasAlbumArtist()) {
             // remove songs that don't have this album artist (mpd >=0.18 puts them in)
@@ -1143,7 +1143,7 @@ public class MPD {
             }
         }
 
-        response = mConnection.sendCommand(new MPDCommand(
+        response = mConnection.send(new MPDCommand(
                 MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM,
                 Music.TAG_ALBUM, album.getName(),
                 artistType, artistName,
@@ -1184,7 +1184,7 @@ public class MPD {
      */
     public List<String> listAlbumArtists(final boolean sortInsensitive)
             throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
                 Music.TAG_ALBUM_ARTIST);
 
         Tools.parseResponse(response, "AlbumArtist");
@@ -1206,7 +1206,7 @@ public class MPD {
      */
     public List<String> listAlbumArtists(final Genre genre, final boolean sortInsensitive)
             throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(
+        final List<String> response = mConnection.send(
                 MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM_ARTIST,
                 Music.TAG_GENRE, genre.getName());
 
@@ -1276,7 +1276,7 @@ public class MPD {
     public List<String> listAlbums(final String artist, final boolean useAlbumArtist)
             throws IOException, MPDException {
         final List<String> response =
-                mConnection.sendCommand(listAlbumsCommand(artist, useAlbumArtist));
+                mConnection.send(listAlbumsCommand(artist, useAlbumArtist));
 
         Tools.parseResponse(response, "Album");
         sort(response, false);
@@ -1330,7 +1330,7 @@ public class MPD {
         final String albumResponse = "Album";
         final String artistResponse;
         final List<String> response =
-                mConnection.sendCommand(listAllAlbumsGroupedCommand(useAlbumArtist));
+                mConnection.send(listAllAlbumsGroupedCommand(useAlbumArtist));
         final List<Album> result = new ArrayList<>(response.size() / 2);
         String currentAlbum = null;
 
@@ -1379,7 +1379,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<Music> listAllInfo() throws IOException, MPDException {
-        final List<String> allInfo = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTALLINFO);
+        final List<String> allInfo = mConnection.send(MPDCommand.MPD_CMD_LISTALLINFO);
 
         return MusicBuilder.buildMusicFromList(allInfo, false);
     }
@@ -1405,7 +1405,7 @@ public class MPD {
      */
     public List<String> listArtists(final boolean sortInsensitive)
             throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
                 Music.TAG_ARTIST);
 
         Tools.parseResponse(response, "Artist");
@@ -1484,7 +1484,7 @@ public class MPD {
      */
     public List<String> listArtists(final String genre, final boolean sortInsensitive)
             throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
                 Music.TAG_ARTIST, Music.TAG_GENRE, genre);
 
         Tools.parseResponse(response, "Artist");
@@ -1541,7 +1541,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> listGenres(final boolean sortInsensitive) throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LIST_TAG,
+        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
                 Music.TAG_GENRE);
 
         Tools.parseResponse(response, Music.RESPONSE_GENRE);
@@ -1553,7 +1553,7 @@ public class MPD {
     @SuppressWarnings("TypeMayBeWeakened")
     public void movePlaylistSong(final PlaylistFile playlist, final int from, final int to)
             throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_MOVE, playlist.getFullPath(),
+        mConnection.send(MPDCommand.MPD_CMD_PLAYLIST_MOVE, playlist.getFullPath(),
                 Integer.toString(from), Integer.toString(to));
     }
 
@@ -1564,7 +1564,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void next() throws IOException, MPDException {
-        mConnection.sendCommand(nextCommand());
+        mConnection.send(nextCommand());
     }
 
     /**
@@ -1574,7 +1574,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void pause() throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PAUSE);
+        mConnection.send(MPDCommand.MPD_CMD_PAUSE);
     }
 
     /**
@@ -1584,7 +1584,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void play() throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAY);
+        mConnection.send(MPDCommand.MPD_CMD_PLAY);
     }
 
     /**
@@ -1594,7 +1594,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void previous() throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PREV);
+        mConnection.send(MPDCommand.MPD_CMD_PREV);
     }
 
     /**
@@ -1604,7 +1604,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void refreshDatabase() throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH);
+        mConnection.send(MPDCommand.MPD_CMD_REFRESH);
     }
 
     /**
@@ -1614,7 +1614,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void refreshDatabase(final String folder) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_REFRESH, folder);
+        mConnection.send(MPDCommand.MPD_CMD_REFRESH, folder);
     }
 
     public void refreshDirectory(final AbstractDirectory directory)
@@ -1647,17 +1647,17 @@ public class MPD {
     @SuppressWarnings("TypeMayBeWeakened")
     public void removeFromPlaylist(final PlaylistFile playlist, final Integer pos)
             throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlist.getFullPath(),
+        mConnection.send(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlist.getFullPath(),
                 Integer.toString(pos));
     }
 
     public void removeSavedStream(final Integer pos) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, STREAMS_PLAYLIST,
+        mConnection.send(MPDCommand.MPD_CMD_PLAYLIST_DEL, STREAMS_PLAYLIST,
                 Integer.toString(pos));
     }
 
     public void saveStream(final String url, final String name) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, STREAMS_PLAYLIST,
+        mConnection.send(MPDCommand.MPD_CMD_PLAYLIST_ADD, STREAMS_PLAYLIST,
                 Stream.addStreamName(url, name));
     }
 
@@ -1703,7 +1703,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void seekById(final int songId, final long position) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_SEEK_ID, Integer.toString(songId),
+        mConnection.send(MPDCommand.MPD_CMD_SEEK_ID, Integer.toString(songId),
                 Long.toString(position));
     }
 
@@ -1716,7 +1716,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void seekByIndex(final int index, final long position) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_SEEK, Integer.toString(index),
+        mConnection.send(MPDCommand.MPD_CMD_SEEK, Integer.toString(index),
                 Long.toString(position));
     }
 
@@ -1729,7 +1729,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void setConsume(final boolean consume) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_CONSUME, MPDCommand.booleanValue(consume));
+        mConnection.send(MPDCommand.MPD_CMD_CONSUME, MPDCommand.booleanValue(consume));
     }
 
     /**
@@ -1741,7 +1741,7 @@ public class MPD {
      */
     public void setCrossFade(final int time) throws IOException, MPDException {
         mConnection
-                .sendCommand(MPDCommand.MPD_CMD_CROSSFADE, Integer.toString(Math.max(0, time)));
+                .send(MPDCommand.MPD_CMD_CROSSFADE, Integer.toString(Math.max(0, time)));
     }
 
     /**
@@ -1752,7 +1752,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void setRandom(final boolean random) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_RANDOM, MPDCommand.booleanValue(random));
+        mConnection.send(MPDCommand.MPD_CMD_RANDOM, MPDCommand.booleanValue(random));
     }
 
     /**
@@ -1763,7 +1763,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void setRepeat(final boolean repeat) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_REPEAT, MPDCommand.booleanValue(repeat));
+        mConnection.send(MPDCommand.MPD_CMD_REPEAT, MPDCommand.booleanValue(repeat));
     }
 
     /**
@@ -1774,7 +1774,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void setSingle(final boolean single) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_SINGLE, MPDCommand.booleanValue(single));
+        mConnection.send(MPDCommand.MPD_CMD_SINGLE, MPDCommand.booleanValue(single));
     }
 
     /**
@@ -1787,7 +1787,7 @@ public class MPD {
     public void setVolume(final int volume) throws IOException, MPDException {
         final int vol = Math.max(MPDStatusMap.VOLUME_MIN,
                 Math.min(MPDStatusMap.VOLUME_MAX, volume));
-        mConnection.sendCommand(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
+        mConnection.send(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
     }
 
     /**
@@ -1797,7 +1797,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void shutdown() throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_KILL);
+        mConnection.send(MPDCommand.MPD_CMD_KILL);
     }
 
     /**
@@ -1808,7 +1808,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void skipToId(final int id) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAY_ID, Integer.toString(id));
+        mConnection.send(MPDCommand.MPD_CMD_PLAY_ID, Integer.toString(id));
     }
 
     /**
@@ -1820,7 +1820,7 @@ public class MPD {
      * @see #skipToId(int)
      */
     public void skipToPosition(final int position) throws IOException, MPDException {
-        mConnection.sendCommand(skipToPositionCommand(position));
+        mConnection.send(skipToPositionCommand(position));
     }
 
     /**
@@ -1830,7 +1830,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void stop() throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_STOP);
+        mConnection.send(MPDCommand.MPD_CMD_STOP);
     }
 
     /**
@@ -1843,7 +1843,7 @@ public class MPD {
      * @see com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor
      */
     public void updateStatistics() throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
+        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_STATISTICS);
 
         mStatistics.update(response);
     }
@@ -1851,13 +1851,13 @@ public class MPD {
     /**
      * Retrieves status of the connected server. Do not call this method directly unless you
      * absolutely know what you are doing. If a long running application needs a status update, use
-     * the {@code MPDStatusMonitor} instead.
+     * the {@code IdleSubsystemMonitor} instead.
      *
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      * @see com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor
      */
     public void updateStatus() throws IOException, MPDException {
-        mStatus.update(mConnection.sendCommand(MPDCommand.MPD_CMD_STATUS));
+        mStatus.update(mConnection.send(MPDCommand.MPD_CMD_STATUS));
     }
 }
