@@ -159,7 +159,7 @@ public abstract class MPDConnection {
         }
 
         synchronized (mAvailableCommands) {
-            final List<String> response = commandResult.getResult();
+            final List<String> response = commandResult.getResponse();
             Tools.parseResponse(response, Reflection.CMD_RESPONSE_COMMANDS);
             mAvailableCommands.clear();
             mAvailableCommands.addAll(response);
@@ -296,7 +296,7 @@ public abstract class MPDConnection {
             }
         }
 
-        if (result.getResult() == null) {
+        if (result.getResponse() == null) {
             if (result.isIOExceptionLast() == null) {
                 /**
                  * This should not occur, and this exception should extend RuntimeException,
@@ -327,7 +327,7 @@ public abstract class MPDConnection {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> sendCommand(final MPDCommand command) throws IOException, MPDException {
-        return processCommand(command).getResult();
+        return processCommand(command).getResponse();
     }
 
     /**
@@ -391,7 +391,7 @@ public abstract class MPDConnection {
             boolean isCommandSent = false;
             final String baseCommand = mCommand.getCommand();
 
-            while (result.getResult() == null && retryCount < MAX_REQUEST_RETRY && !mCancelled) {
+            while (result.getResponse() == null && retryCount < MAX_REQUEST_RETRY && !mCancelled) {
                 try {
                     if (getSocket() == null || !getSocket().isConnected() ||
                             getSocket().isClosed()) {
@@ -400,7 +400,7 @@ public abstract class MPDConnection {
 
                     write();
                     isCommandSent = true;
-                    result.setResult(read());
+                    result.setResponse(read());
                 } catch (final EOFException ex0) {
                     handleFailure(result, ex0);
 
@@ -408,7 +408,7 @@ public abstract class MPDConnection {
                     // failure robustness). Just send the "changed playlist" result to force the MPD
                     // status to be refreshed.
                     if (MPDCommand.MPD_CMD_IDLE.equals(baseCommand)) {
-                        result.setResult(Collections.singletonList(
+                        result.setResponse(Collections.singletonList(
                                 "changed: " + IdleSubsystemMonitor.IDLE_PLAYLIST));
                     }
                 } catch (final IOException e) {
@@ -432,7 +432,7 @@ public abstract class MPDConnection {
             }
 
             if (!mCancelled) {
-                if (result.getResult() == null) {
+                if (result.getResponse() == null) {
                     logError(result, baseCommand, retryCount);
                 } else {
                     mIsConnected = true;

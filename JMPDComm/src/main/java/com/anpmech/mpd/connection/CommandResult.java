@@ -44,7 +44,7 @@ class CommandResult {
 
     private MPDException mMPDException;
 
-    private List<String> mResult;
+    private List<String> mResponse;
 
     /**
      * Returns the first string response from the media server after connection. This method is
@@ -87,10 +87,10 @@ class CommandResult {
         return version;
     }
 
-    final List<String> getResult() {
+    final List<String> getResponse() {
         /** No need, we already made the collection immutable on the way in. */
         //noinspection ReturnOfCollectionOrArrayField
-        return mResult;
+        return mResponse;
     }
 
     public boolean isHeaderValid() {
@@ -123,12 +123,12 @@ class CommandResult {
         mMPDException = exception;
     }
 
-    final void setResult(final List<String> result) {
-        if (result == null) {
-            mResult = null;
+    final void setResponse(final List<String> response) {
+        if (response == null) {
+            mResponse = null;
         } else {
             //noinspection AssignmentToCollectionOrArrayFieldFromParameter
-            mResult = result;
+            mResponse = response;
         }
     }
 }
