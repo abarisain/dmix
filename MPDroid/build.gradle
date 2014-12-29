@@ -114,7 +114,6 @@ dependencies {
     // Projects
     compile project(':JMPDCommAndroid')
     // Libraries from maven
-    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.9'
     compile 'asia.ivity.android:drag-sort-listview:1.0'
     compile 'com.melnykov:floatingactionbutton:1.1.0'
     compile 'com.jpardogo.materialtabstrip:library:1.0.6'
