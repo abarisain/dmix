@@ -53,9 +53,6 @@ public class RemoteControlReceiver extends BroadcastReceiver {
             final int eventKeyCode = event.getKeyCode();
             Log.d(TAG, "with keycode: " + eventKeyCode);
             switch (eventKeyCode) {
-                case KeyEvent.KEYCODE_MEDIA_STOP:
-                    MPDControl.run(MPDControl.ACTION_STOP);
-                    break;
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                     MPDControl.run(MPDControl.ACTION_TOGGLE_PLAYBACK);
@@ -63,8 +60,23 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
                     MPDControl.run(MPDControl.ACTION_NEXT);
                     break;
+                case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                    MPDControl.run(MPDControl.ACTION_PAUSE);
+                    break;
+                case KeyEvent.KEYCODE_MEDIA_PLAY:
+                    MPDControl.run(MPDControl.ACTION_PLAY);
+                    break;
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
                     MPDControl.run(MPDControl.ACTION_PREVIOUS);
+                    break;
+                case KeyEvent.KEYCODE_MEDIA_STOP:
+                    MPDControl.run(MPDControl.ACTION_STOP);
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                    MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    MPDControl.run(MPDControl.ACTION_VOLUME_STEP_DOWN);
                     break;
                 default:
                     isHandled = false;
