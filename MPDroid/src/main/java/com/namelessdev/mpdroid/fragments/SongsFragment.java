@@ -310,17 +310,22 @@ public class SongsFragment extends BrowseFragment {
                     Palette.generateAsync(((BitmapDrawable) d).getBitmap(), new Palette.PaletteAsyncListener() {
                         @Override
                         public void onGenerated(final Palette palette) {
-                            Palette.Swatch vibrantColor = palette.getDarkVibrantSwatch();
-                            Palette.Swatch mutedColor = palette.getVibrantSwatch();
-                            if (mTracksInfoContainer != null && vibrantColor != null) {
-                                mTracksInfoContainer.setBackgroundColor(vibrantColor.getRgb());
-                                mHeaderAlbum.setTextColor(vibrantColor.getBodyTextColor());
-                                mHeaderArtist.setTextColor(vibrantColor.getBodyTextColor());
-                                mHeaderInfo.setTextColor(vibrantColor.getBodyTextColor());
+                            try {
+                                Palette.Swatch vibrantColor = palette.getDarkVibrantSwatch();
+                                Palette.Swatch mutedColor = palette.getVibrantSwatch();
+                                if (mTracksInfoContainer != null && vibrantColor != null && !isDetached()) {
+                                    mTracksInfoContainer.setBackgroundColor(vibrantColor.getRgb());
+                                    mHeaderAlbum.setTextColor(vibrantColor.getBodyTextColor());
+                                    mHeaderArtist.setTextColor(vibrantColor.getBodyTextColor());
+                                    mHeaderInfo.setTextColor(vibrantColor.getBodyTextColor());
+                                }
+                                if (mutedColor != null && mAlbumMenu instanceof FloatingActionButton) {
+                                    ((FloatingActionButton) mAlbumMenu).setColorNormal(mutedColor.getRgb());
+                                }
+                            } catch (final NullPointerException | IllegalStateException e) {
+                                Log.e(TAG, "Error while applying generated album art palette colors", e);
                             }
-                            if (mutedColor != null && mAlbumMenu instanceof FloatingActionButton) {
-                                ((FloatingActionButton) mAlbumMenu).setColorNormal(mutedColor.getRgb());
-                            }
+
                         }
                     });
                 }
@@ -530,6 +535,12 @@ public class SongsFragment extends BrowseFragment {
             }
         }
 
+    }
+
+    @Override
+    protected void refreshFastScrollStyle(final boolean shouldShowFastScroll) {
+        // No fast scroll for that view
+        refreshFastScrollStyle(View.SCROLLBARS_INSIDE_OVERLAY, false);
     }
 
     private void updateNowPlayingSmallFragment(final AlbumInfo albumInfo) {
