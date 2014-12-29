@@ -165,10 +165,6 @@ public class MPDStatusMonitor extends Thread {
             boolean connectionStateChanged = false;
 
             if (connectionLost || oldConnectionState != connectionState) {
-                for (final StatusChangeListener listener : mStatusChangeListeners) {
-                    listener.connectionStateChanged(connectionState.booleanValue(), connectionLost);
-                }
-
                 if (mMPD.isConnected()) {
                     try {
                         mMPD.updateStatistics();
@@ -177,6 +173,10 @@ public class MPDStatusMonitor extends Thread {
                     } catch (final IOException | MPDException e) {
                         Log.error(TAG, "Failed to force a status update.", e);
                     }
+                }
+
+                for (final StatusChangeListener listener : mStatusChangeListeners) {
+                    listener.connectionStateChanged(connectionState.booleanValue(), connectionLost);
                 }
 
                 connectionLost = false;
