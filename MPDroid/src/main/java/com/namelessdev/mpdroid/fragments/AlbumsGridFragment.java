@@ -31,8 +31,6 @@ import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
-
 public class AlbumsGridFragment extends AlbumsFragment {
 
     private static final int MIN_ITEMS_BEFORE_FAST_SCROLL = 6;
@@ -74,7 +72,6 @@ public class AlbumsGridFragment extends AlbumsFragment {
         mNoResultView = view.findViewById(R.id.noResultLayout);
         mLoadingTextView.setText(getLoadingText());
         mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-        mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.pullToRefresh);
 
         return view;
     }
