@@ -286,16 +286,19 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
     protected void update() {
         // TODO: Preserve position!!!
         mSongList = new ArrayList<>();
+        final String[] columnNames = {"play", Music.TAG_TITLE, Music.TAG_ARTIST, "marked"};
         final int playingID = mApp.oMPDAsyncHelper.oMPD.getStatus().getSongId();
         final int pos = null == mListView ? -1 : mListView.getFirstVisiblePosition();
         final View view = null == mListView ? null : mListView.getChildAt(0);
         final int top = null == view ? -1 : view.getTop();
+        final int[] columnNamesViews =
+                {R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox};
         int listPlayingId = 0;
         int playlistPosition = 0;
 
         // Copy list to avoid concurrent exception
         for (final Music music : new ArrayList<>(getMusic())) {
-            final HashMap<String, Object> item = new HashMap<>();
+            final HashMap<String, Object> item = new HashMap<>(5);
 
             if (mIsPlayQueue) {
                 item.put(Music.RESPONSE_SONG_ID, music.getSongId());
@@ -317,11 +320,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
             mSongList.add(item);
 
             final ListAdapter songs = new SimpleAdapter(this, mSongList,
-                    R.layout.playlist_editlist_item, new String[]{
-                    "play", Music.TAG_TITLE, Music.TAG_ARTIST, "marked"
-            }, new int[]{
-                    R.id.picture, android.R.id.text1, android.R.id.text2, R.id.removeCBox
-            });
+                    R.layout.playlist_editlist_item, columnNames, columnNamesViews);
 
             if (mListView != null) {
                 mListView.setAdapter(songs);
