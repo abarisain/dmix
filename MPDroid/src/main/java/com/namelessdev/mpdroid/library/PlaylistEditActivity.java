@@ -314,6 +314,8 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
                 item.put("play", 0);
             }
 
+            mSongList.add(item);
+
             final ListAdapter songs = new SimpleAdapter(this, mSongList,
                     R.layout.playlist_editlist_item, new String[]{
                     "play", Music.TAG_TITLE, Music.TAG_ARTIST, "marked"
