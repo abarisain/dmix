@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<<<<<<< HEAD
 <!--
   ~ Copyright (C) 2010-2015 The MPDroid Project
   ~
@@ -16,12 +15,8 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout
-    android:id="@+id/browse_root_frame"
-=======
 <LinearLayout
     android:id="@+id/browse_root"
->>>>>>> BrowseFragments can now show their own Toolbars, yay.
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -34,20 +29,6 @@
     <FrameLayout
         android:id="@+id/browse_root_frame"
         android:layout_width="fill_parent"
-<<<<<<< HEAD
-        android:layout_height="fill_parent"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/no_result" />
-    </ScrollView>
-
-</FrameLayout>
-=======
         android:layout_height="0dip"
         android:layout_weight="1">
 
@@ -98,4 +79,3 @@
 
     </FrameLayout>
 </LinearLayout>
->>>>>>> BrowseFragments can now show their own Toolbars, yay.
