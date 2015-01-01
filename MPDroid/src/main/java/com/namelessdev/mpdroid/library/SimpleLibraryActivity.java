@@ -26,13 +26,13 @@ import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.SongsFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
 import com.namelessdev.mpdroid.helpers.MPDControl;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Directory;
 import org.a0z.mpd.item.Stream;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -53,29 +53,6 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
         ILibraryFragmentActivity, OnBackStackChangedListener {
 
     private TextView mTitleView;
-
-    private String debugIntent(final Intent intent) {
-        final ComponentName callingActivity = getCallingActivity();
-        final StringBuilder stringBuilder = new StringBuilder();
-        final Bundle extras = intent.getExtras();
-
-        stringBuilder.append("SimpleLibraryActivity started with invalid extra");
-
-        if (callingActivity != null) {
-            stringBuilder.append(", calling activity: ");
-            stringBuilder.append(callingActivity.getClassName());
-        }
-
-        if (extras != null) {
-            for (final String what : extras.keySet()) {
-                stringBuilder.append(", intent extra: ");
-                stringBuilder.append(what);
-            }
-        }
-
-        stringBuilder.append('.');
-        return stringBuilder.toString();
-    }
 
     private Fragment getRootFragment() {
         final Intent intent = getIntent();
@@ -102,7 +79,8 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
         } else if (intent.hasExtra(Stream.EXTRA)) {
             rootFragment = new StreamsFragment();
         } else {
-            throw new IllegalStateException(debugIntent(intent));
+            throw new IllegalStateException("SimpleLibraryActivity started with invalid extra: " +
+                    Tools.debugIntent(intent, getCallingActivity()));
         }
 
         return rootFragment;

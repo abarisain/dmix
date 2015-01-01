@@ -18,12 +18,16 @@ package com.namelessdev.mpdroid.tools;
 
 import com.namelessdev.mpdroid.MPDApplication;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import java.security.MessageDigest;
@@ -34,6 +38,7 @@ public final class Tools {
     private static final MPDApplication APP = MPDApplication.getInstance();
 
     private Tools() {
+        super();
     }
 
     public static int calculateInSampleSize(final BitmapFactory.Options options, final int reqWidth,
@@ -98,6 +103,49 @@ public final class Tools {
         }
 
         return buffer.toString();
+    }
+
+    /**
+     * This method creates a verbose Intent.toString().
+     *
+     * @param intent          The Intent to debug.
+     * @param callingActivity The getCallingActivity(), if available.
+     * @return A verbose toString() about the Intent.
+     */
+    public static String debugIntent(final Intent intent, final ComponentName callingActivity) {
+        final StringBuilder stringBuilder = new StringBuilder(intent.toString());
+        final Bundle extras = intent.getExtras();
+        int endIndex = stringBuilder.lastIndexOf("(has extras)");
+
+        if (endIndex == -1) {
+            endIndex = stringBuilder.lastIndexOf("}");
+        }
+
+        /** Trim the closing bracket and extend out the string a bit. */
+        stringBuilder.setLength(endIndex - 1);
+
+        if (callingActivity != null) {
+            stringBuilder.append(" calling activity: ");
+            stringBuilder.append(callingActivity.getClassName());
+        }
+
+        if (extras != null) {
+            for (final String what : extras.keySet()) {
+                stringBuilder.append(" intent extra: ");
+                stringBuilder.append(what);
+
+                if (Intent.EXTRA_KEY_EVENT.equals(what)) {
+                    final KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+                    final int eventKeyCode = event.getKeyCode();
+
+                    stringBuilder.append(", with keycode: ");
+                    stringBuilder.append(eventKeyCode);
+                }
+            }
+        }
+
+        stringBuilder.append(". }");
+        return stringBuilder.toString();
     }
 
     public static Bitmap decodeSampledBitmapFromBytes(

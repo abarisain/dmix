@@ -51,7 +51,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
         if (event != null && event.getAction() == KeyEvent.ACTION_DOWN &&
                 Intent.ACTION_MEDIA_BUTTON.equals(action)) {
             final int eventKeyCode = event.getKeyCode();
-            Log.d(TAG, "with keycode: " + eventKeyCode);
+
             switch (eventKeyCode) {
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
@@ -94,8 +94,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
         final String action = intent.getAction();
         boolean isActionHandled;
 
-        Log.d(TAG, "Intent: " + intent + " received with context: " + context + " with action: "
-                + action);
+        Log.d(TAG, Tools.debugIntent(intent, null));
 
         isActionHandled = isMediaButton(intent, action);
 
