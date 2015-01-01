@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (C) 2010-2015 The MPDroid Project
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2010-2014 The MPDroid Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,13 +15,15 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
-        android:id="@+id/menu_search"
-        android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
-        android:orderInCategory="2"
-        app:showAsAction="always"
-        app:actionViewClass="android.support.v7.widget.SearchView"
-        android:title="@string/search" />
+        android:id="@+id/PLM_Save"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/save" />
+    <item
+        android:id="@+id/PLM_Clear"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:title="@string/clear" />
+
 </menu>
