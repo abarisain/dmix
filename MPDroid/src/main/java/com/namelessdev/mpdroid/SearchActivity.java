@@ -329,7 +329,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         final String queryAction = queryIntent.getAction();
 
         if (Intent.ACTION_SEARCH.equals(queryAction) || PLAY_SERVICES_ACTION_SEARCH
-                .equals(queryAction)) {
+                .equals(queryAction) && queryIntent.hasExtra(SearchManager.QUERY)) {
             mSearchKeywords = queryIntent.getStringExtra(SearchManager.QUERY).trim();
             final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
                     SearchRecentProvider.AUTHORITY, SearchRecentProvider.MODE);
