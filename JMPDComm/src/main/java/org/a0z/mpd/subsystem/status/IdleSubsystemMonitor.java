@@ -25,14 +25,16 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.a0z.mpd;
+package org.a0z.mpd.subsystem.status;
 
+import org.a0z.mpd.Log;
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDCommand;
+import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.subsystem.status.MPDStatus;
-import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -40,9 +42,12 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * Monitors MPD Server and sends events on status changes.
+ * A monitoring class representing the
+ * <A HREF="http://www.musicpd.org/doc/protocol/command_reference.html#command_idle" target="_top">
+ * idle</A> command response of the <A HREF="http://www.musicpd.org/doc/protocol" target="_top">MPD
+ * protocol</A>.
  */
-public class MPDStatusMonitor extends Thread {
+public class IdleSubsystemMonitor extends Thread {
 
     /** The song database has been modified after update. */
     public static final String IDLE_DATABASE = "database";
@@ -100,7 +105,8 @@ public class MPDStatusMonitor extends Thread {
      * @param delay               status query interval.
      * @param supportedSubsystems Idle subsystems to support, see IDLE fields in this class.
      */
-    public MPDStatusMonitor(final MPD mpd, final long delay, final String[] supportedSubsystems) {
+    public IdleSubsystemMonitor(final MPD mpd, final long delay,
+            final String[] supportedSubsystems) {
         super("MPDStatusMonitor");
 
         mMPD = mpd;
@@ -146,21 +152,15 @@ public class MPDStatusMonitor extends Thread {
     @Override
     public void run() {
         // initialize value cache
-        int oldSong = -1;
-        int oldSongId = -1;
-        int oldPlaylistVersion = -1;
-        long oldElapsedTime = -1L;
-        int oldState = MPDStatusMap.STATE_UNKNOWN;
-        int oldVolume = -1;
-        boolean oldUpdating = false;
-        boolean oldRepeat = false;
-        boolean oldRandom = false;
         boolean oldConnectionState = false;
         boolean connectionLost = false;
 
         /** Objects to keep cached in {@link MPD} */
-        final MPDStatus status = mMPD.getStatus();
+        final MPDStatusMap status = mMPD.getStatus();
         final MPDPlaylist playlist = mMPD.getPlaylist();
+
+        /** Just for initialization purposes */
+        MPDStatus oldStatus = status;
 
         while (!mGiveup) {
             Boolean connectionState = Boolean.valueOf(mMPD.isConnected());
@@ -169,6 +169,7 @@ public class MPDStatusMonitor extends Thread {
             if (connectionLost || oldConnectionState != connectionState) {
                 if (mMPD.isConnected()) {
                     try {
+                        oldStatus = status.getImmutableStatus();
                         mMPD.updateStatistics();
                         mMPD.updateStatus();
                         playlist.refresh(status);
@@ -198,6 +199,7 @@ public class MPDStatusMonitor extends Thread {
                     } else {
                         final List<String> changes = waitForChanges();
 
+                        oldStatus = status.getImmutableStatus();
                         mMPD.updateStatus();
 
                         for (final String change : changes) {
@@ -226,14 +228,14 @@ public class MPDStatusMonitor extends Thread {
 
                     if (statusChanged) {
                         // playlist
+                        final int oldPlaylistVersion = oldStatus.getPlaylistVersion();
+                        final int playlistVersion = status.getPlaylistVersion();
                         if (connectionStateChanged
-                                || (oldPlaylistVersion != status.getPlaylistVersion() && status
-                                .getPlaylistVersion() != -1)) {
+                                || oldPlaylistVersion != playlistVersion && playlistVersion != -1) {
                             playlist.refresh(status);
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.playlistChanged(status, oldPlaylistVersion);
                             }
-                            oldPlaylistVersion = status.getPlaylistVersion();
                         }
 
                         // song
@@ -242,60 +244,57 @@ public class MPDStatusMonitor extends Thread {
                          * would never iterate without manual user playlist queue intervention and
                          * trackChanged() would never be called.
                          */
-                        if (connectionStateChanged || oldSongId != status.getSongId()) {
+                        if (connectionStateChanged || oldStatus.getSongId() != status.getSongId()) {
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                listener.trackChanged(status, oldSong);
+                                listener.trackChanged(status, oldStatus.getSongPos());
                             }
-                            oldSong = status.getSongPos();
-                            oldSongId = status.getSongId();
                         }
 
                         // time
-                        if (connectionStateChanged || oldElapsedTime != status.getElapsedTime()) {
+                        if (connectionStateChanged ||
+                                oldStatus.getElapsedTime() != status.getElapsedTime()) {
                             for (final TrackPositionListener listener : mTrackPositionListeners) {
                                 listener.trackPositionChanged(status);
                             }
-                            oldElapsedTime = status.getElapsedTime();
                         }
 
                         // state
+                        final int oldState = oldStatus.getState();
                         if (connectionStateChanged || !status.isState(oldState)) {
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.stateChanged(status, oldState);
                             }
-                            oldState = status.getState();
                         }
 
                         // volume
+                        final int oldVolume = oldStatus.getVolume();
                         if (connectionStateChanged || oldVolume != status.getVolume()) {
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.volumeChanged(status, oldVolume);
                             }
-                            oldVolume = status.getVolume();
                         }
 
                         // repeat
+                        final boolean oldRepeat = oldStatus.isRepeat();
                         if (connectionStateChanged || oldRepeat != status.isRepeat()) {
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.repeatChanged(status.isRepeat());
                             }
-                            oldRepeat = status.isRepeat();
                         }
 
                         // volume
-                        if (connectionStateChanged || oldRandom != status.isRandom()) {
+                        if (connectionStateChanged || oldStatus.isRandom() != status.isRandom()) {
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.randomChanged(status.isRandom());
                             }
-                            oldRandom = status.isRandom();
                         }
 
                         // update database
-                        if (connectionStateChanged || oldUpdating != status.isUpdating()) {
+                        if (connectionStateChanged ||
+                                oldStatus.isUpdating() != status.isUpdating()) {
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.libraryStateChanged(status.isUpdating(), dbChanged);
                             }
-                            oldUpdating = status.isUpdating();
                         }
                     }
 

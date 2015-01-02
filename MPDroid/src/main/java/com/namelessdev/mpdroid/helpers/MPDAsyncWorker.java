@@ -22,10 +22,10 @@ import com.namelessdev.mpdroid.cover.GracenoteCover;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.subsystem.status.IdleSubsystemMonitor;
 import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.content.SharedPreferences;
@@ -78,7 +78,7 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     private String[] mIdleSubsystems;
 
-    private MPDStatusMonitor mStatusMonitor;
+    private IdleSubsystemMonitor mStatusMonitor;
 
     private Handler mWorkerHandler;
 
@@ -248,7 +248,7 @@ public class MPDAsyncWorker implements Handler.Callback,
     /** Starts the JMPDComm MPD Status Monitor. */
     private void startStatusMonitor() {
         mStatusMonitor =
-                new MPDStatusMonitor(mMPD, DateUtils.SECOND_IN_MILLIS / 2L, mIdleSubsystems);
+                new IdleSubsystemMonitor(mMPD, DateUtils.SECOND_IN_MILLIS / 2L, mIdleSubsystems);
         mStatusMonitor.addStatusChangeListener(this);
         mStatusMonitor.addTrackPositionListener(this);
         mStatusMonitor.start();

@@ -29,10 +29,10 @@ package org.a0z.mpd.connection;
 
 import org.a0z.mpd.Log;
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.Tools;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.subsystem.Reflection;
+import org.a0z.mpd.subsystem.status.IdleSubsystemMonitor;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
@@ -409,7 +409,7 @@ public abstract class MPDConnection {
                     // status to be refreshed.
                     if (MPDCommand.MPD_CMD_IDLE.equals(baseCommand)) {
                         result.setResult(Collections.singletonList(
-                                "changed: " + MPDStatusMonitor.IDLE_PLAYLIST));
+                                "changed: " + IdleSubsystemMonitor.IDLE_PLAYLIST));
                     }
                 } catch (final IOException e) {
                     handleFailure(result, e);

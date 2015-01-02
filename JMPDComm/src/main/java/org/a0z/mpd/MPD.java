@@ -1847,7 +1847,7 @@ public class MPD {
      *
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @see org.a0z.mpd.subsystem.status.MPDStatusMonitor
+     * @see org.a0z.mpd.subsystem.status.IdleSubsystemMonitor
      */
     public void updateStatistics() throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
@@ -1862,7 +1862,7 @@ public class MPD {
      *
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @see org.a0z.mpd.subsystem.status.MPDStatusMonitor
+     * @see org.a0z.mpd.subsystem.status.IdleSubsystemMonitor
      */
     public void updateStatus() throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);

@@ -27,7 +27,7 @@ import com.namelessdev.mpdroid.service.StreamHandler;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.MPDStatusMonitor;
+import org.a0z.mpd.subsystem.status.IdleSubsystemMonitor;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -168,14 +168,14 @@ public class MPDApplication extends Application implements
         } else {
             if (!oMPDAsyncHelper.isStatusMonitorAlive()) {
                 oMPDAsyncHelper.startStatusMonitor(new String[]{
-                        MPDStatusMonitor.IDLE_DATABASE,
-                        MPDStatusMonitor.IDLE_MIXER,
-                        MPDStatusMonitor.IDLE_OPTIONS,
-                        MPDStatusMonitor.IDLE_OUTPUT,
-                        MPDStatusMonitor.IDLE_PLAYER,
-                        MPDStatusMonitor.IDLE_PLAYLIST,
-                        MPDStatusMonitor.IDLE_STICKER,
-                        MPDStatusMonitor.IDLE_UPDATE
+                        IdleSubsystemMonitor.IDLE_DATABASE,
+                        IdleSubsystemMonitor.IDLE_MIXER,
+                        IdleSubsystemMonitor.IDLE_OPTIONS,
+                        IdleSubsystemMonitor.IDLE_OUTPUT,
+                        IdleSubsystemMonitor.IDLE_PLAYER,
+                        IdleSubsystemMonitor.IDLE_PLAYLIST,
+                        IdleSubsystemMonitor.IDLE_STICKER,
+                        IdleSubsystemMonitor.IDLE_UPDATE
                 });
             }
             if (!oMPDAsyncHelper.oMPD.isConnected() && (mCurrentActivity == null
