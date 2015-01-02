@@ -27,9 +27,10 @@ import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.subsystem.status.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -224,7 +225,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
             final Music currentSong =
                     mApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
             if (currentSong != null && currentSong.isStream() ||
-                    mpdStatus.isState(MPDStatus.STATE_STOPPED)) {
+                    mpdStatus.isState(MPDStatusMap.STATE_STOPPED)) {
                 mApp.updateTrackInfo.refresh(mpdStatus, true);
             }
         }

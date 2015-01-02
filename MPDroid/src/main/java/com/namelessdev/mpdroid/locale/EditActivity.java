@@ -21,7 +21,7 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.service.NotificationHandler;
 import com.namelessdev.mpdroid.service.StreamHandler;
 
-import org.a0z.mpd.MPDCommand;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -110,7 +110,7 @@ public class EditActivity extends ActionBarActivity implements AdapterView.OnIte
             final int padding = getResources()
                     .getDimensionPixelSize(R.dimen.locale_edit_seekbar_padding);
             seekBar.setPadding(padding, padding, padding, padding);
-            seekBar.setMax(MPDCommand.MAX_VOLUME);
+            seekBar.setMax(MPDStatusMap.VOLUME_MAX);
             final AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setView(seekBar);
             alert.setTitle(item.mLabel);

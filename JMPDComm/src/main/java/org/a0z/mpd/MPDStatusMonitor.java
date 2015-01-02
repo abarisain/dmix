@@ -31,6 +31,8 @@ import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.subsystem.status.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -148,7 +150,7 @@ public class MPDStatusMonitor extends Thread {
         int oldSongId = -1;
         int oldPlaylistVersion = -1;
         long oldElapsedTime = -1L;
-        int oldState = MPDStatus.STATE_UNKNOWN;
+        int oldState = MPDStatusMap.STATE_UNKNOWN;
         int oldVolume = -1;
         boolean oldUpdating = false;
         boolean oldRepeat = false;

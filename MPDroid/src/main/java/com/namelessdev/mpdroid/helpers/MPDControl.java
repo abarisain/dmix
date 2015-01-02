@@ -21,9 +21,9 @@ import com.namelessdev.mpdroid.PhoneStateReceiver;
 import com.namelessdev.mpdroid.R;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -223,7 +223,7 @@ public final class MPDControl {
                 final TelephonyManager telephonyManager =
                         (TelephonyManager) APP.getSystemService(Context.TELEPHONY_SERVICE);
                 final boolean isPlaying =
-                        APP.oMPDAsyncHelper.oMPD.getStatus().isState(MPDStatus.STATE_PLAYING);
+                        APP.oMPDAsyncHelper.oMPD.getStatus().isState(MPDStatusMap.STATE_PLAYING);
                 boolean result = false;
 
                 /**
@@ -297,7 +297,7 @@ public final class MPDControl {
                             mpd.next();
                             break;
                         case ACTION_PAUSE:
-                            if (!mpd.getStatus().isState(MPDStatus.STATE_PAUSED)) {
+                            if (!mpd.getStatus().isState(MPDStatusMap.STATE_PAUSED)) {
                                 mpd.pause();
                             }
                             break;
@@ -331,7 +331,7 @@ public final class MPDControl {
                             mpd.setSingle(!mpd.getStatus().isSingle());
                             break;
                         case ACTION_TOGGLE_PLAYBACK:
-                            if (mpd.getStatus().isState(MPDStatus.STATE_PLAYING)) {
+                            if (mpd.getStatus().isState(MPDStatusMap.STATE_PLAYING)) {
                                 mpd.pause();
                             } else {
                                 mpd.play();

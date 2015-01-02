@@ -20,7 +20,8 @@ import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
-import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.content.res.Resources;
 import android.media.AudioAttributes;
@@ -572,7 +573,7 @@ public final class StreamHandler implements
 
     void start(final int mpdState) {
         mIsActive = true;
-        mIsPlaying = MPDStatus.STATE_PLAYING == mpdState;
+        mIsPlaying = MPDStatusMap.STATE_PLAYING == mpdState;
         if (!mPreparingStream && mIsPlaying) {
             tryToStream();
         }
@@ -592,18 +593,18 @@ public final class StreamHandler implements
 
         if (mIsActive) {
             switch (state) {
-                case MPDStatus.STATE_PLAYING:
+                case MPDStatusMap.STATE_PLAYING:
                     mServiceHandler.removeMessages(STOP);
                     mIsPlaying = true;
                     tryToStream();
                     break;
-                case MPDStatus.STATE_STOPPED:
+                case MPDStatusMap.STATE_STOPPED:
                     /** Detect final song and let onCompletion handle it */
                     if (mpdStatus.getNextSongPos() == -1 || mpdStatus.getPlaylistLength() == 0) {
                         break;
                     }
                     /** Fall Through */
-                case MPDStatus.STATE_PAUSED:
+                case MPDStatusMap.STATE_PAUSED:
                     /**
                      * If in the middle of stream preparation, "Buffering…" notification message
                      * is likely.

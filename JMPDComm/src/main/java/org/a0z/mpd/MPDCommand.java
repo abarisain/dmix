@@ -38,10 +38,6 @@ public class MPDCommand {
      */
     public static final int DEFAULT_MPD_PORT = 6600;
 
-    public static final int MAX_VOLUME = 100;
-
-    public static final int MIN_VOLUME = 0;
-
     public static final String MPD_CMD_CLEARERROR = "clearerror";
 
     public static final String MPD_CMD_CLOSE = "close";

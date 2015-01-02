@@ -19,10 +19,10 @@ package com.namelessdev.mpdroid.helpers;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.subsystem.Sticker;
+import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;

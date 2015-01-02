@@ -26,8 +26,6 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.Tools;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
@@ -36,6 +34,8 @@ import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Directory;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.subsystem.status.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -205,13 +205,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         final int resource;
 
         if (MPDApplication.getInstance().isLightThemeSelected()) {
-            if (state == MPDStatus.STATE_PLAYING) {
+            if (state == MPDStatusMap.STATE_PLAYING) {
                 resource = R.drawable.ic_media_pause_light;
             } else {
                 resource = R.drawable.ic_media_play_light;
             }
         } else {
-            if (state == MPDStatus.STATE_PLAYING) {
+            if (state == MPDStatusMap.STATE_PLAYING) {
                 resource = R.drawable.ic_media_pause;
             } else {
                 resource = R.drawable.ic_media_play;
@@ -314,7 +314,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         final MPDStatus status = mApp.oMPDAsyncHelper.oMPD.getStatus();
 
         if (status.isValid()) {
-            volumeChanged(status, -1);
+            volumeChanged(status, MPDStatusMap.VOLUME_UNAVAILABLE);
             updateStatus(status);
             updateTrackInfo(status, true);
             setButtonAttribute(getRepeatAttribute(status.isRepeat()), mRepeatButton);
@@ -583,8 +583,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                             }
                         }.setProgress(seekBar);
 
-                        mVolTimer.scheduleAtFixedRate(mVolTimerTask, (long) MPDCommand.MIN_VOLUME,
-                                (long) MPDCommand.MAX_VOLUME);
+                        mVolTimer.scheduleAtFixedRate(mVolTimerTask, (long) MPDStatusMap.VOLUME_MIN,
+                                (long) MPDStatusMap.VOLUME_MAX);
                     }
 
                     @Override
@@ -884,7 +884,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
          * change the playlist, not the track, so, update if we detect a stream.
          */
         if (mCurrentSong != null && mCurrentSong.isStream() ||
-                mpdStatus.isState(MPDStatus.STATE_STOPPED)) {
+                mpdStatus.isState(MPDStatusMap.STATE_STOPPED)) {
             updateTrackInfo(mpdStatus, false);
         }
     }
@@ -1010,7 +1010,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     private void toggleTrackProgress(final MPDStatus status) {
         final long totalTime = status.getTotalTime();
 
-        if (totalTime == 0) {
+        if (totalTime == MPDStatusMap.DEFAULT_LONG) {
             mSongRating.setVisibility(View.GONE);
             mTrackTime.setVisibility(View.INVISIBLE);
             mTrackTotalTime.setVisibility(View.INVISIBLE);
@@ -1020,7 +1020,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         } else {
             final long elapsedTime = status.getElapsedTime();
 
-            if (status.isState(MPDStatus.STATE_PLAYING)) {
+            if (status.isState(MPDStatusMap.STATE_PLAYING)) {
                 startPosTimer(elapsedTime, totalTime);
             } else {
                 stopPosTimer();
@@ -1041,7 +1041,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      * @param volume The current volume value.
      */
     private void toggleVolumeBar(final int volume) {
-        if (volume < MPDCommand.MIN_VOLUME || volume > MPDCommand.MAX_VOLUME) {
+        if (volume < MPDStatusMap.VOLUME_MIN || volume > MPDStatusMap.VOLUME_MAX) {
             mVolumeSeekBar.setEnabled(false);
             mVolumeSeekBar.setVisibility(View.GONE);
             mVolumeIcon.setVisibility(View.GONE);
@@ -1071,7 +1071,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         StringBuilder optionalTrackInfo = null;
 
         if (mCurrentSong != null && mIsAudioNameTextEnabled &&
-                !status.isState(MPDStatus.STATE_STOPPED)) {
+                !status.isState(MPDStatusMap.STATE_STOPPED)) {
 
             final char[] separator = {' ', '|', ' '};
             final String fullPath = mCurrentSong.getFullPath();
@@ -1211,7 +1211,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             final MPDApplication app = MPDApplication.getInstance();
             final MPDStatus mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus();
 
-            if (v.getId() == R.id.playpause && !mpdStatus.isState(MPDStatus.STATE_STOPPED)) {
+            if (v.getId() == R.id.playpause && !mpdStatus.isState(MPDStatusMap.STATE_STOPPED)) {
                 MPDControl.run(MPDControl.ACTION_STOP);
                 isConsumed = true;
             } else {

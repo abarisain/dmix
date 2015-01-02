@@ -22,9 +22,9 @@ import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.WeakLinkedList;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
+import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.os.Handler;
 import android.os.Message;

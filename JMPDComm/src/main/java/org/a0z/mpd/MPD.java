@@ -43,6 +43,7 @@ import org.a0z.mpd.item.MusicBuilder;
 import org.a0z.mpd.item.PlaylistFile;
 import org.a0z.mpd.item.Stream;
 import org.a0z.mpd.subsystem.Sticker;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -73,7 +74,7 @@ public class MPD {
 
     private final MPDStatistics mStatistics;
 
-    private final MPDStatus mStatus;
+    private final MPDStatusMap mStatus;
 
     /**
      * Constructs a new MPD server controller without connection.
@@ -85,7 +86,7 @@ public class MPD {
         mStatistics = new MPDStatistics();
 
         mPlaylist = new MPDPlaylist(mConnection);
-        mStatus = new MPDStatus();
+        mStatus = new MPDStatusMap();
     }
 
     /**
@@ -341,7 +342,7 @@ public class MPD {
     private void add(final CommandQueue commandQueue, final boolean replace,
             final boolean playAfterAdd) throws IOException, MPDException {
         int playPos = 0;
-        final boolean isPlaying = mStatus.isState(MPDStatus.STATE_PLAYING);
+        final boolean isPlaying = mStatus.isState(MPDStatusMap.STATE_PLAYING);
         final boolean isConsume = mStatus.isConsume();
         final boolean isRandom = mStatus.isRandom();
         final int playlistLength = mStatus.getPlaylistLength();
@@ -565,7 +566,7 @@ public class MPD {
     public void adjustVolume(final int modifier) throws IOException, MPDException {
         // calculate final volume (clip value with [0, 100])
         int vol = mStatus.getVolume() + modifier;
-        vol = Math.max(MPDCommand.MIN_VOLUME, Math.min(MPDCommand.MAX_VOLUME, vol));
+        vol = Math.max(MPDStatusMap.VOLUME_MIN, Math.min(MPDStatusMap.VOLUME_MAX, vol));
 
         mConnection.sendCommand(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
     }
@@ -958,7 +959,7 @@ public class MPD {
         return mConnection.getHostPort();
     }
 
-    MPDConnection getIdleConnection() {
+    public MPDConnection getIdleConnection() {
         return mIdleConnection;
     }
 
@@ -1114,7 +1115,7 @@ public class MPD {
      *
      * @return status of the connected server.
      */
-    public MPDStatus getStatus() {
+    public MPDStatusMap getStatus() {
         return mStatus;
     }
 
@@ -1790,7 +1791,8 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void setVolume(final int volume) throws IOException, MPDException {
-        final int vol = Math.max(MPDCommand.MIN_VOLUME, Math.min(MPDCommand.MAX_VOLUME, volume));
+        final int vol = Math.max(MPDStatusMap.VOLUME_MIN,
+                Math.min(MPDStatusMap.VOLUME_MAX, volume));
         mConnection.sendCommand(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
     }
 
@@ -1844,7 +1846,7 @@ public class MPD {
      *
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @see MPDStatusMonitor
+     * @see org.a0z.mpd.subsystem.status.MPDStatusMonitor
      */
     public void updateStatistics() throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_STATISTICS);
@@ -1859,15 +1861,15 @@ public class MPD {
      *
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @see MPDStatusMonitor
+     * @see org.a0z.mpd.subsystem.status.MPDStatusMonitor
      */
-    void updateStatus() throws IOException, MPDException {
+    public void updateStatus() throws IOException, MPDException {
         final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
 
         if (response == null) {
             Log.error(TAG, "No status response from the MPD server.");
         } else {
-            mStatus.updateStatus(response);
+            mStatus.update(response);
         }
     }
 }

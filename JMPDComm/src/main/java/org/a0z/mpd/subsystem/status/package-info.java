@@ -25,19 +25,10 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.a0z.mpd.event;
-
-import org.a0z.mpd.subsystem.status.MPDStatus;
-
 /**
- * Represents a change in current playing track position on MPD server.
+ * A package with classes used to manage the
+ * <A HREF="http://www.musicpd.org/doc/protocol/command_reference.html#status_commands"
+ * target="_top">status</A> subsystem of the <A HREF="http://www.musicpd.org/doc/protocol"
+ * target="_top">MPD protocol</A>.
  */
-public interface TrackPositionListener {
-
-    /**
-     * Called when track position changes on server.
-     *
-     * @param status New MPD status, containing current track position
-     */
-    void trackPositionChanged(MPDStatus status);
-}
+package org.a0z.mpd.subsystem.status;

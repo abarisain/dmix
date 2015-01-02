@@ -16,8 +16,8 @@
 
 package com.namelessdev.mpdroid;
 
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;

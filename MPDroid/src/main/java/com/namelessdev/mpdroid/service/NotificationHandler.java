@@ -22,8 +22,9 @@ import com.namelessdev.mpdroid.RemoteControlReceiver;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.subsystem.status.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -342,13 +343,13 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
 
     final void stateChanged(final MPDStatus mpdStatus) {
         switch (mpdStatus.getState()) {
-            case MPDStatus.STATE_PLAYING:
+            case MPDStatusMap.STATE_PLAYING:
                 setPlayState(true);
                 break;
-            case MPDStatus.STATE_PAUSED:
+            case MPDStatusMap.STATE_PAUSED:
                 setPlayState(false);
                 break;
-            case MPDStatus.STATE_STOPPED:
+            case MPDStatusMap.STATE_STOPPED:
             default:
                 break;
         }

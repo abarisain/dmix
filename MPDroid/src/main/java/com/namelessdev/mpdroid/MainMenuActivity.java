@@ -29,7 +29,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.app.AlertDialog;
 import android.content.Context;

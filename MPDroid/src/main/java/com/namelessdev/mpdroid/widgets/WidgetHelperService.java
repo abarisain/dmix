@@ -20,7 +20,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -67,7 +67,7 @@ public class WidgetHelperService extends IntentService {
     void processIntent(final String action, final MPD mpd) {
         switch (action) {
             case CMD_UPDATE_WIDGET:
-                mPlaying = mpd.getStatus().isState(MPDStatus.STATE_PLAYING);
+                mPlaying = mpd.getStatus().isState(MPDStatusMap.STATE_PLAYING);
                 SimpleWidgetProvider.getInstance().notifyChange(this);
                 break;
             default:

@@ -35,7 +35,6 @@ import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
 
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
@@ -43,6 +42,7 @@ import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Directory;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
+import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.app.AlertDialog;
 import android.content.Context;

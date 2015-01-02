@@ -27,7 +27,7 @@
 
 package org.a0z.mpd.event;
 
-import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatus;
 
 /*
  * Abstract implementation of the StatusChange. Just for convenience.

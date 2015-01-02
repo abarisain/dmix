@@ -23,10 +23,11 @@ import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.subsystem.status.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -186,7 +187,7 @@ public final class MPDroidService extends Service implements
         }
 
         if (connected) {
-            stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatus.STATE_UNKNOWN);
+            stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatusMap.STATE_UNKNOWN);
         } else {
             final long idleDelay = 10000L; /** Give 10 Seconds for Network Problems */
 
@@ -630,7 +631,7 @@ public final class MPDroidService extends Service implements
 
             setHandlerActivity(NotificationHandler.LOCAL_UID, true);
             if (MPD_ASYNC_HELPER.oMPD.isConnected()) {
-                stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatus.STATE_UNKNOWN);
+                stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatusMap.STATE_UNKNOWN);
             } else {
                 initializeAsyncHelper();
                 /**
@@ -657,7 +658,7 @@ public final class MPDroidService extends Service implements
 
             setHandlerActivity(StreamHandler.LOCAL_UID, true);
             if (MPD_ASYNC_HELPER.oMPD.isConnected()) {
-                stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatus.STATE_UNKNOWN);
+                stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatusMap.STATE_UNKNOWN);
             } else {
                 initializeAsyncHelper();
                 /**
@@ -677,14 +678,14 @@ public final class MPDroidService extends Service implements
     @Override
     public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
         switch (mpdStatus.getState()) {
-            case MPDStatus.STATE_PLAYING:
+            case MPDStatusMap.STATE_PLAYING:
                 stateChangedPlaying(mpdStatus);
                 break;
-            case MPDStatus.STATE_STOPPED:
+            case MPDStatusMap.STATE_STOPPED:
                 windDownHandlers(true);
                 break;
-            case MPDStatus.STATE_PAUSED:
-                if (MPDStatus.STATE_PLAYING != oldState) {
+            case MPDStatusMap.STATE_PAUSED:
+                if (MPDStatusMap.STATE_PLAYING != oldState) {
                     updateTrack(mpdStatus);
                 }
                 setupServiceHandler();
@@ -995,7 +996,7 @@ public final class MPDroidService extends Service implements
                     break;
                 case StreamHandler.REQUEST_NOTIFICATION_STOP:
                     if (mIsNotificationStarted && MPD_ASYNC_HELPER.oMPD.isConnected() &&
-                            MPD_ASYNC_HELPER.oMPD.getStatus().isState(MPDStatus.STATE_PLAYING)) {
+                            MPD_ASYNC_HELPER.oMPD.getStatus().isState(MPDStatusMap.STATE_PLAYING)) {
                         tryToGetAudioFocus();
                     }
                     streamRequestsNotificationStop();

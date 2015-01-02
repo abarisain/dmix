@@ -18,8 +18,8 @@ package com.namelessdev.mpdroid.service;
 
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.TrackPositionListener;
+import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.annotation.TargetApi;
 import android.media.RemoteControlClient;

@@ -22,11 +22,11 @@ import com.namelessdev.mpdroid.cover.GracenoteCover;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.MPDStatusMonitor;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.event.TrackPositionListener;
 import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.content.SharedPreferences;
 import android.os.Handler;

@@ -32,6 +32,8 @@ import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.MusicBuilder;
+import org.a0z.mpd.subsystem.status.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -273,18 +275,18 @@ public class MPDPlaylist {
 
     /**
      * Reloads the playlist content. This is the only place the {@link org.a0z.mpd.MusicList}
-     * should be modified.
+     * should be modified, don't call this method unless you know exactly what you're doing.
      *
      * @param mpdStatus A current {@code MPDStatus} object.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    void refresh(final MPDStatus mpdStatus) throws IOException, MPDException {
+    public void refresh(final MPDStatus mpdStatus) throws IOException, MPDException {
         /** Synchronize this block to make sure the playlist version stays coherent. */
         synchronized (mList) {
             final int newPlaylistVersion = mpdStatus.getPlaylistVersion();
 
-            if (mLastPlaylistVersion == -1 || mList.size() == 0) {
+            if (mLastPlaylistVersion == MPDStatusMap.DEFAULT_INTEGER || mList.size() == 0) {
                 mList.replace(getFullPlaylist());
             } else if (mLastPlaylistVersion != newPlaylistVersion) {
                 final List<String> response =

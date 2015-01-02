@@ -25,13 +25,14 @@ import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
 import org.a0z.mpd.item.Item;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
+import org.a0z.mpd.subsystem.status.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -203,7 +204,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
                         /**
                          * Let the user know if we're not going to play the added music.
                          */
-                        if (status.isRandom() && status.isState(MPDStatus.STATE_PLAYING)) {
+                        if (status.isRandom() && status.isState(MPDStatusMap.STATE_PLAYING)) {
                             Tools.notifyUser(R.string.notPlayingInRandomMode);
                         } else {
                             play = true;

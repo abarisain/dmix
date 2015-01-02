@@ -23,11 +23,11 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.event.StatusChangeListener;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Music;
 import org.a0z.mpd.item.PlaylistFile;
+import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.os.Bundle;
 import android.util.Log;

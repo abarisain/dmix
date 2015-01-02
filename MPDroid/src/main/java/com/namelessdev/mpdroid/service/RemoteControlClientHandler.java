@@ -19,8 +19,9 @@ package com.namelessdev.mpdroid.service;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
 
 import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
 import org.a0z.mpd.item.Music;
+import org.a0z.mpd.subsystem.status.MPDStatus;
+import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -108,16 +109,16 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
         final int playbackState;
 
         switch (state) {
-            case MPDStatus.STATE_PLAYING:
+            case MPDStatusMap.STATE_PLAYING:
                 playbackState = RemoteControlClient.PLAYSTATE_PLAYING;
                 break;
-            case MPDStatus.STATE_STOPPED:
+            case MPDStatusMap.STATE_STOPPED:
                 playbackState = RemoteControlClient.PLAYSTATE_STOPPED;
                 break;
-            case MPDStatus.STATE_PAUSED:
+            case MPDStatusMap.STATE_PAUSED:
                 playbackState = RemoteControlClient.PLAYSTATE_PAUSED;
                 break;
-            case MPDStatus.STATE_UNKNOWN:
+            case MPDStatusMap.STATE_UNKNOWN:
             default:
                 playbackState = RemoteControlClient.PLAYSTATE_ERROR;
                 break;
