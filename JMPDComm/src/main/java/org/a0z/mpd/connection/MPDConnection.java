@@ -41,6 +41,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,6 +68,8 @@ public abstract class MPDConnection {
 
     /** Default buffer size for the socket. */
     private static final int DEFAULT_BUFFER_SIZE = 1024;
+
+    private static final int MAX_PORT = 65535;
 
     /** Maximum number of times to attempt command processing. */
     private static final int MAX_REQUEST_RETRY = 3;
@@ -139,6 +142,10 @@ public abstract class MPDConnection {
     public final void connect(final InetAddress host, final int port, final String password)
             throws IOException, MPDException {
         innerDisconnect();
+
+        if (port < 0 || port > MAX_PORT) {
+            throw new MalformedURLException("Port must be an integer between 0 and 65535.");
+        }
 
         mCancelled = false;
         mPassword = password;
