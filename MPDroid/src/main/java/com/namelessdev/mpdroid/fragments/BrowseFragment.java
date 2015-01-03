@@ -19,6 +19,7 @@ package com.namelessdev.mpdroid.fragments;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
+import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -50,6 +51,8 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
@@ -130,6 +133,53 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     protected abstract void add(final Item<?> item, final boolean replace, final boolean play);
 
     protected abstract void add(final Item<?> item, final PlaylistFile playlist);
+
+    /**
+     * This returns a runnable for adding from the parent adapter view adapter, used for clickable
+     * items.
+     *
+     * @param parent   The parent AdapterView.
+     * @param position The position in the adapter of the item to add.
+     * @return A Runnable to execute in a thread, null if an error occurred.
+     */
+    Runnable addAdapterItem(final AdapterView<?> parent, final int position) {
+        final boolean simpleMode = mApp.isInSimpleMode();
+        final Item<?> track; /** final required for runnable. */
+        Adapter adapter = null;
+        Runnable runnable = null;
+
+        if (parent == null) {
+            track = null;
+        } else {
+            adapter = parent.getAdapter();
+            if (adapter == null) {
+                track = null;
+            } else {
+                track = (Item<?>) adapter.getItem(position);
+            }
+        }
+
+        if (parent == null || adapter == null || track == null) {
+            Tools.notifyUser(R.string.generalAddingError);
+            final String errorMessage = "Failed to add track. parent: " + parent + " adapter: "
+                    + adapter + " track: " + null;
+
+            /** Temporary, I want to find out exactly what's null. */
+            CrashlyticsWrapper.log(Log.ERROR, TAG, errorMessage);
+
+            /** Track will always be null here. */
+            Log.e(TAG, errorMessage);
+        } else {
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    add(track, simpleMode, simpleMode);
+                }
+            };
+        }
+
+        return runnable;
+    }
 
     private void addAndReplace(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();

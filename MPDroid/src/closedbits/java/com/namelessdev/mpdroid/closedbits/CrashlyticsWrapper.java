@@ -22,6 +22,10 @@ import android.content.Context;
 
 public class CrashlyticsWrapper {
 
+    public static void log(final int priority, final String tag, final String message) {
+        Crashlytics.log(priority, tag, msg);
+    }
+
     public static void logException(final Exception exception) {
         Crashlytics.logException(exception);
     }

@@ -298,6 +298,7 @@
     <string name="persistentNotification">Persistent Notification</string>
     <string name="persistentNotificationDescription">Set the notification to stay on for this network</string>
     <string name="notPlayingInRandomMode">Not playing added items in random mode.</string>
+    <string name="generalAddingError">An error occurred while adding.</string>
 
     <!-- Begin StreamHandler Specific Strings -->
     <string name="audioFocusFailed">Cannot start streaming: Another application is playing music.</string>

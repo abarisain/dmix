@@ -408,12 +408,11 @@ public class SongsFragment extends BrowseFragment {
                 }
             });
         } else {
-            mApp.oMPDAsyncHelper.execAsync(new Runnable() {
-                @Override
-                public void run() {
-                    add((Item<?>) parent.getAdapter().getItem(position), false, false);
-                }
-            });
+            final Runnable runnable = addAdapterItem(parent, position);
+
+            if (runnable != null) {
+                mApp.oMPDAsyncHelper.execAsync(runnable);
+            }
         }
 
     }
