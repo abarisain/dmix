@@ -16,12 +16,11 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Genre;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.views.AlbumGridDataBinder;
-
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Genre;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

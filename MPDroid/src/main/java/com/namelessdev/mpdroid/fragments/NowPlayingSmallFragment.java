@@ -16,6 +16,10 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.event.StatusChangeListener;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
@@ -26,11 +30,6 @@ import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.CoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
-
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.subsystem.status.MPDStatus;
-import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.Activity;
 import android.graphics.Bitmap;

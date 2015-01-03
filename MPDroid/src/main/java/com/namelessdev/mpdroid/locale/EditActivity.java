@@ -16,12 +16,11 @@
 
 package com.namelessdev.mpdroid.locale;
 
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.service.NotificationHandler;
 import com.namelessdev.mpdroid.service.StreamHandler;
-
-import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;

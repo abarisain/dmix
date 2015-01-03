@@ -16,11 +16,10 @@
 
 package com.namelessdev.mpdroid.widgets;
 
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.MPDControl;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.IntentService;
 import android.content.Intent;

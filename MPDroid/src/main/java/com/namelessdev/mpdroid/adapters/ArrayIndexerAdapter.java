@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid.adapters;
 
-import org.a0z.mpd.item.Item;
+import com.anpmech.mpd.item.Item;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;

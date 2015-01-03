@@ -16,6 +16,16 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.event.StatusChangeListener;
+import com.anpmech.mpd.event.TrackPositionListener;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Directory;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
@@ -25,17 +35,6 @@ import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
-
-import org.a0z.mpd.Tools;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.event.TrackPositionListener;
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Directory;
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.subsystem.status.MPDStatus;
-import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;

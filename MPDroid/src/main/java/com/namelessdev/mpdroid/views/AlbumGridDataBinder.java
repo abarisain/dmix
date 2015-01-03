@@ -16,12 +16,11 @@
 
 package com.namelessdev.mpdroid.views;
 
+import com.anpmech.mpd.item.Album;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
-
-import org.a0z.mpd.item.Album;
 
 import android.support.annotation.LayoutRes;
 

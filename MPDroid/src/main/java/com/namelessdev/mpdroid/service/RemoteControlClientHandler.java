@@ -16,12 +16,11 @@
 
 package com.namelessdev.mpdroid.service;
 
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.subsystem.status.MPDStatus;
-import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;

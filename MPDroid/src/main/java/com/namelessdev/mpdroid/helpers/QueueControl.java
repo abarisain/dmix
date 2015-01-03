@@ -16,11 +16,10 @@
 
 package com.namelessdev.mpdroid.helpers;
 
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.MPDPlaylist;
+import com.anpmech.mpd.exception.MPDException;
 import com.namelessdev.mpdroid.MPDApplication;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.exception.MPDException;
 
 import android.util.Log;
 

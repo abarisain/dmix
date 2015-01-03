@@ -16,14 +16,13 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Item;
+import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Item;
-import org.a0z.mpd.item.PlaylistFile;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;

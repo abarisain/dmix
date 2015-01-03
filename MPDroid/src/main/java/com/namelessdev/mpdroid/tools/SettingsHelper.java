@@ -16,11 +16,10 @@
 
 package com.namelessdev.mpdroid.tools;
 
+import com.anpmech.mpd.MPDCommand;
 import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
-
-import org.a0z.mpd.MPDCommand;
 
 import android.content.Context;
 import android.content.SharedPreferences;

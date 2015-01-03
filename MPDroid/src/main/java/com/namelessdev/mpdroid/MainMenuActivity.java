@@ -16,6 +16,8 @@
 
 package com.namelessdev.mpdroid;
 
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
@@ -27,9 +29,6 @@ import com.namelessdev.mpdroid.library.ILibraryTabActivity;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.app.AlertDialog;
 import android.content.Context;

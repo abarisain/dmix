@@ -16,15 +16,14 @@
 
 package com.namelessdev.mpdroid.service;
 
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.MPDControl;
-
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.subsystem.status.MPDStatus;
-import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.annotation.TargetApi;
 import android.app.Notification;

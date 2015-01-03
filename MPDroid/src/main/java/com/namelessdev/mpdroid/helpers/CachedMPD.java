@@ -16,11 +16,11 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.AlbumBuilder;
-import org.a0z.mpd.item.Artist;
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.AlbumBuilder;
+import com.anpmech.mpd.item.Artist;
 
 import android.util.Log;
 
@@ -33,7 +33,7 @@ import java.util.ListIterator;
 import java.util.Set;
 
 /*
- * Cached Version of org.a0z.mpd.MPD
+ * Cached Version of MPD
  *
  * Certain methods of MPD are overridden to call the cache.
  *

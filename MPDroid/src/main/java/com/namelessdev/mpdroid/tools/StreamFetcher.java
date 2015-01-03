@@ -16,7 +16,8 @@
 
 package com.namelessdev.mpdroid.tools;
 
-import org.a0z.mpd.item.Stream;
+import com.anpmech.mpd.item.Stream;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 

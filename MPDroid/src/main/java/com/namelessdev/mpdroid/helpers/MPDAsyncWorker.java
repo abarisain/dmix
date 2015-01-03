@@ -16,17 +16,16 @@
 
 package com.namelessdev.mpdroid.helpers;
 
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.event.StatusChangeListener;
+import com.anpmech.mpd.event.TrackPositionListener;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.GracenoteCover;
 import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.event.TrackPositionListener;
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.subsystem.status.IdleSubsystemMonitor;
-import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.content.SharedPreferences;
 import android.os.Handler;

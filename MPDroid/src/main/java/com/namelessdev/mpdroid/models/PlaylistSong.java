@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid.models;
 
-import org.a0z.mpd.item.Music;
+import com.anpmech.mpd.item.Music;
 
 import java.util.ArrayList;
 import java.util.Collection;

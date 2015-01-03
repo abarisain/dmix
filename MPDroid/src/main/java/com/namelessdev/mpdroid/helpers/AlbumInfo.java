@@ -16,14 +16,14 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import org.a0z.mpd.Tools;
-import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Music;
+import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Music;
 
 import java.util.Arrays;
 
-import static org.a0z.mpd.Tools.getHashFromString;
+import static com.anpmech.mpd.Tools.getHashFromString;
 
 public class AlbumInfo {
 

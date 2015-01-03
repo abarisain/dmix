@@ -16,6 +16,15 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Item;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.item.PlaylistFile;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
@@ -23,16 +32,6 @@ import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Item;
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.item.PlaylistFile;
-import org.a0z.mpd.subsystem.status.MPDStatus;
-import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;

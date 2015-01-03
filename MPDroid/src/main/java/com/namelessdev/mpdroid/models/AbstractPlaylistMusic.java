@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid.models;
 
-import org.a0z.mpd.item.Music;
+import com.anpmech.mpd.item.Music;
 
 public abstract class AbstractPlaylistMusic extends Music {
 

@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid;
 
+import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
@@ -26,8 +27,6 @@ import com.namelessdev.mpdroid.service.ServiceBinder;
 import com.namelessdev.mpdroid.service.StreamHandler;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.subsystem.status.IdleSubsystemMonitor;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

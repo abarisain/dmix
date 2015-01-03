@@ -16,16 +16,16 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Item;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.item.PlaylistFile;
+import com.anpmech.mpd.item.Stream;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Item;
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.item.PlaylistFile;
-import org.a0z.mpd.item.Stream;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 

@@ -16,16 +16,15 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Item;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.StoredPlaylistDataBinder;
-
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Item;
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.item.PlaylistFile;
 
 import android.content.Intent;
 import android.os.Bundle;

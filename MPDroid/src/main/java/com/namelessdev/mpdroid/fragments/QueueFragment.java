@@ -16,6 +16,16 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.MPDPlaylist;
+import com.anpmech.mpd.event.StatusChangeListener;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Directory;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.item.PlaylistFile;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -32,17 +42,6 @@ import com.namelessdev.mpdroid.models.PlaylistSong;
 import com.namelessdev.mpdroid.models.PlaylistStream;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Directory;
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.item.PlaylistFile;
-import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.app.AlertDialog;
 import android.content.Context;

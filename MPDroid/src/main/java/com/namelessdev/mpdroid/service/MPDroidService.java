@@ -16,18 +16,17 @@
 
 package com.namelessdev.mpdroid.service;
 
+import com.anpmech.mpd.event.StatusChangeListener;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
-
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.subsystem.status.IdleSubsystemMonitor;
-import org.a0z.mpd.subsystem.status.MPDStatus;
-import org.a0z.mpd.subsystem.status.MPDStatusMap;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid;
 
-import org.a0z.mpd.MPDCommand;
+import com.anpmech.mpd.MPDCommand;
 
 import android.os.Parcel;
 import android.os.Parcelable;

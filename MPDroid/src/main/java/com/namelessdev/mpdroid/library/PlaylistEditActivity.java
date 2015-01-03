@@ -16,18 +16,17 @@
 
 package com.namelessdev.mpdroid.library;
 
+import com.anpmech.mpd.MPDPlaylist;
+import com.anpmech.mpd.event.StatusChangeListener;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.item.PlaylistFile;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDroidActivities;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.MPDPlaylist;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.item.PlaylistFile;
-import org.a0z.mpd.subsystem.status.MPDStatus;
 
 import android.os.Bundle;
 import android.util.Log;

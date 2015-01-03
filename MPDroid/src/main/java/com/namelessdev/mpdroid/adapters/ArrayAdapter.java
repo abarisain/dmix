@@ -16,9 +16,8 @@
 
 package com.namelessdev.mpdroid.adapters;
 
+import com.anpmech.mpd.item.Item;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
-
-import org.a0z.mpd.item.Item;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;

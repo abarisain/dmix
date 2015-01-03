@@ -16,12 +16,11 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.MPDOutput;
+import com.anpmech.mpd.exception.MPDException;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDOutput;
-import org.a0z.mpd.exception.MPDException;
 
 import android.app.Activity;
 import android.os.Bundle;

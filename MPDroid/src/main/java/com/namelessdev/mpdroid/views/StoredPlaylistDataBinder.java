@@ -16,15 +16,14 @@
 
 package com.namelessdev.mpdroid.views;
 
+import com.anpmech.mpd.item.Item;
+import com.anpmech.mpd.item.Music;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.PlaylistViewHolder;
-
-import org.a0z.mpd.item.Item;
-import org.a0z.mpd.item.Music;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;

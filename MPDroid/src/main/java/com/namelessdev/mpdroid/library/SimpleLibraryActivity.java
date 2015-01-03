@@ -16,6 +16,10 @@
 
 package com.namelessdev.mpdroid.library;
 
+import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Directory;
+import com.anpmech.mpd.item.Stream;
 import com.namelessdev.mpdroid.MPDroidActivities;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
@@ -27,11 +31,6 @@ import com.namelessdev.mpdroid.fragments.SongsFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Directory;
-import org.a0z.mpd.item.Stream;
 
 import android.content.Context;
 import android.content.Intent;
