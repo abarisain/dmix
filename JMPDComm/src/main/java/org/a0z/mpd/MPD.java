@@ -1858,12 +1858,6 @@ public class MPD {
      * @see org.a0z.mpd.subsystem.status.IdleSubsystemMonitor
      */
     public void updateStatus() throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_STATUS);
-
-        if (response == null) {
-            Log.error(TAG, "No status response from the MPD server.");
-        } else {
-            mStatus.update(response);
-        }
+        mStatus.update(mConnection.sendCommand(MPDCommand.MPD_CMD_STATUS));
     }
 }
