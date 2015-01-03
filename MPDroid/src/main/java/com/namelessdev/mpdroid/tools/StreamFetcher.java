@@ -168,17 +168,22 @@ public class StreamFetcher {
 
     private String check(final String url) {
         HttpURLConnection connection = null;
+        String checkedUrl = null;
+
         try {
             final URL u = new URL(url);
             connection = (HttpURLConnection) u.openConnection();
             final InputStream in = new BufferedInputStream(connection.getInputStream(), 8192);
-
             final byte[] buffer = new byte[8192];
             final int read = in.read(buffer);
-            if (read < buffer.length) {
-                buffer[read] = '\0';
+
+            if (read != -1) {
+                if (read < buffer.length) {
+                    buffer[read] = (byte) '\0';
+                }
+
+                checkedUrl = parse(new String(buffer), mHandlers);
             }
-            return parse(new String(buffer), mHandlers);
         } catch (final IOException e) {
             Log.e(TAG, "Failed to check and parse an incoming playlist.", e);
         } finally {
@@ -186,7 +191,8 @@ public class StreamFetcher {
                 connection.disconnect();
             }
         }
-        return null;
+
+        return checkedUrl;
     }
 
     public String get(final String url, final String name) throws MalformedURLException {
