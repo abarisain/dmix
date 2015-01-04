@@ -44,6 +44,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.transition.Transition;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -256,6 +257,11 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
     @Override
     public void pushLibraryFragment(final Fragment fragment, final String label) {
+        pushLibraryFragment(fragment, label, null, null, null);
+    }
+
+    @Override
+    public void pushLibraryFragment(final Fragment fragment, final String label, final View transitionView, final String transitionName, final Transition transition) {
         final String title;
         if (fragment instanceof BrowseFragment) {
             title = ((BrowseFragment<?>) fragment).getTitle();
@@ -263,7 +269,13 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
             title = fragment.toString();
         }
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        if (transitionView != null) {
+            transitionView.setTransitionName("cover");
+            ft.addSharedElement(transitionView, transitionName);
+            fragment.setSharedElementEnterTransition(transition);
+        } else {
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        }
         ft.replace(R.id.library_root_frame, fragment);
         ft.addToBackStack(label);
         ft.setBreadCrumbTitle(title);

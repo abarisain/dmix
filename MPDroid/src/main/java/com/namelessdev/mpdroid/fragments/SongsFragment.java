@@ -36,12 +36,16 @@ import com.namelessdev.mpdroid.ui.ToolbarHelper;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.PopupMenuCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
@@ -68,6 +72,10 @@ import java.io.IOException;
 
 public class SongsFragment extends BrowseFragment<Music> {
 
+    public static final String COVER_TRANSITION_NAME = "cover";
+
+    private static final String STATE_FIRST_REFRESH = "firstRefresh";
+
     private static final String TAG = "SongsFragment";
 
     Album mAlbum = null;
@@ -92,12 +100,20 @@ public class SongsFragment extends BrowseFragment<Music> {
 
     PopupMenu mPopupMenu;
 
+    Bitmap mCoverThumbnailBitmap;
+
+    Handler mHandler;
+
+    boolean mFirstRefresh;
+
     private AlbumCoverDownloadListener mCoverArtListener;
 
     private PopupMenu mCoverPopupMenu;
 
     public SongsFragment() {
         super(R.string.addSong, R.string.songAdded, Music.TAG_TITLE);
+        mHandler = new Handler();
+        mFirstRefresh = true;
     }
 
     @Override
@@ -224,11 +240,17 @@ public class SongsFragment extends BrowseFragment<Music> {
         return this;
     }
 
+    public SongsFragment init(final Album al, final Bitmap bm) {
+        mCoverThumbnailBitmap = bm;
+        return init(al);
+    }
+
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             init((Album) savedInstanceState.getParcelable(Album.EXTRA));
+            mFirstRefresh = savedInstanceState.getBoolean(STATE_FIRST_REFRESH, true);
         }
     }
 
@@ -270,6 +292,13 @@ public class SongsFragment extends BrowseFragment<Music> {
             mAlbumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
         }
 
+        ViewCompat.setTransitionName(mCoverArt, COVER_TRANSITION_NAME);
+        if (mCoverThumbnailBitmap != null) {
+            mCoverArt.setImageBitmap(mCoverThumbnailBitmap);
+            applyPaletteWithBitmapAsync(mCoverThumbnailBitmap);
+            mCoverThumbnailBitmap = null;
+        }
+
         if (mHeaderToolbar != null) {
             ToolbarHelper.addSearchView(getActivity(), mHeaderToolbar);
             ToolbarHelper.showBackButton(this, mHeaderToolbar);
@@ -281,27 +310,7 @@ public class SongsFragment extends BrowseFragment<Music> {
                 super.onCoverDownloaded(cover);
                 final Drawable d = mCoverArt.getDrawable();
                 if (d instanceof BitmapDrawable) {
-                    Palette.generateAsync(((BitmapDrawable) d).getBitmap(), new Palette.PaletteAsyncListener() {
-                        @Override
-                        public void onGenerated(final Palette palette) {
-                            try {
-                                Palette.Swatch vibrantColor = palette.getDarkVibrantSwatch();
-                                Palette.Swatch mutedColor = palette.getVibrantSwatch();
-                                if (mTracksInfoContainer != null && vibrantColor != null && !isDetached()) {
-                                    mTracksInfoContainer.setBackgroundColor(vibrantColor.getRgb());
-                                    mHeaderAlbum.setTextColor(vibrantColor.getBodyTextColor());
-                                    mHeaderArtist.setTextColor(vibrantColor.getBodyTextColor());
-                                    mHeaderInfo.setTextColor(vibrantColor.getBodyTextColor());
-                                }
-                                if (mutedColor != null && mAlbumMenu instanceof FloatingActionButton) {
-                                    ((FloatingActionButton) mAlbumMenu).setColorNormal(mutedColor.getRgb());
-                                }
-                            } catch (final NullPointerException | IllegalStateException e) {
-                                Log.e(TAG, "Error while applying generated album art palette colors", e);
-                            }
-
-                        }
-                    });
+                    applyPaletteWithBitmapAsync(((BitmapDrawable) d).getBitmap());
                 }
             }
         };
@@ -482,6 +491,7 @@ public class SongsFragment extends BrowseFragment<Music> {
     @Override
     public void onSaveInstanceState(final Bundle outState) {
         outState.putParcelable(Album.EXTRA, mAlbum);
+        outState.putBoolean(STATE_FIRST_REFRESH, mFirstRefresh);
         super.onSaveInstanceState(outState);
     }
 
@@ -517,10 +527,24 @@ public class SongsFragment extends BrowseFragment<Music> {
             }
             mHeaderInfo.setText(getHeaderInfoString());
             if (mCoverHelper != null) {
-                mCoverHelper.downloadCover(fixedAlbumInfo, true);
+                // Delay the cover art download for Lollipop transition
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && mFirstRefresh) {
+                    // Hardcode a delay, we don't have a transition end callback ...
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (fixedAlbumInfo != null && mCoverHelper != null) {
+                                mCoverHelper.downloadCover(fixedAlbumInfo, true);
+                            }
+                        }
+                    }, 500);
+                } else {
+                    mCoverHelper.downloadCover(fixedAlbumInfo, true);
+                }
             } else {
                 mCoverArtListener.onCoverNotFound(new CoverInfo(fixedAlbumInfo));
             }
+            mFirstRefresh = false;
         }
 
     }
@@ -540,6 +564,30 @@ public class SongsFragment extends BrowseFragment<Music> {
                 nowPlayingSmallFragment.updateCover(albumInfo);
             }
         }
+    }
+
+    private void applyPaletteWithBitmapAsync(Bitmap b) {
+        Palette.generateAsync(b, new Palette.PaletteAsyncListener() {
+            @Override
+            public void onGenerated(final Palette palette) {
+                try {
+                    Palette.Swatch vibrantColor = palette.getDarkVibrantSwatch();
+                    Palette.Swatch mutedColor = palette.getVibrantSwatch();
+                    if (mTracksInfoContainer != null && vibrantColor != null && !isDetached()) {
+                        mTracksInfoContainer.setBackgroundColor(vibrantColor.getRgb());
+                        mHeaderAlbum.setTextColor(vibrantColor.getBodyTextColor());
+                        mHeaderArtist.setTextColor(vibrantColor.getBodyTextColor());
+                        mHeaderInfo.setTextColor(vibrantColor.getBodyTextColor());
+                    }
+                    if (mutedColor != null && mAlbumMenu instanceof FloatingActionButton) {
+                        ((FloatingActionButton) mAlbumMenu).setColorNormal(mutedColor.getRgb());
+                    }
+                } catch (final NullPointerException | IllegalStateException e) {
+                    Log.e(TAG, "Error while applying generated album art palette colors", e);
+                }
+
+            }
+        });
     }
 
 }
