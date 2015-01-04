@@ -72,9 +72,11 @@ import java.io.IOException;
 
 public class SongsFragment extends BrowseFragment<Music> {
 
-    public static final String COVER_TRANSITION_NAME = "cover";
+    public static final String COVER_TRANSITION_NAME_BASE = "cover";
 
     private static final String STATE_FIRST_REFRESH = "firstRefresh";
+
+    private static final String STATE_VIEW_TRANSITION_NAME = "viewTransitionName";
 
     private static final String TAG = "SongsFragment";
 
@@ -101,6 +103,8 @@ public class SongsFragment extends BrowseFragment<Music> {
     PopupMenu mPopupMenu;
 
     Bitmap mCoverThumbnailBitmap;
+
+    String mViewTransitionName;
 
     Handler mHandler;
 
@@ -240,8 +244,9 @@ public class SongsFragment extends BrowseFragment<Music> {
         return this;
     }
 
-    public SongsFragment init(final Album al, final Bitmap bm) {
+    public SongsFragment init(final Album al, final Bitmap bm, final String transitionName) {
         mCoverThumbnailBitmap = bm;
+        mViewTransitionName = transitionName;
         return init(al);
     }
 
@@ -251,6 +256,7 @@ public class SongsFragment extends BrowseFragment<Music> {
         if (savedInstanceState != null) {
             init((Album) savedInstanceState.getParcelable(Album.EXTRA));
             mFirstRefresh = savedInstanceState.getBoolean(STATE_FIRST_REFRESH, true);
+            mViewTransitionName = savedInstanceState.getString(STATE_VIEW_TRANSITION_NAME);
         }
     }
 
@@ -292,7 +298,7 @@ public class SongsFragment extends BrowseFragment<Music> {
             mAlbumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
         }
 
-        ViewCompat.setTransitionName(mCoverArt, COVER_TRANSITION_NAME);
+        ViewCompat.setTransitionName(mCoverArt, mViewTransitionName);
         if (mCoverThumbnailBitmap != null) {
             mCoverArt.setImageBitmap(mCoverThumbnailBitmap);
             applyPaletteWithBitmapAsync(mCoverThumbnailBitmap);
@@ -492,6 +498,7 @@ public class SongsFragment extends BrowseFragment<Music> {
     public void onSaveInstanceState(final Bundle outState) {
         outState.putParcelable(Album.EXTRA, mAlbum);
         outState.putBoolean(STATE_FIRST_REFRESH, mFirstRefresh);
+        outState.putString(STATE_VIEW_TRANSITION_NAME, mViewTransitionName);
         super.onSaveInstanceState(outState);
     }
 
@@ -530,14 +537,15 @@ public class SongsFragment extends BrowseFragment<Music> {
                 // Delay the cover art download for Lollipop transition
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && mFirstRefresh) {
                     // Hardcode a delay, we don't have a transition end callback ...
+                    // TODO : Refactor this with "onSharedElementEnd", if it's worth it.
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            if (fixedAlbumInfo != null && mCoverHelper != null) {
+                            if (mCoverHelper != null) {
                                 mCoverHelper.downloadCover(fixedAlbumInfo, true);
                             }
                         }
-                    }, 500);
+                    }, 5000);
                 } else {
                     mCoverHelper.downloadCover(fixedAlbumInfo, true);
                 }

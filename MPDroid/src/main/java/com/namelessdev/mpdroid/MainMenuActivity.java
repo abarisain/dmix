@@ -44,6 +44,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.transition.Fade;
 import android.transition.Transition;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -270,9 +271,14 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
         }
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if (transitionView != null) {
-            transitionView.setTransitionName("cover");
             ft.addSharedElement(transitionView, transitionName);
             fragment.setSharedElementEnterTransition(transition);
+            fragment.setSharedElementReturnTransition(null);
+            // TODO : Fix the exit transitions. They're hard to get, but it would be nice to have a shared exit
+            /*Fade fade = new Fade();
+            fade.setStartDelay(400);
+            fragment.setEnterTransition(fade);
+            fragment.setExitTransition(null);*/
         } else {
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         }
