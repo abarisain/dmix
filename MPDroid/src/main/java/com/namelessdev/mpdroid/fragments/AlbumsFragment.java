@@ -37,9 +37,17 @@ import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
+import android.transition.ChangeBounds;
+import android.transition.ChangeImageTransform;
+import android.transition.ChangeTransform;
+import android.transition.Fade;
+import android.transition.TransitionInflater;
+import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -48,6 +56,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 
@@ -238,9 +247,17 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
+        final TransitionInflater inflater = TransitionInflater.from(getActivity());
+        final ImageView albumCoverView = (ImageView) view.findViewById(R.id.albumCover);
+
+        Bitmap thumbnail = null;
+        if (albumCoverView.getDrawable() instanceof BitmapDrawable) {
+            thumbnail = ((BitmapDrawable) albumCoverView.getDrawable()).getBitmap();
+        }
+
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new SongsFragment().init((Album) mItems.get(position)),
-                "songs");
+                new SongsFragment().init((Album) mItems.get(position), thumbnail),
+                "songs", albumCoverView, SongsFragment.COVER_TRANSITION_NAME, inflater.inflateTransition(R.transition.album_songs_transition));
     }
 
     @Override

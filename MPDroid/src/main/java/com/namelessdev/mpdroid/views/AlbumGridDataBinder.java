@@ -17,12 +17,17 @@
 package com.namelessdev.mpdroid.views;
 
 import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.Item;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
+import android.content.Context;
 import android.support.annotation.LayoutRes;
+import android.view.View;
+
+import java.util.List;
 
 public class AlbumGridDataBinder extends AlbumDataBinder {
 
@@ -43,5 +48,15 @@ public class AlbumGridDataBinder extends AlbumDataBinder {
         if (albumInfo.isValid() && mEnableCache) {
             loadArtwork(coverHelper, albumInfo);
         }
+    }
+
+    @Override
+    public View onLayoutInflation(final Context context, final View targetView,
+            final List<? extends Item<?>> items) {
+        final View view = super.onLayoutInflation(context, targetView, items);
+
+        //ViewCompat.setTransitionName(view.findViewById(R.id.albumCover), SongsFragment.COVER_TRANSITION_NAME);
+
+        return view;
     }
 }

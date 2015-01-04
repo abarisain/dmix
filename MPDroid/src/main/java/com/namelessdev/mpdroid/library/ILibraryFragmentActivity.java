@@ -17,8 +17,12 @@
 package com.namelessdev.mpdroid.library;
 
 import android.support.v4.app.Fragment;
+import android.transition.Transition;
+import android.view.View;
 
 public interface ILibraryFragmentActivity {
 
     void pushLibraryFragment(Fragment fragment, String label);
+
+    void pushLibraryFragment(Fragment fragment, String label, View transitionView, String transitionName, Transition transition);
 }

@@ -567,6 +567,22 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         updateToolbarVisibility();
     }
 
+    /**
+     * Set the view transition name in case it's used with a ListView
+     * @param name
+     */
+    public void setViewTransitionName(String name) {
+        Bundle arguments = getArguments();
+
+        if (arguments == null) {
+            arguments = new Bundle();
+        }
+
+        //arguments.putBoolean(ARGUMENT_EMBEDDED, embedded);
+
+        setArguments(arguments);
+    }
+
     public void scrollToTop() {
         try {
             mList.setSelection(-1);

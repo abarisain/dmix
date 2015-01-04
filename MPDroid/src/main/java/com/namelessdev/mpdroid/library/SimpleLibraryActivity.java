@@ -44,9 +44,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.transition.Fade;
+import android.transition.Transition;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity implements
@@ -210,6 +213,11 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
 
     @Override
     public void pushLibraryFragment(final Fragment fragment, final String label) {
+        pushLibraryFragment(fragment, label, null, null, null);
+    }
+
+    @Override
+    public void pushLibraryFragment(final Fragment fragment, final String label, final View transitionView, final String transitionName, final Transition transition) {
         final String title;
         if (fragment instanceof BrowseFragment) {
             title = ((BrowseFragment) fragment).getTitle();
@@ -218,7 +226,12 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
         }
         setTitle(title);
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        if (transitionView != null) {
+            ft.addSharedElement(transitionView, transitionName);
+            fragment.setSharedElementEnterTransition(transition);
+        } else {
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        }
         ft.replace(R.id.root_frame, fragment);
         ft.addToBackStack(label);
         ft.setBreadCrumbTitle(title);
