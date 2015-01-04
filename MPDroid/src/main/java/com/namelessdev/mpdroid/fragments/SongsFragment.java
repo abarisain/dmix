@@ -550,7 +550,7 @@ public class SongsFragment extends BrowseFragment {
                                 mCoverHelper.downloadCover(fixedAlbumInfo, true);
                             }
                         }
-                    }, 5000);
+                    }, 500);
                 } else {
                     mCoverHelper.downloadCover(fixedAlbumInfo, true);
                 }
