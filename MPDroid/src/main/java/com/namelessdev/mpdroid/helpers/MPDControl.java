@@ -103,8 +103,8 @@ public final class MPDControl {
     }
 
     /**
-     * An overload method to use the standard {@code MPD}
-     * object and no {@code userCommand} argument.
+     * An overload method to use the standard {@code MPD} object and no {@code userCommand}
+     * argument.
      *
      * @param userCommand The command to be run.
      */
@@ -113,8 +113,8 @@ public final class MPDControl {
     }
 
     /**
-     * An overload for the  {@code run(mpd, userCommand, long)} method which uses
-     * the standard {@code MPD} object.
+     * An overload for the  {@code run(mpd, userCommand, long)} method which uses the standard
+     * {@code MPD} object.
      *
      * @param userCommand The command to be run.
      * @param i           An integer which will be cast to long for run for userCommand argument.
@@ -128,8 +128,8 @@ public final class MPDControl {
     }
 
     /**
-     * An overload for the  {@code run(mpd, userCommand, long)} method which
-     * translates resource id into a native command.
+     * An overload for the  {@code run(mpd, userCommand, long)} method which translates resource id
+     * into a native command.
      *
      * @param resId A resource id.
      */
@@ -159,8 +159,8 @@ public final class MPDControl {
     }
 
     /**
-     * Overload method for the {@code run(mpd, userCommand, long)}
-     * method which removes the third parameter.
+     * Overload method for the {@code run(mpd, userCommand, long)} method which removes the third
+     * parameter.
      *
      * @param mpd         An {@code MPD} object.
      * @param userCommand The command to be run.
@@ -170,8 +170,8 @@ public final class MPDControl {
     }
 
     /**
-     * Overload method for the {@code run(mpd, userCommand, long)} method which
-     * allows an integer as the final parameter.
+     * Overload method for the {@code run(mpd, userCommand, long)} method which allows an integer as
+     * the final parameter.
      *
      * @param mpd         An {@code MPD} object.
      * @param userCommand The command to be run.

@@ -192,8 +192,8 @@ public final class CoverManager {
     }
 
     /**
-     * This method connects to the HTTP server URL, and gets a HTTP status code. If the
-     * status code is OK or similar this method returns true, otherwise false.
+     * This method connects to the HTTP server URL, and gets a HTTP status code. If the status code
+     * is OK or similar this method returns true, otherwise false.
      *
      * @param connection An HttpURLConnection object.
      * @return True if the URL exists, false otherwise.
@@ -218,8 +218,8 @@ public final class CoverManager {
     }
 
     /**
-     * This method connects to the HTTP server URL, gets a HTTP status code and if the
-     * status code is OK or similar this method returns true, otherwise false.
+     * This method connects to the HTTP server URL, gets a HTTP status code and if the status code
+     * is OK or similar this method returns true, otherwise false.
      *
      * @param statusCode An HttpURLConnection object.
      * @return True if the URL exists, false otherwise.
@@ -497,8 +497,8 @@ public final class CoverManager {
     }
 
     /**
-     * This method connects to the HTTP server URL, and gets a HTTP status code. If the
-     * status code is OK or similar this method returns true, otherwise false.
+     * This method connects to the HTTP server URL, and gets a HTTP status code. If the status code
+     * is OK or similar this method returns true, otherwise false.
      *
      * @param connection An HttpURLConnection object.
      * @return True if the URL exists, false otherwise.
@@ -523,8 +523,8 @@ public final class CoverManager {
     }
 
     /**
-     * This method connects to the HTTP server URL, gets a HTTP status code and if the
-     * status code is OK or similar this method returns true, otherwise false.
+     * This method connects to the HTTP server URL, gets a HTTP status code and if the status code
+     * is OK or similar this method returns true, otherwise false.
      *
      * @param statusCode An HttpURLConnection object.
      * @return True if the URL exists, false otherwise.

@@ -34,17 +34,16 @@ import java.util.Comparator;
 
 /**
  * Class representing a generic track entry in playlist, abstracted for backend. This item is
- * returned from methods of the
- * <A HREF="http://www.musicpd.org/doc/protocol/database.html">database</A> subsystem of the
- * <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>.
+ * returned from methods of the <A HREF="http://www.musicpd.org/doc/protocol/database.html">database</A>
+ * subsystem of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>.
  *
  * @author Felipe Gustavo de Almeida
  */
 abstract class AbstractMusic<T extends Music> extends Item<Music> implements FilesystemTreeEntry {
 
     /**
-     * Similar to the default {@code Comparable} for the Music class, but it compares without
-     * taking disc and track numbers into account.
+     * Similar to the default {@code Comparable} for the Music class, but it compares without taking
+     * disc and track numbers into account.
      */
     public static final Comparator<AbstractMusic<Music>> COMPARE_WITHOUT_TRACK_NUMBER =
             new Comparator<AbstractMusic<Music>>() {
@@ -144,8 +143,8 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     public static final String RESPONSE_TITLE = "Title";
 
     /**
-     * The media server response key returned for a
-     * {@link #mTrack} and {@link #mTotalTracks} values.
+     * The media server response key returned for a {@link #mTrack} and {@link #mTotalTracks}
+     * values.
      */
     public static final String RESPONSE_TRACK = "Track";
 
@@ -245,8 +244,8 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     final int mDisc;
 
     /**
-     * This field is storage for the full path of the data
-     * for this track, relative to the media server.
+     * This field is storage for the full path of the data for this track, relative to the media
+     * server.
      */
     final String mFullPath;
 
@@ -261,8 +260,8 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     final String mName;
 
     /**
-     * This field is storage for the song ID, relative to the playlist of the currently
-     * connected media server.
+     * This field is storage for the song ID, relative to the playlist of the currently connected
+     * media server.
      */
     final int mSongId;
 
@@ -288,8 +287,8 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     final int mTotalTracks;
 
     /**
-     * This field is the storage for the track number of this track relative to
-     * the album it was produced for.
+     * This field is the storage for the track number of this track relative to the album it was
+     * produced for.
      */
     final int mTrack;
 
@@ -409,9 +408,9 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      *
      * @param another         The other object to compare this to.
      * @param withTrackNumber If true, compare tracks by Disc and Track number first
-     * @return A negative integer if this instance is less than {@code another};
-     * A positive integer if this instance is greater than {@code another};
-     * 0 if this instance has the same order as {@code another}.
+     * @return A negative integer if this instance is less than {@code another}; A positive integer
+     * if this instance is greater than {@code another}; 0 if this instance has the same order as
+     * {@code another}.
      */
     private int compareTo(final Item<Music> another, final boolean withTrackNumber) {
         final AbstractMusic<Music> om = (AbstractMusic<Music>) another;
@@ -453,9 +452,9 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * Defines a natural order to this object and another.
      *
      * @param another The other object to compare this to.
-     * @return A negative integer if this instance is less than {@code another};
-     * A positive integer if this instance is greater than {@code another};
-     * 0 if this instance has the same order as {@code another}.
+     * @return A negative integer if this instance is less than {@code another}; A positive integer
+     * if this instance is greater than {@code another}; 0 if this instance has the same order as
+     * {@code another}.
      */
     @Override
     public int compareTo(final Item<Music> another) {
@@ -466,8 +465,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * Compares this Music object to another.
      *
      * @param o the object to compare this instance with.
-     * @return True if fields of both Objects are equal, and are of
-     * the same class.
+     * @return True if fields of both Objects are equal, and are of the same class.
      */
     @Override
     public boolean equals(final Object o) {
@@ -521,8 +519,8 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     /**
      * Retrieves an {@link Album} from this item.
      *
-     * @return Returns an {@link org.a0z.mpd.item.Album} object of the current
-     * track with the Album Artist (if available), otherwise of the Artist.
+     * @return An {@link Album} object of the current track with the Album Artist (if available),
+     * otherwise of the Artist.
      */
     public Album getAlbum() {
         final boolean isAlbumArtist = !isEmpty(mAlbumArtistName);
@@ -772,8 +770,8 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     }
 
     /**
-     * Retrieves total number of tracks from this music's album when available.
-     * This can contain letters!
+     * Retrieves total number of tracks from this music's album when available. This can contain
+     * letters!
      *
      * @return total number of tracks from this music's album when available.
      */

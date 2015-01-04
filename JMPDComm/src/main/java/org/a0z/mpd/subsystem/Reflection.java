@@ -36,29 +36,25 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * A class to manage the
- * <A HREF="http://www.musicpd.org/doc/protocol/reflection_commands.html">reflection</A> subsystem
- * of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>. This will query various
- * capabilities and configuration for the currently connected media server.
+ * A class to manage the <A HREF="http://www.musicpd.org/doc/protocol/reflection_commands.html">reflection</A>
+ * subsystem of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>. This will query
+ * various capabilities and configuration for the currently connected media server.
  */
 public class Reflection {
 
     /**
      * Command text required to generate a command to retrieve a list of permitted commands.
-     * <BR><BR>
+     * <p/>
      * <B>Protocol command syntax:</B><BR> {@code commands}
-     * <BR><BR>
-     * <BR><B>Sample protocol output:</B><BR>
-     * {@code commands}<BR>
-     * {@code command: add}<BR>
-     * ... (removed for clarity)<BR>
-     * {@code OK}<BR>
+     * <p/>
+     * <BR><B>Sample protocol output:</B><BR> {@code commands}<BR> {@code command: add}<BR> ...
+     * (removed for clarity)<BR> {@code OK}<BR>
      */
     public static final String CMD_ACTION_COMMANDS = "commands";
 
     /**
      * Command text required to generate a command to retrieve server configuration options.
-     * <BR><BR>
+     * <p/>
      * <B>This is currently not functional for this library due to lack of socket connection
      * functionality.</B>
      */
@@ -66,57 +62,41 @@ public class Reflection {
 
     /**
      * Command text required to generate a command to receive a list of supported decoders.
-     * <BR><BR>
+     * <p/>
      * <B>Protocol command syntax:</B> {@code decoders}
-     * <BR><BR>
-     * <BR><B>Sample protocol output:</B><BR>
-     * {@code decoders}<BR>
-     * {@code plugin: mad}<BR>
-     * {@code suffix: mp3}<BR>
-     * {@code suffix: mp2}<BR>
-     * {@code mime_type: audio/mpeg}<BR>
-     * {@code OK}
+     * <p/>
+     * <BR><B>Sample protocol output:</B><BR> {@code decoders}<BR> {@code plugin: mad}<BR> {@code
+     * suffix: mp3}<BR> {@code suffix: mp2}<BR> {@code mime_type: audio/mpeg}<BR> {@code OK}
      */
     public static final String CMD_ACTION_DECODERS = "decoders";
 
     /**
      * Command text required to generate a command to receive a list of non-permitted commands.
-     * <BR><BR>
+     * <p/>
      * <B>Protocol command syntax:</B><BR> {@code notcommands}
-     * <BR><BR>
-     * <BR><B>Sample protocol output:</B><BR>
-     * {@code notcommands}<BR>
-     * {@code command: config}<BR>
-     * {@code command: kill}<BR>
-     * {@code OK}<BR>
+     * <p/>
+     * <BR><B>Sample protocol output:</B><BR> {@code notcommands}<BR> {@code command: config}<BR>
+     * {@code command: kill}<BR> {@code OK}<BR>
      */
     public static final String CMD_ACTION_NOT_COMMANDS = "notcommands";
 
     /**
      * Command text required to generate a command to receive a list of available metadata for
      * {@code Music} objects.
-     * <BR><BR>
-     * <B>Protocol command syntax:</B> {@code tagtypes}
-     * {@code tagtypes}<BR>
-     * {@code tagtype: Artist}<BR>
-     * {@code tagtype: ArtistSort}<BR>
-     * ... (removed for clarity)<BR>
-     * {@code OK}<BR>
+     * <p/>
+     * <B>Protocol command syntax:</B> {@code tagtypes} {@code tagtypes}<BR> {@code tagtype:
+     * Artist}<BR> {@code tagtype: ArtistSort}<BR> ... (removed for clarity)<BR> {@code OK}<BR>
      */
     public static final String CMD_ACTION_TAG_TYPES = "tagtypes";
 
     /**
      * Command text required to generate a command to receive a list of URL handlers.
-     * <BR><BR>
+     * <p/>
      * <B>Protocol command syntax:</B><BR> {@code urlhandlers}
-     * <BR><BR>
-     * <BR><B>Sample protocol output:</B><BR>
-     * {@code urlhandlers}<BR>
-     * {@code handler: file}<BR>
-     * {@code handler: http}<BR>
-     * {@code handler: https}<BR>
-     * {@code handler: local}<BR>
-     * {@code OK}<BR>
+     * <p/>
+     * <BR><B>Sample protocol output:</B><BR> {@code urlhandlers}<BR> {@code handler: file}<BR>
+     * {@code handler: http}<BR> {@code handler: https}<BR> {@code handler: local}<BR> {@code
+     * OK}<BR>
      */
     public static final String CMD_ACTION_URL_HANDLERS = "urlhandlers";
 
@@ -151,8 +131,8 @@ public class Reflection {
     public static final String CMD_RESPONSE_URL_HANDLERS = "handler";
 
     /**
-     * The current connection to the media server used to
-     * query the media server for reflection handling.
+     * The current connection to the media server used to query the media server for reflection
+     * handling.
      */
     private final MPDConnection mConnection;
 
@@ -168,11 +148,11 @@ public class Reflection {
     }
 
     /**
-     * Retrieves and returns a collection of available commands on
-     * the current media server with the current permissions.
+     * Retrieves and returns a collection of available commands on the current media server with the
+     * current permissions.
      *
-     * @return A collection of available commands with the
-     * current permissions on the connected media server.
+     * @return A collection of available commands with the current permissions on the connected
+     * media server.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      * @see org.a0z.mpd.MPDCommand#MPD_CMD_PASSWORD For modifying available commands.
@@ -182,8 +162,8 @@ public class Reflection {
     }
 
     /**
-     * Retrieves and returns a list of all available file type
-     * suffixes supported by the connected media server.
+     * Retrieves and returns a list of all available file type suffixes supported by the connected
+     * media server.
      *
      * @return A collection of supported file type suffixes.
      * @throws IOException  Thrown upon a communication error with the server.
@@ -212,8 +192,8 @@ public class Reflection {
     }
 
     /**
-     * Retrieves and returns a collection of all available
-     * mime types supported by the connected media server.
+     * Retrieves and returns a collection of all available mime types supported by the connected
+     * media server.
      *
      * @return A list of all available mime types for the connected media server.
      * @throws IOException  Thrown upon a communication error with the server.
@@ -225,9 +205,9 @@ public class Reflection {
 
     /**
      * Returns a collection of commands explicitly not permitted for use.
-     *
-     * Retrieves and returns a collection of commands explicitly not permitted
-     * to use on the current media server with the current permissions.
+     * <p/>
+     * Retrieves and returns a collection of commands explicitly not permitted to use on the current
+     * media server with the current permissions.
      *
      * @return A collection of commands explicitly not permitted for use on the currently connected
      * se

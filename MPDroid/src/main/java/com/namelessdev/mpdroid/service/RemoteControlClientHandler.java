@@ -37,8 +37,8 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 /**
- * A class to handle everything necessary to integrate
- * the music server with Android's RemoteControlClient.
+ * A class to handle everything necessary to integrate the music server with Android's
+ * RemoteControlClient.
  */
 public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCallback {
 
@@ -54,14 +54,14 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
     private boolean mIsMediaPlayerBuffering = false;
 
     /**
-     * The component name of MusicIntentReceiver, for
-     * use with media button and remote control APIs.
+     * The component name of MusicIntentReceiver, for use with media button and remote control
+     * APIs.
      */
     private ComponentName mMediaButtonReceiverComponent = null;
 
     /**
-     * This is kept up to date and used when the state didn't change
-     * but the remote control client needs the current state.
+     * This is kept up to date and used when the state didn't change but the remote control client
+     * needs the current state.
      */
     private int mPlaybackState = -1;
 
@@ -202,8 +202,8 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
     }
 
     /**
-     * Sets the current media server playback state in the
-     * RemoteControlClient and RemoteControlClient seek bar.
+     * Sets the current media server playback state in the RemoteControlClient and
+     * RemoteControlClient seek bar.
      *
      * @param playbackState The current playback state.
      */

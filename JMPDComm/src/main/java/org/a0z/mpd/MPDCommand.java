@@ -201,8 +201,8 @@ public class MPDCommand {
     }
 
     /**
-     * This method is used to check if this command was loaded with a command code, specified by
-     * the parameter, which is to be considered as non-fatal.
+     * This method is used to check if this command was loaded with a command code, specified by the
+     * parameter, which is to be considered as non-fatal.
      *
      * @param errorCodeToCheck The {@code ACK} error code to check.
      * @return True if the {@code ACK} error code was loaded as non-fatal, false otherwise.

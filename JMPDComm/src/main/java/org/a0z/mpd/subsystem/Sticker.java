@@ -65,60 +65,50 @@ public class Sticker {
 
     /**
      * Command text required to generate a command to retrieve a sticker.
-     * <BR><BR>
+     * <p/>
      * <B>Protocol command syntax:</B><BR> {@code sticker get {TYPE} {URI} {NAME}}.
-     * <BR><BR>
-     * <BR><B>Sample protocol output:</B><BR>
-     * {@code sticker get song track.wav key}<BR>
-     * {@code sticker: key=value}<BR>
-     * {@code OK}
+     * <p/>
+     * <BR><B>Sample protocol output:</B><BR> {@code sticker get song track.wav key}<BR> {@code
+     * sticker: key=value}<BR> {@code OK}
      */
     private static final String CMD_ACTION_GET = CMD_STICKER + ' ' + "get";
 
     /**
      * Command text required to generate a command to set a sticker.
-     * <BR><BR>
+     * <p/>
      * <B>Protocol command syntax:</B> {@code sticker set {TYPE} {URI} {NAME} {VALUE}}.
-     * <BR><BR>
-     * <B>Sample protocol output:</B><BR>
-     * {@code sticker set song track.wav key value}<BR>
-     * {@code OK}
+     * <p/>
+     * <B>Sample protocol output:</B><BR> {@code sticker set song track.wav key value}<BR> {@code
+     * OK}
      */
     private static final String CMD_ACTION_SET = CMD_STICKER + ' ' + "set";
 
     /**
      * Command text required to generate a command to delete a sticker.
-     * <BR><BR>
+     * <p/>
      * <B>Protocol command syntax:</B> {@code sticker delete {TYPE} {URI} [NAME]}.
-     * <BR><BR>
-     * <B>Sample protocol output:</B><BR>
-     * {@code sticker delete song track.wav}<BR>
-     * {@code OK}<BR>
+     * <p/>
+     * <B>Sample protocol output:</B><BR> {@code sticker delete song track.wav}<BR> {@code OK}<BR>
      */
     private static final String CMD_ACTION_DELETE = CMD_STICKER + ' ' + "delete";
 
     /**
      * Command text required to generate a command to list stickers in a track.
-     * <BR><BR>
+     * <p/>
      * <B>Protocol command syntax:</B> {@code sticker list {TYPE} {URI}}.
-     * <BR><BR>
-     * <B>Sample protocol output:</B><BR>
-     * {@code sticker list song track.wav}<BR>
-     * {@code sticker: key=value}<BR>
-     * {@code OK}
+     * <p/>
+     * <B>Sample protocol output:</B><BR> {@code sticker list song track.wav}<BR> {@code sticker:
+     * key=value}<BR> {@code OK}
      */
     private static final String CMD_ACTION_LIST = CMD_STICKER + ' ' + "list";
 
     /**
      * Command text required to generate a command to find stickers, recursively.
-     * <BR><BR>
+     * <p/>
      * <B>Protocol command syntax:</B> {@code sticker find {TYPE} {URI} {NAME}}.
-     * <BR><BR>
-     * <B>Sample protocol output:</B><BR>
-     * {@code sticker find song /dir key}<BR>
-     * {@code file: track.wav}<BR>
-     * {@code sticker: key=value}<BR>
-     * {@code OK}
+     * <p/>
+     * <B>Sample protocol output:</B><BR> {@code sticker find song /dir key}<BR> {@code file:
+     * track.wav}<BR> {@code sticker: key=value}<BR> {@code OK}
      */
     private static final String CMD_ACTION_FIND = CMD_STICKER + ' ' + "find";
 
@@ -213,8 +203,8 @@ public class Sticker {
     }
 
     /**
-     * Searches the media server sticker database for matching stickers below the entry given.
-     * For each matching track, it prints the URI and that one sticker's value.
+     * Searches the media server sticker database for matching stickers below the entry given. For
+     * each matching track, it prints the URI and that one sticker's value.
      *
      * @param entry The entry to search below in the entry's hierarchy.
      * @param name  The name to search the stickers for.
@@ -433,8 +423,7 @@ public class Sticker {
      * Sets the rating for the given entry.
      *
      * @param entry  The entry to rate.
-     * @param rating The rating to set the entry to, from {@code MIN_RATING} to
-     *               {@code MAX_RATING}.
+     * @param rating The rating to set the entry to, from {@code MIN_RATING} to {@code MAX_RATING}.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */

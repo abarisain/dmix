@@ -80,8 +80,8 @@ abstract class AbstractStream<T extends Stream> extends Item<Stream> {
     }
 
     /**
-     * Compares an Artist object with a general contract of
-     * comparison that is reflexive, symmetric and transitive.
+     * Compares an Artist object with a general contract of comparison that is reflexive, symmetric
+     * and transitive.
      *
      * @param o The object to compare this instance with.
      * @return True if the objects are equal with regard to te general contract, false otherwise.

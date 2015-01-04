@@ -51,8 +51,7 @@ public final class Tools {
     }
 
     /**
-     * Simple integer comparison. The result
-     * should be equivalent to Object.compare().
+     * Simple integer comparison. The result should be equivalent to Object.compare().
      *
      * @param lhs First value to compare to the second.
      * @param rhs Second value to compare to the first.
@@ -103,8 +102,8 @@ public final class Tools {
     }
 
     /**
-     * Null-safe equivalent of {@code a.equals(b)}. The result
-     * should be equivalent to Object.equals().
+     * Null-safe equivalent of {@code a.equals(b)}. The result should be equivalent to
+     * Object.equals().
      */
     public static boolean equals(final Object a, final Object b) {
         if (a == null) {
@@ -190,8 +189,8 @@ public final class Tools {
     }
 
     /**
-     * This method iterates through a 3 dimensional array to check each two element inner array
-     * for equality of it's inner objects with the isNotEqual(object, object) method.
+     * This method iterates through a 3 dimensional array to check each two element inner array for
+     * equality of it's inner objects with the isNotEqual(object, object) method.
      *
      * @param arrays The 3 dimensional array with objects to check for equality.
      * @return Returns true if an inner array was not equal.
@@ -409,8 +408,8 @@ public final class Tools {
     }
 
     /**
-     * Split the standard MPD protocol response into a three dimensional array consisting of a
-     * two element String array key / value pairs.
+     * Split the standard MPD protocol response into a three dimensional array consisting of a two
+     * element String array key / value pairs.
      *
      * @param list The incoming server response.
      * @return A three dimensional {@code String} array of two element {@code String arrays}.

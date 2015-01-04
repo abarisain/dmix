@@ -204,8 +204,8 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
     }
 
     /**
-     * This method builds upon the base notification resources to create
-     * the resources necessary for the expanded notification RemoteViews.
+     * This method builds upon the base notification resources to create the resources necessary for
+     * the expanded notification RemoteViews.
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void buildExpandedNotification() {
@@ -263,8 +263,8 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
     }
 
     /**
-     * A method that sets the StreamHandler {@code MediaPlayer}
-     * as dormant, which allows user access to close the notification.
+     * A method that sets the StreamHandler {@code MediaPlayer} as dormant, which allows user access
+     * to close the notification.
      */
     final void setMediaPlayerWoundDown() {
         if (mIsActive) {

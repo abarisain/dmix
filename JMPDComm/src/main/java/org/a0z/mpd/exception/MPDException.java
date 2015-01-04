@@ -30,8 +30,8 @@ package org.a0z.mpd.exception;
 import org.a0z.mpd.Log;
 
 /**
- * Represents an MPD Server error with a stack trace, a detail message and elements from the
- * <A HREF="http://www.musicpd.org/doc/protocol/response_syntax.html">response syntax</A>.
+ * Represents an MPD Server error with a stack trace, a detail message and elements from the <A
+ * HREF="http://www.musicpd.org/doc/protocol/response_syntax.html">response syntax</A>.
  *
  * @author Felipe Gustavo de Almeida
  */
@@ -49,8 +49,8 @@ public class MPDException extends Exception {
     public static final int ACK_ERROR_EXIST = 56;
 
     /**
-     * The MPD protocol ACK error code given when sending command queue commands out of order.
-     * This is no longer used in the standard implementation.
+     * The MPD protocol ACK error code given when sending command queue commands out of order. This
+     * is no longer used in the standard implementation.
      */
     public static final int ACK_ERROR_NOT_LIST = 1;
 
@@ -134,9 +134,8 @@ public class MPDException extends Exception {
     }
 
     /**
-     * Constructs a new {@code Exception} with the current stack trace, the specified detail
-     * message and parses the media server error string for details given by fields in this
-     * exception.
+     * Constructs a new {@code Exception} with the current stack trace, the specified detail message
+     * and parses the media server error string for details given by fields in this exception.
      *
      * @param detailMessage The detail message for this exception.
      */
@@ -188,8 +187,8 @@ public class MPDException extends Exception {
      * position where the error occurred.
      *
      * @param message The incoming media server ACK message.
-     * @return The command queue position where the error occurred, -1 if the message is not
-     * a valid media server ACK message.
+     * @return The command queue position where the error occurred, -1 if the message is not a valid
+     * media server ACK message.
      */
     private static int getAckCommandQueuePosition(final String message) {
         final String parsed = parseString(message, '@', ']');
@@ -230,13 +229,12 @@ public class MPDException extends Exception {
 
     /**
      * This parses {@code message} in between the first found {@code start} parameter and {@code
-     * end} parameter. In the index of {@code start} and {@code end} are equal, the index search
-     * for the {@code end} parameter will begin after the {@code start} parameter index. If the
-     * {@code start} parameter is null, the string will match the first character of the
-     * {@code message}, if the {@code end} parameter is null, the string will match to the length
-     * of
-     * the String. This method is not intended to be an all-purpose string parser, and shouldn't be
-     * used for anything beyond simple line parsing.
+     * end} parameter. In the index of {@code start} and {@code end} are equal, the index search for
+     * the {@code end} parameter will begin after the {@code start} parameter index. If the {@code
+     * start} parameter is null, the string will match the first character of the {@code message},
+     * if the {@code end} parameter is null, the string will match to the length of the String. This
+     * method is not intended to be an all-purpose string parser, and shouldn't be used for anything
+     * beyond simple line parsing.
      *
      * @param message Message to parse.
      * @param start   The first character to begin parsing.

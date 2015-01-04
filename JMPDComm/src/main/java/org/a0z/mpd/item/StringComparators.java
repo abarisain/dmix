@@ -42,14 +42,9 @@ import java.util.Comparator;
 final class StringComparators {
 
     /**
-     * <p>
-     * A string comparator that does case insensitive comparisons and handles
-     * embedded numbers correctly.
-     * </p>
-     * <p>
-     * <b>Do not use</b> if your app might ever run on any locale that uses more
-     * than 7-bit ascii characters.
-     * </p>
+     * <p> A string comparator that does case insensitive comparisons and handles embedded numbers
+     * correctly. </p> <p> <b>Do not use</b> if your app might ever run on any locale that uses more
+     * than 7-bit ascii characters. </p>
      */
     private static final Comparator<String> IGNORE_CASE_NATURAL_COMPARATOR_ASCII
             = new Comparator<String>() {
@@ -60,14 +55,9 @@ final class StringComparators {
     };
 
     /**
-     * <p>
-     * A string comparator that does case sensitive comparisons and handles
-     * embedded numbers correctly.
-     * </p>
-     * <p>
-     * <b>Do not use</b> if your app might ever run on any locale that uses more
-     * than 7-bit ascii characters.
-     * </p>
+     * <p> A string comparator that does case sensitive comparisons and handles embedded numbers
+     * correctly. </p> <p> <b>Do not use</b> if your app might ever run on any locale that uses more
+     * than 7-bit ascii characters. </p>
      */
     private static final Comparator<String> NATURAL_COMPARATOR_ASCII = new Comparator<String>() {
         @Override
@@ -84,16 +74,13 @@ final class StringComparators {
     }
 
     /**
-     * <p>
-     * Compares two strings using the given collator and comparing contained
-     * numbers based on their numeric values.
-     * </p>
+     * <p> Compares two strings using the given collator and comparing contained numbers based on
+     * their numeric values. </p>
      *
      * @param s first string
      * @param t second string
-     * @return zero iff {@code s} and {@code t} are equal, a value
-     * less than zero iff {@code s} lexicographically precedes
-     * {@code t} and a value larger than zero iff {@code s}
+     * @return zero iff {@code s} and {@code t} are equal, a value less than zero iff {@code s}
+     * lexicographically precedes {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
      */
     public static int compareNatural(final Collator collator, final String s, final String t) {
@@ -101,26 +88,17 @@ final class StringComparators {
     }
 
     /**
-     * <p>
-     * Compares two strings using the current locale's rules and comparing
-     * contained numbers based on their numeric values.
-     * </p>
-     * <p>
-     * This is probably the best default comparison to use.
-     * </p>
-     * <p>
-     * If you know that the texts to be compared are in a certain language that
-     * differs from the default locale's language, then get a collator for the
-     * desired locale ({@link java.text.Collator#getInstance(java.util.Locale)})
-     * and pass it to
-     * {@link #compareNatural(java.text.Collator, String, String)}
-     * </p>
+     * <p> Compares two strings using the current locale's rules and comparing contained numbers
+     * based on their numeric values. </p> <p> This is probably the best default comparison to use.
+     * </p> <p> If you know that the texts to be compared are in a certain language that differs
+     * from the default locale's language, then get a collator for the desired locale ({@link
+     * java.text.Collator#getInstance(java.util.Locale)}) and pass it to {@link
+     * #compareNatural(java.text.Collator, String, String)} </p>
      *
      * @param s first string
      * @param t second string
-     * @return zero iff {@code s} and {@code t} are equal, a value
-     * less than zero iff {@code s} lexicographically precedes
-     * {@code t} and a value larger than zero iff {@code s}
+     * @return zero iff {@code s} and {@code t} are equal, a value less than zero iff {@code s}
+     * lexicographically precedes {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
      */
     public static int compareNatural(final String s, final String t) {
@@ -130,14 +108,12 @@ final class StringComparators {
     /**
      * @param s             first string
      * @param t             second string
-     * @param caseSensitive treat characters differing in case only as equal -
-     *                      will be ignored if a collator is given
-     * @param collator      used to compare subwords that aren't numbers - if null,
-     *                      characters will be compared individually based on their
-     *                      Unicode value
-     * @return zero iff {@code s} and {@code t} are equal, a value
-     * less than zero iff {@code s} lexicographically precedes
-     * {@code t} and a value larger than zero iff {@code s}
+     * @param caseSensitive treat characters differing in case only as equal - will be ignored if a
+     *                      collator is given
+     * @param collator      used to compare subwords that aren't numbers - if null, characters will
+     *                      be compared individually based on their Unicode value
+     * @return zero iff {@code s} and {@code t} are equal, a value less than zero iff {@code s}
+     * lexicographically precedes {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
      */
     private static int compareNatural(final String s, final String t, final boolean caseSensitive,
@@ -304,18 +280,12 @@ final class StringComparators {
     }
 
     /**
-     * <p>
-     * Compares two strings using each character's Unicode value for non-digit
-     * characters and the numeric values off any contained numbers.
-     * </p>
-     * <p>
-     * (This will probably make sense only for strings containing 7-bit ascii
-     * characters only.)
-     * </p>
+     * <p> Compares two strings using each character's Unicode value for non-digit characters and
+     * the numeric values off any contained numbers. </p> <p> (This will probably make sense only
+     * for strings containing 7-bit ascii characters only.) </p>
      *
-     * @return zero iff {@code s} and {@code t} are equal, a value
-     * less than zero iff {@code s} lexicographically precedes
-     * {@code t} and a value larger than zero iff {@code s}
+     * @return zero iff {@code s} and {@code t} are equal, a value less than zero iff {@code s}
+     * lexicographically precedes {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
      */
     public static int compareNaturalAscii(final String s, final String t) {
@@ -323,19 +293,12 @@ final class StringComparators {
     }
 
     /**
-     * <p>
-     * Compares two strings using each character's Unicode value - ignoring
-     * upper/lower case - for non-digit characters and the numeric values of any
-     * contained numbers.
-     * </p>
-     * <p>
-     * (This will probably make sense only for strings containing 7-bit ascii
-     * characters only.)
-     * </p>
+     * <p> Compares two strings using each character's Unicode value - ignoring upper/lower case -
+     * for non-digit characters and the numeric values of any contained numbers. </p> <p> (This will
+     * probably make sense only for strings containing 7-bit ascii characters only.) </p>
      *
-     * @return zero iff {@code s} and {@code t} are equal, a value
-     * less than zero iff {@code s} lexicographically precedes
-     * {@code t} and a value larger than zero iff {@code s}
+     * @return zero iff {@code s} and {@code t} are equal, a value less than zero iff {@code s}
+     * lexicographically precedes {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
      */
     public static int compareNaturalIgnoreCaseAscii(final String s, final String t) {
@@ -343,18 +306,13 @@ final class StringComparators {
     }
 
     /**
-     * Returns a comparator that compares contained numbers based on their
-     * numeric values and compares other parts using the current locale's order
-     * rules.
-     * <p>
-     * For example in German locale this will be a comparator that handles
-     * umlauts correctly and ignores upper/lower case differences.
-     * </p>
+     * Returns a comparator that compares contained numbers based on their numeric values and
+     * compares other parts using the current locale's order rules. <p> For example in German locale
+     * this will be a comparator that handles umlauts correctly and ignores upper/lower case
+     * differences. </p>
      *
-     * @return <p>
-     * A string comparator that uses the current locale's order rules
-     * and handles embedded numbers correctly.
-     * </p>
+     * @return <p> A string comparator that uses the current locale's order rules and handles
+     * embedded numbers correctly. </p>
      * @see #getNaturalComparator(java.text.Collator)
      */
     public static Comparator<String> getNaturalComparator() {
@@ -363,15 +321,13 @@ final class StringComparators {
     }
 
     /**
-     * Returns a comparator that compares contained numbers based on their
-     * numeric values and compares other parts using the given collator.
+     * Returns a comparator that compares contained numbers based on their numeric values and
+     * compares other parts using the given collator.
      *
-     * @param collator used for locale specific comparison of text (non-number)
-     *                 subwords - must not be null
-     * @return <p>
-     * A string comparator that uses the given Collator to compare
-     * subwords and handles embedded numbers correctly.
-     * </p>
+     * @param collator used for locale specific comparison of text (non-number) subwords - must not
+     *                 be null
+     * @return <p> A string comparator that uses the given Collator to compare subwords and handles
+     * embedded numbers correctly. </p>
      * @see #getNaturalComparator()
      */
     public static Comparator<String> getNaturalComparator(final Collator collator) {
@@ -390,16 +346,12 @@ final class StringComparators {
     }
 
     /**
-     * Returns a comparator that compares contained numbers based on their
-     * numeric values and compares other parts based on each character's Unicode
-     * value.
+     * Returns a comparator that compares contained numbers based on their numeric values and
+     * compares other parts based on each character's Unicode value.
      *
-     * @return <p>
-     * a string comparator that does case sensitive comparisons on pure
-     * ascii strings and handles embedded numbers correctly.
-     * </p>
-     * <b>Do not use</b> if your app might ever run on any locale that
-     * uses more than 7-bit ascii characters.
+     * @return <p> a string comparator that does case sensitive comparisons on pure ascii strings
+     * and handles embedded numbers correctly. </p> <b>Do not use</b> if your app might ever run on
+     * any locale that uses more than 7-bit ascii characters.
      * @see #getNaturalComparator()
      * @see #getNaturalComparator(java.text.Collator)
      */
@@ -408,16 +360,13 @@ final class StringComparators {
     }
 
     /**
-     * Returns a comparator that compares contained numbers based on their
-     * numeric values and compares other parts based on each character's Unicode
-     * value while ignore upper/lower case differences. <b>Do not use</b> if
-     * your app might ever run on any locale that uses more than 7-bit ascii
-     * characters.
+     * Returns a comparator that compares contained numbers based on their numeric values and
+     * compares other parts based on each character's Unicode value while ignore upper/lower case
+     * differences. <b>Do not use</b> if your app might ever run on any locale that uses more than
+     * 7-bit ascii characters.
      *
-     * @return <p>
-     * a string comparator that does case insensitive comparisons on
-     * pure ascii strings and handles embedded numbers correctly.
-     * </p>
+     * @return <p> a string comparator that does case insensitive comparisons on pure ascii strings
+     * and handles embedded numbers correctly. </p>
      * @see #getNaturalComparator()
      * @see #getNaturalComparator(java.text.Collator)
      */

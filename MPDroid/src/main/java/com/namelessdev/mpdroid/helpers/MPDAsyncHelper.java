@@ -154,8 +154,8 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     /**
      * Executes a Runnable Asynchronous. Meant to use for individual long during operations on
-     * JMPDComm. Use this method only, when the code to execute is only used once in the project.
-     * If its use more than once, implement individual events and listener in this class.
+     * JMPDComm. Use this method only, when the code to execute is only used once in the project. If
+     * its use more than once, implement individual events and listener in this class.
      *
      * @param run Runnable to execute in background thread.
      * @return JobID, which is brought back with the AsyncExecListener interface.
@@ -178,9 +178,9 @@ public class MPDAsyncHelper implements Handler.Callback {
     }
 
     /**
-     * This method handles Messages, which comes from the AsyncWorker. This
-     * Message handler runs in the UI-Thread, and can therefore send the
-     * information back to the listeners of the matching events...
+     * This method handles Messages, which comes from the AsyncWorker. This Message handler runs in
+     * the UI-Thread, and can therefore send the information back to the listeners of the matching
+     * events...
      */
     @Override
     public final boolean handleMessage(final Message msg) {

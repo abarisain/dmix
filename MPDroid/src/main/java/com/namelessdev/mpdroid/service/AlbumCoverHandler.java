@@ -31,8 +31,8 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
- * A simple class tailor designed to keep various handlers
- * of the MPDroid service with an updated cover.
+ * A simple class tailor designed to keep various handlers of the MPDroid service with an updated
+ * cover.
  */
 class AlbumCoverHandler implements CoverDownloadListener {
 
@@ -127,8 +127,8 @@ class AlbumCoverHandler implements CoverDownloadListener {
     }
 
     /**
-     * A method implemented from CoverDownloadListener executed
-     * after cover download has successfully completed.
+     * A method implemented from CoverDownloadListener executed after cover download has
+     * successfully completed.
      *
      * @param cover A current {@code CoverInfo object}.
      */
@@ -157,8 +157,7 @@ class AlbumCoverHandler implements CoverDownloadListener {
     }
 
     /**
-     * A method implemented from CoverDownloadListener
-     * executed after an album cover was not found.
+     * A method implemented from CoverDownloadListener executed after an album cover was not found.
      *
      * @param coverInfo A current {@code CoverInfo object}.
      */
@@ -203,8 +202,8 @@ class AlbumCoverHandler implements CoverDownloadListener {
     }
 
     /**
-     * This method updates the service covers if the current cover
-     * path is different than currently playing, if cache is enabled.
+     * This method updates the service covers if the current cover path is different than currently
+     * playing, if cache is enabled.
      */
     private void updateAlbumCoverWithCached(final AlbumInfo albumInfo) {
         if (DEBUG) {
@@ -262,8 +261,8 @@ class AlbumCoverHandler implements CoverDownloadListener {
     }
 
     /**
-     * This method updates the service covers if the current cover
-     * path is different than currently playing, if cache is enabled.
+     * This method updates the service covers if the current cover path is different than currently
+     * playing, if cache is enabled.
      */
     private class DecodeAlbumCover extends AsyncTask<String, Void, Bitmap> {
 

@@ -43,8 +43,8 @@ import android.widget.Toast;
 import java.io.IOException;
 
 /**
- * StreamHandler hooks Android's audio framework to the
- * user's MPD streaming server to allow local audio playback.
+ * StreamHandler hooks Android's audio framework to the user's MPD streaming server to allow local
+ * audio playback.
  *
  * @author Arnaud Barisain Monrose (Dream_Team)
  */
@@ -89,8 +89,8 @@ public final class StreamHandler implements
     private static final boolean DEBUG = MPDroidService.DEBUG;
 
     /**
-     * Called as an argument to windDownResources() when a
-     * message is not required to send to the service.
+     * Called as an argument to windDownResources() when a message is not required to send to the
+     * service.
      */
     private static final int INVALID_INT = -1;
 
@@ -138,9 +138,9 @@ public final class StreamHandler implements
      *
      * @param serviceContext The {@code MPDroidService} instance/context.
      * @param serviceHandler The {@code MPDroidService} {@code Handler}.
-     * @param audioManager   The {@code AudioManager} from the service; don't acquire a
-     *                       {@code AudioManager} from this context as {@code AudioManager} is
-     *                       touchy about whom grabs focus.
+     * @param audioManager   The {@code AudioManager} from the service; don't acquire a {@code
+     *                       AudioManager} from this context as {@code AudioManager} is touchy about
+     *                       whom grabs focus.
      */
     StreamHandler(final MPDroidService serviceContext, final Handler serviceHandler,
             final AudioManager audioManager) {
@@ -323,8 +323,8 @@ public final class StreamHandler implements
     }
 
     /**
-     * Handle the change of volume if a notification, or any other kind of
-     * interrupting audio event.
+     * Handle the change of volume if a notification, or any other kind of interrupting audio
+     * event.
      *
      * @param focusChange The type of focus change.
      */
@@ -637,9 +637,9 @@ public final class StreamHandler implements
     }
 
     /**
-     * If streaming mode is activated this will setup the Android mediaPlayer
-     * framework, register the media button events, register the remote control
-     * client then setup and the framework streaming.
+     * If streaming mode is activated this will setup the Android mediaPlayer framework, register
+     * the media button events, register the remote control client then setup and the framework
+     * streaming.
      */
     private void tryToStream() {
         if (mPreparingStream) {
@@ -652,8 +652,8 @@ public final class StreamHandler implements
     }
 
     /**
-     * windDownResources occurs after a delay or during stopSelf() to
-     * clean up resources and give up focus to the phone and sound.
+     * windDownResources occurs after a delay or during stopSelf() to clean up resources and give up
+     * focus to the phone and sound.
      */
     private void windDownResources(final int action) {
         if (DEBUG) {
@@ -682,8 +682,8 @@ public final class StreamHandler implements
     }
 
     /**
-     * This happens at the beginning of beginStreaming() to populate all
-     * necessary resources for handling the MediaPlayer stream.
+     * This happens at the beginning of beginStreaming() to populate all necessary resources for
+     * handling the MediaPlayer stream.
      */
     private void windUpResources() {
         if (DEBUG) {

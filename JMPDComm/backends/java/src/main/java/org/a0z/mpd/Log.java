@@ -38,8 +38,8 @@ public final class Log {
     /**
      * Sends a debug message to the user.
      *
-     * @param tag     Used to identify the source of a log message. It usually
-     *                identifies the class or activity where the log call occurs.
+     * @param tag     Used to identify the source of a log message. It usually identifies the class
+     *                or activity where the log call occurs.
      * @param message The message to send to the user.
      */
     public static void debug(final String tag, final String message) {
@@ -49,8 +49,8 @@ public final class Log {
     /**
      * Sends a debug message to the user.
      *
-     * @param tag     Used to identify the source of a log message. It usually
-     *                identifies the class or activity where the log call occurs.
+     * @param tag     Used to identify the source of a log message. It usually identifies the class
+     *                or activity where the log call occurs.
      * @param message The message to send to the user.
      * @param tr      An exception to log.
      */
@@ -62,8 +62,8 @@ public final class Log {
     /**
      * Sends an error message to the user.
      *
-     * @param tag     Used to identify the source of a log message. It usually
-     *                identifies the class or activity where the log call occurs.
+     * @param tag     Used to identify the source of a log message. It usually identifies the class
+     *                or activity where the log call occurs.
      * @param message The message to send to the user.
      */
     public static void error(final String tag, final String message) {
@@ -73,8 +73,8 @@ public final class Log {
     /**
      * Sends an error message to the user.
      *
-     * @param tag     Used to identify the source of a log message. It usually
-     *                identifies the class or activity where the log call occurs.
+     * @param tag     Used to identify the source of a log message. It usually identifies the class
+     *                or activity where the log call occurs.
      * @param message The message to send to the user.
      * @param tr      An exception to log.
      */
@@ -86,8 +86,8 @@ public final class Log {
     /**
      * Sends a warning message to the user.
      *
-     * @param tag     Used to identify the source of a log message. It usually
-     *                identifies the class or activity where the log call occurs.
+     * @param tag     Used to identify the source of a log message. It usually identifies the class
+     *                or activity where the log call occurs.
      * @param message The message to send to the user.
      */
     public static void warning(final String tag, final String message) {
@@ -97,8 +97,8 @@ public final class Log {
     /**
      * Sends a warning message to the user.
      *
-     * @param tag     Used to identify the source of a log message. It usually
-     *                identifies the class or activity where the log call occurs.
+     * @param tag     Used to identify the source of a log message. It usually identifies the class
+     *                or activity where the log call occurs.
      * @param message The message to send to the user.
      * @param tr      An exception to log.
      */

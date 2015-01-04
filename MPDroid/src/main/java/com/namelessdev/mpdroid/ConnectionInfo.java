@@ -149,8 +149,8 @@ public class ConnectionInfo implements Parcelable {
      * Flatten this object into a Parcel.
      *
      * @param dest  The Parcel in which the object should be written.
-     * @param flags Additional flags about how the object should be written.
-     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
+     * @param flags Additional flags about how the object should be written. May be 0 or {@link
+     *              #PARCELABLE_WRITE_RETURN_VALUE}.
      */
     @Override
     public final void writeToParcel(final Parcel dest, final int flags) {
@@ -279,13 +279,12 @@ public class ConnectionInfo implements Parcelable {
         }
 
         /**
-         * Logically compares the previous {@code ConnectionInfo} object
-         * for changes and changes in the current object.
+         * Logically compares the previous {@code ConnectionInfo} object for changes and changes in
+         * the current object.
          *
          * @param connectionInfo The previous {@code ConnectionInfo} object.
-         * @throws IllegalStateException If {@code setPersistentNotification()} and
-         *                               {@code setStreamServer()} are not run prior to this
-         *                               method.
+         * @throws IllegalStateException If {@code setPersistentNotification()} and {@code
+         *                               setStreamServer()} are not run prior to this method.
          */
         public final void setPreviousConnectionInfo(final ConnectionInfo connectionInfo) {
             if (!mPersistentRunFirst || mStreamServer == null) {

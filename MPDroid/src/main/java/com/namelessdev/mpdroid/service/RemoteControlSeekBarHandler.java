@@ -29,8 +29,8 @@ import android.text.format.DateUtils;
 import java.util.Date;
 
 /**
- * A simple class to enable Android's RemoteControlClient
- * seek bar. (Requires Android 4.3 and higher).
+ * A simple class to enable Android's RemoteControlClient seek bar. (Requires Android 4.3 and
+ * higher).
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class RemoteControlSeekBarHandler implements
@@ -42,8 +42,8 @@ public class RemoteControlSeekBarHandler implements
     private final RemoteControlClient mRemoteControlClient;
 
     /**
-     * What was the elapsed time (in ms) when the last status refresh happened?
-     * Use this for guessing the elapsed time for the lock screen.
+     * What was the elapsed time (in ms) when the last status refresh happened? Use this for
+     * guessing the elapsed time for the lock screen.
      */
     private long mLastKnownElapsed = 0L;
 
@@ -65,8 +65,8 @@ public class RemoteControlSeekBarHandler implements
     }
 
     /**
-     * Android's callback that queries us for the elapsed time. Here, we are guessing the
-     * elapsed time using the last time we updated the elapsed time and its value at the time.
+     * Android's callback that queries us for the elapsed time. Here, we are guessing the elapsed
+     * time using the last time we updated the elapsed time and its value at the time.
      *
      * @return The guessed song position
      */
@@ -119,9 +119,8 @@ public class RemoteControlSeekBarHandler implements
     }
 
     /**
-     * Only update the refresh date and elapsed time if it is the first start to
-     * make sure we have initial data, but updateStatus and trackChanged will take care
-     * of that afterwards.
+     * Only update the refresh date and elapsed time if it is the first start to make sure we have
+     * initial data, but updateStatus and trackChanged will take care of that afterwards.
      *
      * @param elapsedTime The current track audio elapsed time.
      */

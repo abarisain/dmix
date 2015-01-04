@@ -105,9 +105,9 @@ abstract class BaseDataBinder implements ArrayDataBinder {
      * @param targetView The view given by onLayoutInflation, from which the view will be found by
      *                   the {@code resource} given.
      * @param resource   The resource id view to find.
-     * @param isVisible  If true, the visibility of the resource view will be set to
-     *                   {@code View.VISIBLE}, otherwise the visibility of the resource view will
-     *                   be set to {@code View.GONE}.
+     * @param isVisible  If true, the visibility of the resource view will be set to {@code
+     *                   View.VISIBLE}, otherwise the visibility of the resource view will be set to
+     *                   {@code View.GONE}.
      * @return The unmodified targetView.
      */
     static View setViewVisible(final View targetView, @IdRes final int resource,

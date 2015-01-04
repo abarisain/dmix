@@ -82,9 +82,9 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
      * Defines a natural order to this object and another.
      *
      * @param another The other object to compare this to.
-     * @return A negative integer if this instance is less than {@code another};
-     * A positive integer if this instance is greater than {@code another};
-     * 0 if this instance has the same order as {@code another}.
+     * @return A negative integer if this instance is less than {@code another}; A positive integer
+     * if this instance is greater than {@code another}; 0 if this instance has the same order as
+     * {@code another}.
      */
     @Override
     public int compareTo(final Item<T> another) {
@@ -128,11 +128,11 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
     }
 
     /**
-     * Returns the generated name for the item, and if null or empty
-     * the output may be translated by resource, if available.
+     * Returns the generated name for the item, and if null or empty the output may be translated by
+     * resource, if available.
      *
-     * @return If empty or null a translated "UnknownMetadata" string, if available, otherwise
-     * the given name of the item.
+     * @return If empty or null a translated "UnknownMetadata" string, if available, otherwise the
+     * given name of the item.
      */
     public String mainText() {
         String mainText = getName();

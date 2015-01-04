@@ -388,9 +388,9 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     /**
      * This method generates selected track information to send to another application.
-     *
-     * The current format of this method should output:
-     * header artist - title and if the output is a stream, the URL should be suffixed on the end.
+     * <p/>
+     * The current format of this method should output: header artist - title and if the output is a
+     * stream, the URL should be suffixed on the end.
      *
      * @return The track information to send to another application.
      */
@@ -604,8 +604,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      * This method handles any simple library activity item ids.
      *
      * @param itemId The itemId to attempt to handle.
-     * @return {@code true} if this is handled by a simple library activity,
-     * {@code false} otherwise.
+     * @return {@code true} if this is handled by a simple library activity, {@code false}
+     * otherwise.
      */
     private boolean isSimpleLibraryItem(final int itemId) {
         Intent intent = null;

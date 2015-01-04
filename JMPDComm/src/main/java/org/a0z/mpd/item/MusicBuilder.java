@@ -50,8 +50,8 @@ public final class MusicBuilder {
     }
 
     /**
-     * Builds a {@code Music} object from a subset of the
-     * media server response to a music listing command.
+     * Builds a {@code Music} object from a subset of the media server response to a music listing
+     * command.
      *
      * @param response A music listing command response.
      * @return A Music object.
@@ -178,8 +178,7 @@ public final class MusicBuilder {
     }
 
     /**
-     * Builds a {@code Music} object from a media
-     * server response to a music listing command.
+     * Builds a {@code Music} object from a media server response to a music listing command.
      *
      * @param response A music listing command response.
      * @return A Music object.

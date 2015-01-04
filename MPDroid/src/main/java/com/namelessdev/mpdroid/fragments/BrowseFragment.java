@@ -285,8 +285,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     }
 
     /**
-     * Should return the minimum number of songs in the queue before the
-     * fastscroll thumb is shown
+     * Should return the minimum number of songs in the queue before the fastscroll thumb is shown
      */
     protected int getMinimumItemsCountBeforeFastscroll() {
         return MIN_ITEMS_BEFORE_FASTSCROLL;
@@ -490,9 +489,9 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     }
 
     /**
-     * This method is used for the fastcroll visibility decision.<br/>
-     * Don't override this if you want to change the fastscroll style, override
-     * {@link #refreshFastScrollStyle(boolean)} instead.
+     * This method is used for the fastcroll visibility decision.<br/> Don't override this if you
+     * want to change the fastscroll style, override {@link #refreshFastScrollStyle(boolean)}
+     * instead.
      */
     protected void refreshFastScrollStyle() {
         refreshFastScrollStyle(mItems != null
@@ -500,9 +499,9 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     }
 
     /**
-     * This is required because setting the fast scroll prior to KitKat was
-     * important because of a bug. This bug has since been corrected, but the
-     * opposite order is now required or the fast scroll will not show.
+     * This is required because setting the fast scroll prior to KitKat was important because of a
+     * bug. This bug has since been corrected, but the opposite order is now required or the fast
+     * scroll will not show.
      *
      * @param shouldShowFastScroll If the fast scroll should be shown or not
      */

@@ -6,8 +6,8 @@ import android.widget.ImageView;
 
 /**
  * Thanks to StackOverflow
- *
- * @link http://stackoverflow.com/a/15264039/425050
+ * <p/>
+ * http://stackoverflow.com/a/15264039/425050
  */
 
 public class SquareImageView extends ImageView {

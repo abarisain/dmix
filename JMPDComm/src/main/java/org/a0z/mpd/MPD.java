@@ -278,8 +278,8 @@ public class MPD {
     }
 
     /**
-     * Add a {@code Music} or {@code Directory} item object to the playlist queue.
-     * {@code PlaylistFile} items are added in it's own method.
+     * Add a {@code Music} or {@code Directory} item object to the playlist queue. {@code
+     * PlaylistFile} items are added in it's own method.
      *
      * @param music   {@code Music} item object to be added to the media server playlist queue.
      * @param replace Whether to clear the playlist queue prior to adding the item(s).
@@ -330,11 +330,11 @@ public class MPD {
     }
 
     /**
-     * Adds songs to the queue. Optionally, clears the queue prior to the addition. Optionally,
-     * play the added songs afterward.
+     * Adds songs to the queue. Optionally, clears the queue prior to the addition. Optionally, play
+     * the added songs afterward.
      *
-     * @param commandQueue The commandQueue that will be responsible of inserting the
-     *                     songs into the queue.
+     * @param commandQueue The commandQueue that will be responsible of inserting the songs into the
+     *                     queue.
      * @param replace      If true, replaces the entire playlist queue with the added files.
      * @param playAfterAdd If true, starts playing once added.
      * @throws IOException  Thrown upon a communication error with the server.
@@ -394,8 +394,8 @@ public class MPD {
     /**
      * Add a {@code Playlist} item object to the playlist queue.
      *
-     * @param databasePlaylist A playlist item stored on the media server to add to the
-     *                         playlist queue.
+     * @param databasePlaylist A playlist item stored on the media server to add to the playlist
+     *                         queue.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
@@ -406,8 +406,8 @@ public class MPD {
     /**
      * Add a {@code Playlist} item object to the playlist queue.
      *
-     * @param databasePlaylist A playlist item stored on the media server to add to the
-     *                         playlist queue.
+     * @param databasePlaylist A playlist item stored on the media server to add to the playlist
+     *                         queue.
      * @param replace          Whether to clear the playlist queue prior to adding the
      *                         databasePlaylist string.
      * @param play             Whether to play the playlist queue prior after adding the
@@ -672,13 +672,12 @@ public class MPD {
     }
 
     /**
-     * Similar to {@code search},{@code find} looks for exact matches
-     * in the MPD database.
+     * Similar to {@code search},{@code find} looks for exact matches in the MPD database.
      *
      * @param type          type of search. Should be one of the following constants:
      *                      MPD_FIND_ARTIST, MPD_FIND_ALBUM
-     * @param locatorString case-insensitive locator locatorString. Anything that exactly
-     *                      matches {@code locatorString} will be returned in the results.
+     * @param locatorString case-insensitive locator locatorString. Anything that exactly matches
+     *                      {@code locatorString} will be returned in the results.
      * @return a Collection of {@code Music}
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
@@ -1270,8 +1269,7 @@ public class MPD {
      *
      * @param artist         artist to list albums
      * @param useAlbumArtist use AlbumArtist instead of Artist
-     * @return {@code Collection} with all album names from the given
-     * artist present in database.
+     * @return {@code Collection} with all album names from the given artist present in database.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
@@ -1287,10 +1285,9 @@ public class MPD {
     }
 
     /**
-     * List all albums grouped by Artist/AlbumArtist
-     * This method queries both Artist/AlbumArtist and tries to detect if the artist is an artist
-     * or an album artist. Only the AlbumArtist query will be displayed so that the list is not
-     * cluttered.
+     * List all albums grouped by Artist/AlbumArtist This method queries both Artist/AlbumArtist and
+     * tries to detect if the artist is an artist or an album artist. Only the AlbumArtist query
+     * will be displayed so that the list is not cluttered.
      *
      * @param includeUnknownAlbum include an entry for albums with no artists
      * @return {@code Collection} with all albums present in database, with their artist.
@@ -1374,8 +1371,8 @@ public class MPD {
 
     /**
      * Returns a sorted listallinfo command from the media server. Use of this command is highly
-     * discouraged, as it can retrieve so much information the server max_output_buffer_size may
-     * be exceeded, which will, in turn, truncate the output to this method.
+     * discouraged, as it can retrieve so much information the server max_output_buffer_size may be
+     * exceeded, which will, in turn, truncate the output to this method.
      *
      * @return List of all available music information.
      * @throws IOException  Thrown upon a communication error with the server.
@@ -1665,14 +1662,13 @@ public class MPD {
     }
 
     /**
-     * Similar to {@code find},{@code search} looks for partial
-     * matches in the MPD database.
+     * Similar to {@code find},{@code search} looks for partial matches in the MPD database.
      *
      * @param type          type of search. Should be one of the following constants:
      *                      MPD_SEARCH_ARTIST, MPD_SEARCH_TITLE, MPD_SEARCH_ALBUM,
      *                      MPD_SEARCH_FILENAME
-     * @param locatorString case-insensitive locator locatorString. Anything that contains
-     *                      {@code locatorString} will be returned in the results.
+     * @param locatorString case-insensitive locator locatorString. Anything that contains {@code
+     *                      locatorString} will be returned in the results.
      * @return a Collection of {@code Music}.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
@@ -1727,8 +1723,8 @@ public class MPD {
     /**
      * Enabled or disable consuming.
      *
-     * @param consume if true song consuming will be enabled, if false song
-     *                consuming will be disabled.
+     * @param consume if true song consuming will be enabled, if false song consuming will be
+     *                disabled.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
@@ -1751,8 +1747,7 @@ public class MPD {
     /**
      * Enabled or disable random.
      *
-     * @param random if true random will be enabled, if false random will be
-     *               disabled.
+     * @param random if true random will be enabled, if false random will be disabled.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
@@ -1763,8 +1758,7 @@ public class MPD {
     /**
      * Enabled or disable repeating.
      *
-     * @param repeat if true repeating will be enabled, if false repeating will
-     *               be disabled.
+     * @param repeat if true repeating will be enabled, if false repeating will be disabled.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
@@ -1775,8 +1769,7 @@ public class MPD {
     /**
      * Enabled or disable single mode.
      *
-     * @param single if true single mode will be enabled, if false single mode
-     *               will be disabled.
+     * @param single if true single mode will be enabled, if false single mode will be disabled.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
@@ -1841,9 +1834,9 @@ public class MPD {
     }
 
     /**
-     * Updates the {@link MPDStatistics} object stored in this object. Do not call this
-     * method directly unless you absolutely know what you are doing. If a long running application
-     * needs a status update, use the {@code MPDStatusMonitor} instead.
+     * Updates the {@link MPDStatistics} object stored in this object. Do not call this method
+     * directly unless you absolutely know what you are doing. If a long running application needs a
+     * status update, use the {@code MPDStatusMonitor} instead.
      *
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.

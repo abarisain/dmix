@@ -58,8 +58,8 @@ public final class AlbumBuilder {
     private String mBuilderName;
 
     /**
-     * Storage for the path of the album on the filesystem of the media server, used to build
-     * an album.
+     * Storage for the path of the album on the filesystem of the media server, used to build an
+     * album.
      */
     private String mBuilderPath;
 
@@ -190,8 +190,8 @@ public final class AlbumBuilder {
 
     /**
      * This sets some of the basics of an album to setup. This is identical to {@link
-     * #setBase(String, Artist, boolean)} but with a String parameter with which to build
-     * an {@code Artist} object, for convenience.
+     * #setBase(String, Artist, boolean)} but with a String parameter with which to build an {@code
+     * Artist} object, for convenience.
      *
      * @param albumName     The name of the album to build.
      * @param artistName    The name of the artist of this album.

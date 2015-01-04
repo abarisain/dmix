@@ -32,9 +32,8 @@ import android.util.Log;
 import java.io.IOException;
 
 /**
- * This sets up an AsyncTask to gather and parse all the information to update the
- * track information outside of the UI thread, then sends a callback to the resource
- * listeners.
+ * This sets up an AsyncTask to gather and parse all the information to update the track information
+ * outside of the UI thread, then sends a callback to the resource listeners.
  */
 public class UpdateTrackInfo {
 

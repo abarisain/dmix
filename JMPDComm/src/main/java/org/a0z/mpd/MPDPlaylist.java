@@ -149,8 +149,7 @@ public class MPDPlaylist {
     /**
      * Adds a {@code collection} of {@code Music} to playlist.
      *
-     * @param collection {@code collection} of {@code Music} to be added to
-     *                   playlist.
+     * @param collection {@code collection} of {@code Music} to be added to playlist.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      * @see Music
@@ -181,8 +180,8 @@ public class MPDPlaylist {
     }
 
     /**
-     * Retrieves music at position index in playlist. Operates on local copy of
-     * playlist, may not reflect server's current playlist.
+     * Retrieves music at position index in playlist. Operates on local copy of playlist, may not
+     * reflect server's current playlist.
      *
      * @param index position.
      * @return music at position index.
@@ -252,8 +251,7 @@ public class MPDPlaylist {
     }
 
     /**
-     * Moves {@code number} songs starting at position {@code start}
-     * to position {@code to}.
+     * Moves {@code number} songs starting at position {@code start} to position {@code to}.
      *
      * @param start  current position of the first of the songs to be moved.
      * @param number number of songs to be moved.
@@ -274,8 +272,8 @@ public class MPDPlaylist {
     }
 
     /**
-     * Reloads the playlist content. This is the only place the {@link org.a0z.mpd.MusicList}
-     * should be modified, don't call this method unless you know exactly what you're doing.
+     * Reloads the playlist content. This is the only place the {@link MusicList} should be
+     * modified, don't call this method unless you know exactly what you're doing.
      *
      * @param mpdStatus A current {@code MPDStatus} object.
      * @throws IOException  Thrown upon a communication error with the server.
@@ -459,8 +457,8 @@ public class MPDPlaylist {
     }
 
     /**
-     * Retrieves playlist size. Operates on local copy of playlist, may not
-     * reflect server's current playlist.
+     * Retrieves playlist size. Operates on local copy of playlist, may not reflect server's current
+     * playlist.
      *
      * @return playlist size.
      */

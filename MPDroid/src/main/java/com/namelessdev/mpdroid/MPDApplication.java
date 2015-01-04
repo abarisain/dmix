@@ -353,8 +353,8 @@ public class MPDApplication extends Application implements
     /**
      * isLocalAudible()
      *
-     * @return Returns whether it is probable that the local audio
-     * system will be playing audio controlled by this application.
+     * @return Returns whether it is probable that the local audio system will be playing audio
+     * controlled by this application.
      */
     public final boolean isLocalAudible() {
         return isStreamActive() || Tools.isServerLocalhost();

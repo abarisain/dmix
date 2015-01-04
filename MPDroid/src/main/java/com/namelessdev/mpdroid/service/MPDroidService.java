@@ -174,8 +174,8 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * The status monitor listener callback method called
-     * upon media server connection change events.
+     * The status monitor listener callback method called upon media server connection change
+     * events.
      *
      * @param connected      New connection state: true, connected; false, disconnected.
      * @param connectionLost True when connection was lost, false otherwise.
@@ -198,8 +198,8 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * This method is called by the stateChanged() callback method
-     * inform service handlers about media service status changes.
+     * This method is called by the stateChanged() callback method inform service handlers about
+     * media service status changes.
      *
      * @param mpdStatus The current {@code MPDStatus}.
      */
@@ -216,8 +216,8 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * This method checks to see if there are active service handlers. At the moment, if
-     * the notification handler is not active, nothing is. Extend as necessary.
+     * This method checks to see if there are active service handlers. At the moment, if the
+     * notification handler is not active, nothing is. Extend as necessary.
      *
      * @return True if this service has active handlers, false otherwise.
      */
@@ -448,8 +448,8 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * If the user swipes MPDroid to close, it closes this service by default; this works
-     * around that behaviour by restarting the service and getting back to where it was.
+     * If the user swipes MPDroid to close, it closes this service by default; this works around
+     * that behaviour by restarting the service and getting back to where it was.
      *
      * @param rootIntent The original root Intent that was used to launch the task that is being
      *                   removed.
@@ -490,8 +490,8 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * Called when all clients have disconnected from a
-     * particular interface published by the service.
+     * Called when all clients have disconnected from a particular interface published by the
+     * service.
      *
      * @param intent Intent used to bind to the service.
      * @return False if onRebind() on further binds is desired, true otherwise.
@@ -600,9 +600,9 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * This is the idle delay for shutting down this service after inactivity
-     * (in milliseconds). This idle is also longer than StreamHandler to
-     * avoid being unnecessarily brought up to shut right back down.
+     * This is the idle delay for shutting down this service after inactivity (in milliseconds).
+     * This idle is also longer than StreamHandler to avoid being unnecessarily brought up to shut
+     * right back down.
      */
     private void setupServiceHandler() {
         if (!mHandler.hasMessages(WIND_DOWN_HANDLERS)) {
@@ -644,8 +644,7 @@ public final class MPDroidService extends Service implements
 
     /**
      * This is the pre-initialization stream method, don't confuse this method and
-     * initializeStream(), this is run once per mIsStreamStarted cycle upon
-     * StreamHandler.START.
+     * initializeStream(), this is run once per mIsStreamStarted cycle upon StreamHandler.START.
      */
     private void startStream() {
         if (!mIsStreamStarted) {
@@ -724,8 +723,8 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * This is called to stop the stream. The null checks here are required as these handlers
-     * can be called if the service crashes and the main process status gets out of sync.
+     * This is called to stop the stream. The null checks here are required as these handlers can be
+     * called if the service crashes and the main process status gets out of sync.
      */
     private void stopStream() {
         setHandlerActivity(StreamHandler.LOCAL_UID, false);
@@ -751,8 +750,8 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * We try to get audio focus, but don't really try too hard.
-     * We just want the lock screen cover art.
+     * We try to get audio focus, but don't really try too hard. We just want the lock screen cover
+     * art.
      */
     private void tryToGetAudioFocus() {
         if (mIsNotificationStarted && !mIsStreamStarted && !mIsAudioFocusedOnThis) {
@@ -849,9 +848,9 @@ public final class MPDroidService extends Service implements
         private final List<Messenger> mServiceClients = new ArrayList<>(3);
 
         /**
-         * This service tries to stop self, and if it can't it gives debug
-         * messages as to possible reasons the service couldn't shut down.
-         * Do not call this or stopSelf() directly, use windDownHandlers().
+         * This service tries to stop self, and if it can't it gives debug messages as to possible
+         * reasons the service couldn't shut down. Do not call this or stopSelf() directly, use
+         * windDownHandlers().
          */
         private void haltService() {
             /** This assumes services have been wound down prior to call. */
@@ -1024,8 +1023,8 @@ public final class MPDroidService extends Service implements
         }
 
         /**
-         * Sends a message to all clients about all important
-         * handlers. This is used to initialize all clients.
+         * Sends a message to all clients about all important handlers. This is used to initialize
+         * all clients.
          *
          * @see #setHandlerActivity If not initializing, this method should be used instead.
          */
@@ -1042,8 +1041,8 @@ public final class MPDroidService extends Service implements
          * Sends a message to all clients about a specific handler.
          *
          * @param what     The what message to sent to bound clients.
-         * @param isActive If the what message requires it,
-         *                 whether to send true or false to clients.
+         * @param isActive If the what message requires it, whether to send true or false to
+         *                 clients.
          */
         private void sendMessageToClients(final int what, final boolean isActive) {
             if (mServiceClients.isEmpty()) {
@@ -1070,13 +1069,13 @@ public final class MPDroidService extends Service implements
 
         /**
          * This processes the incoming (and likely changed) {@code ConnectionSettings} object.
-         *
-         * This method is necessary as the {@code MPDAsyncHelper}, which produces the
-         * {@code ConnectionSettings} object, only changes in the remote process upon connection
-         * settings change. It is then parceled, bundled and sent as a message here then processed
-         * back into a {@code ConnectionSettings} object. It is then sent to our
-         * {@code MPDAsyncHelper} instance.
-         *
+         * <p/>
+         * This method is necessary as the {@code MPDAsyncHelper}, which produces the {@code
+         * ConnectionSettings} object, only changes in the remote process upon connection settings
+         * change. It is then parceled, bundled and sent as a message here then processed back into
+         * a {@code ConnectionSettings} object. It is then sent to our {@code MPDAsyncHelper}
+         * instance.
+         * <p/>
          * Once sent to this process instance {@code MPDAsyncHelper}, this will then call the
          * ConnectionInfoListener callback which calls the onConnectionConfigChange().
          *
@@ -1095,8 +1094,7 @@ public final class MPDroidService extends Service implements
         }
 
         /**
-         * If the stream handler requests stop, this
-         * method chooses whether to grant the request.
+         * If the stream handler requests stop, this method chooses whether to grant the request.
          */
         private void streamRequestsNotificationStop() {
             if (mStreamOwnsService && !isNotificationPersistent()) {

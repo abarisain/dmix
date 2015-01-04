@@ -62,8 +62,8 @@ public final class QueueControl {
     }
 
     /**
-     * A method to send simple playlist controls with a integer
-     * array argument which requires no result processing.
+     * A method to send simple playlist controls with a integer array argument which requires no
+     * result processing.
      *
      * @param command  The playlist command to send.
      * @param intArray The int array argument for the command.
@@ -84,8 +84,8 @@ public final class QueueControl {
     }
 
     /**
-     * A method to send simple playlist controls with a
-     * string argument which requires no result processing.
+     * A method to send simple playlist controls with a string argument which requires no result
+     * processing.
      *
      * @param command The playlist command to send.
      * @param s       The string argument for the command.

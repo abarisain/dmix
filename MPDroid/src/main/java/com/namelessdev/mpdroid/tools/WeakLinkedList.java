@@ -124,8 +124,8 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     /**
-     * Checks the ReferenceQueue for nodes whose values are no long valid and
-     * cleanly removes them from the list
+     * Checks the ReferenceQueue for nodes whose values are no long valid and cleanly removes them
+     * from the list
      */
     @SuppressWarnings("unchecked")
     private void cleanPhantomReferences() {
@@ -276,11 +276,10 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     /**
-     * Returns an Iterator that gracefully handles expired elements. The
-     * Iterator cannot ensure that after calling hasNext() successfully a call
-     * to next() will not throw a NoSuchElementException due to element
-     * expiration due to weak references. <br>
-     * The remove method has been implemented
+     * Returns an Iterator that gracefully handles expired elements. The Iterator cannot ensure that
+     * after calling hasNext() successfully a call to next() will not throw a NoSuchElementException
+     * due to element expiration due to weak references. <br> The remove method has been
+     * implemented
      */
     @NonNull
     @Override
@@ -642,8 +641,7 @@ public class WeakLinkedList<T> implements List<T> {
         }
 
         /**
-         * Checks to see if the list has been modified by means other than this
-         * Iterator
+         * Checks to see if the list has been modified by means other than this Iterator
          */
         private void checkConcurrentModification() {
             if (mExpectedModCount != mModCount) {
@@ -869,8 +867,8 @@ public class WeakLinkedList<T> implements List<T> {
         }
 
         /**
-         * Inspects the previous and next nodes to see if either have been
-         * removed from the list because of a removed reference
+         * Inspects the previous and next nodes to see if either have been removed from the list
+         * because of a removed reference
          */
         private void updateRefs() {
             synchronized (mLOCK) {

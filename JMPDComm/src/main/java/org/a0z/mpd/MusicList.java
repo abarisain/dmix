@@ -113,8 +113,8 @@ final class MusicList implements Iterable<Music> {
      * Retrieves a {@code Music} object by its songId.
      *
      * @param songId songId from the music to be retrieved.
-     * @return a Music with given songId or {@code null} if it is not
-     * present on this {@code MusicList}.
+     * @return a Music with given songId or {@code null} if it is not present on this {@code
+     * MusicList}.
      */
     Music getById(final int songId) {
         final int songPos = Integer.valueOf(mSongID.indexOf(songId));
@@ -126,8 +126,8 @@ final class MusicList implements Iterable<Music> {
      * Retrieves a {@code Music} object by its position on playlist.
      *
      * @param index position of the music to be retrieved.
-     * @return a Music with given position or {@code null} if it is not
-     * present on this {@code MusicList}.
+     * @return a Music with given position or {@code null} if it is not present on this {@code
+     * MusicList}.
      */
     Music getByIndex(final int index) {
         Music result = null;

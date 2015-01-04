@@ -88,8 +88,8 @@ public class Music extends AbstractMusic<Music> implements Parcelable {
     /**
      * Adds metadata from the current track to a {@code MediaMetadata.Builder} object.
      *
-     * @param metadata The constructed {@code MediaMetadata.Builder} object to add the
-     *                 current track metadata to.
+     * @param metadata The constructed {@code MediaMetadata.Builder} object to add the current track
+     *                 metadata to.
      */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void getMediaMetadata(final MediaMetadata.Builder metadata) {

@@ -330,8 +330,8 @@ public abstract class AbstractDirectory extends Item<Directory> implements Files
     }
 
     /**
-     * Makes an object which is the immediate parent relative to this directory object with the
-     * name given in the parameter.
+     * Makes an object which is the immediate parent relative to this directory object with the name
+     * given in the parameter.
      *
      * @param name The string identifier used for the name of the parent directory.
      * @return The parent directory object of this object.

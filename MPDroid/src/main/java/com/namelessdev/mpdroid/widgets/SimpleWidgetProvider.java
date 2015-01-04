@@ -43,8 +43,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
     }
 
     /**
-     * Check against {@link AppWidgetManager} if there are any instances of this
-     * widget.
+     * Check against {@link AppWidgetManager} if there are any instances of this widget.
      */
     private boolean hasInstances(final Context context) {
         final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
@@ -85,8 +84,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
     }
 
     /**
-     * Handle a change notification coming over from
-     * {@link android.media.RemoteControlClient}
+     * Handle a change notification coming over from {@link android.media.RemoteControlClient}
      */
     void notifyChange(final WidgetHelperService service) {
         if (hasInstances(service)) {

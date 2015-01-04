@@ -63,8 +63,8 @@ abstract class AbstractArtist<T extends Artist> extends Item<Artist> {
     }
 
     /**
-     * Compares an Artist object with a general contract of
-     * comparison that is reflexive, symmetric and transitive.
+     * Compares an Artist object with a general contract of comparison that is reflexive, symmetric
+     * and transitive.
      *
      * @param o The object to compare this instance with.
      * @return True if the objects are equal with regard to te general contract, false otherwise.
@@ -103,8 +103,8 @@ abstract class AbstractArtist<T extends Artist> extends Item<Artist> {
     }
 
     /**
-     * Returns an integer hash code for this Artist. By contract, any two objects for which
-     * {@link #equals} returns {@code true} must return the same hash code value. This means that
+     * Returns an integer hash code for this Artist. By contract, any two objects for which {@link
+     * #equals} returns {@code true} must return the same hash code value. This means that
      * subclasses of {@code Object} usually override both methods or neither method.
      *
      * @return This Artist hash code.

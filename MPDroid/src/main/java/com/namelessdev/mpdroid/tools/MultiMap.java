@@ -37,8 +37,8 @@ public class MultiMap<K, V> implements Serializable {
     }
 
     /**
-     * Recursive method that will append characters to proposedKey until its
-     * unique. Used in case there are collisions with generated key values.
+     * Recursive method that will append characters to proposedKey until its unique. Used in case
+     * there are collisions with generated key values.
      *
      * @param uniqueMap   The haystack.
      * @param proposedKey The proposed needle.
@@ -110,8 +110,8 @@ public class MultiMap<K, V> implements Serializable {
     /**
      * Construct a new map, that contains a unique String key for each value.
      * <p/>
-     * Current algorithm will construct unique key by appending a unique
-     * position number to key's toString() value
+     * Current algorithm will construct unique key by appending a unique position number to key's
+     * toString() value
      *
      * @return a {@link Map}
      */

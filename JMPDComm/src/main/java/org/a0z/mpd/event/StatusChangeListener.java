@@ -37,8 +37,7 @@ public interface StatusChangeListener {
     /**
      * Called when MPD server connection changes state. (connected/disconnected)
      *
-     * @param connected      new connection state: true, connected; false,
-     *                       disconnected.
+     * @param connected      new connection state: true, connected; false, disconnected.
      * @param connectionLost true when connection was lost, false otherwise.
      */
     void connectionStateChanged(boolean connected, boolean connectionLost);

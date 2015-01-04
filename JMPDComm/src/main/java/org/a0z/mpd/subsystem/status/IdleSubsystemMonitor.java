@@ -42,10 +42,9 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * A monitoring class representing the
- * <A HREF="http://www.musicpd.org/doc/protocol/command_reference.html#command_idle" target="_top">
- * idle</A> command response of the <A HREF="http://www.musicpd.org/doc/protocol" target="_top">MPD
- * protocol</A>.
+ * A monitoring class representing the <A HREF="http://www.musicpd.org/doc/protocol/command_reference.html#command_idle"
+ * target="_top"> idle</A> command response of the <A HREF="http://www.musicpd.org/doc/protocol"
+ * target="_top">MPD protocol</A>.
  */
 public class IdleSubsystemMonitor extends Thread {
 

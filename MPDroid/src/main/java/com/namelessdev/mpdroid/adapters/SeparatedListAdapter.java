@@ -30,14 +30,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * List adapter which uses an object list. If the object is an instance of
- * String, the list will display a separator. If the object is of any other
- * type, the binder will be called. The binder should do what getView does when
- * you extend BaseAdapter (except that you never inflate the view yourself)
- * There are many other implementations of this list on the internet, this one
- * has a lot of restrictions (which makes it simpler), but handles the
- * separators so that you always get the right line number when you select a
- * line. The separator needs to have a TextView named "separator_title".
+ * List adapter which uses an object list. If the object is an instance of String, the list will
+ * display a separator. If the object is of any other type, the binder will be called. The binder
+ * should do what getView does when you extend BaseAdapter (except that you never inflate the view
+ * yourself) There are many other implementations of this list on the internet, this one has a lot
+ * of restrictions (which makes it simpler), but handles the separators so that you always get the
+ * right line number when you select a line. The separator needs to have a TextView named
+ * "separator_title".
  */
 
 public class SeparatedListAdapter extends BaseAdapter {

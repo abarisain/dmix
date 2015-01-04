@@ -45,8 +45,8 @@ public class CommandQueue implements Iterable<MPDCommand> {
     private static final boolean DEBUG = false;
 
     /**
-     * Response for each successful command executed in a command list if used with
-     * {@link #MPD_CMD_START_BULK_OK}.
+     * Response for each successful command executed in a command list if used with {@link
+     * #MPD_CMD_START_BULK_OK}.
      */
     private static final String MPD_CMD_BULK_SEP = "list_OK";
 
