@@ -15,12 +15,7 @@
   ~ limitations under the License.
   -->
 
-<transitionSet>
-
-    <changeTransform />
-    <changeBounds />
-    <changeImageTransform />
-
-</transitionSet>
-
-
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorAccent">
+    <item android:drawable="@android:color/black" />
+</ripple>

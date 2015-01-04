@@ -256,8 +256,8 @@ public class AlbumsFragment extends BrowseFragment {
         }
 
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new SongsFragment().init((Album) mItems.get(position), thumbnail),
-                "songs", albumCoverView, SongsFragment.COVER_TRANSITION_NAME, inflater.inflateTransition(R.transition.album_songs_transition));
+                new SongsFragment().init((Album) mItems.get(position), thumbnail, albumCoverView.getTransitionName()),
+                "songs", albumCoverView, albumCoverView.getTransitionName(), inflater.inflateTransition(R.transition.album_songs_transition));
     }
 
     @Override
