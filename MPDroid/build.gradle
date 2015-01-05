@@ -73,7 +73,7 @@ android {
     applicationVariants.all { variant ->
 
         task("${variant.name}Javadoc", type: Javadoc) {
-            title = "$name $version API"
+            title = "$name $versionName"
             description "Generates Javadoc for $variant.name."
             source = variant.javaCompile.source
             ext.androidJar =
@@ -82,14 +82,18 @@ android {
             classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
 
             options {
+                author = true
+                header = project.name
+                memberLevel = JavadocMemberLevel.PRIVATE
                 links("http://docs.oracle.com/javase/7/docs/api/");
                 linksOffline("http://developer.android.com/reference",
                         "${android.plugin.sdkHandler.sdkFolder}/docs/reference");
+                overview = "src/main/overview.html";
+                showAll()
             }
 
-            exclude {
-                ['**/BuildConfig.java', '**/R.java']
-            }
+            exclude '**/BuildConfig.java'
+            exclude '**/R.java'
         }
     }
 }

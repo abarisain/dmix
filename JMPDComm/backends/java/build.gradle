@@ -29,6 +29,19 @@
 
 apply plugin: 'java'
 
+javadoc {
+    description = "Generates project-level javadoc."
+    title = "${project.name} WIP"
+
+    options {
+        memberLevel = JavadocMemberLevel.PRIVATE
+        showAll()
+        author = true
+        header = project.name
+        overview = "src/main/overview.html";
+    }
+}
+
 sourceSets.main {
     java {
         srcDirs = ['../../src/main/java', 'src/main/java']
