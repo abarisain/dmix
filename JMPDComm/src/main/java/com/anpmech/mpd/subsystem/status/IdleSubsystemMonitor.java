@@ -229,9 +229,8 @@ public class IdleSubsystemMonitor extends Thread {
                     if (statusChanged) {
                         // playlist
                         final int oldPlaylistVersion = oldStatus.getPlaylistVersion();
-                        final int playlistVersion = status.getPlaylistVersion();
-                        if (connectionStateChanged
-                                || oldPlaylistVersion != playlistVersion && playlistVersion != -1) {
+                        if (connectionStateChanged ||
+                                oldPlaylistVersion != status.getPlaylistVersion()) {
                             playlist.refresh(status);
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
                                 listener.playlistChanged(status, oldPlaylistVersion);
