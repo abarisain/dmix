@@ -330,11 +330,11 @@ public class MPD {
     }
 
     /**
-     * Adds songs to the queue. Optionally, clears the queue prior to the addition. Optionally, play
-     * the added songs afterward.
+     * Adds songs to the queue. Optionally, clears the queue prior to the addition. Optionally,
+     * play the added songs afterward.
      *
-     * @param commandQueue The commandQueue that will be responsible of inserting the songs into the
-     *                     queue.
+     * @param commandQueue The commandQueue that will be responsible of inserting the songs into
+     *                     the queue.
      * @param replace      If true, replaces the entire playlist queue with the added files.
      * @param playAfterAdd If true, starts playing once added.
      * @throws IOException  Thrown upon a communication error with the server.
@@ -1285,9 +1285,9 @@ public class MPD {
     }
 
     /**
-     * List all albums grouped by Artist/AlbumArtist This method queries both Artist/AlbumArtist and
-     * tries to detect if the artist is an artist or an album artist. Only the AlbumArtist query
-     * will be displayed so that the list is not cluttered.
+     * List all albums grouped by Artist/AlbumArtist This method queries both Artist/AlbumArtist
+     * and tries to detect if the artist is an artist or an album artist. Only the AlbumArtist
+     * query will be displayed so that the list is not cluttered.
      *
      * @param includeUnknownAlbum include an entry for albums with no artists
      * @return {@code Collection} with all albums present in database, with their artist.
@@ -1835,8 +1835,8 @@ public class MPD {
 
     /**
      * Updates the {@link MPDStatistics} object stored in this object. Do not call this method
-     * directly unless you absolutely know what you are doing. If a long running application needs a
-     * status update, use the {@code MPDStatusMonitor} instead.
+     * directly unless you absolutely know what you are doing. If a long running application needs
+     * a status update, use the {@code MPDStatusMonitor} instead.
      *
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.

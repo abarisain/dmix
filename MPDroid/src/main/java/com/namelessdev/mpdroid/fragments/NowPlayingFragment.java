@@ -388,8 +388,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     /**
      * This method generates selected track information to send to another application.
      * <p/>
-     * The current format of this method should output: header artist - title and if the output is a
-     * stream, the URL should be suffixed on the end.
+     * The current format of this method should output: header artist - title and if the output is
+     * a stream, the URL should be suffixed on the end.
      *
      * @return The track information to send to another application.
      */

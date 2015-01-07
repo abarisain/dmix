@@ -42,8 +42,8 @@ import java.util.Comparator;
 abstract class AbstractMusic<T extends Music> extends Item<Music> implements FilesystemTreeEntry {
 
     /**
-     * Similar to the default {@code Comparable} for the Music class, but it compares without taking
-     * disc and track numbers into account.
+     * Similar to the default {@code Comparable} for the Music class, but it compares without
+     * taking disc and track numbers into account.
      */
     public static final Comparator<AbstractMusic<Music>> COMPARE_WITHOUT_TRACK_NUMBER =
             new Comparator<AbstractMusic<Music>>() {

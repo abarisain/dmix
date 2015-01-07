@@ -457,8 +457,8 @@ public class MPDPlaylist {
     }
 
     /**
-     * Retrieves playlist size. Operates on local copy of playlist, may not reflect server's current
-     * playlist.
+     * Retrieves playlist size. Operates on local copy of playlist, may not reflect server's
+     * current playlist.
      *
      * @return playlist size.
      */

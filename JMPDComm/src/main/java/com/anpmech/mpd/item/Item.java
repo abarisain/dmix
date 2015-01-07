@@ -128,8 +128,8 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
     }
 
     /**
-     * Returns the generated name for the item, and if null or empty the output may be translated by
-     * resource, if available.
+     * Returns the generated name for the item, and if null or empty the output may be translated
+     * by resource, if available.
      *
      * @return If empty or null a translated "UnknownMetadata" string, if available, otherwise the
      * given name of the item.

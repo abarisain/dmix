@@ -722,8 +722,8 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * This is called to stop the stream. The null checks here are required as these handlers can be
-     * called if the service crashes and the main process status gets out of sync.
+     * This is called to stop the stream. The null checks here are required as these handlers can
+     * be called if the service crashes and the main process status gets out of sync.
      */
     private void stopStream() {
         setHandlerActivity(StreamHandler.LOCAL_UID, false);

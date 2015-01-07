@@ -43,10 +43,10 @@ import static com.anpmech.mpd.Tools.VALUE;
  * target="_top">MPD protocol</A> key/value based responses with useful tools for processing and
  * error handling.
  * <p/>
- * This class is designed with thread-safety in mind. If the class generated map is used, as long as
- * there is only one map writer at a time, there should be no concurrency issues. If there is going
- * to be more than one writer at a time, external locking, or a the alternative constructor will be
- * required.
+ * This class is designed with thread-safety in mind. If the class generated map is used, as long
+ * as there is only one map writer at a time, there should be no concurrency issues. If there is
+ * going to be more than one writer at a time, external locking, or a the alternative constructor
+ * will be required.
  */
 class ResponseMap {
 
@@ -91,8 +91,8 @@ class ResponseMap {
      * This map will always have a {@code loadFactor} of {@code 0.75f} and a {@code
      * concurrencyLevel} of {@code 1}, as reasonably, there will only be one writer at a time.
      *
-     * @param defaultEntryCount The initial capacity. The implementation performs internal sizing to
-     *                          accommodate this many elements.
+     * @param defaultEntryCount The initial capacity. The implementation performs internal sizing
+     *                          to accommodate this many elements.
      */
     protected ResponseMap(final int defaultEntryCount) {
         super();
@@ -283,8 +283,8 @@ class ResponseMap {
     }
 
     /**
-     * This method retrieves the value assigned to the key parameter from the map and converts it to
-     * a primitive {@code float}.
+     * This method retrieves the value assigned to the key parameter from the map and converts it
+     * to a primitive {@code float}.
      *
      * @param key The key to the value to retrieve.
      * @return The value assigned to the key as a {@code float}, or {@link #FLOAT_DEFAULT} if the

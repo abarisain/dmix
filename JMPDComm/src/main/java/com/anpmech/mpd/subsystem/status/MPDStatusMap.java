@@ -514,8 +514,8 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * Retrieves the current play state of the server.
      *
      * @return The player state, {@link #STATE_PLAYING} if the play state is playing, {@link
-     * #STATE_PAUSED} if paused, {@link #STATE_STOPPED} if stopped, or {@link #STATE_UNKNOWN} if not
-     * connected or otherwise unknown.
+     * #STATE_PAUSED} if paused, {@link #STATE_STOPPED} if stopped, or {@link #STATE_UNKNOWN} if
+     * not connected or otherwise unknown.
      */
     @Override
     public int getState() {

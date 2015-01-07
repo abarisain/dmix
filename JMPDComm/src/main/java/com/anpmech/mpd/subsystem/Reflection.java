@@ -148,8 +148,8 @@ public class Reflection {
     }
 
     /**
-     * Retrieves and returns a collection of available commands on the current media server with the
-     * current permissions.
+     * Retrieves and returns a collection of available commands on the current media server with
+     * the current permissions.
      *
      * @return A collection of available commands with the current permissions on the connected
      * media server.
@@ -206,8 +206,8 @@ public class Reflection {
     /**
      * Returns a collection of commands explicitly not permitted for use.
      * <p/>
-     * Retrieves and returns a collection of commands explicitly not permitted to use on the current
-     * media server with the current permissions.
+     * Retrieves and returns a collection of commands explicitly not permitted to use on the
+     * current media server with the current permissions.
      *
      * @return A collection of commands explicitly not permitted for use on the currently connected
      * se

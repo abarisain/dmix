@@ -138,8 +138,8 @@ public final class StreamHandler implements
      * @param serviceContext The {@code MPDroidService} instance/context.
      * @param serviceHandler The {@code MPDroidService} {@code Handler}.
      * @param audioManager   The {@code AudioManager} from the service; don't acquire a {@code
-     *                       AudioManager} from this context as {@code AudioManager} is touchy about
-     *                       whom grabs focus.
+     *                       AudioManager} from this context as {@code AudioManager} is touchy
+     *                       about whom grabs focus.
      */
     StreamHandler(final MPDroidService serviceContext, final Handler serviceHandler,
             final AudioManager audioManager) {
@@ -651,8 +651,8 @@ public final class StreamHandler implements
     }
 
     /**
-     * windDownResources occurs after a delay or during stopSelf() to clean up resources and give up
-     * focus to the phone and sound.
+     * windDownResources occurs after a delay or during stopSelf() to clean up resources and give
+     * up focus to the phone and sound.
      */
     private void windDownResources(final int action) {
         if (DEBUG) {

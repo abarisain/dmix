@@ -136,8 +136,8 @@ public abstract class MPDConnection {
      * @param port     The media server port to connect to.
      * @param password The MPD protocol password to pass upon connection.
      * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown upon an error sending a simple command to the {@code host}/{@code
-     *                      port} pair with the {@code password}.
+     * @throws MPDException Thrown upon an error sending a simple command to the {@code
+     *                      host}/{@code port} pair with the {@code password}.
      */
     public final void connect(final InetAddress host, final int port, final String password)
             throws IOException, MPDException {
@@ -349,8 +349,8 @@ public abstract class MPDConnection {
      * non-fatal ACK codes.
      *
      * @param command        The command to be sent to the server.
-     * @param nonfatalErrors Errors to consider as non-fatal for this command. These MPD error codes
-     *                       with this command will not return any exception.
+     * @param nonfatalErrors Errors to consider as non-fatal for this command. These MPD error
+     *                       codes with this command will not return any exception.
      * @param args           Arguments to the command to be sent to the server.
      * @return The result from the command sent to the server.
      * @throws IOException  Thrown upon a communication error with the server.

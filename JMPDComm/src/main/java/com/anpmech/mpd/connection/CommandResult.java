@@ -66,8 +66,8 @@ class CommandResult {
     }
 
     /**
-     * Processes the {@code CommandResult} connection response to store the current media server MPD
-     * protocol version.
+     * Processes the {@code CommandResult} connection response to store the current media server
+     * MPD protocol version.
      *
      * @return Returns the MPD version retained from the connection result.
      */

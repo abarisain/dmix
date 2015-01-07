@@ -43,8 +43,8 @@ final class StringComparators {
 
     /**
      * <p> A string comparator that does case insensitive comparisons and handles embedded numbers
-     * correctly. </p> <p> <b>Do not use</b> if your app might ever run on any locale that uses more
-     * than 7-bit ascii characters. </p>
+     * correctly. </p> <p> <b>Do not use</b> if your app might ever run on any locale that uses
+     * more than 7-bit ascii characters. </p>
      */
     private static final Comparator<String> IGNORE_CASE_NATURAL_COMPARATOR_ASCII
             = new Comparator<String>() {
@@ -56,8 +56,8 @@ final class StringComparators {
 
     /**
      * <p> A string comparator that does case sensitive comparisons and handles embedded numbers
-     * correctly. </p> <p> <b>Do not use</b> if your app might ever run on any locale that uses more
-     * than 7-bit ascii characters. </p>
+     * correctly. </p> <p> <b>Do not use</b> if your app might ever run on any locale that uses
+     * more than 7-bit ascii characters. </p>
      */
     private static final Comparator<String> NATURAL_COMPARATOR_ASCII = new Comparator<String>() {
         @Override
@@ -294,8 +294,8 @@ final class StringComparators {
 
     /**
      * <p> Compares two strings using each character's Unicode value - ignoring upper/lower case -
-     * for non-digit characters and the numeric values of any contained numbers. </p> <p> (This will
-     * probably make sense only for strings containing 7-bit ascii characters only.) </p>
+     * for non-digit characters and the numeric values of any contained numbers. </p> <p> (This
+     * will probably make sense only for strings containing 7-bit ascii characters only.) </p>
      *
      * @return zero iff {@code s} and {@code t} are equal, a value less than zero iff {@code s}
      * lexicographically precedes {@code t} and a value larger than zero iff {@code s}
@@ -307,9 +307,9 @@ final class StringComparators {
 
     /**
      * Returns a comparator that compares contained numbers based on their numeric values and
-     * compares other parts using the current locale's order rules. <p> For example in German locale
-     * this will be a comparator that handles umlauts correctly and ignores upper/lower case
-     * differences. </p>
+     * compares other parts using the current locale's order rules. <p> For example in German
+     * locale this will be a comparator that handles umlauts correctly and ignores upper/lower
+     * case differences. </p>
      *
      * @return <p> A string comparator that uses the current locale's order rules and handles
      * embedded numbers correctly. </p>

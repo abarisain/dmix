@@ -169,8 +169,8 @@ public final class MPDControl {
     }
 
     /**
-     * Overload method for the {@code run(mpd, userCommand, long)} method which allows an integer as
-     * the final parameter.
+     * Overload method for the {@code run(mpd, userCommand, long)} method which allows an integer
+     * as the final parameter.
      *
      * @param mpd         An {@code MPD} object.
      * @param userCommand The command to be run.

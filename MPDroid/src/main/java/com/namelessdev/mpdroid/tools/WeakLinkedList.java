@@ -276,10 +276,10 @@ public class WeakLinkedList<T> implements List<T> {
     }
 
     /**
-     * Returns an Iterator that gracefully handles expired elements. The Iterator cannot ensure that
-     * after calling hasNext() successfully a call to next() will not throw a NoSuchElementException
-     * due to element expiration due to weak references. <br> The remove method has been
-     * implemented
+     * Returns an Iterator that gracefully handles expired elements. The Iterator cannot ensure
+     * that after calling hasNext() successfully a call to next() will not throw a
+     * NoSuchElementException due to element expiration due to weak references. <br> The remove
+     * method has been implemented
      */
     @NonNull
     @Override

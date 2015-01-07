@@ -134,8 +134,9 @@ public class MPDException extends Exception {
     }
 
     /**
-     * Constructs a new {@code Exception} with the current stack trace, the specified detail message
-     * and parses the media server error string for details given by fields in this exception.
+     * Constructs a new {@code Exception} with the current stack trace, the specified detail
+     * message and parses the media server error string for details given by fields in this
+     * exception.
      *
      * @param detailMessage The detail message for this exception.
      */
@@ -229,12 +230,14 @@ public class MPDException extends Exception {
 
     /**
      * This parses {@code message} in between the first found {@code start} parameter and {@code
-     * end} parameter. In the index of {@code start} and {@code end} are equal, the index search for
-     * the {@code end} parameter will begin after the {@code start} parameter index. If the {@code
-     * start} parameter is null, the string will match the first character of the {@code message},
-     * if the {@code end} parameter is null, the string will match to the length of the String. This
-     * method is not intended to be an all-purpose string parser, and shouldn't be used for anything
-     * beyond simple line parsing.
+     * end} parameter. In the index of {@code start} and {@code end} are equal, the index search
+     * for the {@code end} parameter will begin after the {@code start} parameter index. If the
+     * {@code start} parameter is null, the string will match the first character of the
+     * {@code message}, if the {@code end} parameter is null, the string will match to the length
+     * of the String.
+     * <p/>
+     * This method is not intended to be an all-purpose string parser, and shouldn't be used for
+     * anything beyond simple line parsing.
      *
      * @param message Message to parse.
      * @param start   The first character to begin parsing.
