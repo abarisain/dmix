@@ -43,7 +43,7 @@ import com.anpmech.mpd.item.MusicBuilder;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.item.Stream;
 import com.anpmech.mpd.subsystem.Sticker;
-import com.anpmech.mpd.subsystem.status.MPDStatistics;
+import com.anpmech.mpd.subsystem.status.MPDStatisticsMap;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 
 import java.io.IOException;
@@ -73,7 +73,7 @@ public class MPD {
 
     private final MPDConnection mIdleConnection;
 
-    private final MPDStatistics mStatistics;
+    private final MPDStatisticsMap mStatistics;
 
     private final MPDStatusMap mStatus;
 
@@ -84,10 +84,10 @@ public class MPD {
         super();
         mConnection = new MPDConnectionMultiSocket(5000, 2);
         mIdleConnection = new MPDConnectionMonoSocket(0);
-        mStatistics = new MPDStatistics();
 
         mPlaylist = new MPDPlaylist(mConnection);
-        mStatus = new MPDStatusMap();
+        mStatistics = new MPDStatisticsMap(mConnection);
+        mStatus = new MPDStatusMap(mConnection);
     }
 
     /**
@@ -1106,7 +1106,7 @@ public class MPD {
      *
      * @return statistics for the connected server.
      */
-    public MPDStatistics getStatistics() {
+    public MPDStatisticsMap getStatistics() {
         return mStatistics;
     }
 
@@ -1831,33 +1831,5 @@ public class MPD {
      */
     public void stop() throws IOException, MPDException {
         mConnection.send(MPDCommand.MPD_CMD_STOP);
-    }
-
-    /**
-     * Updates the {@link MPDStatistics} object stored in this object. Do not call this method
-     * directly unless you absolutely know what you are doing. If a long running application needs
-     * a status update, use the {@code MPDStatusMonitor} instead.
-     *
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @see com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor
-     */
-    public void updateStatistics() throws IOException, MPDException {
-        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_STATISTICS);
-
-        mStatistics.update(response);
-    }
-
-    /**
-     * Retrieves status of the connected server. Do not call this method directly unless you
-     * absolutely know what you are doing. If a long running application needs a status update, use
-     * the {@code IdleSubsystemMonitor} instead.
-     *
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @see com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor
-     */
-    public void updateStatus() throws IOException, MPDException {
-        mStatus.update(mConnection.send(MPDCommand.MPD_CMD_STATUS));
     }
 }

@@ -28,7 +28,11 @@
 package com.anpmech.mpd.subsystem.status;
 
 import com.anpmech.mpd.Log;
+import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.connection.MPDConnection;
+import com.anpmech.mpd.exception.MPDException;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -264,6 +268,11 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
     private static final String TAG = "MPDStatus";
 
     /**
+     * The connection used to keep this object up to date.
+     */
+    private final MPDConnection mConnection;
+
+    /**
      * The locally generated time of the last status update.
      */
     private long mUpdateTime;
@@ -271,8 +280,10 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
     /**
      * This constructor initializes the backend storage for the status response.
      */
-    public MPDStatusMap() {
+    public MPDStatusMap(final MPDConnection connection) {
         super(DEFAULT_ENTRY_COUNT);
+
+        mConnection = connection;
     }
 
     /**
@@ -283,6 +294,8 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      */
     private MPDStatusMap(final Map<CharSequence, String> responseMap) {
         super(responseMap);
+
+        mConnection = null;
     }
 
     /**
@@ -306,7 +319,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
         final int bitsPerSample;
 
         if (value == null) {
-            bitsPerSample = Integer.MIN_VALUE;
+            bitsPerSample = DEFAULT_INTEGER;
         } else {
             final int delimiterIndex = value.indexOf(':');
             final int secondIndex = value.lastIndexOf(':');
@@ -328,7 +341,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
         final int channels;
 
         if (value == null) {
-            channels = Integer.MIN_VALUE;
+            channels = DEFAULT_INTEGER;
         } else {
             channels = parseInteger(value.substring(value.lastIndexOf(':') + 1));
         }
@@ -365,7 +378,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
     @Override
     public final long getElapsedTime() {
         final String value = getMapValue(RESPONSE_TIME);
-        long elapsedTime = Long.MIN_VALUE;
+        long elapsedTime = DEFAULT_LONG;
 
         if (value != null) {
             elapsedTime = parseLong(value.substring(0, value.indexOf(':')));
@@ -479,7 +492,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
     @Override
     public final int getSampleRate() {
         final String value = getMapValue(RESPONSE_AUDIO);
-        int sampleRate = Integer.MIN_VALUE;
+        int sampleRate = DEFAULT_INTEGER;
 
         if (value != null) {
             final int delimiterIndex = value.indexOf(':');
@@ -552,7 +565,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
     @Override
     public final long getTotalTime() {
         final String value = getMapValue(RESPONSE_TIME);
-        long result = Long.MIN_VALUE;
+        long result = DEFAULT_LONG;
 
         if (value != null) {
             final int timeIndex = value.indexOf(':');
@@ -721,6 +734,19 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
                 ", isUpdating(): " + isUpdating() +
                 ", mUpdateTime=" + mUpdateTime +
                 '}';
+    }
+
+    /**
+     * Retrieves status of the connected server. Do not call this method directly unless you
+     * absolutely know what you are doing. If a long running application needs a status update, use
+     * the {@code IdleSubsystemMonitor} instead.
+     *
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @see IdleSubsystemMonitor
+     */
+    public void update() throws IOException, MPDException {
+        update(mConnection.send(MPDCommand.MPD_CMD_STATUS));
     }
 
     /**

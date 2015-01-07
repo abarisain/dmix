@@ -157,6 +157,7 @@ public class IdleSubsystemMonitor extends Thread {
         /** Objects to keep cached in {@link MPD} */
         final MPDStatusMap status = mMPD.getStatus();
         final MPDPlaylist playlist = mMPD.getPlaylist();
+        final MPDStatisticsMap statistics = mMPD.getStatistics();
 
         /** Just for initialization purposes */
         MPDStatus oldStatus = status;
@@ -169,8 +170,8 @@ public class IdleSubsystemMonitor extends Thread {
                 if (mMPD.isConnected()) {
                     try {
                         oldStatus = status.getImmutableStatus();
-                        mMPD.updateStatistics();
-                        mMPD.updateStatus();
+                        statistics.update();
+                        status.update();
                         playlist.refresh(status);
                     } catch (final IOException | MPDException e) {
                         Log.error(TAG, "Failed to force a status update.", e);
@@ -199,12 +200,12 @@ public class IdleSubsystemMonitor extends Thread {
                         final List<String> changes = waitForChanges();
 
                         oldStatus = status.getImmutableStatus();
-                        mMPD.updateStatus();
+                        status.update();
 
                         for (final String change : changes) {
                             switch (change.substring("changed: ".length())) {
                                 case "database":
-                                    mMPD.updateStatistics();
+                                    statistics.update();
                                     dbChanged = true;
                                     statusChanged = true;
                                     break;

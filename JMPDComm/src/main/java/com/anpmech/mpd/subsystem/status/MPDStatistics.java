@@ -28,95 +28,26 @@
 package com.anpmech.mpd.subsystem.status;
 
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
- * A class representing a <A HREF="http://www.musicpd.org/doc/protocol/command_reference.html#command_stats">stats</A>
- * command response of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>.
+ * An interface to the {@link MPDStatisticsMap} class for the methods which are not required for
+ * MPDStatisticsMap modification.
  */
-public class MPDStatistics extends ResponseMap {
-
-    /**
-     * This is the value given if there was no long in the map with the given key.
-     */
-    public static final long DEFAULT_LONG = ResponseMap.LONG_DEFAULT;
-
-    /**
-     * The default number of statistic response entries.
-     * <p/>
-     * The statistics command responds with 7 entries as of standard MPD implementation 0.19.
-     * Unlike the status command, the statistics entry response count is much less likely to
-     * fluctuate.
-     */
-    private static final int DEFAULT_ENTRY_COUNT = 7;
-
-    /**
-     * The key from the statistics command for the value of a count of all albums in the database.
-     */
-    private static final CharSequence RESPONSE_ALBUM_COUNT = "albums";
-
-    /**
-     * The key from the statistics command for the value of a count of all artists in the database.
-     */
-    private static final CharSequence RESPONSE_ARTIST_COUNT = "artists";
-
-    /**
-     * The key from the statistics command for the value of the time required to play all tracks in
-     * the database.
-     */
-    private static final CharSequence RESPONSE_DATABASE_PLAY_TIME = "db_playtime";
-
-    /**
-     * The key from the statistics command for the value of last database update in UNIX time.
-     */
-    private static final CharSequence RESPONSE_LAST_UPDATE_TIME = "db_update";
-
-    /**
-     * The key from the statistics command for the value of length of time the connected media
-     * player has been playing.
-     */
-    private static final CharSequence RESPONSE_PLAYTIME = "playtime";
-
-    /**
-     * The key from the statistics command for the value of the uptime in seconds.
-     */
-    private static final CharSequence RESPONSE_SERVER_UPTIME = "uptime";
-
-    /**
-     * The key from the statistics command for the value of the total number of songs in the
-     * database.
-     */
-    private static final CharSequence RESPONSE_SONG_COUNT = "songs";
-
-    /**
-     * The class log identifier.
-     */
-    private static final String TAG = "MPDStatistics";
-
-    /**
-     * This constructor initializes the backend storage for the stat response.
-     */
-    public MPDStatistics() {
-        super(DEFAULT_ENTRY_COUNT);
-    }
+public interface MPDStatistics {
 
     /**
      * Retrieves total number of albums in the connected media server's database.
      *
      * @return total number of albums in the connected media server's database.
      */
-    public long getAlbums() {
-        return parseMapLong(RESPONSE_ALBUM_COUNT);
-    }
+    long getAlbums();
 
     /**
      * Retrieves total number of artists in the server database.
      *
      * @return The total number of artists in the server database.
      */
-    public long getArtists() {
-        return parseMapLong(RESPONSE_ARTIST_COUNT);
-    }
+    long getArtists();
 
     /**
      * Retrieves the amount of time the media server would take to play every song in the database
@@ -125,62 +56,40 @@ public class MPDStatistics extends ResponseMap {
      * @return Retrieves the amount of time (in seconds) mpd would take to play every song in the db
      * once.
      */
-    public long getDBPlaytime() {
-        return parseMapLong(RESPONSE_DATABASE_PLAY_TIME);
-    }
+    long getDBPlaytime();
 
     /**
      * Retrieves last database update time.
      *
      * @return The last database update time.
      */
-    public Date getDBUpdateTime() {
-        final long date = TimeUnit.SECONDS.toMillis(parseMapLong(RESPONSE_LAST_UPDATE_TIME));
-
-        return new Date(date);
-    }
+    Date getDBUpdateTime();
 
     /**
      * Retrieves time the media server has been playing audio.
      *
      * @return How long the media server has been actually playing audio in seconds.
      */
-    public long getPlayTime() {
-        return parseMapLong(RESPONSE_PLAYTIME);
-    }
+    long getPlayTime();
 
     /**
      * Retrieves total number of songs.
      *
      * @return The total number of songs.
      */
-    public long getSongs() {
-        return parseMapLong(RESPONSE_SONG_COUNT);
-    }
+    long getSongs();
 
     /**
      * Retrieves server up time.
      *
      * @return The server up time.
      */
-    public long getUpTime() {
-        return parseMapLong(RESPONSE_SERVER_UPTIME);
-    }
+    long getUpTime();
 
     /**
      * Retrieves a string representation of the {@link ResponseMap} and this object.
      *
      * @return A string representation of the ResponseMap and this resulting object.
      */
-    public String toString() {
-        return super.toString() +
-                "MPDStatistics: {" +
-                "getAlbums(): " + getAlbums() +
-                ", getArtists(): " + getArtists() +
-                ", getDBPlaytime(): " + getDBPlaytime() +
-                ", getDBUpdateTime(): " + getDBUpdateTime() +
-                ", getPlayTime(): " + getPlayTime() +
-                ", getSongs(): " + getSongs() +
-                ", getUpTime(): " + getUpTime() + '}';
-    }
+    String toString();
 }
