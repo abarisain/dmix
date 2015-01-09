@@ -95,7 +95,7 @@ public class MPDOutput {
     }
 
     public static Collection<MPDOutput> buildOutputsFromList(final List<String> response) {
-        final Collection<int[]> ranges = Tools.getRanges(response, CMD_ID);
+        final Collection<int[]> ranges = Tools.getRanges(response);
         final Collection<MPDOutput> result = new ArrayList<>(ranges.size());
 
         for (final int[] range : ranges) {

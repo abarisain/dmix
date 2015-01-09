@@ -151,16 +151,17 @@ public final class Tools {
      * Gets a beginning and an end range of to a server response.
      *
      * @param response The server response to parse.
-     * @param key      The key to the beginning/end of a sub-list.
      * @return A two int array. The first int is the beginning range which matched the key
      * parameter. The second number is one int beyond the end of the range (List.subList()
      * compatible). If no range is found, an empty list will be returned.
      */
-    public static Collection<int[]> getRanges(final Collection<String> response, final String key) {
+    public static Collection<int[]> getRanges(final List<String> response) {
+        final int responseSize = response.size();
         /** Initialize the range after the capacity is known. */
         Collection<int[]> ranges = null;
-        int iterator = 0;
+        CharSequence key = null;
         int beginIndex = 0;
+        int iterator = 0;
 
         for (final String line : response) {
             final int index = line.indexOf(':');
@@ -172,9 +173,13 @@ public final class Tools {
                 formatted = line.subSequence(0, index);
             }
 
-            if (key.contentEquals(formatted) && iterator != beginIndex) {
+            if (iterator == 0) {
+                key = formatted;
+            }
+
+            if (key.equals(formatted) && iterator != beginIndex) {
                 if (ranges == null) {
-                    final int capacity = response.size() / (iterator - beginIndex);
+                    final int capacity = responseSize / (iterator - beginIndex);
                     ranges = new ArrayList<>(capacity);
                 }
                 ranges.add(new int[]{beginIndex, iterator});
@@ -184,14 +189,12 @@ public final class Tools {
             iterator++;
         }
 
-        if (ranges == null) {
-            if (beginIndex == iterator) {
-                ranges = Collections.emptyList();
-            } else {
-                ranges = Collections.singletonList(new int[]{beginIndex, response.size()});
-            }
+        if (responseSize == 0) {
+            ranges = Collections.emptyList();
+        } else if (ranges == null) {
+            ranges = Collections.singletonList(new int[]{beginIndex, responseSize});
         } else {
-            ranges.add(new int[]{beginIndex, response.size()});
+            ranges.add(new int[]{beginIndex, responseSize});
         }
 
         return ranges;

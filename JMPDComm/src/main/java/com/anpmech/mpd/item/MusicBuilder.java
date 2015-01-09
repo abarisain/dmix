@@ -185,7 +185,7 @@ public final class MusicBuilder {
      * @see #build(java.util.Collection)
      */
     public static List<Music> buildMusicFromList(final List<String> response, final boolean sort) {
-        final Collection<int[]> ranges = Tools.getRanges(response, AbstractMusic.RESPONSE_FILE);
+        final Collection<int[]> ranges = Tools.getRanges(response);
         final List<Music> result = new ArrayList<>(ranges.size());
 
         for (final int[] range : ranges) {
