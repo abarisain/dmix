@@ -318,4 +318,8 @@
     <string name="mediaPlayerErrorTimedOut">Zeitüberschreitung.</string>
     <string name="mediaPlayerErrorUnsupported">Der Stream-Codec wird nicht unterstützt.</string>
     <!-- End MediaPlayer Error Strings -->
+
+    <string name="gpThanksTitle">Danke :)</string>
+    <string name="gpThanksMessage">Erinnern Sie sich, dass MPDroid aus dem Store entfernt werden sollte?\n\nNun, danke für die Unterstützung, wir bleiben!\n\nIch habe letzte Woche unzählige E-Mails erhalten. Gerne würde ich jedem einzeln Danken, aber das ist eine große Aufgabe ;)\n\nWir haben viele neue Sachen in Vorbereitunge, sei gespannt auf das nächste Update!</string>
+    <string name="gpThanksOkButton">Super!</string>
 </resources>
