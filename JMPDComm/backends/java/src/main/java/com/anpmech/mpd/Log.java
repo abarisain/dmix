@@ -27,13 +27,14 @@
 
 package com.anpmech.mpd;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public final class Log {
 
     private Log() {
         super();
     }
-
-    /** TODO: If anyone cares, this class could use better logging. */
 
     /**
      * Sends a debug message to the user.
@@ -43,7 +44,9 @@ public final class Log {
      * @param message The message to send to the user.
      */
     public static void debug(final String tag, final String message) {
-        System.out.print(tag + ":debug: " + ": " + message);
+        final Logger logger = Logger.getLogger(tag);
+
+        logger.log(Level.INFO, message);
     }
 
     /**
@@ -55,8 +58,9 @@ public final class Log {
      * @param tr      An exception to log.
      */
     public static void debug(final String tag, final String message, final Throwable tr) {
-        System.out.print(tag + ":debug: " + message);
-        System.out.print(tr.getStackTrace());
+        final Logger logger = Logger.getLogger(tag);
+
+        logger.log(Level.INFO, message, tr);
     }
 
     /**
@@ -67,7 +71,9 @@ public final class Log {
      * @param message The message to send to the user.
      */
     public static void error(final String tag, final String message) {
-        System.out.print(tag + ":error: " + message);
+        final Logger logger = Logger.getLogger(tag);
+
+        logger.log(Level.SEVERE, message);
     }
 
     /**
@@ -79,8 +85,9 @@ public final class Log {
      * @param tr      An exception to log.
      */
     public static void error(final String tag, final String message, final Throwable tr) {
-        System.out.print(tag + ":error: " + message);
-        System.out.print(tr.getStackTrace());
+        final Logger logger = Logger.getLogger(tag);
+
+        logger.log(Level.SEVERE, message, tr);
     }
 
     /**
@@ -91,7 +98,9 @@ public final class Log {
      * @param message The message to send to the user.
      */
     public static void warning(final String tag, final String message) {
-        System.out.print(tag + ":warning: " + message);
+        final Logger logger = Logger.getLogger(tag);
+
+        logger.log(Level.WARNING, message);
     }
 
     /**
@@ -103,7 +112,8 @@ public final class Log {
      * @param tr      An exception to log.
      */
     public static void warning(final String tag, final String message, final Throwable tr) {
-        System.out.print(tag + ":warning: " + message);
-        System.out.print(tr.getStackTrace());
+        final Logger logger = Logger.getLogger(tag);
+
+        logger.log(Level.WARNING, message, tr);
     }
 }
