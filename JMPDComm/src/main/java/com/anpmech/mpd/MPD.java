@@ -583,6 +583,17 @@ public class MPD {
     }
 
     /**
+     * Connects to the default MPD server.
+     *
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public synchronized void connect() throws IOException, MPDException {
+        mConnection.connect();
+        mIdleConnection.connect();
+    }
+
+    /**
      * Connects to a MPD server.
      *
      * @param server server address or host name

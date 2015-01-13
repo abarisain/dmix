@@ -43,6 +43,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,6 +69,14 @@ public abstract class MPDConnection {
 
     /** Default buffer size for the socket. */
     private static final int DEFAULT_BUFFER_SIZE = 1024;
+
+    private static final String DEFAULT_HOST = "127.0.0.1";
+
+    private static final int DEFAULT_PORT = 6600;
+
+    private static final String ENVIRONMENT_KEY_HOST = "MPD_HOST";
+
+    private static final String ENVIRONMENT_KEY_PORT = "MPD_PORT";
 
     private static final int MAX_PORT = 65535;
 
@@ -129,6 +138,29 @@ public abstract class MPDConnection {
         }
     }
 
+    private static int getDefaultPort() {
+        int port;
+
+        try {
+            port = Integer.parseInt(System.getenv(ENVIRONMENT_KEY_PORT));
+        } catch (final NumberFormatException ignored) {
+            port = DEFAULT_PORT;
+        }
+
+        return port;
+    }
+
+    /**
+     * This method calls standard defaults for the host/port pair and MPD password, if it exists.
+     *
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown upon an error sending a simple command to the {@code
+     *                      host}/{@code port} pair with the {@code password}.
+     */
+    public void connect() throws IOException, MPDException {
+        connect(getDefaultAddress(), getDefaultPort(), mPassword);
+    }
+
     /**
      * Sets up connection to host/port pair with MPD password.
      *
@@ -177,6 +209,23 @@ public abstract class MPDConnection {
     public void disconnect() throws IOException {
         mCancelled = true;
         innerDisconnect();
+    }
+
+    private InetAddress getDefaultAddress() throws UnknownHostException {
+        String host = System.getenv(ENVIRONMENT_KEY_HOST);
+        if (host == null) {
+            host = DEFAULT_HOST;
+        }
+        final int atIndex = host.indexOf('@');
+
+        if (atIndex == -1) {
+            mPassword = null;
+        } else {
+            mPassword = host.substring(0, atIndex);
+            host = host.substring(atIndex + 1);
+        }
+
+        return InetAddress.getByName(host);
     }
 
     /**
