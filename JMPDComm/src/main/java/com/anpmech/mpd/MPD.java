@@ -1801,6 +1801,22 @@ public class MPD {
     }
 
     /**
+     * This method returns a thread which will shut down all running threads. This should be added
+     * to the client's shutdown hooks, if applicable.
+     *
+     * @return A thread containing all executors to shutdown.
+     */
+    public Thread shutdownExecutors() {
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mConnection.shutdown().run();
+                mIdleConnection.shutdown().run();
+            }
+        });
+    }
+
+    /**
      * Skip to song with specified {@code id}.
      *
      * @param id song id.

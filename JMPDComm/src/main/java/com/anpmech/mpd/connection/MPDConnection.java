@@ -367,6 +367,20 @@ public abstract class MPDConnection {
 
     protected abstract void setSocket(Socket socket);
 
+    /**
+     * This method shuts down any running executors in this connection.
+     */
+    public Runnable shutdown() {
+        return new Runnable() {
+            @Override
+            public void run() {
+                if (!mExecutor.isShutdown() && !mExecutor.isTerminating()) {
+                    mExecutor.shutdown();
+                }
+            }
+        };
+    }
+
     /** This class communicates with the server by sending the command and processing the result. */
     private class CommandProcessor implements Callable<CommandResult> {
 
