@@ -25,20 +25,22 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-
 apply plugin: 'java'
 
 javadoc {
     description = "Generates project-level javadoc."
     title = "${project.name} WIP"
 
+    gradle.taskGraph.addTaskExecutionListener new BrowseJavadoc(
+            Task: "javadoc",
+            IndexFile: file("${destinationDir}/index.html"))
+
     options {
         memberLevel = JavadocMemberLevel.PRIVATE
         showAll()
         author = true
         header = project.name
-        overview = "src/main/overview.html";
+        overview("src/main/overview.html");
     }
 }
 
@@ -48,5 +50,30 @@ sourceSets.main {
     }
     resources {
         srcDirs = ['../../src/main/resources']
+    }
+}
+
+class BrowseJavadoc implements TaskExecutionListener {
+
+    String Task
+
+    File IndexFile
+
+    @Override
+    void beforeExecute(final Task task) {
+    }
+
+    @Override
+    void afterExecute(final Task task, final TaskState taskState) {
+        if (taskState.executed && !taskState.failure && task.name.equals(Task)) {
+            println "Javadoc built: " + IndexFile
+
+            try {
+                def desktop = getClass().classLoader.loadClass("java.awt.Desktop").newInstance()
+                desktop.browse(IndexFile.toURI())
+            } catch (final ClassNotFoundException e) {
+                throw new Exception("Must be Java 6+ to use this task", e)
+            }
+        }
     }
 }

@@ -1,0 +1,21 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="JMPDCommJava:Javadoc" type="GradleRunConfiguration" factoryName="Gradle">
+    <ExternalSystemSettings>
+      <option name="externalProjectPath" value="$PROJECT_DIR$/JMPDComm/backends/java" />
+      <option name="externalSystemIdString" value="GRADLE" />
+      <option name="scriptParameters" value="" />
+      <option name="taskDescriptions">
+        <list />
+      </option>
+      <option name="taskNames">
+        <list>
+          <option value="Javadoc" />
+        </list>
+      </option>
+      <option name="vmOptions" value="" />
+    </ExternalSystemSettings>
+    <RunnerSettings RunnerId="ExternalSystemTaskRunner" />
+    <ConfigurationWrapper RunnerId="ExternalSystemTaskRunner" />
+    <method />
+  </configuration>
+</component>

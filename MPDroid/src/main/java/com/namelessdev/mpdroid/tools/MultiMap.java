@@ -65,7 +65,7 @@ public class MultiMap<K, V> implements Serializable {
     /**
      * Checks whether the map contains the specified key.
      *
-     * @see {@link Map#containsKey(Object)} ()}
+     * @see Map#containsKey(Object)
      */
     public boolean containsKey(final K key) {
         return mInternalMap.containsKey(key);
@@ -74,7 +74,7 @@ public class MultiMap<K, V> implements Serializable {
     /**
      * Checks whether the map contains the specified value.
      *
-     * @see {@link Map#containsValue(Object)} ()}
+     * @see Map#containsKey(Object)
      */
     public boolean containsValue(final V value) {
         for (final List<V> valueList : mInternalMap.values()) {
@@ -140,7 +140,7 @@ public class MultiMap<K, V> implements Serializable {
     /**
      * Check if map is empty.
      *
-     * @see {@link Map#isEmpty()}
+     * @see Map#isEmpty()
      */
     public boolean isEmpty() {
         return mInternalMap.isEmpty();
@@ -155,7 +155,7 @@ public class MultiMap<K, V> implements Serializable {
     /**
      * Adds the value to the list associated with a key.
      *
-     * @see {@link Map#put(Object, Object)} ()}
+     * @see Map#put(Object, Object)
      */
     public V put(final K key, final V value) {
         List<V> valueList = mInternalMap.get(key);
