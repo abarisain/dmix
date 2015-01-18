@@ -393,7 +393,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
      *
      * @return The track information to send to another application.
      */
-    private String getShareString() {
+    private Intent getShareIntent() {
+        final Intent intent = new Intent(Intent.ACTION_SEND, null);
         final char[] separator = {' ', '-', ' '};
         final String fullPath = mCurrentSong.getFullPath();
         final String sharePrefix = getString(R.string.sharePrefix);
@@ -417,7 +418,10 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             shareString.append(fullPath);
         }
 
-        return shareString.toString();
+        intent.putExtra(Intent.EXTRA_TEXT, shareString.toString());
+        intent.setType("text/plain");
+
+        return intent;
     }
 
     /**
@@ -778,13 +782,12 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 scrollToNowPlaying();
                 break;
             case POPUP_SHARE:
-                final Intent intent = new Intent(Intent.ACTION_SEND, null);
-                intent.putExtra(Intent.EXTRA_TEXT, getShareString());
-                intent.setType("text/plain");
-                try {
-                    startActivity(intent);
-                } catch (final ActivityNotFoundException ignored) {
-                    notifyUser(R.string.noSendActionReceiver);
+                if (mCurrentSong != null) {
+                    try {
+                        startActivity(getShareIntent());
+                    } catch (final ActivityNotFoundException ignored) {
+                        notifyUser(R.string.noSendActionReceiver);
+                    }
                 }
                 break;
             default:
