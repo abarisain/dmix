@@ -255,7 +255,12 @@ public class MPDApplication extends Application implements
                     } else {
                         mAlertDialog = buildConnectionFailedMessage(message).show();
                     }
-                } catch (final BadTokenException ignored) {
+                } catch (final RuntimeException e) {
+                    /**
+                     * Unfortunately, AlertDialog can throw RuntimeException if not initialized
+                     * and we're given no meaningful way to fix this, so, we'll have to catch it.
+                     */
+                    Log.e(TAG, "Failed to show the connection failed alert dialog.", e);
                 }
             }
         }
