@@ -95,7 +95,7 @@ public class SpotifyCover extends AbstractWebCover {
 
         try {
             albumResponse = executeGetRequest("http://ws.spotify.com/search/1/album.json?q="
-                    + albumInfo.getArtist() + ' ' + albumInfo.getAlbum());
+                    + albumInfo.getArtistName() + ' ' + albumInfo.getAlbumName());
             albumIds = extractAlbumIds(albumResponse);
             for (final String albumId : albumIds) {
                 coverResponse = executeGetRequest(

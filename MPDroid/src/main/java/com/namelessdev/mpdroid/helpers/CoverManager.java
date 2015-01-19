@@ -267,7 +267,7 @@ public final class CoverManager {
                 if (DEBUG) {
                     Log.d(TAG, "Downloading cover (with maxsize " + coverInfo.getCoverMaxSize()
                             + ", " + coverInfo.getCachedCoverMaxSize() + ") for "
-                            + coverInfo.getAlbum() + " from " + url);
+                            + coverInfo.getAlbumName() + " from " + url);
                 }
                 if (coverInfo.getState() == CACHE_COVER_FETCH) {
 
@@ -278,8 +278,8 @@ public final class CoverManager {
                 }
                 if (coverBytes != null) {
                     if (DEBUG) {
-                        Log.d(TAG, "Cover downloaded for " + coverInfo.getAlbum() + " from " + url
-                                + ", size=" + coverBytes.length);
+                        Log.d(TAG, "Cover downloaded for " + coverInfo.getAlbumName() + " from " +
+                                url + ", size=" + coverBytes.length);
                     }
                     break;
                 }
@@ -496,8 +496,8 @@ public final class CoverManager {
 
     public void addCoverRequest(final CoverInfo coverInfo) {
         if (DEBUG) {
-            Log.d(TAG, "Looking for cover with artist=" + coverInfo.getArtist() + ", album="
-                    + coverInfo.getAlbum());
+            Log.d(TAG, "Looking for cover with artist=" + coverInfo.getArtistName() + ", album="
+                    + coverInfo.getAlbumName());
         }
         mRequests.add(coverInfo);
     }
@@ -635,7 +635,7 @@ public final class CoverManager {
                     case COVER_FOUND:
                         removeRequest(coverInfo);
                         if (DEBUG) {
-                            Log.d(TAG, "Cover found for " + coverInfo.getAlbum());
+                            Log.d(TAG, "Cover found for " + coverInfo.getAlbumName());
                         }
                         listener.onCoverDownloaded(coverInfo);
                         // Do a copy for the other listeners (not to share
@@ -659,7 +659,7 @@ public final class CoverManager {
                         }
                         removeRequest(coverInfo);
                         if (DEBUG) {
-                            Log.d(TAG, "Cover not found for " + coverInfo.getAlbum());
+                            Log.d(TAG, "Cover not found for " + coverInfo.getAlbumName());
                         }
                         listener.onCoverNotFound(coverInfo);
                         break;
@@ -794,7 +794,7 @@ public final class CoverManager {
             final Bitmap[] bitmaps;
 
             if (DEBUG) {
-                Log.d(TAG, "Making cover bitmap for " + mCoverInfo.getAlbum());
+                Log.d(TAG, "Making cover bitmap for " + mCoverInfo.getAlbumName());
             }
 
             if (mCoverInfo.getCoverRetriever().isCoverLocal()) {
@@ -922,9 +922,9 @@ public final class CoverManager {
                                     && coverRetriever.isCoverLocal();
                             if (remote || local) {
                                 if (DEBUG) {
-                                    Log.d(TAG, "Looking for cover "
-                                            + mCoverInfo.getArtist() + ", " + mCoverInfo.getAlbum()
-                                            + " with " + coverRetriever.getName());
+                                    Log.d(TAG, "Looking for cover " + mCoverInfo.getArtistName()
+                                            + ", " + mCoverInfo.getAlbumName() + " with "
+                                            + coverRetriever.getName());
                                 }
                                 mCoverInfo.setCoverRetriever(coverRetriever);
                                 coverUrls = coverRetriever.getCoverUrl(mCoverInfo);
@@ -957,9 +957,10 @@ public final class CoverManager {
                                             mCoverInfo.getKey())) {
 
                                         if (DEBUG) {
-                                            Log.d(TAG, "Cover found for  " + mCoverInfo.getAlbum()
-                                                    + " with " + coverRetriever.getName()
-                                                    + " : " + coverUrls[0]);
+                                            Log.d(TAG, "Cover found for  " +
+                                                    mCoverInfo.getAlbumName() + " with "
+                                                    + coverRetriever.getName() + " : " +
+                                                    coverUrls[0]);
                                         }
                                         coverBytes = getCoverBytes(coverUrls, mCoverInfo);
                                         if (coverBytes != null && coverBytes.length > 0) {
@@ -972,7 +973,7 @@ public final class CoverManager {
                                         } else {
                                             if (DEBUG) {
                                                 Log.d(TAG, "The cover URL for album "
-                                                        + mCoverInfo.getAlbum()
+                                                        + mCoverInfo.getAlbumName()
                                                         + " did not work : "
                                                         + coverRetriever.getName());
                                             }
@@ -981,7 +982,7 @@ public final class CoverManager {
                                     } else {
                                         if (DEBUG) {
                                             Log.d(TAG, "Blacklisted cover url found for "
-                                                    + mCoverInfo.getAlbum() + " : "
+                                                    + mCoverInfo.getAlbumName() + " : "
                                                     + coverUrls[0]);
                                         }
                                     }
@@ -991,7 +992,7 @@ public final class CoverManager {
                         } else {
                             if (DEBUG) {
                                 Log.d(TAG, "Bypassing the retriever " + coverRetriever.getName()
-                                        + " for album " + mCoverInfo.getAlbum()
+                                        + " for album " + mCoverInfo.getAlbumName()
                                         + ", already asked.");
                             }
                             canStart = coverRetriever.equals(mCoverInfo.getCoverRetriever());
@@ -1004,7 +1005,7 @@ public final class CoverManager {
                 }
             } else {
                 mCoverInfo.setRequestGivenUp(true);
-                Log.w(TAG, "Too many requests, giving up this one : " + mCoverInfo.getAlbum());
+                Log.w(TAG, "Too many requests, giving up this one : " + mCoverInfo.getAlbumName());
             }
 
             mRequests.addLast(mCoverInfo);
@@ -1047,8 +1048,8 @@ public final class CoverManager {
                                         || mNotFoundAlbumKeys.contains(coverInfo.getKey())) {
                                     if (DEBUG) {
                                         Log.d(TAG, "Incomplete cover request or already not found "
-                                                + "cover with artist=" + coverInfo.getArtist()
-                                                + ", album=" + coverInfo.getAlbum());
+                                                + "cover with artist=" + coverInfo.getArtistName()
+                                                + ", album=" + coverInfo.getAlbumName());
                                     }
                                     coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
                                     notifyListeners(coverInfo);
@@ -1097,7 +1098,7 @@ public final class CoverManager {
                                 if (DEBUG) {
                                     Log.d(TAG,
                                             "The cover has not been downloaded correctly for album "
-                                                    + coverInfo.getAlbum()
+                                                    + coverInfo.getAlbumName()
                                                     + " with this retriever : "
                                                     + coverInfo.getCoverRetriever()
                                                     + ", trying the next ones ...");

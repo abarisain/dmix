@@ -48,9 +48,9 @@ public class AlbumInfo {
 
     private static final Pattern TEXT_PATTERN = Pattern.compile("[^\\w .-]+");
 
-    private final String mAlbum;
+    private final String mAlbumName;
 
-    private final String mArtist;
+    private final String mArtistName;
 
     private final String mFilename;
 
@@ -84,8 +84,8 @@ public class AlbumInfo {
             artist = music.getArtistName();
         }
 
-        mArtist = artist;
-        mAlbum = music.getAlbumName();
+        mArtistName = artist;
+        mAlbumName = music.getAlbumName();
         mPath = music.getPath();
         mFilename = music.getFilename();
     }
@@ -93,31 +93,32 @@ public class AlbumInfo {
     public AlbumInfo(final Album album) {
         super();
 
-        final Artist artistName = album.getArtist();
-        if (artistName != null) {
-            mArtist = artistName.getName();
+        final Artist artist = album.getArtist();
+        if (artist != null) {
+            mArtistName = artist.getName();
         } else {
-            mArtist = null;
+            mArtistName = null;
         }
 
-        mAlbum = album.getName();
+        mAlbumName = album.getName();
         mPath = album.getPath();
         mFilename = null;
     }
 
     public AlbumInfo(final AlbumInfo albumInfo) {
-        this(albumInfo.mArtist, albumInfo.mAlbum, albumInfo.mPath, albumInfo.mFilename);
+        this(albumInfo.mArtistName, albumInfo.mAlbumName, albumInfo.mPath, albumInfo.mFilename);
     }
 
-    public AlbumInfo(final String artist, final String album) {
-        this(artist, album, null, null);
+    public AlbumInfo(final String artistName, final String albumName) {
+        this(artistName, albumName, null, null);
     }
 
-    private AlbumInfo(final String artist, final String album, final String path,
+    private AlbumInfo(final String artistName, final String albumName, final String path,
             final String filename) {
         super();
-        mArtist = artist;
-        mAlbum = album;
+
+        mArtistName = artistName;
+        mAlbumName = albumName;
         mPath = path;
         mFilename = filename;
     }
@@ -210,11 +211,11 @@ public class AlbumInfo {
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
             final AlbumInfo albumInfo = (AlbumInfo) o;
 
-            if (Tools.isNotEqual(mAlbum, albumInfo.mAlbum)) {
+            if (Tools.isNotEqual(mAlbumName, albumInfo.mAlbumName)) {
                 isEqual = Boolean.FALSE;
             }
 
-            if (Tools.isNotEqual(mArtist, albumInfo.mArtist)) {
+            if (Tools.isNotEqual(mArtistName, albumInfo.mArtistName)) {
                 isEqual = Boolean.FALSE;
             }
         }
@@ -226,12 +227,12 @@ public class AlbumInfo {
         return isEqual.booleanValue();
     }
 
-    public String getAlbum() {
-        return mAlbum;
+    public String getAlbumName() {
+        return mAlbumName;
     }
 
-    public String getArtist() {
-        return mArtist;
+    public String getArtistName() {
+        return mArtistName;
     }
 
     public String getFilename() {
@@ -242,7 +243,7 @@ public class AlbumInfo {
         final String value;
 
         if (isValid()) {
-            final CharSequence key = mAlbum + mArtist;
+            final CharSequence key = mAlbumName + mArtistName;
 
             if (CHECKSUM_CACHE.containsKey(key)) {
                 value = CHECKSUM_CACHE.get(key);
@@ -258,8 +259,8 @@ public class AlbumInfo {
     }
 
     public AlbumInfo getNormalized() {
-        final String artist = cleanGetRequest(mArtist);
-        String album = cleanGetRequest(mAlbum);
+        final String artist = cleanGetRequest(mArtistName);
+        String album = cleanGetRequest(mAlbumName);
         album = removeDiscReference(album);
 
         return new AlbumInfo(album, artist, mPath, mFilename);
@@ -271,22 +272,22 @@ public class AlbumInfo {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[]{mArtist, mAlbum});
+        return Arrays.hashCode(new Object[]{mArtistName, mAlbumName});
     }
 
     public boolean isValid() {
-        final boolean isArtistEmpty = mArtist == null || mArtist.isEmpty();
-        final boolean isAlbumEmpty = mAlbum == null || mAlbum.isEmpty();
-        return !isAlbumEmpty && !isArtistEmpty;
+        final boolean isArtistNameEmpty = mArtistName == null || mArtistName.isEmpty();
+        final boolean isAlbumNameEmpty = mAlbumName == null || mAlbumName.isEmpty();
+        return !isAlbumNameEmpty && !isArtistNameEmpty;
     }
 
     @Override
     public String toString() {
         return "AlbumInfo{" +
-                "artist='" + mArtist + '\'' +
-                ", album='" + mAlbum + '\'' +
-                ", path='" + mPath + '\'' +
-                ", filename='" + mFilename + '\'' +
+                "mAlbumName='" + mAlbumName + '\'' +
+                ", mArtistName='" + mArtistName + '\'' +
+                ", mFilename='" + mFilename + '\'' +
+                ", mPath='" + mPath + '\'' +
                 '}';
     }
 }

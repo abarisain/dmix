@@ -43,7 +43,7 @@ public class DeezerCover extends AbstractWebCover {
         try {
 
             deezerResponse = executeGetRequest("http://api.deezer.com/search/album?q="
-                    + albumInfo.getAlbum() + ' ' + albumInfo.getArtist()
+                    + albumInfo.getAlbumName() + ' ' + albumInfo.getArtistName()
                     + "&nb_items=1&output=json");
             jsonRootObject = new JSONObject(deezerResponse);
             jsonArray = jsonRootObject.getJSONArray("data");

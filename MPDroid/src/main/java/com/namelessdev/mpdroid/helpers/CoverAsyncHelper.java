@@ -67,7 +67,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
 
         try {
             if (!coverInfo.getCoverRetriever().isCoverLocal()) {
-                final String message = '\u0022' + coverInfo.getAlbum() + '\u0022' +
+                final String message = '\u0022' + coverInfo.getAlbumName() + '\u0022' +
                         " cover found with " + coverInfo.getCoverRetriever().getName();
                 Tools.notifyUser(message);
             }

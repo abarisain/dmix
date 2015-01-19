@@ -145,7 +145,7 @@ public class GracenoteCover extends AbstractWebCover {
             return new String[0];
         }
         try {
-            coverUrl = getCoverUrl(albumInfo.getArtist(), albumInfo.getAlbum());
+            coverUrl = getCoverUrl(albumInfo.getArtistName(), albumInfo.getAlbumName());
             if (coverUrl != null) {
                 return new String[]{
                         coverUrl

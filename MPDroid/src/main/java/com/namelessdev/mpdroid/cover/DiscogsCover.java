@@ -101,7 +101,8 @@ public class DiscogsCover extends AbstractWebCover {
 
         releaseIdResponse = executeGetRequest(
                 "http://api.discogs.com/database/search?type=release&q="
-                        + albumInfo.getArtist() + ' ' + albumInfo.getAlbum() + "& per_page = 10");
+                        + albumInfo.getArtistName() + ' ' + albumInfo.getAlbumName()
+                        + "& per_page = 10");
         releaseIds = extractReleaseIds(releaseIdResponse);
         for (final String releaseId : releaseIds) {
             releaseResponse = executeGetRequest("http://api.discogs.com/releases/" + releaseId);

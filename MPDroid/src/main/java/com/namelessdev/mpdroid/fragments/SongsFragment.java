@@ -157,7 +157,7 @@ public class SongsFragment extends BrowseFragment {
                 albumInfo = new AlbumInfo(song);
                 continue;
             }
-            final String a = albumInfo.getArtist();
+            final String a = albumInfo.getArtistName();
             if (a != null && !a.equalsIgnoreCase(song.getAlbumArtistOrArtist())) {
                 differentArtists = true;
                 break;
@@ -435,7 +435,7 @@ public class SongsFragment extends BrowseFragment {
         if (mItems != null && mHeaderArtist != null && mHeaderInfo != null) {
             final AlbumInfo fixedAlbumInfo;
             fixedAlbumInfo = getFixedAlbumInfo();
-            final String artist = fixedAlbumInfo.getArtist();
+            final String artist = fixedAlbumInfo.getArtistName();
             mHeaderArtist.setText(artist);
             mHeaderInfo.setText(getHeaderInfoString());
             if (mCoverHelper != null) {

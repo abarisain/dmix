@@ -38,7 +38,7 @@ public class ItunesCover extends AbstractWebCover {
 
         try {
             response = executeGetRequest("https://itunes.apple.com/search?term="
-                    + albumInfo.getAlbum() + ' ' + albumInfo.getArtist()
+                    + albumInfo.getAlbumName() + ' ' + albumInfo.getArtistName()
                     + "&limit=5&media=music&entity=album");
             jsonRootObject = new JSONObject(response);
             jsonArray = jsonRootObject.getJSONArray("results");

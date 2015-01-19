@@ -147,9 +147,9 @@ public class MusicBrainzCover extends AbstractWebCover {
 
         final String response;
 
-        final String url = "http://musicbrainz.org/ws/2/release-group/?query=" + albumInfo
-                .getArtist()
-                + ' ' + albumInfo.getAlbum() + "&type=release-group&limit=5";
+        final String url = "http://musicbrainz.org/ws/2/release-group/?query=" +
+                albumInfo.getArtistName() + ' ' + albumInfo.getAlbumName() +
+                "&type=release-group&limit=5";
         response = executeGetRequestWithConnection(url);
         return extractReleaseIds(response);
     }

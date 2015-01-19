@@ -49,8 +49,8 @@ public class LastFMCover extends AbstractWebCover {
         int eventType;
 
         try {
-            request = URL + "?method=album.getInfo&artist=" + albumInfo.getArtist() + "&album="
-                    + albumInfo.getAlbum() + "&api_key=" + sKey;
+            request = URL + "?method=album.getInfo&artist=" + albumInfo.getArtistName() + "&album="
+                    + albumInfo.getAlbumName() + "&api_key=" + sKey;
             response = executeGetRequest(request);
 
             factory = XmlPullParserFactory.newInstance();
