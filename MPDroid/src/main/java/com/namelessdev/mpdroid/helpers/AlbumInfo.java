@@ -28,6 +28,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.Normalizer;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -37,6 +39,8 @@ public class AlbumInfo {
 
     private static final Pattern BLOCK_IN_COMBINING_DIACRITICAL_MARKS =
             Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+
+    private static final Map<CharSequence, String> CHECKSUM_CACHE;
 
     private static final String INVALID_ALBUM_CHECKSUM = "INVALID_ALBUM_CHECKSUM";
 
@@ -51,6 +55,25 @@ public class AlbumInfo {
     private final String mFilename;
 
     private final String mPath;
+
+    static {
+        /**
+         * It is unlikely that more than one thread would write to the map at one time.
+         */
+        final int concurrencyLevel = 1;
+
+        /**
+         * The HashMap default capacity.
+         */
+        final int defaultCapacity = 16;
+
+        /**
+         * The ConcurrencyMap default.
+         */
+        final float loadFactor = 0.75f;
+
+        CHECKSUM_CACHE = new ConcurrentHashMap<>(defaultCapacity, loadFactor, concurrencyLevel);
+    }
 
     public AlbumInfo(final Music music) {
         super();
@@ -219,7 +242,14 @@ public class AlbumInfo {
         final String value;
 
         if (isValid()) {
-            value = getHashFromString(mArtist + mAlbum);
+            final CharSequence key = mAlbum + mArtist;
+
+            if (CHECKSUM_CACHE.containsKey(key)) {
+                value = CHECKSUM_CACHE.get(key);
+            } else {
+                value = getHashFromString(key.toString());
+                CHECKSUM_CACHE.put(key, value);
+            }
         } else {
             value = INVALID_ALBUM_CHECKSUM;
         }
