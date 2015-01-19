@@ -20,6 +20,8 @@ import com.namelessdev.mpdroid.cover.ICoverRetriever;
 
 import android.graphics.Bitmap;
 
+import java.util.Arrays;
+
 public class CoverInfo extends AlbumInfo {
 
     public static final int MAX_SIZE = 0;
@@ -43,12 +45,11 @@ public class CoverInfo extends AlbumInfo {
     private STATE mState = STATE.NEW;
 
     public CoverInfo(final AlbumInfo albumInfo) {
-        super(albumInfo.getArtist(), albumInfo.getAlbum(),
-                albumInfo.getPath(), albumInfo.getFilename());
+        super(albumInfo);
     }
 
     public CoverInfo(final CoverInfo coverInfo) {
-        super(coverInfo.mArtist, coverInfo.mAlbum, coverInfo.mPath, coverInfo.mFilename);
+        super(coverInfo);
         mState = coverInfo.mState;
         mBitmap = coverInfo.mBitmap;
         mCoverBytes = coverInfo.mCoverBytes;
@@ -132,14 +133,24 @@ public class CoverInfo extends AlbumInfo {
         mState = state;
     }
 
-    @Override
-    public String toString() {
-        return "CoverInfo{state=" + mState + ", artist=" + mArtist == null ? ""
-                : mArtist + ", album="
-                        + mAlbum == null ? "" : mAlbum + " priority=" + mPriority + '}';
-    }
 
     public enum STATE {
         NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + '\n' +
+                "CoverInfo{" +
+                "mCoverMaxSize=" + mCoverMaxSize +
+                ", mCachedCoverMaxSize=" + mCachedCoverMaxSize +
+                ", mBitmap=" + Arrays.toString(mBitmap) +
+                ", mCoverBytes=" + Arrays.toString(mCoverBytes) +
+                ", mCoverRetriever=" + mCoverRetriever +
+                ", mListener=" + mListener +
+                ", mPriority=" + mPriority +
+                ", mRequestGivenUp=" + mRequestGivenUp +
+                ", mState=" + mState +
+                '}';
     }
 }

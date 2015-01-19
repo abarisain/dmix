@@ -28,19 +28,22 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
+/**
+ * This class should be thread-safe.
+ */
 public class AlbumInfo {
 
     private static final String INVALID_ALBUM_CHECKSUM = "INVALID_ALBUM_CHECKSUM";
 
     private static final String TAG = "AlbumInfo";
 
-    protected final String mAlbum;
+    private final String mAlbum;
 
-    protected final String mArtist;
+    private final String mArtist;
 
-    protected final String mFilename;
+    private final String mFilename;
 
-    protected final String mPath;
+    private final String mPath;
 
     public AlbumInfo(final Music music) {
         super();
@@ -80,7 +83,7 @@ public class AlbumInfo {
         this(artist, album, null, null);
     }
 
-    public AlbumInfo(final String artist, final String album, final String path,
+    private AlbumInfo(final String artist, final String album, final String path,
             final String filename) {
         super();
         mArtist = artist;
