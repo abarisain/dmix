@@ -42,6 +42,8 @@ public class AlbumInfo {
 
     private static final Map<CharSequence, String> CHECKSUM_CACHE;
 
+    private static final int HEX_BYTE = 0x0F;
+
     private static final String INVALID_ALBUM_CHECKSUM = "INVALID_ALBUM_CHECKSUM";
 
     private static final String TAG = "AlbumInfo";
@@ -145,25 +147,22 @@ public class AlbumInfo {
      * @return Hex string.
      */
     private static String convertToHex(final byte[] data) {
-        if (data == null || data.length == 0) {
-            return null;
+        String hex = null;
+
+        if (data != null && data.length != 0) {
+            final char[] charBuffer = new char[data.length << 1];
+
+            for (int byteIndex = 0; byteIndex < data.length; byteIndex++) {
+
+                /** Store the upper and lower nibble with padding, respectively. */
+                charBuffer[byteIndex << 1] = getPaddedNibble(data[byteIndex] >>> 4 & HEX_BYTE);
+                charBuffer[(byteIndex << 1) + 1] = getPaddedNibble(data[byteIndex] & HEX_BYTE);
+            }
+
+            hex = String.copyValueOf(charBuffer);
         }
 
-        final StringBuilder buffer = new StringBuilder(data.length);
-        for (int byteIndex = 0; byteIndex < data.length; byteIndex++) {
-            int halfbyte = (data[byteIndex] >>> 4) & 0x0F;
-            int twoHalves = 0;
-            do {
-                if ((0 <= halfbyte) && (halfbyte <= 9)) {
-                    buffer.append((char) ('0' + halfbyte));
-                } else {
-                    buffer.append((char) ('a' + (halfbyte - 10)));
-                }
-                halfbyte = data[byteIndex] & 0x0F;
-            } while (twoHalves++ < 1);
-        }
-
-        return buffer.toString();
+        return hex;
     }
 
     /**
@@ -178,7 +177,7 @@ public class AlbumInfo {
         if (value != null && !value.isEmpty()) {
             try {
                 final MessageDigest hashEngine = MessageDigest.getInstance("MD5");
-                hashEngine.update(value.getBytes("iso-8859-1"), 0, value.length());
+                hashEngine.update(value.getBytes("iso-8859-1"));
                 hash = convertToHex(hashEngine.digest());
             } catch (final NoSuchAlgorithmException | UnsupportedEncodingException e) {
                 Log.e(TAG, "Failed to get hash.", e);
@@ -186,6 +185,24 @@ public class AlbumInfo {
         }
 
         return hash;
+    }
+
+    /**
+     * This method takes a data byte, pads it and returns it as a char.
+     *
+     * @param dataByte The data byte to convert to a char.
+     * @return The data byte padded and returned as a char.
+     */
+    private static char getPaddedNibble(final int dataByte) {
+        final char hex;
+
+        if (dataByte >= 0 && dataByte <= 9) {
+            hex = (char) ('0' + dataByte);
+        } else {
+            hex = (char) ('a' + dataByte - 10);
+        }
+
+        return hex;
     }
 
     // Remove disc references from albums (like CD1, disc02 ...)
