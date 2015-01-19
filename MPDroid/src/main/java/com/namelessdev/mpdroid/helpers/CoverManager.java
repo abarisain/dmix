@@ -51,7 +51,6 @@ import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,7 +66,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 import static android.text.TextUtils.isEmpty;
 import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CACHE_COVER_FETCH;
@@ -88,22 +86,13 @@ public final class CoverManager {
 
     public static final String PREFERENCE_ONLY_WIFI = "enableCoverOnlyOnWifi";
 
-    private static final Pattern BLOCK_IN_COMBINING_DIACRITICAL_MARKS =
-            Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-
     private static final String COVERS_FILE_NAME = "covers.bin";
-
-    private static final String[] DISC_REFERENCES = {
-            "disc", "cd", "disque"
-    };
 
     private static final String FOLDER_SUFFIX = "/covers/";
 
     private static final int MAX_REQUESTS = 20;
 
     private static final String TAG = "CoverManager";
-
-    private static final Pattern TEXT_PATTERN = Pattern.compile("[^\\w .-]+");
 
     private static final String WRONG_COVERS_FILE_NAME = "wrong-covers.bin";
 
@@ -174,21 +163,6 @@ public final class CoverManager {
         }
 
         return url;
-    }
-
-    static String cleanGetRequest(final CharSequence text) {
-        String processedText = null;
-
-        if (text != null) {
-            processedText = TEXT_PATTERN.matcher(text).replaceAll(" ");
-
-            processedText = Normalizer.normalize(processedText, Normalizer.Form.NFD);
-
-            processedText =
-                    BLOCK_IN_COMBINING_DIACRITICAL_MARKS.matcher(processedText).replaceAll("");
-        }
-
-        return processedText;
     }
 
     /**
@@ -371,14 +345,6 @@ public final class CoverManager {
         return sInstance;
     }
 
-    static AlbumInfo getNormalizedAlbumInfo(final AlbumInfo albumInfo) {
-        final String artist = cleanGetRequest(albumInfo.getArtist());
-        String album = cleanGetRequest(albumInfo.getAlbum());
-        album = removeDiscReference(album);
-
-        return new AlbumInfo(album, artist, albumInfo.getPath(), albumInfo.getFilename());
-    }
-
     /**
      * Checks if device connected or connecting to wifi network
      */
@@ -464,15 +430,6 @@ public final class CoverManager {
                 inputStream.close();
             }
         }
-    }
-
-    // Remove disc references from albums (like CD1, disc02 ...)
-    static String removeDiscReference(final String album) {
-        String cleanedAlbum = album.toLowerCase();
-        for (final String discReference : DISC_REFERENCES) {
-            cleanedAlbum = cleanedAlbum.replaceAll(discReference + "\\s*\\d+", " ");
-        }
-        return cleanedAlbum;
     }
 
     private static void saveCovers(final String fileName, final Object object) {
@@ -979,8 +936,8 @@ public final class CoverManager {
                                         && remote
                                         && !(coverRetriever.getName()
                                         .equals(LocalCover.RETRIEVER_NAME))) {
-                                    final AlbumInfo normalizedAlbumInfo = getNormalizedAlbumInfo(
-                                            mCoverInfo);
+                                    final AlbumInfo normalizedAlbumInfo =
+                                            mCoverInfo.getNormalized();
                                     if (!normalizedAlbumInfo.equals(mCoverInfo)) {
                                         if (DEBUG) {
                                             Log.d(TAG,

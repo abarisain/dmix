@@ -133,11 +133,6 @@ public class CoverInfo extends AlbumInfo {
         mState = state;
     }
 
-
-    public enum STATE {
-        NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND
-    }
-
     @Override
     public String toString() {
         return super.toString() + '\n' +
@@ -152,5 +147,9 @@ public class CoverInfo extends AlbumInfo {
                 ", mRequestGivenUp=" + mRequestGivenUp +
                 ", mState=" + mState +
                 '}';
+    }
+
+    public enum STATE {
+        NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND
     }
 }

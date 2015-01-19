@@ -26,16 +26,23 @@ import android.util.Log;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.Normalizer;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * This class should be thread-safe.
  */
 public class AlbumInfo {
 
+    private static final Pattern BLOCK_IN_COMBINING_DIACRITICAL_MARKS =
+            Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+
     private static final String INVALID_ALBUM_CHECKSUM = "INVALID_ALBUM_CHECKSUM";
 
     private static final String TAG = "AlbumInfo";
+
+    private static final Pattern TEXT_PATTERN = Pattern.compile("[^\\w .-]+");
 
     private final String mAlbum;
 
@@ -92,6 +99,21 @@ public class AlbumInfo {
         mFilename = filename;
     }
 
+    private static String cleanGetRequest(final CharSequence text) {
+        String processedText = null;
+
+        if (text != null) {
+            processedText = TEXT_PATTERN.matcher(text).replaceAll(" ");
+
+            processedText = Normalizer.normalize(processedText, Normalizer.Form.NFD);
+
+            processedText =
+                    BLOCK_IN_COMBINING_DIACRITICAL_MARKS.matcher(processedText).replaceAll("");
+        }
+
+        return processedText;
+    }
+
     /**
      * Convert byte array to hex string.
      *
@@ -140,6 +162,16 @@ public class AlbumInfo {
         }
 
         return hash;
+    }
+
+    // Remove disc references from albums (like CD1, disc02 ...)
+    private static String removeDiscReference(final String album) {
+        String cleanedAlbum = album.toLowerCase();
+
+        for (final String discReference : new String[]{"cd", "disc", "disque"}) {
+            cleanedAlbum = cleanedAlbum.replaceAll(discReference + "\\s*\\d+", " ");
+        }
+        return cleanedAlbum;
     }
 
     @Override
@@ -193,6 +225,14 @@ public class AlbumInfo {
         }
 
         return value;
+    }
+
+    public AlbumInfo getNormalized() {
+        final String artist = cleanGetRequest(mArtist);
+        String album = cleanGetRequest(mAlbum);
+        album = removeDiscReference(album);
+
+        return new AlbumInfo(album, artist, mPath, mFilename);
     }
 
     public String getPath() {
