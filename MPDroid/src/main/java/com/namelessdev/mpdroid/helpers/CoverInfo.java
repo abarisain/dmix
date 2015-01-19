@@ -116,18 +116,8 @@ public class CoverInfo extends AlbumInfo {
         mCoverRetriever = coverRetriever;
     }
 
-    @Override
-    public void setFilename(final String filename) {
-        mFilename = filename;
-    }
-
     public void setListener(final CoverDownloadListener listener) {
         mListener = listener;
-    }
-
-    @Override
-    public void setPath(final String path) {
-        mPath = path;
     }
 
     public void setPriority(final boolean priority) {

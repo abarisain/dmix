@@ -30,7 +30,7 @@ import java.util.Arrays;
 
 public class AlbumInfo {
 
-    private static final String INVALID_ALBUM_KEY = "INVALID_ALBUM_KEY";
+    private static final String INVALID_ALBUM_CHECKSUM = "INVALID_ALBUM_CHECKSUM";
 
     private static final String TAG = "AlbumInfo";
 
@@ -38,16 +38,19 @@ public class AlbumInfo {
 
     protected final String mArtist;
 
-    protected String mFilename;
+    protected final String mFilename;
 
-    protected String mPath;
+    protected final String mPath;
 
     public AlbumInfo(final Music music) {
         super();
+
         String artist = music.getAlbumArtistName();
+
         if (artist == null) {
             artist = music.getArtistName();
         }
+
         mArtist = artist;
         mAlbum = music.getAlbumName();
         mPath = music.getPath();
@@ -66,6 +69,7 @@ public class AlbumInfo {
 
         mAlbum = album.getName();
         mPath = album.getPath();
+        mFilename = null;
     }
 
     public AlbumInfo(final AlbumInfo albumInfo) {
@@ -73,9 +77,7 @@ public class AlbumInfo {
     }
 
     public AlbumInfo(final String artist, final String album) {
-        super();
-        mArtist = artist;
-        mAlbum = album;
+        this(artist, album, null, null);
     }
 
     public AlbumInfo(final String artist, final String album, final String path,
@@ -179,7 +181,15 @@ public class AlbumInfo {
     }
 
     public String getKey() {
-        return isValid() ? getHashFromString(mArtist + mAlbum) : INVALID_ALBUM_KEY;
+        final String value;
+
+        if (isValid()) {
+            value = getHashFromString(mArtist + mAlbum);
+        } else {
+            value = INVALID_ALBUM_CHECKSUM;
+        }
+
+        return value;
     }
 
     public String getPath() {
@@ -195,14 +205,6 @@ public class AlbumInfo {
         final boolean isArtistEmpty = mArtist == null || mArtist.isEmpty();
         final boolean isAlbumEmpty = mAlbum == null || mAlbum.isEmpty();
         return !isAlbumEmpty && !isArtistEmpty;
-    }
-
-    public void setFilename(final String filename) {
-        mFilename = filename;
-    }
-
-    public void setPath(final String path) {
-        mPath = path;
     }
 
     @Override
