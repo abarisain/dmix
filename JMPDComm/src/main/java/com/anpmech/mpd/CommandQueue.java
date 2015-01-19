@@ -27,18 +27,20 @@
 
 package com.anpmech.mpd;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
  * A class to generate a <A HREF="http://www.musicpd.org/doc/protocol/command_lists.html">MPD
  * command list</A>.
+ * <p/>
+ * This class was not designed for thread safety.
  */
-public class CommandQueue implements Iterable<MPDCommand> {
+public class CommandQueue extends AbstractList<MPDCommand> {
 
-    private static final boolean DEBUG = false;
+    /** The initial length of the sum of command queue string lengths. */
+    private static final int EMPTY_COMMAND_SIZE;
 
     /** Command text used to end of any command list. */
     private static final String MPD_CMD_END_BULK = "command_list_end";
@@ -49,6 +51,7 @@ public class CommandQueue implements Iterable<MPDCommand> {
     /** Command text used to begin a separated command list. */
     private static final String MPD_CMD_START_BULK_OK = "command_list_ok_begin";
 
+    /** The class log identifier. */
     private static final String TAG = "CommandQueue";
 
     /** The internal command queue storage. */
@@ -57,18 +60,21 @@ public class CommandQueue implements Iterable<MPDCommand> {
     /** The length of the command queue. */
     private int mCommandQueueStringLength;
 
-    /**
-     * The constructor for the MPD protocol command list.
-     */
-    public CommandQueue() {
-        super();
-
-        mCommandQueue = new ArrayList<>();
-        mCommandQueueStringLength = getStartLength();
+    static {
+        EMPTY_COMMAND_SIZE = MPD_CMD_START_BULK_OK.length() + MPD_CMD_END_BULK.length() + 5;
     }
 
     /**
-     * The constructor for the MPD protocol command list.
+     * A constructor for the CommandQueue to initialize the backing store with a static empty
+     * array.
+     */
+    public CommandQueue() {
+        this(0);
+    }
+
+    /**
+     * A constructor for the CommandQueue to initialize the backing store array capacity with a
+     * size given in the capacity parameter.
      *
      * @param capacity The initial capacity of this {@code CommandQueue}.
      */
@@ -76,52 +82,19 @@ public class CommandQueue implements Iterable<MPDCommand> {
         super();
 
         mCommandQueue = new ArrayList<>(capacity);
-        mCommandQueueStringLength = getStartLength();
-    }
-
-    private static int getStartLength() {
-        return MPD_CMD_START_BULK_OK.length() + MPD_CMD_END_BULK.length() + 5;
-    }
-
-    /**
-     * Add a command queue to the end of this command queue.
-     *
-     * @param commandQueue The command queue to add to this one.
-     */
-    public void add(final CommandQueue commandQueue) {
-        mCommandQueue.addAll(commandQueue.mCommandQueue);
-        mCommandQueueStringLength += commandQueue.mCommandQueueStringLength;
-    }
-
-    /**
-     * Add a command queue to the specified position of this command queue.
-     *
-     * @param position     The position of this command queue to add the new command queue.
-     * @param commandQueue The command queue to add to this one.
-     */
-    public void add(final int position, final CommandQueue commandQueue) {
-        mCommandQueue.addAll(position, commandQueue.mCommandQueue);
-        mCommandQueueStringLength += commandQueue.mCommandQueueStringLength;
+        mCommandQueueStringLength = EMPTY_COMMAND_SIZE;
     }
 
     /**
      * Add a command to the specified position of this command queue.
      *
-     * @param position The position of this command queue to add the new command.
+     * @param location The position of this command queue to add the new command.
      * @param command  The command to add to this command queue.
      */
-    public void add(final int position, final MPDCommand command) {
-        mCommandQueue.add(position, command);
-        mCommandQueueStringLength += command.toString().length();
-    }
-
-    /**
-     * Add a command to a command to the {@code CommandQueue}.
-     *
-     * @param command Command to add to the queue.
-     */
-    public void add(final MPDCommand command) {
-        mCommandQueue.add(command);
+    @SuppressWarnings("RefusedBequest") // Must not call super for this method.
+    @Override
+    public void add(final int location, final MPDCommand command) {
+        mCommandQueue.add(location, command);
         mCommandQueueStringLength += command.toString().length();
     }
 
@@ -146,31 +119,85 @@ public class CommandQueue implements Iterable<MPDCommand> {
         add(new MPDCommand(command, args));
     }
 
-    /** Clear the command queue. */
-    public void clear() {
-        mCommandQueueStringLength = getStartLength();
-        mCommandQueue.clear();
-    }
+    /**
+     * Add a command queue to the end of this command queue.
+     *
+     * @param commandQueue The command queue to add to this one.
+     */
+    public boolean addAll(final CommandQueue commandQueue) {
+        mCommandQueueStringLength += commandQueue.mCommandQueueStringLength;
 
-    public boolean isEmpty() {
-        return mCommandQueue.isEmpty();
+        return mCommandQueue.addAll(commandQueue.mCommandQueue);
     }
 
     /**
-     * Returns an {@link java.util.Iterator} for the elements in this object.
+     * Add a command queue to the specified position of this command queue.
      *
-     * @return An {@code Iterator} instance.
+     * @param location     The position of this command queue to add the new command queue.
+     * @param commandQueue The command queue to add to this one.
+     */
+    public boolean addAll(final int location, final CommandQueue commandQueue) {
+        mCommandQueueStringLength += commandQueue.mCommandQueueStringLength;
+
+        return mCommandQueue.addAll(location, commandQueue.mCommandQueue);
+    }
+
+    /**
+     * Removes all elements from this {@code CommandQueue}, leaving it empty.
+     *
+     * @see java.util.List#isEmpty
+     * @see java.util.List#size
      */
     @Override
-    public Iterator<MPDCommand> iterator() {
-        return mCommandQueue.iterator();
+    public void clear() {
+        super.clear();
+
+        mCommandQueueStringLength = EMPTY_COMMAND_SIZE;
     }
 
-    /** Reverse the command queue order, useful for removing playlist entries. */
-    public void reverse() {
-        Collections.reverse(mCommandQueue);
+    /**
+     * Returns the element at the specified location in this list.
+     *
+     * @param location The index of the element to return.
+     * @return The element at the specified index.
+     */
+    @Override
+    public MPDCommand get(final int location) {
+        return mCommandQueue.get(location);
     }
 
+    /**
+     * Removes the object at the specified location from this list.
+     *
+     * @param location the index of the object to remove.
+     * @return the removed object.
+     */
+    @SuppressWarnings("RefusedBequest") // Must not call super for this method.
+    @Override
+    public MPDCommand remove(final int location) {
+        return mCommandQueue.remove(location);
+    }
+
+    /**
+     * Replaces the element at the specified location in this list with the
+     * specified object.
+     *
+     * @param location the index at which to put the specified object.
+     * @param object   the object to add.
+     * @return the previous element at the index.
+     */
+    @SuppressWarnings("RefusedBequest") // Must not call super for this method.
+    @Override
+    public MPDCommand set(final int location, final MPDCommand object) {
+        return mCommandQueue.set(location, object);
+    }
+
+    /**
+     * Returns the number of elements in this {@code CommandQueue}.
+     *
+     * @return The number of elements in this {@code CommandQueue}.
+     */
+    @Override
     public int size() {
         return mCommandQueue.size();
     }

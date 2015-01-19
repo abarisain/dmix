@@ -353,7 +353,7 @@ public class MPD {
             if (isPlaying) {
                 if (playlistLength > 1) {
                     try {
-                        commandQueue.add(0, MPDPlaylist.cropCommand(this));
+                        commandQueue.addAll(0, MPDPlaylist.cropCommand(this));
                     } catch (final IllegalStateException ignored) {
                         /** Shouldn't occur, we already checked for playing. */
                     }
