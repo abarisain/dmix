@@ -387,7 +387,7 @@ public class MPD {
          * methods without adding to the command queue.
          */
         if (!commandQueue.isEmpty()) {
-            commandQueue.send(mConnection);
+            mConnection.send(commandQueue);
         }
     }
 
@@ -431,7 +431,7 @@ public class MPD {
         for (final Album album : albums) {
             commandQueue.add(getAlbumDetailsCommand(album));
         }
-        final List<List<String>> response = commandQueue.sendSeparated(mConnection);
+        final List<List<String>> response = mConnection.sendSeparated(commandQueue);
 
         if (response.size() == albums.size()) {
             final AlbumBuilder albumBuilder = new AlbumBuilder();
@@ -529,7 +529,7 @@ public class MPD {
                         .add(MPDCommand.MPD_CMD_PLAYLIST_ADD, playlist.getFullPath(),
                                 music.getFullPath());
             }
-            commandQueue.send(mConnection);
+            mConnection.send(commandQueue);
         }
     }
 
@@ -1248,7 +1248,7 @@ public class MPD {
                     Music.TAG_ALBUM, album.getName());
         }
 
-        responses = commandQueue.sendSeparated(mConnection);
+        responses = mConnection.sendSeparated(commandQueue);
         if (responses.size() == albums.size()) {
             final ListIterator<List<String>> iterator = responses.listIterator();
 
@@ -1529,7 +1529,7 @@ public class MPD {
             }
         }
 
-        return commandQueue.sendSeparated(mConnection);
+        return mConnection.sendSeparated(commandQueue);
     }
 
     /**
@@ -1652,7 +1652,7 @@ public class MPD {
                     position.toString());
         }
 
-        commandQueue.send(mConnection);
+        mConnection.send(commandQueue);
     }
 
     @SuppressWarnings("TypeMayBeWeakened")

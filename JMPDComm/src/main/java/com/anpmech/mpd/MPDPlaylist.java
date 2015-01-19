@@ -155,7 +155,7 @@ public class MPDPlaylist {
      * @see Music
      */
     public void addAll(final Iterable<Music> collection) throws IOException, MPDException {
-        addAllCommand(collection).send(mConnection);
+        mConnection.send(addAllCommand(collection));
     }
 
     /**
@@ -371,7 +371,7 @@ public class MPDPlaylist {
         for (final int id : songIds) {
             commandQueue.add(MPD_CMD_PLAYLIST_REMOVE_ID, Integer.toString(id));
         }
-        commandQueue.send(mConnection);
+        mConnection.send(commandQueue);
     }
 
     /**
@@ -388,7 +388,7 @@ public class MPDPlaylist {
             commandQueue.add(MPD_CMD_PLAYLIST_REMOVE_ID, id.toString());
         }
 
-        commandQueue.send(mConnection);
+        mConnection.send(commandQueue);
     }
 
     /**
@@ -401,7 +401,7 @@ public class MPDPlaylist {
     void removeByIndex(final int... songs) throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
         commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Tools.sequentialToRange(songs));
-        commandQueue.send(mConnection);
+        mConnection.send(commandQueue);
     }
 
 
@@ -415,7 +415,7 @@ public class MPDPlaylist {
     void removeByIndex(final List<Integer> songs) throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
         commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Tools.sequentialToRange(songs));
-        commandQueue.send(mConnection);
+        mConnection.send(commandQueue);
     }
 
     /**

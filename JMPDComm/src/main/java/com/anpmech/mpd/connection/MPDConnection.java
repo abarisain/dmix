@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.connection;
 
+import com.anpmech.mpd.CommandQueue;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.Tools;
@@ -59,6 +60,12 @@ import java.util.concurrent.TimeUnit;
  * Class representing a connection to MPD Server.
  */
 public abstract class MPDConnection {
+
+    /**
+     * Response for each successful command executed in a command list if used with {@code
+     * MPD_CMD_START_BULK_OK}.
+     */
+    public static final String MPD_CMD_BULK_SEP = "list_OK";
 
     static final String MPD_RESPONSE_OK = "OK";
 
@@ -408,6 +415,69 @@ public abstract class MPDConnection {
     public List<String> send(final String command, final int[] nonfatalErrors,
             final String... args) throws IOException, MPDException {
         return send(new MPDCommand(command, nonfatalErrors, args));
+    }
+
+    /**
+     * Sends the commands (without separated results) which were {@code add}ed to the queue.
+     *
+     * @param commandQueue The CommandQueue to send.
+     * @return The results of from the media server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public List<String> send(final CommandQueue commandQueue) throws IOException, MPDException {
+        return send(commandQueue, false);
+    }
+
+    /**
+     * Sends the commands which were {@code add}ed to the queue.
+     *
+     * @param commandQueue The CommandQueue to send.
+     * @return The results of from the media server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    private List<String> send(final CommandQueue commandQueue, final boolean separated)
+            throws IOException, MPDException {
+        if (commandQueue.isEmpty()) {
+            throw new IllegalStateException("Cannot send an empty command queue.");
+        }
+
+        final MPDCommand mpdCommand;
+        if (separated) {
+            mpdCommand = new MPDCommand(commandQueue.toStringSeparated());
+        } else {
+            mpdCommand = new MPDCommand(commandQueue.toString());
+        }
+
+        return send(mpdCommand);
+    }
+
+    /**
+     * Sends the commands (with separated results) which were {@code add}ed to the queue.
+     *
+     * @param commandQueue The CommandQueue to send.
+     * @return The results of from the media server.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public List<List<String>> sendSeparated(final CommandQueue commandQueue)
+            throws IOException, MPDException {
+        final List<String> response = send(commandQueue, true);
+        final Collection<int[]> ranges = Tools.getRanges(response, MPD_CMD_BULK_SEP);
+        final List<List<String>> result = new ArrayList<>(ranges.size());
+
+        for (final int[] range : ranges) {
+            if (commandQueue.size() == 1) {
+                /** If the CommandQueue has a size of 1, it was sent as a command. */
+                result.add(response);
+            } else {
+                /** Remove the bulk separator from the subList. */
+                result.add(response.subList(range[0], range[1] - 1));
+            }
+        }
+
+        return result;
     }
 
     protected abstract void setInputStream(InputStreamReader inputStream);

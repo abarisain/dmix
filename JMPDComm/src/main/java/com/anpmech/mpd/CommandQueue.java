@@ -27,29 +27,18 @@
 
 package com.anpmech.mpd;
 
-import com.anpmech.mpd.connection.MPDConnection;
-import com.anpmech.mpd.exception.MPDException;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * A class to generate and send a <A HREF="http://www.musicpd.org/doc/protocol/command_lists.html">MPD
+ * A class to generate a <A HREF="http://www.musicpd.org/doc/protocol/command_lists.html">MPD
  * command list</A>.
  */
 public class CommandQueue implements Iterable<MPDCommand> {
 
     private static final boolean DEBUG = false;
-
-    /**
-     * Response for each successful command executed in a command list if used with {@link
-     * #MPD_CMD_START_BULK_OK}.
-     */
-    private static final String MPD_CMD_BULK_SEP = "list_OK";
 
     /** Command text used to end of any command list. */
     private static final String MPD_CMD_END_BULK = "command_list_end";
@@ -182,70 +171,6 @@ public class CommandQueue implements Iterable<MPDCommand> {
         Collections.reverse(mCommandQueue);
     }
 
-    /**
-     * Sends the commands (without separated results) which were {@code add}ed to the queue.
-     *
-     * @param mpdConnection The connection to send the queued commands to.
-     * @return The results of from the media server.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public List<String> send(final MPDConnection mpdConnection) throws IOException, MPDException {
-        return send(mpdConnection, false);
-    }
-
-    /**
-     * Sends the commands which were {@code add}ed to the queue.
-     *
-     * @param mpdConnection The connection to send the queued commands to.
-     * @return The results of from the media server.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    private List<String> send(final MPDConnection mpdConnection, final boolean separated)
-            throws IOException, MPDException {
-        final MPDCommand mpdCommand;
-
-        if (mCommandQueue.isEmpty()) {
-            throw new IllegalStateException("Cannot send an empty command queue.");
-        }
-
-        mpdCommand = new MPDCommand(toString(separated));
-
-        if (DEBUG) {
-            Log.debug(TAG, toString(separated));
-        }
-
-        return mpdConnection.send(mpdCommand);
-    }
-
-    /**
-     * Sends the commands (with separated results) which were {@code add}ed to the queue.
-     *
-     * @param mpdConnection The connection to send the queued commands to.
-     * @return The results of from the media server.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public List<List<String>> sendSeparated(final MPDConnection mpdConnection)
-            throws IOException, MPDException {
-        final List<String> response = send(mpdConnection, true);
-        final Collection<int[]> ranges = Tools.getRanges(response, MPD_CMD_BULK_SEP);
-        final List<List<String>> result = new ArrayList<>(ranges.size());
-
-        for (final int[] range : ranges) {
-            if (mCommandQueue.size() == 1) {
-                /** If the CommandQueue has a size of 1, it was sent as a command. */
-                result.add(response);
-            } else {
-                /** Remove the bulk separator from the subList. */
-                result.add(response.subList(range[0], range[1] - 1));
-            }
-        }
-
-        return result;
-    }
-
     public int size() {
         return mCommandQueue.size();
     }
@@ -264,7 +189,8 @@ public class CommandQueue implements Iterable<MPDCommand> {
      * The command queue builder.
      *
      * @param separated Whether the results should be separated.
-     * @return A string to be parsed by either {@code send()} or {@code sendSeparated()}.
+     * @return A string to be parsed by either {@code MPDConnection.send()} or
+     * {@code MPDConnection.sendSeparated()}.
      */
     private String toString(final boolean separated) {
         final StringBuilder stringBuilder;
@@ -295,5 +221,15 @@ public class CommandQueue implements Iterable<MPDCommand> {
         }
 
         return stringBuilder.toString();
+    }
+
+    /**
+     * This generates and returns the CommandQueue string used to get a response with separated
+     * results,
+     *
+     * @return This CommandQueue string used to get a response with separated results,
+     */
+    public String toStringSeparated() {
+        return toString(true);
     }
 }

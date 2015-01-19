@@ -303,7 +303,7 @@ public class Sticker {
      */
     private Map<String, Music> getMusicPair(final Collection<String> response)
             throws IOException, MPDException {
-        final List<String> musicResponse = getMusicCommand(response).send(mConnection);
+        final List<String> musicResponse = mConnection.send(getMusicCommand(response));
         final List<Music> musicList = MusicBuilder.buildMusicFromList(musicResponse, false);
         final Map<String, Music> musicPair = new HashMap<>(musicList.size());
 
