@@ -148,14 +148,80 @@ public final class Tools {
     }
 
     /**
-     * Gets a beginning and an end range of to a server response.
+     * Gets a beginning and an end range of sub-server responses, based on a parameter key.
+     * <p/>
+     * While this method functions very similarly, this list will <B>end</B> with the key, rather
+     * than begin with the key like {@link #getRanges(java.util.Collection)}.
+     *
+     * @param response The server response to parse.
+     * @param key      The key to the beginning/end of a sub-list.
+     * @return A two int array. The first int is either the beginning of the list, or the one
+     * position beyond the found key. The second int is one position before the next key or the end
+     * of the list (for {@link List#subList(int, int)} compatibility).
+     * @see #getRanges(java.util.Collection)
+     */
+    public static Collection<int[]> getRanges(final Collection<String> response, final String key) {
+        final int responseSize = response.size();
+        /** Initialize the range after the capacity is known. */
+        Collection<int[]> ranges = null;
+        int iterator = 0;
+        int beginIndex = 0;
+
+        for (final String line : response) {
+            final int index = line.indexOf(':');
+            final CharSequence formatted;
+
+            if (index == -1) {
+                formatted = line;
+            } else {
+                formatted = line.subSequence(0, index);
+            }
+
+            if (key.contentEquals(formatted) && iterator != beginIndex) {
+                if (ranges == null) {
+                    final int capacity = responseSize / (iterator + 1);
+                    ranges = new ArrayList<>(capacity);
+                }
+
+                if (beginIndex == 0) {
+                    /** The beginning range. */
+                    ranges.add(new int[]{beginIndex, iterator + 1});
+                } else {
+                    ranges.add(new int[]{beginIndex + 1, iterator + 1});
+
+                    if (iterator == responseSize) {
+                        break;
+                    }
+                }
+                beginIndex = iterator;
+            }
+
+            iterator++;
+        }
+
+        if (responseSize == 0) {
+            ranges = Collections.emptyList();
+        } else if (ranges == null) {
+            ranges = Collections.singletonList(new int[]{beginIndex, responseSize});
+        }
+
+        return ranges;
+    }
+
+    /**
+     * Gets a beginning and an end range of sub-server responses.
+     * <p/>
+     * This method, unlike {@link #getRanges(java.util.Collection, String)}, parses the response
+     * for the first key being repeated and will split end the range with the prior position.
      *
      * @param response The server response to parse.
      * @return A two int array. The first int is the beginning range which matched the key
-     * parameter. The second number is one int beyond the end of the range (List.subList()
-     * compatible). If no range is found, an empty list will be returned.
+     * parameter. The second number is one int beyond the end of the range
+     * (for {@link List#subList(int, int)} compatibility). If no range is found, an empty list will
+     * be returned.
+     * @see #getRanges(java.util.Collection, String)
      */
-    public static Collection<int[]> getRanges(final List<String> response) {
+    public static Collection<int[]> getRanges(final Collection<String> response) {
         final int responseSize = response.size();
         /** Initialize the range after the capacity is known. */
         Collection<int[]> ranges = null;

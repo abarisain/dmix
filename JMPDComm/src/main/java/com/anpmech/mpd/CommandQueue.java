@@ -32,6 +32,7 @@ import com.anpmech.mpd.exception.MPDException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -91,34 +92,6 @@ public class CommandQueue implements Iterable<MPDCommand> {
 
     private static int getStartLength() {
         return MPD_CMD_START_BULK_OK.length() + MPD_CMD_END_BULK.length() + 5;
-    }
-
-    /**
-     * Processes the raw results from a command queue and returns a list of those results.
-     *
-     * @param lines The raw results of a command queue from the media server.
-     * @return A list of results from the command queue.
-     */
-    private static List<List<String>> separatedQueueResults(final Iterable<String> lines) {
-        final List<List<String>> result = new ArrayList<>();
-        final ArrayList<String> lineCache = new ArrayList<>();
-
-        for (final String line : lines) {
-            if (line.equals(MPD_CMD_BULK_SEP)) { // new part
-                if (lineCache.isEmpty()) {
-                    result.add(Collections.<String>emptyList());
-                } else {
-                    result.add(new ArrayList<>(lineCache));
-                    lineCache.clear();
-                }
-            } else {
-                lineCache.add(line);
-            }
-        }
-        if (!lineCache.isEmpty()) {
-            result.add(new ArrayList<>(lineCache));
-        }
-        return result;
     }
 
     /**
@@ -256,7 +229,21 @@ public class CommandQueue implements Iterable<MPDCommand> {
      */
     public List<List<String>> sendSeparated(final MPDConnection mpdConnection)
             throws IOException, MPDException {
-        return separatedQueueResults(send(mpdConnection, true));
+        final List<String> response = send(mpdConnection, true);
+        final Collection<int[]> ranges = Tools.getRanges(response, MPD_CMD_BULK_SEP);
+        final List<List<String>> result = new ArrayList<>(ranges.size());
+
+        for (final int[] range : ranges) {
+            if (mCommandQueue.size() == 1) {
+                /** If the CommandQueue has a size of 1, it was sent as a command. */
+                result.add(response);
+            } else {
+                /** Remove the bulk separator from the subList. */
+                result.add(response.subList(range[0], range[1] - 1));
+            }
+        }
+
+        return result;
     }
 
     public int size() {
