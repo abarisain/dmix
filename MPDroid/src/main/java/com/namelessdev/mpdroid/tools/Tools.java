@@ -30,7 +30,6 @@ import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-import java.security.MessageDigest;
 import java.util.Collection;
 
 public final class Tools {
@@ -75,34 +74,6 @@ public final class Tools {
     public static float convertDpToPixel(final Context context, final float dip) {
         final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, metrics);
-    }
-
-    /**
-     * Convert byte array to hex string.
-     *
-     * @param data Target data array.
-     * @return Hex string.
-     */
-    private static String convertToHex(final byte[] data) {
-        if (data == null || data.length == 0) {
-            return null;
-        }
-
-        final StringBuilder buffer = new StringBuilder();
-        for (int byteIndex = 0; byteIndex < data.length; byteIndex++) {
-            int halfByte = (data[byteIndex] >>> 4) & 0x0F;
-            int twoHalves = 0;
-            do {
-                if ((0 <= halfByte) && (halfByte <= 9)) {
-                    buffer.append((char) ('0' + halfByte));
-                } else {
-                    buffer.append((char) ('a' + (halfByte - 10)));
-                }
-                halfByte = data[byteIndex] & 0x0F;
-            } while (twoHalves++ < 1);
-        }
-
-        return buffer.toString();
     }
 
     /**
@@ -195,26 +166,6 @@ public final class Tools {
             return scaledBitmap;
         } else {
             return bitmap;
-        }
-    }
-
-    /**
-     * Gets the hash value from the specified string.
-     *
-     * @param value Target string value to get hash from.
-     * @return the hash from string.
-     */
-    public static String getHashFromString(final String value) {
-        if (value == null || value.isEmpty()) {
-            return null;
-        }
-
-        try {
-            final MessageDigest hashEngine = MessageDigest.getInstance("MD5");
-            hashEngine.update(value.getBytes("iso-8859-1"), 0, value.length());
-            return convertToHex(hashEngine.digest());
-        } catch (final Exception ignored) {
-            return null;
         }
     }
 

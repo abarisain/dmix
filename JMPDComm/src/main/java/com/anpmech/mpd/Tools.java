@@ -29,7 +29,6 @@ package com.anpmech.mpd;
 
 import com.anpmech.mpd.exception.InvalidResponseException;
 
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -74,34 +73,6 @@ public final class Tools {
     }
 
     /**
-     * Convert byte array to hex string.
-     *
-     * @param data Target data array.
-     * @return Hex string.
-     */
-    private static String convertToHex(final byte[] data) {
-        if (data == null || data.length == 0) {
-            return null;
-        }
-
-        final StringBuilder buffer = new StringBuilder(data.length);
-        for (int byteIndex = 0; byteIndex < data.length; byteIndex++) {
-            int halfbyte = (data[byteIndex] >>> 4) & 0x0F;
-            int twoHalves = 0;
-            do {
-                if ((0 <= halfbyte) && (halfbyte <= 9)) {
-                    buffer.append((char) ('0' + halfbyte));
-                } else {
-                    buffer.append((char) ('a' + (halfbyte - 10)));
-                }
-                halfbyte = data[byteIndex] & 0x0F;
-            } while (twoHalves++ < 1);
-        }
-
-        return buffer.toString();
-    }
-
-    /**
      * Null-safe equivalent of {@code a.equals(b)}. The result should be equivalent to
      * Object.equals().
      */
@@ -125,26 +96,6 @@ public final class Tools {
         }
 
         return result;
-    }
-
-    /**
-     * Gets the hash value from the specified string.
-     *
-     * @param value Target string value to get hash from.
-     * @return the hash from string.
-     */
-    public static String getHashFromString(final String value) {
-        if (value == null || value.isEmpty()) {
-            return null;
-        }
-
-        try {
-            final MessageDigest hashEngine = MessageDigest.getInstance("MD5");
-            hashEngine.update(value.getBytes("iso-8859-1"), 0, value.length());
-            return convertToHex(hashEngine.digest());
-        } catch (final Exception e) {
-            return null;
-        }
     }
 
     /**

@@ -21,13 +21,18 @@ import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Music;
 
-import java.util.Arrays;
+import android.util.Log;
 
-import static com.anpmech.mpd.Tools.getHashFromString;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class AlbumInfo {
 
     private static final String INVALID_ALBUM_KEY = "INVALID_ALBUM_KEY";
+
+    private static final String TAG = "AlbumInfo";
 
     protected final String mAlbum;
 
@@ -80,6 +85,56 @@ public class AlbumInfo {
         mAlbum = album;
         mPath = path;
         mFilename = filename;
+    }
+
+    /**
+     * Convert byte array to hex string.
+     *
+     * @param data Target data array.
+     * @return Hex string.
+     */
+    private static String convertToHex(final byte[] data) {
+        if (data == null || data.length == 0) {
+            return null;
+        }
+
+        final StringBuilder buffer = new StringBuilder(data.length);
+        for (int byteIndex = 0; byteIndex < data.length; byteIndex++) {
+            int halfbyte = (data[byteIndex] >>> 4) & 0x0F;
+            int twoHalves = 0;
+            do {
+                if ((0 <= halfbyte) && (halfbyte <= 9)) {
+                    buffer.append((char) ('0' + halfbyte));
+                } else {
+                    buffer.append((char) ('a' + (halfbyte - 10)));
+                }
+                halfbyte = data[byteIndex] & 0x0F;
+            } while (twoHalves++ < 1);
+        }
+
+        return buffer.toString();
+    }
+
+    /**
+     * Gets the hash value from the specified string.
+     *
+     * @param value Target string value to get hash from.
+     * @return the hash from string.
+     */
+    private static String getHashFromString(final String value) {
+        String hash = null;
+
+        if (value != null && !value.isEmpty()) {
+            try {
+                final MessageDigest hashEngine = MessageDigest.getInstance("MD5");
+                hashEngine.update(value.getBytes("iso-8859-1"), 0, value.length());
+                hash = convertToHex(hashEngine.digest());
+            } catch (final NoSuchAlgorithmException | UnsupportedEncodingException e) {
+                Log.e(TAG, "Failed to get hash.", e);
+            }
+        }
+
+        return hash;
     }
 
     @Override
