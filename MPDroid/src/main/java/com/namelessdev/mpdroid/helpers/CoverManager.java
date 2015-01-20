@@ -654,7 +654,8 @@ public final class CoverManager {
                         // Re-try the cover art download
                         // if the request has been given up or if the path is
                         // missing (like in artist view)
-                        if (!coverInfo.isRequestGivenUp() && !isEmpty(coverInfo.getPath())) {
+                        if (!coverInfo.isRequestGivenUp() &&
+                                !isEmpty(coverInfo.getParentDirectory())) {
                             mNotFoundAlbumKeys.add(coverInfo.getKey());
                         }
                         removeRequest(coverInfo);

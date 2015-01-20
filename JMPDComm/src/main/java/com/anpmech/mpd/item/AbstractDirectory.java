@@ -221,7 +221,7 @@ public abstract class AbstractDirectory extends Item<Directory> implements Files
         final Collection<Music> filesCompared = new TreeSet<>(new Comparator<Music>() {
             @Override
             public int compare(final Music lhs, final Music rhs) {
-                return StringComparators.compareNatural(lhs.getFilename(), rhs.getFilename());
+                return StringComparators.compareNatural(lhs.getFullPath(), rhs.getFullPath());
             }
         });
 
@@ -380,7 +380,7 @@ public abstract class AbstractDirectory extends Item<Directory> implements Files
                     lineCache.add(line);
 
                     final Music music = MusicBuilder.build(lineCache);
-                    fileEntries.put(music.getFilename(), music);
+                    fileEntries.put(music.getFullPath(), music);
 
                     lineCache.clear();
                     break;

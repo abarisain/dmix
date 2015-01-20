@@ -394,7 +394,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                     break;
                 }
                 intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra(Directory.EXTRA, music.getParent());
+                intent.putExtra(Directory.EXTRA, music.getParentDirectory());
                 startActivityForResult(intent, -1);
                 break;
             default:

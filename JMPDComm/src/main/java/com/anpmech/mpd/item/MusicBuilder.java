@@ -62,7 +62,7 @@ public final class MusicBuilder {
         String artistName = null;
         String albumArtistName = null;
         String composerName = null;
-        String fullPath = null;
+        String fileName = null;
         int disc = AbstractMusic.UNDEFINED_INT;
         long date = -1L;
         String genreName = null;
@@ -106,25 +106,13 @@ public final class MusicBuilder {
                     }
                     break;
                 case AbstractMusic.RESPONSE_FILE:
-                    fullPath = pair[VALUE];
-                    if (!fullPath.isEmpty() && fullPath.contains("://")) {
-                        final int pos = fullPath.indexOf('#');
-                        if (pos > 1) {
-                            name = fullPath.substring(pos + 1, fullPath.length());
-                            fullPath = fullPath.substring(0, pos);
-                        }
-                    }
+                    fileName = pair[VALUE];
                     break;
                 case AbstractMusic.RESPONSE_GENRE:
                     genreName = pair[VALUE];
                     break;
                 case AbstractMusic.RESPONSE_NAME:
-                    /**
-                     * This name might already be assigned to the URL fragment identifier.
-                     */
-                    if (name == null) {
-                        name = pair[VALUE];
-                    }
+                    name = pair[VALUE];
                     break;
                 case AbstractMusic.RESPONSE_SONG_ID:
                     try {
@@ -173,7 +161,7 @@ public final class MusicBuilder {
             }
         }
 
-        return new Music(albumName, albumArtistName, artistName, composerName, date, disc, fullPath,
+        return new Music(albumName, albumArtistName, artistName, composerName, date, disc, fileName,
                 genreName, name, songId, songPos, time, title, totalTracks, track);
     }
 

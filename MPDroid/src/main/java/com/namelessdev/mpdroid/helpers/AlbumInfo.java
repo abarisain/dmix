@@ -55,7 +55,7 @@ public class AlbumInfo {
     /** Returned upon invalid checksum. */
     private static final String INVALID_ALBUM_CHECKSUM = "INVALID_ALBUM_CHECKSUM";
 
-    // Remove disc references from albums (like CD1, disc02 ...)
+    /** Remove disc references from albums (like CD1, disc02 ...) */
     private static final Pattern MEDIA_REMOVE =
             Pattern.compile("(cd|disc|disque)\\s*\\d+", Pattern.CASE_INSENSITIVE);
 
@@ -75,7 +75,7 @@ public class AlbumInfo {
     private final String mFilename;
 
     /** The path in relation to this album. */
-    private final String mPath;
+    private final String mParentDirectory;
 
     static {
         /**
@@ -112,8 +112,8 @@ public class AlbumInfo {
 
         mArtistName = artist;
         mAlbumName = music.getAlbumName();
-        mPath = music.getPath();
-        mFilename = music.getFilename();
+        mParentDirectory = music.getParentDirectory();
+        mFilename = music.getFullPath();
     }
 
     /**
@@ -133,7 +133,7 @@ public class AlbumInfo {
         }
 
         mAlbumName = album.getName();
-        mPath = album.getPath();
+        mParentDirectory = album.getPath();
         mFilename = null;
     }
 
@@ -144,7 +144,8 @@ public class AlbumInfo {
      * @param albumInfo The AlbumInfo object to copy.
      */
     public AlbumInfo(final AlbumInfo albumInfo) {
-        this(albumInfo.mArtistName, albumInfo.mAlbumName, albumInfo.mPath, albumInfo.mFilename);
+        this(albumInfo.mArtistName, albumInfo.mAlbumName, albumInfo.mParentDirectory,
+                albumInfo.mFilename);
     }
 
     /**
@@ -161,18 +162,18 @@ public class AlbumInfo {
     /**
      * This constructor initializes an AlbumInfo object from strings, this is discouraged.
      *
-     * @param artistName The artist name used with relation to this album.
-     * @param albumName  The album name used with relation to this album.
-     * @param path       The parent directory to the filename.
-     * @param filename   The filename with relation to this album.
+     * @param artistName      The artist name used with relation to this album.
+     * @param albumName       The album name used with relation to this album.
+     * @param parentDirectory The parent directory to the filename.
+     * @param filename        The filename with relation to this album.
      */
-    private AlbumInfo(final String artistName, final String albumName, final String path,
+    private AlbumInfo(final String artistName, final String albumName, final String parentDirectory,
             final String filename) {
         super();
 
         mArtistName = artistName;
         mAlbumName = albumName;
-        mPath = path;
+        mParentDirectory = parentDirectory;
         mFilename = filename;
     }
 
@@ -360,7 +361,7 @@ public class AlbumInfo {
         String album = cleanGetRequest(mAlbumName);
         album = MEDIA_REMOVE.matcher(album).replaceAll(" ");
 
-        return new AlbumInfo(album, artist, mPath, mFilename);
+        return new AlbumInfo(album, artist, mParentDirectory, mFilename);
     }
 
     /**
@@ -368,8 +369,8 @@ public class AlbumInfo {
      *
      * @return The path in relation to this album.
      */
-    public String getPath() {
-        return mPath;
+    public String getParentDirectory() {
+        return mParentDirectory;
     }
 
     /**
@@ -411,7 +412,7 @@ public class AlbumInfo {
         sb.append("mAlbumName='").append(mAlbumName).append('\'');
         sb.append(", mArtistName='").append(mArtistName).append('\'');
         sb.append(", mFilename='").append(mFilename).append('\'');
-        sb.append(", mPath='").append(mPath).append('\'');
+        sb.append(", mParentDirectory='").append(mParentDirectory).append('\'');
         sb.append('}');
         return sb.toString();
     }

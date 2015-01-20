@@ -316,7 +316,7 @@ public class AlbumCache {
                     mAlbumDetails.put(thisAlbum, details);
                 }
                 if (details.mPath == null) {
-                    details.mPath = music.getPath();
+                    details.mPath = music.getParentDirectory();
                 }
                 // if (details.times == null)
                 // details.times = new ArrayList<Long>();

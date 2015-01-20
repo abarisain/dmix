@@ -145,7 +145,7 @@ public class FSFragment extends BrowseFragment {
                 final Item<?> item = mItems.get(position);
                 final String filename;
                 if (item instanceof Music) {
-                    filename = ((Music) item).getFilename();
+                    filename = ((Music) item).getFullPath();
                     if (TextUtils.isEmpty(filename) || item.toString().equals(filename)) {
                         subtext.setVisibility(View.GONE);
                     } else {

@@ -87,7 +87,7 @@ public class LocalCover implements ICoverRetriever {
     @Override
     public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
 
-        if (isEmpty(albumInfo.getPath())) {
+        if (isEmpty(albumInfo.getParentDirectory())) {
             return new String[0];
         }
 
@@ -128,7 +128,8 @@ public class LocalCover implements ICoverRetriever {
                             lfilename = baseFilename;
                         }
 
-                        url = buildCoverUrl(serverName, musicPath, albumInfo.getPath(), lfilename);
+                        url = buildCoverUrl(serverName, musicPath, albumInfo.getParentDirectory(),
+                                lfilename);
 
                         if (!urls.contains(url)) {
                             urls.add(url);

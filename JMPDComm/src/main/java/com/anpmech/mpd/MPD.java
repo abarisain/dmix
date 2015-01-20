@@ -458,8 +458,8 @@ public class MPD {
                 /** Then extract the date and path from a song of the album. */
                 final List<Music> songs = getFirstTrack(album);
                 if (null != songs && !songs.isEmpty()) {
-                    albumBuilder
-                            .setSongDetails(songs.get(0).getDate(), songs.get(0).getPath());
+                    albumBuilder.setSongDetails(songs.get(0).getDate(),
+                            songs.get(0).getParentDirectory());
                 }
                 albums.set(i, albumBuilder.build());
             }
@@ -477,8 +477,8 @@ public class MPD {
 
                 if (songs != null && !songs.isEmpty()) {
                     albumBuilder.setAlbum(album);
-                    albumBuilder
-                            .setSongDetails(songs.get(0).getDate(), songs.get(0).getPath());
+                    albumBuilder.setSongDetails(songs.get(0).getDate(),
+                            songs.get(0).getParentDirectory());
                     iterator.set(albumBuilder.build());
                 }
             }

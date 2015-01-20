@@ -244,7 +244,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     final int mDisc;
 
     /**
-     * This field is storage for the full path of the data for this track, relative to the media
+     * This field is storage for a representation of the source of the media, relative to the media
      * server.
      */
     final String mFullPath;
@@ -626,26 +626,6 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     }
 
     /**
-     * TODO test this for streams Retrieves filename.
-     *
-     * @return filename.
-     */
-    public String getFilename() {
-        String result = null;
-
-        if (mFullPath != null) {
-            final int pos = mFullPath.lastIndexOf('/');
-            if (pos == -1 || pos == mFullPath.length() - 1) {
-                result = mFullPath;
-            } else {
-                result = mFullPath.substring(pos + 1);
-            }
-        }
-
-        return result;
-    }
-
-    /**
      * Retrieves the duration of the track formatted as HH:MM:SS.
      *
      * @return The duration of the track formatted as HH:MM:SS.
@@ -655,13 +635,27 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     }
 
     /**
-     * Retrieves the full path of the data for this track, relative to the media server.
+     * This returns a representation of the source of the media, relative to the media server.
+     * <p/>
+     * This can be a filename, a URL, etc. If this item's filename is a URL, the URI fragment is
+     * removed.
      *
-     * @return The full path of the data for this track, relative to the media server.
+     * @return The filename of this item without a URI fragment.
+     * @see #getURIFragment()
      */
     @Override
     public String getFullPath() {
-        return mFullPath;
+        final String fileName;
+
+        if (isStream()) {
+            final int pos = mFullPath.indexOf('#');
+
+            fileName = mFullPath.substring(0, pos);
+        } else {
+            fileName = mFullPath;
+        }
+
+        return fileName;
     }
 
     /**
@@ -674,21 +668,37 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     }
 
     /**
-     * Retrieves stream's name.
+     * This method returns the stream name (if not empty), the Name tag, or the filename.
      *
-     * @return stream's name.
+     * @return The stream name, the name tag or the filename, which ever is available first,
+     * respectively.
      */
     @Override
     public String getName() {
-        final String name;
+        String name = null;
 
-        if (isEmpty(mName)) {
-            name = getFilename();
-        } else {
-            name = mName;
+        if (isStream()) {
+            name = getURIFragment();
+        }
+
+        if (name == null) {
+            if (isEmpty(mName)) {
+                name = getFullPath();
+            } else {
+                name = mName;
+            }
         }
 
         return name;
+    }
+
+    /**
+     * This method returns the name tag as received from the MPD protocol key {@link #TAG_NAME}.
+     *
+     * @return The name tag as returned by the protocol.
+     */
+    public String getNameTag() {
+        return mName;
     }
 
     /**
@@ -696,33 +706,23 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      *
      * @return file's parent directory
      */
-    public String getParent() {
-        String parent = null;
+    public String getParentDirectory() {
+        String pathName = getFullPath();
 
-        if (mFullPath != null) {
-            final int pos = mFullPath.lastIndexOf('/');
+        if (pathName != null) {
+            int index = pathName.lastIndexOf('/');
 
-            if (pos != -1) {
-                parent = mFullPath.substring(0, pos);
+            /** If it ends with a backslash, try again. */
+            if (index == pathName.length() - 1) {
+                index = pathName.lastIndexOf('/', index - 1);
+            }
+
+            if (index != -1) {
+                pathName = pathName.substring(0, index);
             }
         }
 
-        return parent;
-    }
-
-    /**
-     * Retrieves path of music file (does not start or end with /)
-     *
-     * @return path of music file.
-     */
-    public String getPath() {
-        final String result;
-        if (null != mFullPath && mFullPath.length() > getFilename().length()) {
-            result = mFullPath.substring(0, mFullPath.length() - getFilename().length() - 1);
-        } else {
-            result = "";
-        }
-        return result;
+        return pathName;
     }
 
     /**
@@ -761,7 +761,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
         final String title;
 
         if (isEmpty(mTitle)) {
-            title = getFilename();
+            title = getFullPath();
         } else {
             title = mTitle;
         }
@@ -788,6 +788,22 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
         return mTrack;
     }
 
+    /**
+     * Returns the URI fragment if it exists.
+     *
+     * @return The URI fragment if it exists, null otherwise.
+     */
+    public String getURIFragment() {
+        final int pos = mFullPath.indexOf('#');
+        String streamName = null;
+
+        if (pos > 1) {
+            streamName = mFullPath.substring(pos + 1, mFullPath.length());
+        }
+
+        return streamName;
+    }
+
     @Override
     public int hashCode() {
         final Object[] objects = {mAlbumName, mArtistName, mAlbumArtistName, mGenreName, mName,
@@ -811,7 +827,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return True if this item appears to be streaming media, false otherwise.
      */
     public boolean isStream() {
-        return null != mFullPath && mFullPath.contains("://");
+        return mFullPath != null && mFullPath.contains("://");
     }
 
     /**
