@@ -46,6 +46,10 @@ public class AlbumInfo {
 
     private static final String INVALID_ALBUM_CHECKSUM = "INVALID_ALBUM_CHECKSUM";
 
+    // Remove disc references from albums (like CD1, disc02 ...)
+    private static final Pattern MEDIA_REMOVE =
+            Pattern.compile("(cd|disc|disque)\\s*\\d+", Pattern.CASE_INSENSITIVE);
+
     private static final String TAG = "AlbumInfo";
 
     private static final Pattern TEXT_PATTERN = Pattern.compile("[^\\w .-]+");
@@ -205,16 +209,6 @@ public class AlbumInfo {
         return hex;
     }
 
-    // Remove disc references from albums (like CD1, disc02 ...)
-    private static String removeDiscReference(final String album) {
-        String cleanedAlbum = album.toLowerCase();
-
-        for (final String discReference : new String[]{"cd", "disc", "disque"}) {
-            cleanedAlbum = cleanedAlbum.replaceAll(discReference + "\\s*\\d+", " ");
-        }
-        return cleanedAlbum;
-    }
-
     @Override
     public boolean equals(final Object o) {
         Boolean isEqual = null;
@@ -278,7 +272,7 @@ public class AlbumInfo {
     public AlbumInfo getNormalized() {
         final String artist = cleanGetRequest(mArtistName);
         String album = cleanGetRequest(mAlbumName);
-        album = removeDiscReference(album);
+        album = MEDIA_REMOVE.matcher(album).replaceAll(" ");
 
         return new AlbumInfo(album, artist, mPath, mFilename);
     }
