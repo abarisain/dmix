@@ -457,7 +457,7 @@ public class MPD {
 
                 /** Then extract the date and path from a song of the album. */
                 final List<Music> songs = getFirstTrack(album);
-                if (null != songs && !songs.isEmpty()) {
+                if (!songs.isEmpty()) {
                     albumBuilder.setSongDetails(songs.get(0).getDate(),
                             songs.get(0).getParentDirectory());
                 }
@@ -467,7 +467,7 @@ public class MPD {
     }
 
     protected void addAlbumSongDetails(final List<Album> albums) throws IOException, MPDException {
-        if (albums != null && !albums.isEmpty()) {
+        if (!albums.isEmpty()) {
             final ListIterator<Album> iterator = albums.listIterator();
             final AlbumBuilder albumBuilder = new AlbumBuilder();
 
@@ -475,7 +475,7 @@ public class MPD {
                 final Album album = iterator.next();
                 final List<Music> songs = getFirstTrack(album);
 
-                if (songs != null && !songs.isEmpty()) {
+                if (!songs.isEmpty()) {
                     albumBuilder.setAlbum(album);
                     albumBuilder.setSongDetails(songs.get(0).getDate(),
                             songs.get(0).getParentDirectory());
@@ -521,7 +521,7 @@ public class MPD {
     @SuppressWarnings("TypeMayBeWeakened")
     public void addToPlaylist(final PlaylistFile playlist, final Collection<Music> musicCollection)
             throws IOException, MPDException {
-        if (null != musicCollection && !musicCollection.isEmpty()) {
+        if (!musicCollection.isEmpty()) {
             final CommandQueue commandQueue = new CommandQueue();
 
             for (final Music music : musicCollection) {
@@ -708,16 +708,11 @@ public class MPD {
      * there are album artists, including "" The server call can be slow for long
      * album lists
      */
-    protected void fixAlbumArtists(final List<Album> albums) {
-        if (albums != null && !albums.isEmpty()) {
-            List<List<String>> albumArtists = null;
-            try {
-                albumArtists = listAlbumArtists(albums);
-            } catch (final IOException | MPDException e) {
-                Log.error(TAG, "Failed to fix album artists.", e);
-            }
+    protected void fixAlbumArtists(final List<Album> albums) throws IOException, MPDException {
+        if (!albums.isEmpty()) {
+            final List<List<String>> albumArtists = listAlbumArtists(albums);
 
-            if (albumArtists != null && albumArtists.size() == albums.size()) {
+            if (albumArtists.size() == albums.size()) {
                 /** Split albums are rare, let it allocate as needed. */
                 @SuppressWarnings("CollectionWithoutInitialCapacity")
                 final Collection<Album> splitAlbums = new ArrayList<>();
@@ -733,7 +728,7 @@ public class MPD {
                         Collections.sort(aartists); // make sure "" is the first one
                         firstArtist = aartists.get(0);
 
-                        if (firstArtist != null && !firstArtist.isEmpty()) {
+                        if (!firstArtist.isEmpty()) {
                             // album
                             albumBuilder.setAlbumArtist(firstArtist);
                             albums.set(i, albumBuilder.build(false));
@@ -843,7 +838,9 @@ public class MPD {
             albums = listAllAlbumsGrouped(false);
         } else {
             final List<String> albumNames = listAlbums();
-            if (null != albumNames && !albumNames.isEmpty()) {
+            if (albumNames.isEmpty()) {
+                albums = Collections.emptyList();
+            } else {
                 final AlbumBuilder albumBuilder = new AlbumBuilder();
 
                 albums = new ArrayList<>(albumNames.size());
@@ -851,8 +848,6 @@ public class MPD {
                     albumBuilder.setName(album);
                     albums.add(albumBuilder.build());
                 }
-            } else {
-                albums = Collections.emptyList();
             }
         }
 
@@ -931,15 +926,15 @@ public class MPD {
         args[4] = Music.TAG_TRACK;
         args[5] = "1";
         List<Music> songs = find(args);
-        if (null == songs || songs.isEmpty()) {
+        if (songs.isEmpty()) {
             args[5] = "01";
             songs = find(args);
         }
-        if (null == songs || songs.isEmpty()) {
+        if (songs.isEmpty()) {
             args[5] = "1";
             songs = search(args);
         }
-        if (null == songs || songs.isEmpty()) {
+        if (songs.isEmpty()) {
             final String[] args2 = Arrays.copyOf(args, 4); // find all tracks
             songs = find(args2);
         }
@@ -948,17 +943,20 @@ public class MPD {
 
     public List<Genre> getGenres() throws IOException, MPDException {
         final List<String> genreNames = listGenres();
-        List<Genre> genres = null;
+        List<Genre> genres;
 
-        if (null != genreNames && !genreNames.isEmpty()) {
+        if (genreNames.isEmpty()) {
+            genres = Collections.emptyList();
+        } else {
             genres = new ArrayList<>(genreNames.size());
+
             for (final String genre : genreNames) {
                 genres.add(new Genre(genre));
             }
-        }
-        if (null != genres) {
+
             Collections.sort(genres);
         }
+
         return genres;
     }
 
@@ -1060,7 +1058,7 @@ public class MPD {
 
     public List<Music> getSavedStreams() throws IOException, MPDException {
         final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LISTPLAYLISTS);
-        List<Music> savedStreams = null;
+        List<Music> savedStreams = Collections.emptyList();
 
         for (final String[] pair : Tools.splitResponse(response)) {
             if ("playlist".equals(pair[KEY])) {
@@ -1231,7 +1229,6 @@ public class MPD {
             throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue(albums.size());
         final List<List<String>> responses;
-        List<String[]> albumArtists = null;
 
         for (final Album album : albums) {
             final Artist artist = album.getArtist();
@@ -1434,41 +1431,30 @@ public class MPD {
      */
     public List<List<String>> listArtists(final List<Album> albums, final boolean useAlbumArtist)
             throws IOException, MPDException {
-        final List<List<String>> result;
+        final List<List<String>> responses = listArtistsCommand(albums, useAlbumArtist);
+        final List<List<String>> result = new ArrayList<>(responses.size());
+        final int artistLength;
+        List<String> albumResult = Collections.emptyList();
 
-        if (albums == null) {
-            result = Collections.emptyList();
+        if (useAlbumArtist) {
+            artistLength = Music.RESPONSE_ALBUM_ARTIST.length() + 2;
         } else {
+            artistLength = Music.RESPONSE_ARTIST.length() + 2;
+        }
 
-            final List<List<String>> responses = listArtistsCommand(albums, useAlbumArtist);
-            result = new ArrayList<>(responses.size());
-            List<String> albumResult = null;
-            final int artistLength;
+        for (final List<String> response : responses) {
+            albumResult.clear();
 
-            if (useAlbumArtist) {
-                artistLength = Music.RESPONSE_ALBUM_ARTIST.length() + 2;
-            } else {
-                artistLength = Music.RESPONSE_ARTIST.length() + 2;
+            for (final String album : response) {
+                final String name = album.substring(artistLength);
+
+                /** Give the array list an approximate size. */
+                albumResult = new ArrayList<>(album.length() * response.size());
+
+                albumResult.add(name);
             }
 
-            for (final List<String> response : responses) {
-                if (albumResult != null) {
-                    albumResult.clear();
-                }
-
-                for (final String album : response) {
-                    final String name = album.substring(artistLength);
-
-                    if (albumResult == null) {
-                        /** Give the array list an approximate size. */
-                        albumResult = new ArrayList<>(album.length() * response.size());
-                    }
-
-                    albumResult.add(name);
-                }
-
-                result.add(albumResult);
-            }
+            result.add(albumResult);
         }
 
         return result;

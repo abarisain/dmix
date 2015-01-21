@@ -345,7 +345,7 @@ public class IdleSubsystemMonitor extends Thread {
         while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
             final List<String> data = mpdIdleConnection.send(idleCommand);
 
-            if (data == null || data.isEmpty()) {
+            if (data.isEmpty()) {
                 continue;
             }
 

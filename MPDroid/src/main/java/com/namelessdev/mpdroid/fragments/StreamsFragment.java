@@ -52,7 +52,6 @@ import android.widget.Toast;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -194,7 +193,8 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     private List<Stream> loadOldStreams() {
-        AbstractList<Stream> oldStreams = null;
+        List<Stream> oldStreams = Collections.emptyList();
+
         try {
             final InputStream in = mApp.openFileInput(FILE_NAME);
             final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -205,9 +205,10 @@ public class StreamsFragment extends BrowseFragment {
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
                     if ("stream".equals(xpp.getName())) {
-                        if (null == oldStreams) {
+                        if (oldStreams.isEmpty()) {
                             oldStreams = new ArrayList<>();
                         }
+
                         oldStreams.add(new Stream(xpp.getAttributeValue("", "name"), xpp
                                 .getAttributeValue("", "url"), -1));
                     }
@@ -228,7 +229,7 @@ public class StreamsFragment extends BrowseFragment {
         mStreams = new ArrayList<>();
 
         // Load streams stored in MPD Streams playlist...
-        List<Music> mpdStreams = null;
+        List<Music> mpdStreams = Collections.emptyList();
         int iterator = 0;
 
         /** Many users have playlist support disabled, no need for an exception. */
@@ -243,11 +244,9 @@ public class StreamsFragment extends BrowseFragment {
             mpdStreams = Collections.emptyList();
         }
 
-        if (null != mpdStreams) {
-            for (final Music stream : mpdStreams) {
-                mStreams.add(new Stream(stream.getName(), stream.getFullPath(), iterator));
-                iterator++;
-            }
+        for (final Music stream : mpdStreams) {
+            mStreams.add(new Stream(stream.getName(), stream.getFullPath(), iterator));
+            iterator++;
         }
 
         // Load any OLD MPDroid streams, and also save these to MPD...
