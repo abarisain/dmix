@@ -39,10 +39,20 @@ import java.util.concurrent.TimeUnit;
 
 public final class Tools {
 
+    /**
+     * This is the value used extract the key from the {@link #splitResponse(String)} return array.
+     */
     public static final int KEY = 0;
 
+    /**
+     * This is the value used to extract the value from the {@link #splitResponse(String)} return
+     * array.
+     */
     public static final int VALUE = 1;
 
+    /**
+     * The class log identifier.
+     */
     private static final String TAG = "Tools";
 
     private Tools() {
@@ -75,6 +85,10 @@ public final class Tools {
     /**
      * Null-safe equivalent of {@code a.equals(b)}. The result should be equivalent to
      * Object.equals().
+     *
+     * @param a An object.
+     * @param b An object to be compared with a for equality.
+     * @return True if the arguments are equal to each other, false otherwise
      */
     public static boolean equals(final Object a, final Object b) {
         if (a == null) {
@@ -84,15 +98,21 @@ public final class Tools {
         }
     }
 
-    public static String getExtension(final String path) {
-        final int index = path.lastIndexOf('.');
-        final int extLength = path.length() - index - 1;
+    /**
+     * A simple filename extension extractor.
+     *
+     * @param filename The filename to extract the extension from.
+     * @return The extension extracted from the filename parameter.
+     */
+    public static String getExtension(final String filename) {
+        final int index = filename.lastIndexOf('.');
+        final int extLength = filename.length() - index - 1;
         final int extensionShort = 2;
         final int extensionLong = 4;
         String result = null;
 
         if (extLength >= extensionShort && extLength <= extensionLong) {
-            result = path.substring(index + 1);
+            result = filename.substring(index + 1);
         }
 
         return result;
@@ -264,6 +284,12 @@ public final class Tools {
         return !isEqual;
     }
 
+    /**
+     * Compares inside int values for an Object.equals(object) implementation.
+     *
+     * @param arrays A an array of two element arrays to be checked for equality.
+     * @return True if all two element arrays are equal, false otherwise.
+     */
     public static boolean isNotEqual(final int[][] arrays) {
         boolean result = false;
 
@@ -277,6 +303,12 @@ public final class Tools {
         return result;
     }
 
+    /**
+     * Compares inside long values for an Object.equals(object) implementation.
+     *
+     * @param arrays A an array of two element arrays to be checked for equality.
+     * @return True if all two element arrays are equal, false otherwise.
+     */
     public static boolean isNotEqual(final long[][] arrays) {
         boolean result = false;
 
