@@ -354,12 +354,20 @@ public abstract class MPDConnection {
 
         if (result.getResponse() == null) {
             if (result.isIOExceptionLast() == null) {
-                /**
-                 * This should not occur, and this exception should extend RuntimeException,
-                 * BUT a RuntimeException would most likely not help the situation.
-                 */
+                final String exceptionString;
+
+                if (mCancelled) {
+                    exceptionString = "Connection cancelled, not a bug but exception is required.";
+                } else {
+                    /**
+                     * This should not occur, and this exception should extend RuntimeException,
+                     * BUT a RuntimeException would most likely not help the situation.
+                     */
+                    exceptionString = "No result, no exception. This is a bug. Please report.";
+                }
+
                 throw new IOException(
-                        "No result, no exception. This is a bug. Please report." + '\n' +
+                        exceptionString + '\n' +
                                 "Cancelled: " + mCancelled + '\n' +
                                 "Command: " + command + '\n' +
                                 "Connected: " + mIsConnected + '\n' +
