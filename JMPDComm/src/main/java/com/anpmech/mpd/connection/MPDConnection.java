@@ -92,6 +92,8 @@ public abstract class MPDConnection {
 
     private static final String MPD_RESPONSE_ERR = "ACK";
 
+    private static final String NO_ENDPOINT_ERROR = "Connection endpoint not yet established.";
+
     private static final String POOL_THREAD_NAME_PREFIX = "pool";
 
     /** A set containing all available commands, populated on connection. */
@@ -242,7 +244,7 @@ public abstract class MPDConnection {
      */
     public InetAddress getHostAddress() {
         if (mSocketAddress == null) {
-            throw new IllegalStateException("Connection endpoint not yet established.");
+            throw new IllegalStateException(NO_ENDPOINT_ERROR);
         }
         return mSocketAddress.getAddress();
     }
@@ -254,7 +256,7 @@ public abstract class MPDConnection {
      */
     public int getHostPort() {
         if (mSocketAddress == null) {
-            throw new IllegalStateException("Connection endpoint not yet established.");
+            throw new IllegalStateException(NO_ENDPOINT_ERROR);
         }
         return mSocketAddress.getPort();
     }

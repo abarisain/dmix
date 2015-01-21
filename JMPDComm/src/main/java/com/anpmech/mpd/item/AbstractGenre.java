@@ -32,7 +32,7 @@ import com.anpmech.mpd.Tools;
 /** This class is the generic base for the Genre items, abstracted for backend. */
 abstract class AbstractGenre<T extends Genre> extends Item<Genre> {
 
-    protected static final String TAG = "Genre";
+    protected static final String TAG = AbstractMusic.RESPONSE_GENRE;
 
     final String mName;
 

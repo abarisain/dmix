@@ -928,7 +928,7 @@ public class MPD {
 
         args[2] = Music.TAG_ALBUM;
         args[3] = album.getName();
-        args[4] = "track";
+        args[4] = Music.TAG_TRACK;
         args[5] = "1";
         List<Music> songs = find(args);
         if (null == songs || songs.isEmpty()) {
@@ -1198,7 +1198,7 @@ public class MPD {
         final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
                 Music.TAG_ALBUM_ARTIST);
 
-        Tools.parseResponse(response, "AlbumArtist");
+        Tools.parseResponse(response, Music.RESPONSE_ALBUM_ARTIST);
         sort(response, sortInsensitive);
 
         return response;
@@ -1221,7 +1221,7 @@ public class MPD {
                 MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM_ARTIST,
                 Music.TAG_GENRE, genre.getName());
 
-        Tools.parseResponse(response, "AlbumArtist");
+        Tools.parseResponse(response, Music.RESPONSE_ALBUM_ARTIST);
         sort(response, sortInsensitive);
 
         return response;
@@ -1289,7 +1289,7 @@ public class MPD {
         final List<String> response =
                 mConnection.send(listAlbumsCommand(artist, useAlbumArtist));
 
-        Tools.parseResponse(response, "Album");
+        Tools.parseResponse(response, Music.RESPONSE_ALBUM);
         sort(response, false);
 
         return response;
@@ -1338,7 +1338,7 @@ public class MPD {
     public List<Album> listAllAlbumsGrouped(final boolean useAlbumArtist,
             final boolean includeUnknownAlbum) throws IOException, MPDException {
         final AlbumBuilder albumBuilder = new AlbumBuilder();
-        final String albumResponse = "Album";
+        final String albumResponse = Music.RESPONSE_ALBUM;
         final String artistResponse;
         final List<String> response =
                 mConnection.send(listAllAlbumsGroupedCommand(useAlbumArtist));
@@ -1346,9 +1346,9 @@ public class MPD {
         String currentAlbum = null;
 
         if (useAlbumArtist) {
-            artistResponse = "AlbumArtist";
+            artistResponse = Music.RESPONSE_ALBUM_ARTIST;
         } else {
-            artistResponse = "Artist";
+            artistResponse = Music.RESPONSE_ARTIST;
         }
 
         for (final String[] pair : Tools.splitResponse(response)) {
@@ -1419,7 +1419,7 @@ public class MPD {
         final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
                 Music.TAG_ARTIST);
 
-        Tools.parseResponse(response, "Artist");
+        Tools.parseResponse(response, Music.RESPONSE_ARTIST);
         sort(response, sortInsensitive);
 
         return response;
@@ -1442,13 +1442,13 @@ public class MPD {
 
             final List<List<String>> responses = listArtistsCommand(albums, useAlbumArtist);
             result = new ArrayList<>(responses.size());
-            ArrayList<String> albumResult = null;
+            List<String> albumResult = null;
             final int artistLength;
 
             if (useAlbumArtist) {
-                artistLength = "AlbumArtist: ".length();
+                artistLength = Music.RESPONSE_ALBUM_ARTIST.length() + 2;
             } else {
-                artistLength = "Artist: ".length();
+                artistLength = Music.RESPONSE_ARTIST.length() + 2;
             }
 
             for (final List<String> response : responses) {
@@ -1498,7 +1498,7 @@ public class MPD {
         final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
                 Music.TAG_ARTIST, Music.TAG_GENRE, genre);
 
-        Tools.parseResponse(response, "Artist");
+        Tools.parseResponse(response, Music.RESPONSE_ARTIST);
         sort(response, sortInsensitive);
 
         return response;

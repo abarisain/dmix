@@ -32,8 +32,6 @@ import static com.namelessdev.mpdroid.helpers.CoverManager.getCoverFileName;
 
 public class CachedCover implements ICoverRetriever {
 
-    private static final String FOLDER_SUFFIX = "/covers/";
-
     private static final String TAG = "CachedCover";
 
     private final MPDApplication mApp = MPDApplication.getInstance();
@@ -64,7 +62,7 @@ public class CachedCover implements ICoverRetriever {
         if (cacheDir == null) {
             return null;
         }
-        return cacheDir.getAbsolutePath() + FOLDER_SUFFIX;
+        return cacheDir.getAbsolutePath() + CoverManager.FOLDER_SUFFIX;
     }
 
     public String getAbsolutePathForSong(final AlbumInfo albumInfo) {

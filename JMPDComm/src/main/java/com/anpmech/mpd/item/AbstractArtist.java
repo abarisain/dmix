@@ -35,7 +35,7 @@ import java.util.Locale;
 /** This class is the generic base for the Artist items, abstracted for backend. */
 abstract class AbstractArtist<T extends Artist> extends Item<Artist> {
 
-    protected static final String TAG = "Artist";
+    protected static final String TAG = AbstractMusic.RESPONSE_ARTIST;
 
     final String mName;
 

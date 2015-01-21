@@ -78,6 +78,8 @@ public final class CoverManager {
 
     public static final boolean DEBUG = false;
 
+    public static final String FOLDER_SUFFIX = "/covers/";
+
     public static final String PREFERENCE_CACHE = "enableLocalCoverCache";
 
     public static final String PREFERENCE_LASTFM = "enableLastFM";
@@ -87,8 +89,6 @@ public final class CoverManager {
     public static final String PREFERENCE_ONLY_WIFI = "enableCoverOnlyOnWifi";
 
     private static final String COVERS_FILE_NAME = "covers.bin";
-
-    private static final String FOLDER_SUFFIX = "/covers/";
 
     private static final int MAX_REQUESTS = 20;
 

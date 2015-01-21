@@ -83,7 +83,7 @@ public class IdleSubsystemMonitor extends Thread {
 
     private static final boolean DEBUG = false;
 
-    private static final String TAG = "MPDStatusMonitor";
+    private static final String TAG = "IdleStatusMonitor";
 
     private final long mDelay;
 
@@ -98,7 +98,7 @@ public class IdleSubsystemMonitor extends Thread {
     private volatile boolean mGiveup;
 
     /**
-     * Constructs a MPDStatusMonitor.
+     * Constructs an IdleStatusMonitor.
      *
      * @param mpd                 MPD server to monitor.
      * @param delay               status query interval.
@@ -106,7 +106,7 @@ public class IdleSubsystemMonitor extends Thread {
      */
     public IdleSubsystemMonitor(final MPD mpd, final long delay,
             final String[] supportedSubsystems) {
-        super("MPDStatusMonitor");
+        super(TAG);
 
         mMPD = mpd;
         mDelay = delay;
@@ -204,15 +204,15 @@ public class IdleSubsystemMonitor extends Thread {
 
                         for (final String change : changes) {
                             switch (change.substring("changed: ".length())) {
-                                case "database":
+                                case IDLE_DATABASE:
                                     statistics.update();
                                     dbChanged = true;
                                     statusChanged = true;
                                     break;
-                                case "playlist":
+                                case IDLE_PLAYLIST:
                                     statusChanged = true;
                                     break;
-                                case "sticker":
+                                case IDLE_STICKER:
                                     stickerChanged = true;
                                     break;
                                 default:

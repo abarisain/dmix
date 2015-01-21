@@ -40,8 +40,6 @@ import java.io.IOException;
 
 public class ArtistsFragment extends BrowseFragment {
 
-    private static final String EXTRA_GENRE = "genre";
-
     private static final String TAG = "ArtistsFragment";
 
     private Genre mGenre = null;

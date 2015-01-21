@@ -85,9 +85,11 @@ public final class MPDroidService extends Service implements
     /** The {@code MPDAsyncHelper} for this service. */
     static final MPDAsyncHelper MPD_ASYNC_HELPER = new MPDAsyncHelper(false);
 
+    static final String PACKAGE_NAME = "com.namelessdev.mpdroid.service.";
+
     private static final String TAG = "MPDroidService";
 
-    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.service." + TAG;
+    private static final String FULLY_QUALIFIED_NAME = PACKAGE_NAME + TAG;
 
     /** Handled in onStartCommand(), this is the persistent service start intent action. */
     public static final String ACTION_START = FULLY_QUALIFIED_NAME + ".ACTION_START";

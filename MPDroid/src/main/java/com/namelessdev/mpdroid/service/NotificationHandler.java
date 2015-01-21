@@ -56,7 +56,7 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
 
     private static final String TAG = "NotificationHandler";
 
-    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.service." + TAG;
+    private static final String FULLY_QUALIFIED_NAME = MPDroidService.PACKAGE_NAME + TAG;
 
     public static final String ACTION_START = FULLY_QUALIFIED_NAME + ".ACTION_START";
 

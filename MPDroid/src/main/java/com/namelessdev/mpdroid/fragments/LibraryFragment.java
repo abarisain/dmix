@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.item.Music;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryTabActivity;
@@ -41,9 +42,9 @@ public class LibraryFragment extends Fragment {
 
     public static final String PREFERENCE_ARTIST_TAG_TO_USE = "artistTagToUse";
 
-    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST = "albumartist";
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST = Music.TAG_ALBUM_ARTIST;
 
-    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ARTIST = "artist";
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ARTIST = Music.TAG_ARTIST;
 
     public static final String PREFERENCE_ARTIST_TAG_TO_USE_BOTH = "both";
 

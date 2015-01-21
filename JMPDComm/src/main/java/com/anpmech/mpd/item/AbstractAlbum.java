@@ -35,7 +35,7 @@ import java.util.Comparator;
 /** This class is the generic base for the Album items, abstracted for backend. */
 abstract class AbstractAlbum<T extends Album> extends Item<Album> {
 
-    static final String TAG = "Album";
+    static final String TAG = AbstractMusic.RESPONSE_ALBUM;
 
     final Artist mArtist;
 
