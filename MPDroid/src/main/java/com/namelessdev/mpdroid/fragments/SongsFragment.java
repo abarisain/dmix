@@ -197,7 +197,7 @@ public class SongsFragment extends BrowseFragment {
         return result;
     }
 
-    private String getTotalTimeForTrackList() {
+    private CharSequence getTotalTimeForTrackList() {
         Music song;
         long totalTime = 0;
         for (final Item<?> item : mItems) {

@@ -511,25 +511,48 @@ public final class Tools {
     }
 
     /**
-     * This method takes seconds and converts it into HH:MM:SS
+     * This method takes seconds and converts it into HH:MM:SS.
      *
      * @param totalSeconds Seconds to convert to a string.
      * @return Returns time formatted from the {@code totalSeconds} in format HH:MM:SS.
      */
-    public static String timeToString(final long totalSeconds) {
+    public static CharSequence timeToString(final long totalSeconds) {
         final long hours = TimeUnit.SECONDS.toHours(totalSeconds);
-        final long minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) -
-                TimeUnit.SECONDS.toHours(totalSeconds) * 60L;
-        final long seconds = TimeUnit.SECONDS.toSeconds(totalSeconds) -
-                TimeUnit.SECONDS.toMinutes(totalSeconds) * 60L;
-        final String result;
+        long secondCalc = totalSeconds - TimeUnit.HOURS.toSeconds(hours);
+        final long minutes = TimeUnit.SECONDS.toMinutes(secondCalc);
+        secondCalc -= TimeUnit.MINUTES.toSeconds(minutes);
+        final long seconds = TimeUnit.SECONDS.toSeconds(secondCalc);
+        final StringBuilder stringBuilder;
+        int length;
 
         if (hours == 0) {
-            result = String.format("%02d:%02d", minutes, seconds);
+            stringBuilder = new StringBuilder(5);
         } else {
-            result = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+            stringBuilder = new StringBuilder(8);
+            stringBuilder.append(hours);
+
+            if (stringBuilder.length() == 1) {
+                stringBuilder.insert(0, '0');
+            }
+
+            stringBuilder.append(':');
         }
 
-        return result;
+        length = stringBuilder.length();
+        stringBuilder.append(minutes);
+
+        if (stringBuilder.length() - length == 1) {
+            stringBuilder.insert(length, '0');
+        }
+
+        stringBuilder.append(':');
+        length = stringBuilder.length();
+        stringBuilder.append(seconds);
+
+        if (stringBuilder.length() - length == 1) {
+            stringBuilder.insert(length, '0');
+        }
+
+        return stringBuilder;
     }
 }
