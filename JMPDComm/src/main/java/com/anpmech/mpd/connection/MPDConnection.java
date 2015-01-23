@@ -192,7 +192,7 @@ public abstract class MPDConnection {
         mPassword = password;
         mSocketAddress = new InetSocketAddress(host, port);
 
-        final MPDCommand mpdCommand = new MPDCommand(Reflection.CMD_ACTION_COMMANDS);
+        final MPDCommand mpdCommand = MPDCommand.create(Reflection.CMD_ACTION_COMMANDS);
         final CommandResult commandResult = processCommand(mpdCommand);
 
         if (!commandResult.isHeaderValid()) {
@@ -405,9 +405,9 @@ public abstract class MPDConnection {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> send(final String command, final String... args)
+    public List<String> send(final CharSequence command, final CharSequence... args)
             throws IOException, MPDException {
-        return send(new MPDCommand(command, args));
+        return send(MPDCommand.create(command, args));
     }
 
     /**
@@ -422,9 +422,9 @@ public abstract class MPDConnection {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> send(final String command, final int[] nonfatalErrors,
-            final String... args) throws IOException, MPDException {
-        return send(new MPDCommand(command, nonfatalErrors, args));
+    public List<String> send(final CharSequence command, final int[] nonfatalErrors,
+            final CharSequence... args) throws IOException, MPDException {
+        return send(MPDCommand.create(command, nonfatalErrors, args));
     }
 
     /**
@@ -455,9 +455,9 @@ public abstract class MPDConnection {
 
         final MPDCommand mpdCommand;
         if (separated) {
-            mpdCommand = new MPDCommand(commandQueue.toStringSeparated());
+            mpdCommand = MPDCommand.create(commandQueue.toStringSeparated());
         } else {
-            mpdCommand = new MPDCommand(commandQueue.toString());
+            mpdCommand = MPDCommand.create(commandQueue.toString());
         }
 
         return send(mpdCommand);
@@ -532,7 +532,7 @@ public abstract class MPDConnection {
             int retryCount = 0;
             final CommandResult result = new CommandResult();
             boolean isCommandSent = false;
-            final String baseCommand = mCommand.getCommand();
+            final CharSequence baseCommand = mCommand.getBaseCommand();
 
             while (result.getResponse() == null && retryCount < MAX_REQUEST_RETRY && !mCancelled) {
                 try {
@@ -567,7 +567,7 @@ public abstract class MPDConnection {
                 }
 
                 /** On successful send of non-retryable command, break out. */
-                if (!MPDCommand.isRetryable(baseCommand) && isCommandSent) {
+                if (!mCommand.isRetryable() && isCommandSent) {
                     break;
                 }
 
@@ -699,7 +699,7 @@ public abstract class MPDConnection {
             return isNonfatalACK;
         }
 
-        private void logError(final CommandResult result, final String baseCommand,
+        private void logError(final CommandResult result, final CharSequence baseCommand,
                 final int retryCount) {
             final StringBuilder stringBuilder = new StringBuilder(50);
 
@@ -768,10 +768,11 @@ public abstract class MPDConnection {
          * @throws IOException Thrown upon error transferring command to media server.
          */
         private void write() throws IOException {
-            final String cmdString = mCommand.toString();
+            final String cmdString = mCommand.getCommand();
 
             // Uncomment for extreme command debugging
             //Log.debug(mTag, "Sending MPDCommand : " + cmdString);
+
             getOutputStream().write(cmdString);
             getOutputStream().flush();
         }

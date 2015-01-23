@@ -361,9 +361,9 @@ public final class Tools {
      * @return A collection of numbered range strings.
      * @see #sequentialToRange(int...)
      */
-    public static List<String> sequentialToRange(final List<Integer> integers) {
+    public static List<CharSequence> sequentialToRange(final List<Integer> integers) {
         final ListIterator<Integer> iterator = integers.listIterator(integers.size());
-        final List<String> ranges = new ArrayList<>();
+        final List<CharSequence> ranges = new ArrayList<>();
         final StringBuilder stringBuilder = new StringBuilder(10);
         boolean inSequenceRange = false;
         int startRange = -1;
@@ -396,7 +396,7 @@ public final class Tools {
                      * MPD playlist range per the protocol.
                      */
                     stringBuilder.append(startRange + 1);
-                    ranges.add(stringBuilder.toString());
+                    ranges.add(stringBuilder);
                     stringBuilder.setLength(0);
                 } else {
                     /** No range, add it to the store. */
@@ -419,8 +419,8 @@ public final class Tools {
      * @return A collection of numbered range strings.
      * @see #sequentialToRange(java.util.List)
      */
-    public static List<String> sequentialToRange(final int... integers) {
-        final List<String> ranges = new ArrayList<>();
+    public static List<CharSequence> sequentialToRange(final int... integers) {
+        final List<CharSequence> ranges = new ArrayList<>();
         final StringBuilder stringBuilder = new StringBuilder(10);
         boolean inSequenceRange = false;
         int startRange = -1;
@@ -455,7 +455,7 @@ public final class Tools {
                      * MPD playlist range per the protocol.
                      */
                     stringBuilder.append(startRange + 1);
-                    ranges.add(stringBuilder.toString());
+                    ranges.add(stringBuilder);
                     stringBuilder.setLength(0);
                 } else {
                     /** No range, add it to the store. */

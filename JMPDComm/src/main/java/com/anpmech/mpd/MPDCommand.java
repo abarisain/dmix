@@ -29,8 +29,10 @@ package com.anpmech.mpd;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
+/**
+ * A class representing one MPD protocol command and it's arguments.
+ */
 public class MPDCommand {
 
     /**
@@ -55,7 +57,7 @@ public class MPDCommand {
 
     public static final String MPD_CMD_GROUP = "group";
 
-    public static final String MPD_CMD_IDLE = "idle";
+    public static final CharSequence MPD_CMD_IDLE = "idle";
 
     public static final String MPD_CMD_KILL = "kill";
 
@@ -71,7 +73,7 @@ public class MPDCommand {
 
     public static final char MPD_CMD_NEWLINE = '\n';
 
-    public static final String MPD_CMD_NEXT = "next";
+    public static final CharSequence MPD_CMD_NEXT = "next";
 
     public static final String MPD_CMD_OUTPUTDISABLE = "disableoutput";
 
@@ -87,20 +89,17 @@ public class MPDCommand {
 
     public static final String MPD_CMD_PLAY = "play";
 
-    public static final String MPD_CMD_PLAYLIST_ADD = "playlistadd";
+    public static final CharSequence MPD_CMD_PLAYLIST_ADD = "playlistadd";
 
-    public static final String MPD_CMD_PLAYLIST_DEL = "playlistdelete";
+    public static final CharSequence MPD_CMD_PLAYLIST_DEL = "playlistdelete";
 
     public static final String MPD_CMD_PLAYLIST_INFO = "listplaylistinfo";
 
-    public static final String MPD_CMD_PLAYLIST_MOVE = "playlistmove";
+    public static final CharSequence MPD_CMD_PLAYLIST_MOVE = "playlistmove";
 
     public static final String MPD_CMD_PLAY_ID = "playid";
 
-    public static final String MPD_CMD_PREV = "previous";
-
-    private static final List<String> NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_NEXT,
-            MPD_CMD_PREV, MPD_CMD_PLAYLIST_ADD, MPD_CMD_PLAYLIST_MOVE, MPD_CMD_PLAYLIST_DEL);
+    public static final CharSequence MPD_CMD_PREV = "previous";
 
     public static final String MPD_CMD_RANDOM = "random";
 
@@ -129,49 +128,48 @@ public class MPDCommand {
 
     public static final String MPD_SEARCH_FILENAME = "filename";
 
-    private static final boolean DEBUG = false;
-
     private static final int[] EMPTY_INT_ARRAY = new int[0];
 
-    private static final Pattern QUOTATION_DELIMITER = Pattern.compile("\"");
+    private static final List<CharSequence> NON_RETRYABLE_COMMANDS;
 
+    /** The class log identifier. */
     private static final String TAG = "MPDCommand";
 
-    private final String[] mArgs;
+    /** The base protocol command. */
+    private final CharSequence mBaseCommand;
 
+    /** The fully formatted protocol command and arguments. */
     private final String mCommand;
+
+    /** Storage for whether this command can be resent in the case of send failure. */
+    private final boolean mIsRetryable;
 
     /** This field stores any {@code ACK} errors to be considered as non-fatal. */
     private final int[] mNonfatalErrors;
 
-    /**
-     * The constructor for a command to be sent to the MPD protocol compatible media server.
-     *
-     * @param command The MPD protocol command to be sent.
-     * @param args    Arguments for the {@code command}.
-     */
-    public MPDCommand(final String command, final String... args) {
-        super();
-        mCommand = command;
-        mArgs = args.clone();
-        mNonfatalErrors = EMPTY_INT_ARRAY;
+    static {
+        NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_PLAYLIST_MOVE, MPD_CMD_NEXT,
+                MPD_CMD_PLAYLIST_ADD, MPD_CMD_PLAYLIST_DEL, MPD_CMD_PREV);
     }
 
     /**
-     * The constructor for a command to be sent to the MPD protocol compatible media server when
-     * defining non-fatal ACK codes.
+     * The constructor for a command to be sent to the MPD protocol compatible media server.
      *
-     * @param command            The MPD protocol command to be sent.
+     * @param baseCommand        The base protocol command to be sent.
+     * @param command            The full command with arguments to to be sent.
      * @param nonfatalErrorCodes Errors to consider as non-fatal for this command. These MPD error
      *                           codes with this command will not return any exception.
-     * @param args               Arguments for the {@code command}.
+     * @see #create(CharSequence, CharSequence...)
+     * @see #create(CharSequence, int[], CharSequence...)
      */
-    public MPDCommand(final String command, final int[] nonfatalErrorCodes, final String... args) {
+    private MPDCommand(final CharSequence baseCommand, final String command,
+            final int[] nonfatalErrorCodes) {
         super();
 
+        mBaseCommand = baseCommand;
         mCommand = command;
-        mArgs = args.clone();
-        mNonfatalErrors = nonfatalErrorCodes.clone();
+        mIsRetryable = NON_RETRYABLE_COMMANDS.contains(baseCommand);
+        mNonfatalErrors = nonfatalErrorCodes;
     }
 
     /**
@@ -192,10 +190,79 @@ public class MPDCommand {
         return result;
     }
 
-    public static boolean isRetryable(final String command) {
-        return !NON_RETRYABLE_COMMANDS.contains(command);
+    /**
+     * This creates a command to be sent to the MPD protocol compatible media server, with a
+     * parameter to add error codes to consider as non-fatal.
+     *
+     * @param command            The protocol command for this {@code MPDCommand}.
+     * @param nonfatalErrorCodes Errors to consider as non-fatal for this command. These MPD error
+     *                           codes with this command will not return any exception.
+     * @param args               The arguments for the command argument.
+     * @return An object to use to send protocol commands to the server.
+     */
+    public static MPDCommand create(final CharSequence command, final int[] nonfatalErrorCodes,
+            final CharSequence... args) {
+        return new MPDCommand(command, getCommand(command, args), nonfatalErrorCodes);
     }
 
+    /**
+     * This creates a command to be sent to the MPD protocol compatible media server.
+     *
+     * @param command The protocol command for this {@code MPDCommand}.
+     * @param args    The arguments for the command argument.
+     * @return An object to use to send protocol commands to the server.
+     */
+    public static MPDCommand create(final CharSequence command, final CharSequence... args) {
+        return create(command, EMPTY_INT_ARRAY, args);
+    }
+
+    /**
+     * Builds the command string and arguments into one StringBuilder.
+     *
+     * @param command The protocol command for this {@code MPDCommand}.
+     * @param args    The arguments for the command argument.
+     * @return A {@code StringBuilder} used for the object's processing.
+     */
+    private static String getCommand(final CharSequence command, final CharSequence[] args) {
+        final StringBuilder outString = new StringBuilder(command.length() + (args.length << 4));
+
+        outString.append(command);
+        for (final CharSequence arg : args) {
+            if (arg != null) {
+                outString.append(" \"");
+
+                for (int i = 0; i < arg.length(); i++) {
+                    final char c = arg.charAt(i);
+
+                    if (c == '"') {
+                        outString.append("\\\"");
+                    } else {
+                        outString.append(c);
+                    }
+                }
+
+                outString.append('"');
+            }
+        }
+        outString.append(MPD_CMD_NEWLINE);
+
+        return outString.toString();
+    }
+
+    /**
+     * This method returns the protocol command for this object.
+     *
+     * @return The protocol command for this object.
+     */
+    public CharSequence getBaseCommand() {
+        return mBaseCommand;
+    }
+
+    /**
+     * This method returns the protocol command and arguments for this object.
+     *
+     * @return The protocol command and arguments for this object.
+     */
     public String getCommand() {
         return mCommand;
     }
@@ -220,39 +287,28 @@ public class MPDCommand {
         return result;
     }
 
+    /**
+     * This returns whether the base command object has been flagged as a retryable command, if
+     * not, upon possible failure this command will not be retried.
+     *
+     * @return True if this command will be retried upon failure, false otherwise.
+     */
+    public boolean isRetryable() {
+        return mIsRetryable;
+    }
+
+    /**
+     * This returns a debugging string with the results of all internal fields.
+     *
+     * @return A debugging string with the results of all internal fields.
+     */
     @Override
     public String toString() {
-        final String outString;
-
-        if (mArgs.length == 0) {
-            outString = mCommand + MPD_CMD_NEWLINE;
-        } else {
-            final int argsLength = Arrays.toString(mArgs).length();
-            final int approximateLength = argsLength + mCommand.length() + 10;
-            final StringBuilder outBuf = new StringBuilder(approximateLength);
-
-            outBuf.append(mCommand);
-            for (final String arg : mArgs) {
-                if (arg != null) {
-                    outBuf.append(" \"");
-                    outBuf.append(QUOTATION_DELIMITER.matcher(arg).replaceAll("\\\\\""));
-                    outBuf.append('"');
-                }
-            }
-            outBuf.append(MPD_CMD_NEWLINE);
-            outString = outBuf.toString();
-        }
-
-        if (DEBUG) {
-            final String safeCommand;
-            if (mCommand.equals(MPD_CMD_PASSWORD)) {
-                safeCommand = "password **censored**";
-            } else {
-                safeCommand = outString;
-            }
-            Log.debug(TAG, "MPD command: " + safeCommand);
-        }
-
-        return outString;
+        return "MPDCommand{" +
+                "mBaseCommand=" + mBaseCommand +
+                ", mCommand=" + mCommand +
+                ", mIsRetryable=" + mIsRetryable +
+                ", mNonfatalErrors=" + Arrays.toString(mNonfatalErrors) +
+                '}';
     }
 }

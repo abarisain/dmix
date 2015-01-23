@@ -339,7 +339,7 @@ public class IdleSubsystemMonitor extends Thread {
      */
     private List<String> waitForChanges() throws IOException, MPDException {
         final MPDConnection mpdIdleConnection = mMPD.getIdleConnection();
-        final MPDCommand idleCommand = new MPDCommand(MPDCommand.MPD_CMD_IDLE,
+        final MPDCommand idleCommand = MPDCommand.create(MPDCommand.MPD_CMD_IDLE,
                 mSupportedSubsystems);
 
         while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {

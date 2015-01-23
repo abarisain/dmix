@@ -138,7 +138,7 @@ public class MPD {
     private static MPDCommand getAlbumDetailsCommand(final Album album) {
         final String[] artistPair = getAlbumArtistPair(album);
 
-        return new MPDCommand(MPDCommand.MPD_CMD_COUNT,
+        return MPDCommand.create(MPDCommand.MPD_CMD_COUNT,
                 Music.TAG_ALBUM, album.getName(),
                 artistPair[0], artistPair[1]);
     }
@@ -146,7 +146,7 @@ public class MPD {
     private static MPDCommand getSongsCommand(final Album album) {
         final String[] artistPair = getAlbumArtistPair(album);
 
-        return new MPDCommand(MPDCommand.MPD_CMD_FIND, Music.TAG_ALBUM, album.getName(),
+        return MPDCommand.create(MPDCommand.MPD_CMD_FIND, Music.TAG_ALBUM, album.getName(),
                 artistPair[0], artistPair[1]);
     }
 
@@ -164,7 +164,7 @@ public class MPD {
             }
         }
 
-        return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM,
+        return MPDCommand.create(MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM,
                 albumArtist, artist);
     }
 
@@ -180,16 +180,16 @@ public class MPD {
             artistTag = Music.TAG_ARTIST;
         }
 
-        return new MPDCommand(MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM,
+        return MPDCommand.create(MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM,
                 MPDCommand.MPD_CMD_GROUP, artistTag);
     }
 
     private static MPDCommand nextCommand() {
-        return new MPDCommand(MPDCommand.MPD_CMD_NEXT);
+        return MPDCommand.create(MPDCommand.MPD_CMD_NEXT);
     }
 
     private static MPDCommand skipToPositionCommand(final int position) {
-        return new MPDCommand(MPDCommand.MPD_CMD_PLAY, Integer.toString(position));
+        return MPDCommand.create(MPDCommand.MPD_CMD_PLAY, Integer.toString(position));
     }
 
     private static void sort(final List<String> list, final boolean sensitive) {
@@ -1152,7 +1152,7 @@ public class MPD {
             }
         }
 
-        response = mConnection.send(new MPDCommand(
+        response = mConnection.send(MPDCommand.create(
                 MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM,
                 Music.TAG_ALBUM, album.getName(),
                 artistType, artistName,

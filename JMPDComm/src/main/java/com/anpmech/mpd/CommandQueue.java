@@ -95,7 +95,7 @@ public class CommandQueue extends AbstractList<MPDCommand> {
     @Override
     public void add(final int location, final MPDCommand command) {
         mCommandQueue.add(location, command);
-        mCommandQueueStringLength += command.toString().length();
+        mCommandQueueStringLength += command.getCommand().length();
     }
 
     /**
@@ -104,8 +104,8 @@ public class CommandQueue extends AbstractList<MPDCommand> {
      * @param command Command to add to the queue.
      * @param args    The args to add each, singularly, to the command queue.
      */
-    public void add(final String command, final Iterable<String> args) {
-        for (final String arg : args) {
+    public void add(final CharSequence command, final Iterable<CharSequence> args) {
+        for (final CharSequence arg : args) {
             add(command, arg);
         }
     }
@@ -115,8 +115,8 @@ public class CommandQueue extends AbstractList<MPDCommand> {
      *
      * @param command Command to add to the queue.
      */
-    public void add(final String command, final String... args) {
-        add(new MPDCommand(command, args));
+    public void add(final CharSequence command, final CharSequence... args) {
+        add(MPDCommand.create(command, args));
     }
 
     /**
@@ -223,7 +223,7 @@ public class CommandQueue extends AbstractList<MPDCommand> {
         final StringBuilder stringBuilder;
 
         if (mCommandQueue.size() == 1) {
-            stringBuilder = new StringBuilder(mCommandQueue.get(0).toString());
+            stringBuilder = new StringBuilder(mCommandQueue.get(0).getCommand());
             final int newlineStart =
                     stringBuilder.indexOf(String.valueOf(MPDCommand.MPD_CMD_NEWLINE));
 
@@ -242,7 +242,7 @@ public class CommandQueue extends AbstractList<MPDCommand> {
             stringBuilder.append(MPDCommand.MPD_CMD_NEWLINE);
 
             for (final MPDCommand command : mCommandQueue) {
-                stringBuilder.append(command);
+                stringBuilder.append(command.getCommand());
             }
             stringBuilder.append(MPD_CMD_END_BULK);
         }

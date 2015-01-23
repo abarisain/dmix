@@ -104,11 +104,11 @@ public class MPDPlaylist {
     }
 
     static MPDCommand addCommand(final String fullPath) {
-        return new MPDCommand(MPD_CMD_PLAYLIST_ADD, fullPath);
+        return MPDCommand.create(MPD_CMD_PLAYLIST_ADD, fullPath);
     }
 
     static MPDCommand clearCommand() {
-        return new MPDCommand(MPD_CMD_PLAYLIST_CLEAR);
+        return MPDCommand.create(MPD_CMD_PLAYLIST_CLEAR);
     }
 
     static CommandQueue cropCommand(final MPD mpd) {
@@ -132,7 +132,7 @@ public class MPDPlaylist {
     }
 
     static MPDCommand loadCommand(final String file) {
-        return new MPDCommand(MPD_CMD_PLAYLIST_LOAD, file);
+        return MPDCommand.create(MPD_CMD_PLAYLIST_LOAD, file);
     }
 
     /**
