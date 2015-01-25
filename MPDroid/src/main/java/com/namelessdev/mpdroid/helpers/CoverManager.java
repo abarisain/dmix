@@ -102,18 +102,18 @@ public final class CoverManager {
 
     private static CoverManager sInstance = null;
 
-    private final ExecutorService mCacheCoverFetchExecutor = Executors.newFixedThreadPool(1);
+    private final ExecutorService mCacheCoverFetchExecutor = Executors.newSingleThreadExecutor();
 
     private final ExecutorService mCreateBitmapExecutor = mCacheCoverFetchExecutor;
 
-    private final ThreadPoolExecutor mCoverFetchExecutor = getCoverFetchExecutor();
+    private final ThreadPoolExecutor mCoverFetchExecutor;
 
     private final MultiMap<CoverInfo, CoverDownloadListener> mHelpersByCoverInfo
             = new MultiMap<>();
 
-    private final ExecutorService mPriorityCoverFetchExecutor = Executors.newFixedThreadPool(1);
+    private final ExecutorService mPriorityCoverFetchExecutor = Executors.newSingleThreadExecutor();
 
-    private final ExecutorService mRequestExecutor = Executors.newFixedThreadPool(1);
+    private final ExecutorService mRequestExecutor = Executors.newSingleThreadExecutor();
 
     private final BlockingDeque<CoverInfo> mRequests = new LinkedBlockingDeque<>();
 
@@ -132,6 +132,11 @@ public final class CoverManager {
 
     private CoverManager() {
         super();
+
+        mCoverFetchExecutor = new ThreadPoolExecutor(2, 2,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>());
+
         mRequestExecutor.submit(new RequestProcessorTask());
         setCoverRetrieversFromPreferences();
         initializeCoverData();
@@ -290,11 +295,6 @@ public final class CoverManager {
         return coverBytes;
     }
 
-    private static ThreadPoolExecutor getCoverFetchExecutor() {
-        return new ThreadPoolExecutor(2, 2, 0L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>());
-    }
-
     public static String getCoverFileName(final AlbumInfo albumInfo) {
         return albumInfo.getKey() + ".jpg";
     }
@@ -451,47 +451,6 @@ public final class CoverManager {
                 }
             }
         }
-    }
-
-    /**
-     * This method connects to the HTTP server URL, and gets a HTTP status code. If the status code
-     * is OK or similar this method returns true, otherwise false.
-     *
-     * @param connection An HttpURLConnection object.
-     * @return True if the URL exists, false otherwise.
-     */
-    public static boolean urlExists(final HttpURLConnection connection) {
-        int statusCode = 0;
-
-        if (connection == null) {
-            Log.d(TAG, "Cannot find out if URL exists with a null connection.");
-            return false;
-        }
-
-        try {
-            statusCode = connection.getResponseCode();
-        } catch (final IOException e) {
-            if (DEBUG) {
-                Log.e(TAG, "Failed to get a valid response code.", e);
-            }
-        }
-
-        return urlExists(statusCode);
-    }
-
-    /**
-     * This method connects to the HTTP server URL, gets a HTTP status code and if the status code
-     * is OK or similar this method returns true, otherwise false.
-     *
-     * @param statusCode An HttpURLConnection object.
-     * @return True if the URL exists, false otherwise.
-     */
-    public static boolean urlExists(final int statusCode) {
-        final int temporaryRedirect = 307; /** No constant for 307 exists */
-
-        return statusCode == HttpURLConnection.HTTP_OK ||
-                statusCode == temporaryRedirect ||
-                statusCode == HttpURLConnection.HTTP_MOVED_TEMP;
     }
 
     public void addCoverRequest(final CoverInfo coverInfo) {
