@@ -396,7 +396,7 @@ public final class Tools {
                      * MPD playlist range per the protocol.
                      */
                     stringBuilder.append(startRange + 1);
-                    ranges.add(stringBuilder);
+                    ranges.add(stringBuilder.toString());
                     stringBuilder.setLength(0);
                 } else {
                     /** No range, add it to the store. */
@@ -455,7 +455,7 @@ public final class Tools {
                      * MPD playlist range per the protocol.
                      */
                     stringBuilder.append(startRange + 1);
-                    ranges.add(stringBuilder);
+                    ranges.add(stringBuilder.toString());
                     stringBuilder.setLength(0);
                 } else {
                     /** No range, add it to the store. */
