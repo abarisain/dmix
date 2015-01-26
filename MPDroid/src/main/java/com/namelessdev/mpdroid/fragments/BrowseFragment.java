@@ -233,12 +233,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
                                         final int which) {
                                     final String name = input.getText().toString().trim();
                                     if (!name.isEmpty()) {
-                                        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                add(mItems.get(id), new PlaylistFile(name));
-                                            }
-                                        });
+                                        addToPlaylistFile(new PlaylistFile(name), id);
                                     }
                                 }
                             })
@@ -255,12 +250,20 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         }
     }
 
+    private void addToPlaylistFile(final PlaylistFile playlistFile, final int id) {
+        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+            @Override
+            public void run() {
+                add(mItems.get(id), playlistFile);
+            }
+        });
+    }
+
     @Override
     public void asyncExecSucceeded(final int jobID) {
         if (mJobID == jobID) {
             updateFromItems();
         }
-
     }
 
     protected abstract void asyncUpdate();
@@ -437,13 +440,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
                 break;
             default:
                 final PlaylistFile playlist = new PlaylistFile(item.getTitle().toString());
-                final int id = item.getOrder();
-                mApp.oMPDAsyncHelper.execAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        add(mItems.get(id), playlist);
-                    }
-                });
+                addToPlaylistFile(playlist, item.getOrder());
                 break;
         }
         return false;
