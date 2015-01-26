@@ -24,6 +24,7 @@ import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.item.Stream;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -624,7 +625,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
                 break;
             case POPUP_STREAM:
                 intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra("streams", true);
+                intent.putExtra(Stream.EXTRA, true);
                 break;
             default:
                 break;
