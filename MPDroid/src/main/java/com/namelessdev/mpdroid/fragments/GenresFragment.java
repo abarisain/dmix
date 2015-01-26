@@ -19,7 +19,6 @@ package com.namelessdev.mpdroid.fragments;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Genre;
-import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.R;
@@ -33,7 +32,7 @@ import android.widget.AdapterView;
 
 import java.io.IOException;
 
-public class GenresFragment extends BrowseFragment {
+public class GenresFragment extends BrowseFragment<Genre> {
 
     private static final String TAG = "GenresFragment";
 
@@ -42,9 +41,9 @@ public class GenresFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final boolean replace, final boolean play) {
+    protected void add(final Genre item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add((Genre) item, replace, play);
+            mApp.oMPDAsyncHelper.oMPD.add(item, replace, play);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add all from playlist.", e);
@@ -52,9 +51,9 @@ public class GenresFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final PlaylistFile playlist) {
+    protected void add(final Genre item, final PlaylistFile playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Genre) item);
+            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, item);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add all genre to playlist.", e);
@@ -85,6 +84,6 @@ public class GenresFragment extends BrowseFragment {
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new ArtistsFragment().init((Genre) mItems.get(position)), Artist.EXTRA);
+                new ArtistsFragment().init(mItems.get(position)), Artist.EXTRA);
     }
 }

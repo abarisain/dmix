@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.exception.MPDException;
-import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.item.Stream;
@@ -56,7 +55,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class StreamsFragment extends BrowseFragment {
+public class StreamsFragment extends BrowseFragment<Stream> {
 
     public static final int DELETE = 102;
 
@@ -75,12 +74,10 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final boolean replace, final boolean play) {
+    protected void add(final Stream item, final boolean replace, final boolean play) {
         try {
-            final Stream stream = (Stream) item;
             mApp.oMPDAsyncHelper.oMPD.addStream(
-                    StreamFetcher.instance().get(stream.getUrl(), stream.getName()),
-                    replace, play);
+                    StreamFetcher.instance().get(item.getUrl(), item.getName()), replace, play);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add stream.", e);
@@ -88,7 +85,7 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final PlaylistFile playlist) {
+    protected void add(final Stream item, final PlaylistFile playlist) {
     }
 
     public void addEdit() {

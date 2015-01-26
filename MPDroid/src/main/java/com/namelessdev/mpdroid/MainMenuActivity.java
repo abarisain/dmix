@@ -776,7 +776,7 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     public void pushLibraryFragment(final Fragment fragment, final String label) {
         final String title;
         if (fragment instanceof BrowseFragment) {
-            title = ((BrowseFragment) fragment).getTitle();
+            title = ((BrowseFragment<?>) fragment).getTitle();
         } else {
             title = fragment.toString();
         }

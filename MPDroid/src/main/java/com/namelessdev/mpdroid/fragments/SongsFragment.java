@@ -19,7 +19,6 @@ package com.namelessdev.mpdroid.fragments;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
-import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.R;
@@ -58,7 +57,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 
-public class SongsFragment extends BrowseFragment {
+public class SongsFragment extends BrowseFragment<Music> {
 
     private static final String TAG = "SongsFragment";
 
@@ -87,20 +86,19 @@ public class SongsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final boolean replace, final boolean play) {
-        final Music music = (Music) item;
+    protected void add(final Music item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
-            Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
+            mApp.oMPDAsyncHelper.oMPD.add(item, replace, play);
+            Tools.notifyUser(R.string.songAdded, item.getTitle(), item.getName());
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add, remove, play.", e);
         }
     }
 
     @Override
-    protected void add(final Item<?> item, final PlaylistFile playlist) {
+    protected void add(final Music item, final PlaylistFile playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
+            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, item);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add to playlist.", e);
@@ -110,10 +108,9 @@ public class SongsFragment extends BrowseFragment {
     @Override
     public void asyncUpdate() {
         try {
-            if (getActivity() == null) {
-                return;
+            if (getActivity() != null) {
+                mItems = mApp.oMPDAsyncHelper.oMPD.getSongs(mAlbum);
             }
-            mItems = mApp.oMPDAsyncHelper.oMPD.getSongs(mAlbum);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to async update.", e);
         }
@@ -127,38 +124,35 @@ public class SongsFragment extends BrowseFragment {
     @Override
     protected ListAdapter getCustomListAdapter() {
         if (mItems != null) {
-            Music song;
             boolean differentArtists = false;
             String lastArtist = null;
-            for (final Item<?> item : mItems) {
-                song = (Music) item;
+            for (final Music item : mItems) {
                 if (lastArtist == null) {
-                    lastArtist = song.getArtistName();
+                    lastArtist = item.getArtistName();
                     continue;
                 }
-                if (!lastArtist.equalsIgnoreCase(song.getAlbumArtistOrArtist())) {
+                if (!lastArtist.equalsIgnoreCase(item.getAlbumArtistOrArtist())) {
                     differentArtists = true;
                     break;
                 }
             }
-            return new ArrayAdapter(getActivity(), new SongDataBinder(differentArtists), mItems);
+            return new ArrayAdapter<>(getActivity(), new SongDataBinder<Music>(differentArtists),
+                    mItems);
         }
         return super.getCustomListAdapter();
     }
 
     private AlbumInfo getFixedAlbumInfo() {
-        Music song;
         AlbumInfo albumInfo = null;
         boolean differentArtists = false;
 
-        for (final Item<?> item : mItems) {
-            song = (Music) item;
+        for (final Music item : mItems) {
             if (albumInfo == null) {
-                albumInfo = new AlbumInfo(song);
+                albumInfo = new AlbumInfo(item);
                 continue;
             }
             final String a = albumInfo.getArtistName();
-            if (a != null && !a.equalsIgnoreCase(song.getAlbumArtistOrArtist())) {
+            if (a != null && !a.equalsIgnoreCase(item.getAlbumArtistOrArtist())) {
                 differentArtists = true;
                 break;
             }
@@ -198,12 +192,13 @@ public class SongsFragment extends BrowseFragment {
     }
 
     private CharSequence getTotalTimeForTrackList() {
-        Music song;
-        long totalTime = 0;
-        for (final Item<?> item : mItems) {
-            song = (Music) item;
-            if (song.getTime() > 0) {
-                totalTime += song.getTime();
+        long totalTime = 0L;
+
+        for (final Music item : mItems) {
+            final long time = item.getTime();
+
+            if (time > 0L) {
+                totalTime += time;
             }
         }
         return com.anpmech.mpd.Tools.timeToString(totalTime);
@@ -400,7 +395,7 @@ public class SongsFragment extends BrowseFragment {
                         if (mList instanceof ListView) {
                             positionCorrection = ((ListView) mList).getHeaderViewsCount();
                         }
-                        mApp.oMPDAsyncHelper.oMPD.seekByIndex(position - positionCorrection, 0l);
+                        mApp.oMPDAsyncHelper.oMPD.seekByIndex(position - positionCorrection, 0L);
                     } catch (final IOException | MPDException e) {
                         Log.e(TAG, "Failed to seek by index.", e);
                     }

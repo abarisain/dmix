@@ -20,7 +20,6 @@ import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Genre;
-import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -38,7 +37,7 @@ import android.widget.AdapterView;
 
 import java.io.IOException;
 
-public class ArtistsFragment extends BrowseFragment {
+public class ArtistsFragment extends BrowseFragment<Artist> {
 
     private static final String TAG = "ArtistsFragment";
 
@@ -49,9 +48,9 @@ public class ArtistsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final boolean replace, final boolean play) {
+    protected void add(final Artist item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add((Artist) item, replace, play);
+            mApp.oMPDAsyncHelper.oMPD.add(item, replace, play);
             if (isAdded()) {
                 Tools.notifyUser(mIrAdded, item);
             }
@@ -61,9 +60,9 @@ public class ArtistsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final PlaylistFile playlist) {
+    protected void add(final Artist item, final PlaylistFile playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Artist) item);
+            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, item);
             if (isAdded()) {
                 Tools.notifyUser(mIrAdded, item);
             }
@@ -142,9 +141,9 @@ public class ArtistsFragment extends BrowseFragment {
         final SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(mApp);
         if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
-            af = new AlbumsGridFragment((Artist) mItems.get(position), mGenre);
+            af = new AlbumsGridFragment(mItems.get(position), mGenre);
         } else {
-            af = new AlbumsFragment((Artist) mItems.get(position), mGenre);
+            af = new AlbumsFragment(mItems.get(position), mGenre);
         }
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(af, Album.EXTRA);
     }

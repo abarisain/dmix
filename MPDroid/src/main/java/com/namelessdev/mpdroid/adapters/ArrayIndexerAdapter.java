@@ -32,7 +32,8 @@ import java.util.List;
 //Stolen from http://www.anddev.org/tutalphabetic_fastscroll_listview_-_similar_to_contacts-t10123.html
 //Thanks qlimax !
 
-public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer {
+public class ArrayIndexerAdapter<T extends Item<T>> extends ArrayAdapter<T>
+        implements SectionIndexer {
 
     private static final Comparator<String> LOCALE_COMPARATOR = new LocaleComparator();
 
@@ -40,8 +41,8 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
 
     private final String[] mSections;
 
-    public ArrayIndexerAdapter(final Context context, final ArrayDataBinder dataBinder,
-            final List<? extends Item<?>> items) {
+    public ArrayIndexerAdapter(final Context context, final ArrayDataBinder<T> dataBinder,
+            final List<T> items) {
         super(context, dataBinder, items);
 
         // in this HashMap we will store here the positions for the sections
@@ -50,7 +51,7 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
     }
 
     public ArrayIndexerAdapter(final Context context, @LayoutRes final int textViewResourceId,
-            final List<? extends Item<?>> items) {
+            final List<T> items) {
         super(context, textViewResourceId, items);
 
         // in this HashMap we will store here the positions for the sections
@@ -102,14 +103,14 @@ public class ArrayIndexerAdapter extends ArrayAdapter implements SectionIndexer 
         return mSections.clone();
     }
 
-    private String[] init(final List<? extends Item<?>> items) {
+    private String[] init(final List<T> items) {
         final String[] sections;
 
         // here is the tricky stuff
         final int size = items.size();
         int unknownPos = -1; // "Unknown" item
         for (int i = size - 1; i >= 0; i--) {
-            final Item<?> element = items.get(i);
+            final T element = items.get(i);
             final String sorted = element.sortText();
 
             if (sorted == null || sorted.isEmpty()) {

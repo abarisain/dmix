@@ -728,7 +728,8 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
      * @param newSongList   The updated list of songs for the playlist.
      * @param listPlayingID The current playing playlist id.
      */
-    protected void updateScrollbar(final ArrayList newSongList, final int listPlayingID) {
+    protected void updateScrollbar(final ArrayList<AbstractPlaylistMusic> newSongList,
+            final int listPlayingID) {
         mActivity.runOnUiThread(new Runnable() {
             /**
              * This is a helper method to workaround shortcomings of the fast scroll API.
@@ -752,9 +753,8 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 final int firstVisibleElementIndex = mList.getFirstVisiblePosition();
                 final View firstVisibleItem = mList.getChildAt(0);
                 final int firstVisiblePosition;
-                final ArrayAdapter songs = new QueueAdapter(mActivity, R.layout.playlist_queue_item,
-                        newSongList
-                );
+                final ArrayAdapter<AbstractPlaylistMusic> songs =
+                        new QueueAdapter(mActivity, R.layout.playlist_queue_item, newSongList);
 
                 if (firstVisibleItem != null) {
                     firstVisiblePosition = firstVisibleItem.getTop();

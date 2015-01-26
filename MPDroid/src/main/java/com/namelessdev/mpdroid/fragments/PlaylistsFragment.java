@@ -17,7 +17,6 @@
 package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.exception.MPDException;
-import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
@@ -28,7 +27,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.os.Parcelable;
 import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -41,7 +39,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import java.io.IOException;
 
-public class PlaylistsFragment extends BrowseFragment {
+public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
 
     public static final int DELETE = 102;
 
@@ -54,9 +52,9 @@ public class PlaylistsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final boolean replace, final boolean play) {
+    protected void add(final PlaylistFile item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add((PlaylistFile) item, replace, play);
+            mApp.oMPDAsyncHelper.oMPD.add(item, replace, play);
             if (isAdded()) {
                 Tools.notifyUser(mIrAdded, item);
             }
@@ -67,7 +65,7 @@ public class PlaylistsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final PlaylistFile playlist) {
+    protected void add(final PlaylistFile item, final PlaylistFile playlist) {
     }
 
     @Override
@@ -101,8 +99,7 @@ public class PlaylistsFragment extends BrowseFragment {
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new StoredPlaylistFragment().init((PlaylistFile) mItems.get(position)),
-                "stored_playlist");
+                new StoredPlaylistFragment().init(mItems.get(position)), "stored_playlist");
     }
 
     @Override
@@ -111,7 +108,7 @@ public class PlaylistsFragment extends BrowseFragment {
         switch (item.getItemId()) {
             case EDIT:
                 final Intent intent = new Intent(getActivity(), PlaylistEditActivity.class);
-                intent.putExtra(PlaylistFile.EXTRA, (Parcelable) mItems.get((int) info.id));
+                intent.putExtra(PlaylistFile.EXTRA, mItems.get((int) info.id));
                 startActivity(intent);
                 return true;
 

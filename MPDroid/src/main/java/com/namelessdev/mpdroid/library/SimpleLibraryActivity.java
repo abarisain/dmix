@@ -120,7 +120,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
             }
 
             if (rootFragment instanceof BrowseFragment) {
-                setTitle(((BrowseFragment) rootFragment).getTitle());
+                setTitle(((BrowseFragment<?>) rootFragment).getTitle());
             }
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
@@ -206,7 +206,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
     public void pushLibraryFragment(final Fragment fragment, final String label) {
         final String title;
         if (fragment instanceof BrowseFragment) {
-            title = ((BrowseFragment) fragment).getTitle();
+            title = ((BrowseFragment<?>) fragment).getTitle();
         } else {
             title = fragment.toString();
         }
@@ -229,7 +229,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
             final Fragment displayedFragment = getSupportFragmentManager().findFragmentById(
                     R.id.root_frame);
             if (displayedFragment instanceof BrowseFragment) {
-                setTitle(((BrowseFragment) displayedFragment).getTitle());
+                setTitle(((BrowseFragment<?>) displayedFragment).getTitle());
             } else {
                 setTitle(displayedFragment.toString());
             }

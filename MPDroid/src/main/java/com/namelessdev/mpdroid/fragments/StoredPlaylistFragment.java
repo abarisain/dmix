@@ -17,7 +17,6 @@
 package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.exception.MPDException;
-import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.R;
@@ -39,7 +38,7 @@ import android.widget.ListAdapter;
 
 import java.io.IOException;
 
-public class StoredPlaylistFragment extends BrowseFragment {
+public class StoredPlaylistFragment extends BrowseFragment<Music> {
 
     private static final String TAG = "StoredPlaylistFragment";
 
@@ -51,12 +50,11 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final boolean replace, final boolean play) {
-        final Music music = (Music) item;
+    protected void add(final Music item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
+            mApp.oMPDAsyncHelper.oMPD.add(item, replace, play);
             if (!play) {
-                Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
+                Tools.notifyUser(R.string.songAdded, item.getTitle(), item.getName());
             }
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -64,9 +62,9 @@ public class StoredPlaylistFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final PlaylistFile playlist) {
+    protected void add(final Music item, final PlaylistFile playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
+            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, item);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -87,10 +85,16 @@ public class StoredPlaylistFragment extends BrowseFragment {
 
     @Override
     protected ListAdapter getCustomListAdapter() {
-        if (mItems != null) {
-            return new ArrayAdapter(getActivity(), new StoredPlaylistDataBinder(), mItems);
+        final ListAdapter listAdapter;
+
+        if (mItems == null) {
+            listAdapter = super.getCustomListAdapter();
+        } else {
+            listAdapter = new ArrayAdapter<>(getActivity(), new StoredPlaylistDataBinder<Music>(),
+                    mItems);
         }
-        return super.getCustomListAdapter();
+
+        return listAdapter;
     }
 
     @Override

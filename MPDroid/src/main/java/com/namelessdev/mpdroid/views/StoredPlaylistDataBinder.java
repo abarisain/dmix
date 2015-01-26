@@ -34,7 +34,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class StoredPlaylistDataBinder extends BaseDataBinder {
+public class StoredPlaylistDataBinder<T extends Item<T>> extends BaseDataBinder<T> {
 
     @Override
     public AbstractViewHolder findInnerViews(final View targetView) {
@@ -56,15 +56,14 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
     }
 
     @Override
-    public boolean isEnabled(final int position, final List<? extends Item<?>> items,
-            final Object item) {
+    public boolean isEnabled(final int position, final List<T> items, final Object item) {
         return true;
     }
 
     @Override
     public void onDataBind(final Context context, final View targetView,
-            final AbstractViewHolder viewHolder, final List<? extends Item<?>> items,
-            final Object item, final int position) {
+            final AbstractViewHolder viewHolder, final List<T> items, final Object item,
+            final int position) {
         final PlaylistViewHolder holder = (PlaylistViewHolder) viewHolder;
         final Music music = (Music) item;
         String artist = music.getArtistName();
@@ -107,7 +106,7 @@ public class StoredPlaylistDataBinder extends BaseDataBinder {
 
     @Override
     public View onLayoutInflation(final Context context, final View targetView,
-            final List<? extends Item<?>> items) {
+            final List<T> items) {
         return setViewVisible(targetView, R.id.playlist_cover, mEnableCache);
     }
 }

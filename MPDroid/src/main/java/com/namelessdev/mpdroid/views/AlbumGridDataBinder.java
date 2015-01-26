@@ -24,7 +24,7 @@ import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
 import android.support.annotation.LayoutRes;
 
-public class AlbumGridDataBinder extends AlbumDataBinder {
+public class AlbumGridDataBinder extends AlbumDataBinder<Album> {
 
     @Override
     @LayoutRes

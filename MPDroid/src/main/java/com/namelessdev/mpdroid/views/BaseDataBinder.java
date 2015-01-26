@@ -37,7 +37,7 @@ import android.view.View;
 
 import java.util.List;
 
-abstract class BaseDataBinder implements ArrayDataBinder {
+abstract class BaseDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
 
     static final CharSequence SEPARATOR = " - ";
 
@@ -130,15 +130,15 @@ abstract class BaseDataBinder implements ArrayDataBinder {
     public abstract int getLayoutId();
 
     @Override
-    public abstract boolean isEnabled(int position, List<? extends Item<?>> items, Object item);
+    public abstract boolean isEnabled(int position, List<T> items, Object item);
 
     @Override
     public abstract void onDataBind(Context context, View targetView,
-            AbstractViewHolder viewHolder, List<? extends Item<?>> items,
+            AbstractViewHolder viewHolder, List<T> items,
             Object item, int position);
 
     @Override
     public abstract View onLayoutInflation(Context context, View targetView,
-            List<? extends Item<?>> items);
+            List<T> items);
 
 }

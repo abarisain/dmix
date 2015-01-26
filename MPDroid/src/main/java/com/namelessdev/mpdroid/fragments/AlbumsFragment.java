@@ -20,7 +20,6 @@ import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Genre;
-import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.R;
@@ -53,9 +52,8 @@ import android.widget.ProgressBar;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 
-public class AlbumsFragment extends BrowseFragment {
+public class AlbumsFragment extends BrowseFragment<Album> {
 
     private static final String ALBUM_YEAR_SORT_KEY = "sortAlbumsByYear";
 
@@ -99,9 +97,9 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final boolean replace, final boolean play) {
+    protected void add(final Album item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
+            mApp.oMPDAsyncHelper.oMPD.add(item, replace, play);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -109,9 +107,9 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final PlaylistFile playlist) {
+    protected void add(final Album item, final PlaylistFile playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Album) item);
+            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, item);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -127,12 +125,12 @@ public class AlbumsFragment extends BrowseFragment {
             mItems = mApp.oMPDAsyncHelper.oMPD.getAlbums(mArtist, sortByYear, mIsCountDisplayed);
 
             if (sortByYear) {
-                Collections.sort((List<? extends Album>) mItems, Album.SORT_BY_DATE);
+                Collections.sort(mItems, Album.SORT_BY_DATE);
             }
 
             if (mGenre != null) { // filter albums not in genre
                 for (int i = mItems.size() - 1; i >= 0; i--) {
-                    if (!mApp.oMPDAsyncHelper.oMPD.isAlbumInGenre((Album) mItems.get(i), mGenre)) {
+                    if (!mApp.oMPDAsyncHelper.oMPD.isAlbumInGenre(mItems.get(i), mGenre)) {
                         mItems.remove(i);
                     }
                 }
@@ -149,10 +147,9 @@ public class AlbumsFragment extends BrowseFragment {
      * @param isWrongCover True to blacklist the cover, false otherwise.
      */
     private void cleanupCover(final MenuItem item, final boolean isWrongCover) {
-        final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
-                .getMenuInfo();
+        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 
-        final Album album = (Album) mItems.get((int) info.id);
+        final Album album = mItems.get((int) info.id);
         final AlbumInfo albumInfo = new AlbumInfo(album);
 
         if (isWrongCover) {
@@ -169,11 +166,16 @@ public class AlbumsFragment extends BrowseFragment {
 
     @Override
     protected ListAdapter getCustomListAdapter() {
+        final ListAdapter listAdapter;
+
         if (mItems != null) {
-            return new ArrayIndexerAdapter(getActivity(),
-                    new AlbumDataBinder(), mItems);
+            listAdapter =
+                    new ArrayIndexerAdapter<>(getActivity(), new AlbumDataBinder<Album>(), mItems);
+        } else {
+            listAdapter = super.getCustomListAdapter();
         }
-        return super.getCustomListAdapter();
+
+        return listAdapter;
     }
 
     @Override
@@ -239,8 +241,7 @@ public class AlbumsFragment extends BrowseFragment {
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new SongsFragment().init((Album) mItems.get(position)),
-                "songs");
+                new SongsFragment().init(mItems.get(position)), "songs");
     }
 
     @Override
@@ -250,11 +251,10 @@ public class AlbumsFragment extends BrowseFragment {
         switch (item.getGroupId()) {
             case GOTO_ARTIST:
                 final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-                final Object selectedItem = mItems.get((int) info.id);
                 final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
-                final Album a = (Album) selectedItem;
+                final Album album = mItems.get((int) info.id);
 
-                intent.putExtra(Artist.EXTRA, a.getArtist());
+                intent.putExtra(Artist.EXTRA, album.getArtist());
                 startActivityForResult(intent, -1);
                 break;
             case POPUP_COVER_BLACKLIST:

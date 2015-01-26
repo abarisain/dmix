@@ -67,7 +67,8 @@ import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
-public abstract class BrowseFragment extends Fragment implements OnMenuItemClickListener,
+public abstract class BrowseFragment<T extends Item<T>> extends Fragment implements
+        OnMenuItemClickListener,
         AsyncExecListener, OnItemClickListener,
         OnRefreshListener {
 
@@ -103,7 +104,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     final int mIrAdded;
 
-    protected List<? extends Item<?>> mItems = null;
+    protected List<T> mItems;
 
     protected int mJobID = -1;
 
@@ -130,9 +131,9 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
         setHasOptionsMenu(false);
     }
 
-    protected abstract void add(final Item<?> item, final boolean replace, final boolean play);
+    protected abstract void add(final T item, final boolean replace, final boolean play);
 
-    protected abstract void add(final Item<?> item, final PlaylistFile playlist);
+    protected abstract void add(final T item, final PlaylistFile playlist);
 
     /**
      * This returns a runnable for adding from the parent adapter view adapter, used for clickable
@@ -144,7 +145,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
      */
     Runnable addAdapterItem(final AdapterView<?> parent, final int position) {
         final boolean simpleMode = mApp.isInSimpleMode();
-        final Item<?> track; /** final required for runnable. */
+        final T track; /** final required for runnable. */
         Adapter adapter = null;
         Runnable runnable = null;
 
@@ -155,7 +156,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
             if (adapter == null) {
                 track = null;
             } else {
-                track = (Item<?>) adapter.getItem(position);
+                track = (T) adapter.getItem(position);
             }
         }
 
@@ -262,9 +263,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
 
     }
 
-    protected void asyncUpdate() {
-
-    }
+    protected abstract void asyncUpdate();
 
     // Override if you want setEmptyView to be called on the list even if you have a header
     protected boolean forceEmptyView() {
@@ -272,7 +271,7 @@ public abstract class BrowseFragment extends Fragment implements OnMenuItemClick
     }
 
     protected ListAdapter getCustomListAdapter() {
-        return new ArrayIndexerAdapter(getActivity(), R.layout.simple_list_item_1, mItems);
+        return new ArrayIndexerAdapter<>(getActivity(), R.layout.simple_list_item_1, mItems);
     }
 
     /*

@@ -44,8 +44,6 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 public class FSFragment extends BrowseFragment {
 
@@ -63,7 +61,7 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final boolean replace, final boolean play) {
+    protected void add(final Item item, final boolean replace, final boolean play) {
         try {
             final AbstractDirectory toAdd = mCurrentDirectory.getDirectory(item.getName());
             if (toAdd == null) {
@@ -84,13 +82,12 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item<?> item, final PlaylistFile playlist) {
+    protected void add(final Item item, final PlaylistFile playlist) {
         try {
             final AbstractDirectory toAdd = mCurrentDirectory.getDirectory(item.getName());
             if (toAdd == null) {
                 if (item instanceof Music) {
-                    final Collection<Music> songs = Collections.singletonList((Music) item);
-                    mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, songs);
+                    mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
                     Tools.notifyUser(R.string.songAdded, item);
                 } else if (item instanceof PlaylistFile) {
                     mApp.oMPDAsyncHelper.oMPD.getPlaylist()
@@ -113,7 +110,7 @@ public class FSFragment extends BrowseFragment {
         final Collection<Music> files = mCurrentDirectory.getFiles();
         final Collection<PlaylistFile> playlistFiles = mCurrentDirectory.getPlaylistFiles();
         final int size = directories.size() + files.size() + playlistFiles.size() + 10;
-        final ArrayList<Item<?>> newItems = new ArrayList<>(size);
+        final ArrayList<FilesystemTreeEntry> newItems = new ArrayList<>(size);
         final String fullPath = mCurrentDirectory.getFullPath();
 
         // add parent directory:
@@ -133,19 +130,18 @@ public class FSFragment extends BrowseFragment {
 
     // Disable the indexer for FSFragment
     @Override
-    @SuppressWarnings("unchecked")
     protected ListAdapter getCustomListAdapter() {
-        return new ArrayAdapter<Item<?>>(getActivity(), R.layout.fs_list_item,
-                R.id.text1, (List<Item<?>>) mItems) {
+        return new ArrayAdapter<FilesystemTreeEntry>(getActivity(), R.layout.fs_list_item,
+                R.id.text1, mItems) {
             @Override
             public View getView(final int position, final View convertView,
                     final ViewGroup parent) {
                 final View v = super.getView(position, convertView, parent);
                 final TextView subtext = (TextView) v.findViewById(R.id.text2);
-                final Item<?> item = mItems.get(position);
+                final FilesystemTreeEntry item = (FilesystemTreeEntry) mItems.get(position);
                 final String filename;
                 if (item instanceof Music) {
-                    filename = ((Music) item).getFullPath();
+                    filename = item.getFullPath();
                     if (TextUtils.isEmpty(filename) || item.toString().equals(filename)) {
                         subtext.setVisibility(View.GONE);
                     } else {
