@@ -85,11 +85,16 @@ android {
                     Task: "${variant.name}Javadoc",
                     IndexFile: file("${destinationDir}/index.html"))
 
+            dependsOn = [':JMPDCommAndroid:debugJavadoc'];
+
             options {
                 author = true
                 header = project.name
                 memberLevel = JavadocMemberLevel.PRIVATE
-                links("http://docs.oracle.com/javase/7/docs/api/");
+                links("http://docs.oracle.com/javase/7/docs/api",
+                        project.tasks.getByPath(":JMPDCommAndroid:debugJavadoc")
+                                .getDestinationDir()
+                                .toString());
                 linksOffline("http://developer.android.com/reference",
                         "${android.plugin.sdkHandler.sdkFolder}/docs/reference");
                 overview("src/main/overview.html");
