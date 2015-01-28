@@ -49,37 +49,31 @@ import static com.anpmech.mpd.Tools.VALUE;
  *
  * @author Felipe Gustavo de Almeida
  */
-public abstract class AbstractDirectory extends Item<Directory> implements FilesystemTreeEntry {
+abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
+        implements FilesystemTreeEntry {
+
+    /** The MPD protocol directory separator. */
+    protected static final char MPD_SEPARATOR = '/';
 
     protected static final String TAG = "Directory";
 
-    /** The MPD protocol directory separator. */
-    private static final char MPD_SEPARATOR = '/';
+    /** A map of directory entries from the current directory on the media server. */
+    protected final Map<String, T> mDirectoryEntries;
 
-    /** The root directory object. */
-    private static final Directory ROOT;
+    /** A map of file entries from the current directory on the media server. */
+    protected final Map<String, Music> mFileEntries;
 
     /** The filename of this directory. */
     protected final String mFilename;
 
     /** The parent directory object relative to this object. */
-    protected final Directory mParent;
+    protected final T mParent;
 
-    /** A map of directory entries from the current directory on the media server. */
-    private final Map<String, Directory> mDirectoryEntries;
-
-    /** A map of file entries from the current directory on the media server. */
-    private final Map<String, Music> mFileEntries;
+    /** A map of playlist file entries from the current directory on the media server. */
+    protected final Map<String, PlaylistFile> mPlaylistEntries;
 
     /** The name to display for this directory, typically the filename. */
     private final String mName;
-
-    /** A map of playlist file entries from the current directory on the media server. */
-    private final Map<String, PlaylistFile> mPlaylistEntries;
-
-    static {
-        ROOT = new Directory(null, null);
-    }
 
     /**
      * Creates a new directory.
@@ -87,7 +81,7 @@ public abstract class AbstractDirectory extends Item<Directory> implements Files
      * @param parent   The parent directory to this directory.
      * @param filename The filename of this directory.
      */
-    protected AbstractDirectory(final Directory parent, final String filename) {
+    protected AbstractDirectory(final T parent, final String filename) {
         this(parent, filename, filename, null, null, null);
     }
 
@@ -101,9 +95,9 @@ public abstract class AbstractDirectory extends Item<Directory> implements Files
      * @param fileEntries      Children files to this directory.
      * @param playlistEntries  Children playlists to this directory.
      */
-    protected AbstractDirectory(final Directory parent, final String filename,
+    protected AbstractDirectory(final T parent, final String filename,
             final String name,
-            final Map<String, Directory> directoryEntries,
+            final Map<String, T> directoryEntries,
             final Map<String, Music> fileEntries,
             final Map<String, PlaylistFile> playlistEntries) {
         super();
@@ -132,16 +126,6 @@ public abstract class AbstractDirectory extends Item<Directory> implements Files
     }
 
     /**
-     * Gets the root directory for this media server.
-     *
-     * @return The root directory for this media server.
-     * @see #refresh(com.anpmech.mpd.connection.MPDConnection)
-     */
-    public static AbstractDirectory getRoot() {
-        return ROOT;
-    }
-
-    /**
      * Check if a given directory exists as a subdirectory.
      *
      * @param filename The subdirectory filename.
@@ -156,11 +140,11 @@ public abstract class AbstractDirectory extends Item<Directory> implements Files
      *
      * @return A non-recursive list of subdirectories of this directory in natural order.
      */
-    public Collection<AbstractDirectory> getDirectories() {
-        final Collection<AbstractDirectory> directoriesCompared = new TreeSet<>(
-                new Comparator<AbstractDirectory>() {
+    public Collection<T> getDirectories() {
+        final Collection<T> directoriesCompared = new TreeSet<>(
+                new Comparator<T>() {
                     @Override
-                    public int compare(final AbstractDirectory lhs, final AbstractDirectory rhs) {
+                    public int compare(final T lhs, final T rhs) {
                         return StringComparators.compareNatural(lhs.getName(), rhs.getName());
                     }
                 });
@@ -178,7 +162,7 @@ public abstract class AbstractDirectory extends Item<Directory> implements Files
      * @param filename name of sub-directory to retrieve.
      * @return a sub-directory.
      */
-    public AbstractDirectory getDirectory(final String filename) {
+    public T getDirectory(final String filename) {
         return mDirectoryEntries.get(filename);
     }
 
@@ -282,71 +266,16 @@ public abstract class AbstractDirectory extends Item<Directory> implements Files
         return playlistFilesCompared;
     }
 
-    /**
-     * Creates a child {@code Directory} object relative to this directory object.
-     *
-     * @param subdirectory The subdirectory path of the root to create a {@code Directory} for.
-     * @return the last component of the path created.
-     * @throws java.lang.IllegalArgumentException If {@code subdirectory} starts or ends with '/'
-     * @see #getRoot()
-     * @see #refresh(com.anpmech.mpd.connection.MPDConnection)
-     */
-    public Directory makeChildDirectory(final String subdirectory) {
-        final String name;
-        final String remainingPath;
-        final int slashIndex = subdirectory.indexOf(MPD_SEPARATOR);
-
-        if (slashIndex == 0) {
-            throw new IllegalArgumentException("name starts with '" + MPD_SEPARATOR + '\'');
-        }
-
-        if (slashIndex == subdirectory.length() - 1) {
-            throw new IllegalArgumentException("name ends with " + MPD_SEPARATOR + '\'');
-        }
-
-        // split path
-        if (slashIndex == -1) {
-            name = subdirectory;
-            remainingPath = null;
-        } else {
-            name = subdirectory.substring(0, slashIndex);
-            remainingPath = subdirectory.substring(slashIndex + 1);
-        }
-
-        // create directory
-        final Directory dir;
-        if (mDirectoryEntries.containsKey(name)) {
-            dir = mDirectoryEntries.get(name);
-        } else {
-            dir = new Directory((Directory) this, name);
-            mDirectoryEntries.put(dir.mFilename, dir);
-        }
-
-        // create remainder
-        if (remainingPath != null) {
-            return dir.makeChildDirectory(remainingPath);
-        }
-        return dir;
-    }
-
-    /**
-     * Makes an object which is the immediate parent relative to this directory object with the
-     * name given in the parameter.
-     *
-     * @param name The string identifier used for the name of the parent directory.
-     * @return The parent directory object of this object.
-     */
-    public Directory makeParentDirectory(final String name) {
-        return new Directory(mParent.mParent, mParent.mFilename, name,
-                mDirectoryEntries, mFileEntries, mPlaylistEntries);
-    }
+    public abstract T makeChildDirectory(final String subdirectory);
 
     /**
      * Retrieves a database directory listing of {@code path} directory.
      *
      * @param connection A connection to the server.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @throws java.io.IOException                    Thrown upon a communication error with the
+     *                                                server.
+     * @throws com.anpmech.mpd.exception.MPDException Thrown if an error occurs as a result of
+     *                                                command execution.
      */
     public void refresh(final MPDConnection connection) throws IOException, MPDException {
         final int cacheSize = 40; /** Approximate max number of lines per file entry. */
@@ -354,8 +283,7 @@ public abstract class AbstractDirectory extends Item<Directory> implements Files
                 connection.send(MPDCommand.MPD_CMD_LSDIR, getFullPath());
         final Collection<String> lineCache = new ArrayList<>(cacheSize);
 
-        final Map<String, Directory> directoryEntries = new HashMap<>(
-                mDirectoryEntries.size());
+        final Map<String, T> directoryEntries = new HashMap<>(mDirectoryEntries.size());
         final Map<String, Music> fileEntries = new HashMap<>(mFileEntries.size());
         final Map<String, PlaylistFile> playlistEntries = new HashMap<>(mPlaylistEntries.size());
 
@@ -368,7 +296,7 @@ public abstract class AbstractDirectory extends Item<Directory> implements Files
 
             switch (pair[KEY]) {
                 case "directory":
-                    final Directory dir = ROOT.makeChildDirectory(pair[VALUE]);
+                    final T dir = makeChildDirectory(pair[VALUE]);
 
                     directoryEntries.put(dir.mFilename, dir);
                     lineCache.clear();

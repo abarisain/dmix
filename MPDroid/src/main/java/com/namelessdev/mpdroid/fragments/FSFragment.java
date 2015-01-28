@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.exception.MPDException;
-import com.anpmech.mpd.item.AbstractDirectory;
 import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.FilesystemTreeEntry;
 import com.anpmech.mpd.item.Item;
@@ -49,7 +48,7 @@ public class FSFragment extends BrowseFragment {
 
     private static final String TAG = "FSFragment";
 
-    private AbstractDirectory mCurrentDirectory = null;
+    private Directory mCurrentDirectory = null;
 
     private String mDirectory = null;
 
@@ -63,7 +62,7 @@ public class FSFragment extends BrowseFragment {
     @Override
     protected void add(final Item item, final boolean replace, final boolean play) {
         try {
-            final AbstractDirectory toAdd = mCurrentDirectory.getDirectory(item.getName());
+            final Directory toAdd = mCurrentDirectory.getDirectory(item.getName());
             if (toAdd == null) {
                 mApp.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
                 if (item instanceof PlaylistFile) {
@@ -84,7 +83,7 @@ public class FSFragment extends BrowseFragment {
     @Override
     protected void add(final Item item, final PlaylistFile playlist) {
         try {
-            final AbstractDirectory toAdd = mCurrentDirectory.getDirectory(item.getName());
+            final Directory toAdd = mCurrentDirectory.getDirectory(item.getName());
             if (toAdd == null) {
                 if (item instanceof Music) {
                     mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
@@ -106,7 +105,7 @@ public class FSFragment extends BrowseFragment {
     @Override
     protected void asyncUpdate() {
         refreshDirectory();
-        final Collection<AbstractDirectory> directories = mCurrentDirectory.getDirectories();
+        final Collection<Directory> directories = mCurrentDirectory.getDirectories();
         final Collection<Music> files = mCurrentDirectory.getFiles();
         final Collection<PlaylistFile> playlistFiles = mCurrentDirectory.getPlaylistFiles();
         final int size = directories.size() + files.size() + playlistFiles.size() + 10;
@@ -115,7 +114,7 @@ public class FSFragment extends BrowseFragment {
 
         // add parent directory:
         if (fullPath != null && !fullPath.isEmpty()) {
-            final AbstractDirectory parent = mCurrentDirectory.makeParentDirectory("‥");
+            final Directory parent = mCurrentDirectory.makeParentDirectory("‥");
             newItems.add(parent);
         }
         newItems.addAll(directories);
@@ -263,9 +262,9 @@ public class FSFragment extends BrowseFragment {
 
     private void refreshDirectory() {
         if (TextUtils.isEmpty(mDirectory)) {
-            mCurrentDirectory = AbstractDirectory.getRoot();
+            mCurrentDirectory = Directory.getRoot();
         } else {
-            mCurrentDirectory = AbstractDirectory.getRoot().makeChildDirectory(mDirectory);
+            mCurrentDirectory = Directory.getRoot().makeChildDirectory(mDirectory);
         }
 
         try {

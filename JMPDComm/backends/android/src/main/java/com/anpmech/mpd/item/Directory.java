@@ -34,9 +34,12 @@ import java.util.Map;
  *
  * @see AbstractDirectory
  */
-public class Directory extends AbstractDirectory {
+public class Directory extends AbstractDirectory<Directory> {
 
     public static final String EXTRA = TAG;
+
+    /** The root directory object. */
+    private static final Directory ROOT = new Directory(null, null);
 
     /**
      * Creates a new directory.
@@ -44,7 +47,7 @@ public class Directory extends AbstractDirectory {
      * @param parent   The parent directory to this directory.
      * @param filename The filename of this directory.
      */
-    protected Directory(final Directory parent, final String filename) {
+    private Directory(final Directory parent, final String filename) {
         super(parent, filename);
     }
 
@@ -58,11 +61,81 @@ public class Directory extends AbstractDirectory {
      * @param fileEntries      Children files to this directory.
      * @param playlistEntries  Children playlists to this directory.
      */
-    public Directory(final Directory parent, final String filename,
+    private Directory(final Directory parent, final String filename,
             final String name,
             final Map<String, Directory> directoryEntries,
             final Map<String, Music> fileEntries,
             final Map<String, PlaylistFile> playlistEntries) {
         super(parent, filename, name, directoryEntries, fileEntries, playlistEntries);
+    }
+
+    /**
+     * Gets the root directory for this media server.
+     *
+     * @return The root directory for this media server.
+     * @see #refresh(com.anpmech.mpd.connection.MPDConnection)
+     */
+    public static Directory getRoot() {
+        return ROOT;
+    }
+
+    /**
+     * Creates a child {@code Directory} object relative to this directory object.
+     *
+     * @param subdirectory The subdirectory path of the root to create a {@code Directory} for.
+     * @return the last component of the path created.
+     * @throws java.lang.IllegalArgumentException If {@code subdirectory} starts or ends with '/'
+     * @see #getRoot()
+     * @see #refresh(com.anpmech.mpd.connection.MPDConnection)
+     */
+    @Override
+    public Directory makeChildDirectory(final String subdirectory) {
+        final String name;
+        final String remainingPath;
+        final int slashIndex = subdirectory.indexOf(MPD_SEPARATOR);
+
+        if (slashIndex == 0) {
+            throw new IllegalArgumentException("name starts with '" + MPD_SEPARATOR + '\'');
+        }
+
+        if (slashIndex == subdirectory.length() - 1) {
+            throw new IllegalArgumentException("name ends with " + MPD_SEPARATOR + '\'');
+        }
+
+        // split path
+        if (slashIndex == -1) {
+            name = subdirectory;
+            remainingPath = null;
+        } else {
+            name = subdirectory.substring(0, slashIndex);
+            remainingPath = subdirectory.substring(slashIndex + 1);
+        }
+
+        // create directory
+        final Directory dir;
+        if (mDirectoryEntries.containsKey(name)) {
+            dir = mDirectoryEntries.get(name);
+        } else {
+            dir = new Directory(this, name);
+            mDirectoryEntries.put(dir.mFilename, dir);
+        }
+
+        // create remainder
+        if (remainingPath != null) {
+            return dir.makeChildDirectory(remainingPath);
+        }
+        return dir;
+    }
+
+    /**
+     * Makes an object which is the immediate parent relative to this directory object with the
+     * name given in the parameter.
+     *
+     * @param name The string identifier used for the name of the parent directory.
+     * @return The parent directory object of this object.
+     */
+    public Directory makeParentDirectory(final String name) {
+        return new Directory(mParent.mParent, mParent.mFilename, name, mDirectoryEntries,
+                mFileEntries, mPlaylistEntries);
     }
 }

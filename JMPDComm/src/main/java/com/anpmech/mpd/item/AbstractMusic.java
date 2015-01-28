@@ -647,7 +647,6 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     public String getFullPath() {
         String fileName = mFullPath;
 
-
         if (isStream()) {
             final int pos = mFullPath.indexOf('#');
 

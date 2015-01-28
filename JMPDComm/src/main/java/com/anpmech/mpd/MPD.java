@@ -31,10 +31,10 @@ import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.connection.MPDConnectionMonoSocket;
 import com.anpmech.mpd.connection.MPDConnectionMultiSocket;
 import com.anpmech.mpd.exception.MPDException;
-import com.anpmech.mpd.item.AbstractDirectory;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.AlbumBuilder;
 import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.FilesystemTreeEntry;
 import com.anpmech.mpd.item.Genre;
 import com.anpmech.mpd.item.Item;
@@ -1614,7 +1614,7 @@ public class MPD {
         mConnection.send(MPDCommand.MPD_CMD_REFRESH, folder);
     }
 
-    public void refreshDirectory(final AbstractDirectory directory)
+    public void refreshDirectory(final Directory directory)
             throws IOException, MPDException {
         directory.refresh(mConnection);
     }
