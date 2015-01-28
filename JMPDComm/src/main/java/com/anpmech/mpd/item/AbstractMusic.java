@@ -645,14 +645,15 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      */
     @Override
     public String getFullPath() {
-        final String fileName;
+        String fileName = mFullPath;
+
 
         if (isStream()) {
             final int pos = mFullPath.indexOf('#');
 
-            fileName = mFullPath.substring(0, pos);
-        } else {
-            fileName = mFullPath;
+            if (pos != -1) {
+                fileName = mFullPath.substring(0, pos);
+            }
         }
 
         return fileName;
