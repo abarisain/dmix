@@ -529,7 +529,6 @@ public abstract class MPDConnection {
         public final CommandResult call() {
             int retryCount = 0;
             final CommandResult result = new CommandResult();
-            boolean isCommandSent = false;
             final CharSequence baseCommand = mCommand.getBaseCommand();
 
             while (result.getResponse() == null && retryCount < MAX_REQUEST_RETRY && !mCancelled) {
@@ -540,7 +539,6 @@ public abstract class MPDConnection {
                     }
 
                     write();
-                    isCommandSent = true;
                     result.setResponse(read());
                 } catch (final IOException e) {
                     handleFailure(result, e);
@@ -552,11 +550,6 @@ public abstract class MPDConnection {
                     } else {
                         handleFailure(result, ex1);
                     }
-                }
-
-                /** On successful send of non-retryable command, break out. */
-                if (!mCommand.isRetryable() && isCommandSent) {
-                    break;
                 }
 
                 retryCount++;

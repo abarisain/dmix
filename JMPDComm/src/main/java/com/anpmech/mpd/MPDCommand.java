@@ -28,7 +28,6 @@
 package com.anpmech.mpd;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * A class representing one MPD protocol command and it's arguments.
@@ -130,8 +129,6 @@ public class MPDCommand {
 
     private static final int[] EMPTY_INT_ARRAY = new int[0];
 
-    private static final List<CharSequence> NON_RETRYABLE_COMMANDS;
-
     /** The class log identifier. */
     private static final String TAG = "MPDCommand";
 
@@ -141,16 +138,8 @@ public class MPDCommand {
     /** The fully formatted protocol command and arguments. */
     private final String mCommand;
 
-    /** Storage for whether this command can be resent in the case of send failure. */
-    private final boolean mIsRetryable;
-
     /** This field stores any {@code ACK} errors to be considered as non-fatal. */
     private final int[] mNonfatalErrors;
-
-    static {
-        NON_RETRYABLE_COMMANDS = Arrays.asList(MPD_CMD_PLAYLIST_MOVE, MPD_CMD_NEXT,
-                MPD_CMD_PLAYLIST_ADD, MPD_CMD_PLAYLIST_DEL, MPD_CMD_PREV);
-    }
 
     /**
      * The constructor for a command to be sent to the MPD protocol compatible media server.
@@ -168,7 +157,6 @@ public class MPDCommand {
 
         mBaseCommand = baseCommand;
         mCommand = command;
-        mIsRetryable = NON_RETRYABLE_COMMANDS.contains(baseCommand);
         mNonfatalErrors = nonfatalErrorCodes;
     }
 
@@ -288,16 +276,6 @@ public class MPDCommand {
     }
 
     /**
-     * This returns whether the base command object has been flagged as a retryable command, if
-     * not, upon possible failure this command will not be retried.
-     *
-     * @return True if this command will be retried upon failure, false otherwise.
-     */
-    public boolean isRetryable() {
-        return mIsRetryable;
-    }
-
-    /**
      * This returns a debugging string with the results of all internal fields.
      *
      * @return A debugging string with the results of all internal fields.
@@ -307,7 +285,6 @@ public class MPDCommand {
         return "MPDCommand{" +
                 "mBaseCommand=" + mBaseCommand +
                 ", mCommand=" + mCommand +
-                ", mIsRetryable=" + mIsRetryable +
                 ", mNonfatalErrors=" + Arrays.toString(mNonfatalErrors) +
                 '}';
     }
