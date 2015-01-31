@@ -88,7 +88,6 @@ public class Directory extends AbstractDirectory<Directory> {
      * @see #getRoot()
      * @see #refresh(com.anpmech.mpd.connection.MPDConnection)
      */
-    @Override
     public Directory makeChildDirectory(final String subdirectory) {
         final String name;
         final String remainingPath;
@@ -137,5 +136,17 @@ public class Directory extends AbstractDirectory<Directory> {
     public Directory makeParentDirectory(final String name) {
         return new Directory(mParent.mParent, mParent.mFilename, name, mDirectoryEntries,
                 mFileEntries, mPlaylistEntries);
+    }
+
+    /**
+     * This class needs to be called from the child class to create a subdirectory from the root
+     * directory.
+     *
+     * @param subdirectory The subdirectory from root to create.
+     * @return A {@code Directory} made from the root and subdirectory.
+     */
+    @Override
+    protected Directory makeSubdirectory(final String subdirectory) {
+        return ROOT.makeChildDirectory(subdirectory);
     }
 }

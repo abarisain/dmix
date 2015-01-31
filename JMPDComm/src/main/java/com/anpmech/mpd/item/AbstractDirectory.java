@@ -266,7 +266,14 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
         return playlistFilesCompared;
     }
 
-    public abstract T makeChildDirectory(final String subdirectory);
+    /**
+     * This class needs to be called from the child class to create a subdirectory from the root
+     * directory.
+     *
+     * @param subdirectory The subdirectory from root to create.
+     * @return A {@link com.anpmech.mpd.item.Directory} made from the root and subdirectory.
+     */
+    protected abstract T makeSubdirectory(final String subdirectory);
 
     /**
      * Retrieves a database directory listing of {@code path} directory.
@@ -296,7 +303,7 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
 
             switch (pair[KEY]) {
                 case "directory":
-                    final T dir = makeChildDirectory(pair[VALUE]);
+                    final T dir = makeSubdirectory(pair[VALUE]);
 
                     directoryEntries.put(dir.mFilename, dir);
                     lineCache.clear();
