@@ -119,7 +119,7 @@ public class GracenoteCover extends AbstractWebCover {
     }
 
     public static boolean isClientIdAvailable() {
-        return !SETTINGS.getString(CUSTOM_CLIENT_ID_KEY, null).isEmpty();
+        return !SETTINGS.getString(CUSTOM_CLIENT_ID_KEY, "").isEmpty();
     }
 
     private String getClientIdPrefix() {
