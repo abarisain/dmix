@@ -126,6 +126,15 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
     }
 
     /**
+     * This method creates a directory entry from the name and {@code this} and returns the
+     * resulting Directory entry.
+     *
+     * @param filename The name of this directory, from {@code this} directory.
+     * @return The resulting directory created from {@code this} and the name.
+     */
+    protected abstract T addDirectoryEntry(final String filename);
+
+    /**
      * Check if a given directory exists as a subdirectory.
      *
      * @param filename The subdirectory filename.
@@ -264,6 +273,57 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
         }
 
         return playlistFilesCompared;
+    }
+
+    /**
+     * Creates a child {@code Directory} object relative to this directory object.
+     *
+     * @param subdirectory The subdirectory path of the root to create a {@code Directory} for.
+     * @return the last component of the path created.
+     * @throws java.lang.IllegalArgumentException If {@code subdirectory} starts or ends with '/'
+     * @see #refresh(com.anpmech.mpd.connection.MPDConnection)
+     */
+    public T makeChildDirectory(final String subdirectory) {
+        final String name;
+        final String remainingPath;
+        final int slashIndex = subdirectory.indexOf(MPD_SEPARATOR);
+
+        if (slashIndex == 0) {
+            throw new IllegalArgumentException("name starts with '" + MPD_SEPARATOR + '\'');
+        }
+
+        if (slashIndex == subdirectory.length() - 1) {
+            throw new IllegalArgumentException("name ends with " + MPD_SEPARATOR + '\'');
+        }
+
+        // split path
+        if (slashIndex == -1) {
+            name = subdirectory;
+            remainingPath = null;
+        } else {
+            name = subdirectory.substring(0, slashIndex);
+            remainingPath = subdirectory.substring(slashIndex + 1);
+        }
+
+        // create directory
+        final T dir;
+        if (mDirectoryEntries.containsKey(name)) {
+            dir = mDirectoryEntries.get(name);
+        } else {
+            dir = addDirectoryEntry(name);
+        }
+
+        // create remainder
+        if (remainingPath != null) {
+            /**
+             * We get the warning here that this is a unchecked cast, which I think it untrue.
+             * I think (and hope) this is because the warning doesn't take tail recursive calls
+             * into account.
+             */
+            //noinspection unchecked
+            return (T) dir.makeChildDirectory(remainingPath);
+        }
+        return dir;
     }
 
     /**
