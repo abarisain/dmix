@@ -80,16 +80,50 @@ public class Directory extends AbstractDirectory<Directory> {
     }
 
     /**
-     * Adds a directory entry to the {@link #mDirectoryEntries} map.
+     * Creates a child {@code Directory} object relative to this directory object.
      *
-     * @param filename The name of the subdirectory to add.
+     * @param subdirectory The subdirectory path of the root to create a {@code Directory} for.
+     * @return the last component of the path created.
+     * @throws java.lang.IllegalArgumentException If {@code subdirectory} starts or ends with '/'
+     * @see #getRoot()
+     * @see #refresh(com.anpmech.mpd.connection.MPDConnection)
      */
-    @Override
-    protected Directory addDirectoryEntry(final String filename) {
-        final Directory directory = new Directory(this, filename);
-        mDirectoryEntries.put(directory.mFilename, directory);
+    public Directory makeChildDirectory(final String subdirectory) {
+        final String name;
+        final String remainingPath;
+        final int slashIndex = subdirectory.indexOf(MPD_SEPARATOR);
 
-        return directory;
+        if (slashIndex == 0) {
+            throw new IllegalArgumentException("name starts with '" + MPD_SEPARATOR + '\'');
+        }
+
+        if (slashIndex == subdirectory.length() - 1) {
+            throw new IllegalArgumentException("name ends with " + MPD_SEPARATOR + '\'');
+        }
+
+        // split path
+        if (slashIndex == -1) {
+            name = subdirectory;
+            remainingPath = null;
+        } else {
+            name = subdirectory.substring(0, slashIndex);
+            remainingPath = subdirectory.substring(slashIndex + 1);
+        }
+
+        // create directory
+        final Directory dir;
+        if (mDirectoryEntries.containsKey(name)) {
+            dir = mDirectoryEntries.get(name);
+        } else {
+            dir = new Directory(this, name);
+            mDirectoryEntries.put(dir.mFilename, dir);
+        }
+
+        // create remainder
+        if (remainingPath != null) {
+            return dir.makeChildDirectory(remainingPath);
+        }
+        return dir;
     }
 
     /**
