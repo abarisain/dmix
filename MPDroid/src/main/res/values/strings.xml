@@ -165,6 +165,7 @@
     <string name="tracksInfoHeader">%1$s Tracks, %2$s</string>
     <string name="tracksInfoHeaderPlural">%1$s Tracks, %2$s</string>
     <string name="addToPlaylist">Add to playlist</string>
+    <string name="addToFavorites">Add to Favorites</string>
     <string name="newPlaylist">(New playlist)</string>
     <string name="playlistName">Playlist Name</string>
     <string name="newPlaylistPrompt">Enter name for new playlist:</string>
