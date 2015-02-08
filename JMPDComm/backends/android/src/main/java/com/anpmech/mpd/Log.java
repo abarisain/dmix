@@ -27,6 +27,9 @@
 
 package com.anpmech.mpd;
 
+/**
+ * This class provides a logger abstraction for the Android backend.
+ */
 public final class Log {
 
     private Log() {
@@ -45,7 +48,7 @@ public final class Log {
     }
 
     /**
-     * Sends a debug message to the user.
+     * Sends a debug message to the user and log the exception.
      *
      * @param tag     Used to identify the source of a log message. It usually identifies the class
      *                or activity where the log call occurs.
@@ -68,7 +71,7 @@ public final class Log {
     }
 
     /**
-     * Sends an error message to the user.
+     * Sends an error message to the user and log the exception.
      *
      * @param tag     Used to identify the source of a log message. It usually identifies the class
      *                or activity where the log call occurs.
@@ -77,6 +80,52 @@ public final class Log {
      */
     public static void error(final String tag, final String message, final Throwable tr) {
         android.util.Log.e(tag, message, tr);
+    }
+
+    /**
+     * Sends a info message to the user.
+     *
+     * @param tag     Used to identify the source of a log message.  It usually identifies
+     *                the class or activity where the log call occurs.
+     * @param message The message you would like logged.
+     */
+    public static void info(final String tag, final String message) {
+        android.util.Log.i(tag, message);
+    }
+
+    /**
+     * Sends a info message to the user and log the exception.
+     *
+     * @param tag     Used to identify the source of a log message.  It usually identifies
+     *                the class or activity where the log call occurs.
+     * @param message The message you would like logged.
+     * @param tr      An exception to log
+     */
+    public static void info(final String tag, final String message, final Throwable tr) {
+        android.util.Log.i(tag, message, tr);
+    }
+
+    /**
+     * Sends a verbose message to the user.
+     *
+     * @param tag     Used to identify the source of a log message.  It usually identifies
+     *                the class or activity where the log call occurs.
+     * @param message The message you would like logged.
+     */
+    public static void verbose(final String tag, final String message) {
+        android.util.Log.v(tag, message);
+    }
+
+    /**
+     * Send a verbose log message and log the exception.
+     *
+     * @param tag     Used to identify the source of a log message.  It usually identifies
+     *                the class or activity where the log call occurs.
+     * @param message The message you would like logged.
+     * @param tr      An exception to log
+     */
+    public static void verbose(final String tag, final String message, final Throwable tr) {
+        android.util.Log.v(tag, message, tr);
     }
 
     /**
@@ -91,7 +140,7 @@ public final class Log {
     }
 
     /**
-     * Sends a warning message to the user.
+     * Sends a warning message to the user and log the exception.
      *
      * @param tag     Used to identify the source of a log message. It usually identifies the class
      *                or activity where the log call occurs.

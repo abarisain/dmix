@@ -30,6 +30,9 @@ package com.anpmech.mpd;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * This class provides a logger abstraction for the Java backend.
+ */
 public final class Log {
 
     private Log() {
@@ -38,6 +41,8 @@ public final class Log {
 
     /**
      * Sends a debug message to the user.
+     * <p/>
+     * This maps to a {@link Level#FINE} logger message.
      *
      * @param tag     Used to identify the source of a log message. It usually identifies the class
      *                or activity where the log call occurs.
@@ -46,11 +51,13 @@ public final class Log {
     public static void debug(final String tag, final String message) {
         final Logger logger = Logger.getLogger(tag);
 
-        logger.log(Level.INFO, message);
+        logger.log(Level.FINE, message);
     }
 
     /**
-     * Sends a debug message to the user.
+     * Sends a debug message to the user and log the exception.
+     * <p/>
+     * This maps to a {@link Level#FINE} logger message.
      *
      * @param tag     Used to identify the source of a log message. It usually identifies the class
      *                or activity where the log call occurs.
@@ -60,11 +67,13 @@ public final class Log {
     public static void debug(final String tag, final String message, final Throwable tr) {
         final Logger logger = Logger.getLogger(tag);
 
-        logger.log(Level.INFO, message, tr);
+        logger.log(Level.FINE, message, tr);
     }
 
     /**
      * Sends an error message to the user.
+     * <p/>
+     * This maps to a {@link Level#SEVERE} logger message.
      *
      * @param tag     Used to identify the source of a log message. It usually identifies the class
      *                or activity where the log call occurs.
@@ -77,7 +86,9 @@ public final class Log {
     }
 
     /**
-     * Sends an error message to the user.
+     * Sends an error message to the user and log the exception.
+     * <p/>
+     * This maps to a {@link Level#SEVERE} logger message.
      *
      * @param tag     Used to identify the source of a log message. It usually identifies the class
      *                or activity where the log call occurs.
@@ -88,6 +99,64 @@ public final class Log {
         final Logger logger = Logger.getLogger(tag);
 
         logger.log(Level.SEVERE, message, tr);
+    }
+
+    /**
+     * Sends a info message to the user.
+     *
+     * @param tag     Used to identify the source of a log message.  It usually identifies
+     *                the class or activity where the log call occurs.
+     * @param message The message you would like logged.
+     */
+    public static void info(final String tag, final String message) {
+        final Logger logger = Logger.getLogger(tag);
+
+        logger.log(Level.INFO, message);
+    }
+
+    /**
+     * Sends a info message to the user and log the exception.
+     *
+     * @param tag     Used to identify the source of a log message.  It usually identifies
+     *                the class or activity where the log call occurs.
+     * @param message The message you would like logged.
+     * @param tr      An exception to log
+     */
+    public static void info(final String tag, final String message, final Throwable tr) {
+        final Logger logger = Logger.getLogger(tag);
+
+        logger.log(Level.INFO, message, tr);
+    }
+
+    /**
+     * Sends a verbose message to the user.
+     * <p/>
+     * This maps to a {@link Level#FINER} logger message.
+     *
+     * @param tag     Used to identify the source of a log message.  It usually identifies
+     *                the class or activity where the log call occurs.
+     * @param message The message you would like logged.
+     */
+    public static void verbose(final String tag, final String message) {
+        final Logger logger = Logger.getLogger(tag);
+
+        logger.log(Level.FINER, message);
+    }
+
+    /**
+     * Send a verbose log message and log the exception.
+     * <p/>
+     * This maps to a {@link Level#FINER} logger message.
+     *
+     * @param tag     Used to identify the source of a log message.  It usually identifies
+     *                the class or activity where the log call occurs.
+     * @param message The message you would like logged.
+     * @param tr      An exception to log
+     */
+    public static void verbose(final String tag, final String message, final Throwable tr) {
+        final Logger logger = Logger.getLogger(tag);
+
+        logger.log(Level.FINER, message, tr);
     }
 
     /**
@@ -104,7 +173,7 @@ public final class Log {
     }
 
     /**
-     * Sends a warning message to the user.
+     * Sends a warning message to the user and log the exception.
      *
      * @param tag     Used to identify the source of a log message. It usually identifies the class
      *                or activity where the log call occurs.
