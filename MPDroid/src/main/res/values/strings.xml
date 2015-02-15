@@ -19,11 +19,16 @@
     <string name="aboutDescription">About MPDroid</string>
     <string name="albumGridWifiUnavailable">Wi-Fi unavailable, so no new artwork will be retrieved</string>
     <string name="configurationName">Configuration Name</string>
+    <string name="connect">Connect</string>
     <string name="coverSettings">Cover artwork settings</string>
     <string name="clientSettings">Client settings</string>
+    <string name="deleteServer">Delete this server</string>
+    <string name="drawer_close">Close drawer</string>
+    <string name="drawer_open">Show drawer</string>
     <string name="edit">Edit</string>
     <string name="enableLightNowPlayingTheme">Use light theme for "Now Playing"</string>
     <string name="enableLightNowPlayingThemeDescription">Restart the application to see the changes</string>
+    <string name="libraryTabActivity">Library</string>
     <string name="manage">Manage</string>
     <string name="outputsDescription">Enable/Disable MPD-Outputs</string>
     <string name="paused">Paused</string>
@@ -114,7 +119,6 @@
     <string name="about">About</string>
     <string name="connectionFailed">Connection Failed</string>
     <string name="connectionFailedMessage">Connection to MPD-Server failed! Check if the Server is running and reachable. (%s)</string>
-    <string name="connect">Connect</string>
     <string name="connecting">Connecting…</string>
     <string name="connectingToServer">Connecting to MPD-Server.</string>
     <string name="connected">Connected</string>
@@ -141,7 +145,6 @@
     <string name="search">Search</string>
     <string name="search_label">MPDroid</string>
     <string name="search_hint">Search …</string>
-    <string name="libraryTabActivity">Library</string>
     <string name="warningTitle">Please read</string>
     <string name="warningText1">Welcome to MPDroid 1.0 !\nThis will only display once.\n\nFirst of all, if you don\'t know what a MPD server is, you should uninstall the application now, it is not made for you.\n\nImportant known bug : Widget sometimes crashes or drains battery.\n\nFor previous users, thanks a lot for your support and contributions.</string>
     <string name="editPlaylist">Edit</string>
@@ -168,7 +171,6 @@
     <string name="coverFileName">Cover filename</string>
     <string name="coverFileNameDescription">Standard filename for your album artwork IE, folder.jpg (cover.jpg for vortexbox users)</string>
     <string name="cacheUsage">Cache usage</string>
-    <string name="deleteServer">Delete this server</string>
     <string name="aboutIcon">Original app icon by Asher (http://kyo-tux.deviantart.com/) and brsev (http://brsev.deviantart.com/), modified for MPDroid.</string>
     <string name="connectionFailedMessageSetting">Connection failed, check your connection settings. (%s)</string>
     <string name="no_result">No results</string>
@@ -261,8 +263,6 @@
     <string name="enableInternetCoverDescription">Get cover art using various internet services (sends them your song information)</string>
     <string name="gracenoteClientId">GraceNote Client ID</string>
     <string name="gracenoteClientIdDescription">GraceNote Client ID (XXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)</string>
-    <string name="drawer_open">Show drawer</string>
-    <string name="drawer_close">Close drawer</string>
 
     <string name="nowPlayingSettingsTitle">Now Playing settings</string>
     <string name="enableSmallSeekbars">Use small seekbars</string>

@@ -21,9 +21,12 @@
 	<string name="albumGridWifiUnavailable">Wi-Fi non disponible, aucune pochette ne sera téléchargée</string>
 	<string name="clientSettings">Paramètres client</string>
 	<string name="configurationName">Nom de la configuration</string>
+    <string name="connect">Connecter</string>
+    <string name="deleteServer">Supprimer ce serveur</string>
 	<string name="edit">Modifier</string>
 	<string name="enableLightNowPlayingTheme">Utiliser le thème clair pour "En Cours"</string>
 	<string name="enableLightNowPlayingThemeDescription">Redémarrer l\'application pour voir les changements</string>
+    <string name="libraryTabActivity">Bibliothèque</string>
 	<string name="manage">Gérer</string>
 	<string name="outputsDescription">Activer/Désactiver les sorties MPD</string>
 	<string name="paused">En pause</string>
@@ -107,7 +110,6 @@
     <string name="about">A Propos</string>
     <string name="connectionFailed">Echec de la connexion</string>
     <string name="connectionFailedMessage">Echec de la connexion au serveur MPD ! Verifiez que le serveur est atteignable (%s)</string>
-    <string name="connect">Connecter</string>
     <string name="connecting">Connexion …</string>
     <string name="connectingToServer">Connexion au serveur MPD.</string>
     <string name="connected">Connecté</string>
@@ -133,7 +135,6 @@
     <string name="search">Recherche</string>
     <string name="search_label">MPDroid</string>
     <string name="search_hint">Rechercher …</string>
-    <string name="libraryTabActivity">Bibliothèque</string>
     <string name="warningTitle">Merci de lire ce qui suit.</string>
     <string name="warningText1">Bienvenue dans MPDroid 1.0 !\nCette popup ne s\'affichera qu\'une seule fois.\n\nPremièrement, si vous ne savez pas ce qu\'est un serveur MPD, passez vôtre chemin, cette application n\'est pas faite pour vous.\n\nBug connu important : Le widget plante parfois et cause un drain de batterie.\n\nPour les "anciens" utilisateurs de MPDroid : Merci beaucoup pour votre support et contributions. J\'espère que cette nouvelle version vous plaira.</string>
     <string name="editPlaylist">Modifier</string>
@@ -161,7 +162,6 @@
     <string name="coverFileName">Nom du fichier pochette</string>
     <string name="coverFileNameDescription">Nom de fichier des pochettes, par ex. folder.jpg (cover.jpg pour les utilisateurs de vortexbox)</string>
     <string name="cacheUsage">Espace occupé par le cache</string>
-    <string name="deleteServer">Supprimer ce serveur</string>
     <string name="no_result">Aucun résultat</string>
     <string name="backpressToQuit">Appuyez encore une fois sur retour pour quitter</string>
     <string name="playQueue">File d\'attente</string>

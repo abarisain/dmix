@@ -18,9 +18,12 @@
     <!-- Unused strings, commented for possible for later use.
     <string name="aboutDescription">Информация о MPDroid</string>
     <string name="configurationName">Название конфигурации</string>
+    <string name="connect">Подключиться</string>
     <string name="coverSettings">Настройки обложек</string>
     <string name="clientSettings">Настройки клиента</string>
+    <string name="deleteServer">Удалить эту страницу</string>
     <string name="edit">Редактировать</string>
+    <string name="libraryTabActivity">Библиотека</string>
     <string name="manage">Управление</string>
     <string name="musicPathDescription">Путь к директории с музыкой на сервере MPD</string>
     <string name="outputsDescription">Вкл/выкл выходы MPD</string>
@@ -112,7 +115,6 @@
     <string name="about">О приложении</string>
     <string name="connectionFailed">Не удалось подключиться</string>
     <string name="connectionFailedMessage">Не удалось подключиться к серверу MPD! Убедитесь что сервер запущен и доступен. (%s)</string>
-    <string name="connect">Подключиться</string>
     <string name="connecting">Подключение…</string>
     <string name="connectingToServer">Подключение к серверу MPD.</string>
     <string name="connected">Подключено</string>
@@ -138,7 +140,6 @@
     <string name="search">Поиск</string>
     <string name="search_label">MPDroid</string>
     <string name="search_hint">Поиск…</string>
-    <string name="libraryTabActivity">Библиотека</string>
     <string name="warningTitle">Пожалуйста, прочитайте</string>
     <string name="warningText1">Добро пожаловать в MPDroid 1.0 !\nЭто сообщение больше не появится.\n\nВо первых, если вы не знаете, что такое MPD, удалите приложение прямо сейчас, оно созданно не для вас.\n\nВажный баг : Виджет может иногда падать или сливать заряд аккумулятора.\n\nПредыдущим пользователям: огромное спасибо за вашу поддержку и вклад в развитие. Я надеюсь, вам понравится новая версия MPDroid. Не стесняйтесь сообщать мне, что вас не устраивет через email :)\nСтарая версия все ещё доступна на моём гитхабе.</string>
     <string name="editPlaylist">Редактировать</string>
@@ -160,7 +161,6 @@
     <string name="musicPath">Путь к музыке</string>
     <string name="coverFileName">Имя файла с обложкой</string>
     <string name="coverFileNameDescription">Стандартное имя файла обложки, например folder.jpg или cover.jpg</string>
-    <string name="deleteServer">Удалить эту страницу</string>
     <string name="aboutIcon">Оригальная иконка сделана Asher (http://kyo-tux.deviantart.com/) и brsev (http://brsev.deviantart.com/), изменена для MPDroid.</string>
     <string name="connectionFailedMessageSetting">Подключение не установлено, проверьте настройки соединения. (%s)</string>
     <string name="no_result">Ничего не найдено</string>

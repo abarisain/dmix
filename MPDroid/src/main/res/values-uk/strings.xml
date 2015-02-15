@@ -18,11 +18,14 @@
     <!-- Unused strings, commented for possible for later use.
 	<string name="aboutDescription">Про MPDroid</string>
 	<string name="configurationName">Назва налаштувань</string>
+	<string name="connect">З’єднання</string>
 	<string name="coverSettings">Налаштування обкладинок</string>
 	<string name="clientSettings">Налаштування клієнта</string>
+    <string name="deleteServer">Видалити цей сервер</string>
 	<string name="edit">Редагувати</string>
 	<string name="enableLightNowPlayingTheme">Використовувати світлу тему "Зараз вітдворюється"</string>
 	<string name="enableLightNowPlayingThemeDescription">Перезапустіть програму, щоб зміни набули чинності</string>
+    <string name="libraryTabActivity">Бібліотека</string>
 	<string name="manage">Впорядкувати</string>
 	<string name="outputsDescription">Дозволити/заборонити MPD-виходи</string>
 	<string name="paused">Пауза</string>
@@ -114,7 +117,6 @@
     <string name="about">Про</string>
     <string name="connectionFailed">Невдале з’єднання</string>
     <string name="connectionFailedMessage">З’єднання з MPD-сервером невдале! Перевірте чи сервер доступний та запущений. (%s)</string>
-    <string name="connect">З’єднання</string>
     <string name="connecting">З’єднання…</string>
     <string name="connectingToServer">З’єднання з MPD-сервером.</string>
     <string name="connected">Під’єднано</string>
@@ -140,7 +142,6 @@
     <string name="search">Пошук</string>
     <string name="search_label">MPDroid</string>
     <string name="search_hint">Пошук…</string>
-    <string name="libraryTabActivity">Бібліотека</string>
     <string name="warningTitle">Будь ласка, прочитайте</string>
     <string name="warningText1">Вітаю в MPDroid 1.0!\nЦе повідомлення з’являється тільки один раз.\n\nПоперше, якщо Ви не знаєте для чого MPD сервео, слід видалити програму, її зроблено не для Вас.\n\nВажливий відомий баґ: Інколи віджет виснажує батарею.\n\nДля користувачів, що зі мною - дякую за підтримку та Ваші внески а проект. Я маю велике сподівання, що нова веосія MPDroid Вам сподообається. Пишіть, будь ласка, на email що Вам не подобається чи що Ви хотіли б повернути з попередньої версії:)\nСтара версія досі присутня на сторінці github.</string>
     <string name="editPlaylist">Редагувати</string>
@@ -162,7 +163,6 @@
     <string name="musicPath">Шлях до музики</string>
     <string name="coverFileName">Ім’я обкладенки</string>
     <string name="coverFileNameDescription">Стандартна назва файла для обкладинки як, folder.jpg (cover.jpg для користувачів vortexbox)</string>
-    <string name="deleteServer">Видалити цей сервер</string>
     <string name="aboutIcon">Оригінальні іконки додатку від Asher (http://kyo-tux.deviantart.com/) та brsev (http://brsev.deviantart.com/), модифіковані для MPDroid.</string>
     <string name="connectionFailedMessageSetting">З’єднання невдале, перевірте налаштування з’єднання. (%s)</string>
     <string name="no_result">Немає результатів</string>

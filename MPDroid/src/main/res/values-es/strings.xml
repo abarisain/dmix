@@ -18,12 +18,17 @@
     <!-- Unused strings, commented for possible for later use.
     <string name="aboutDescription">Acerca de MPDroid</string>
     <string name="albumGridWifiUnavailable">Wi-Fi no disponible. Las carátulas no serán descargadas</string>
-    <string name="configurationName">Nombre de configuración</string>
-    <string name="coverSettings">Ajustes de carátula</string>
     <string name="clientSettings">Ajustes del cliente</string>
+    <string name="configurationName">Nombre de configuración</string>
+    <string name="connect">Conectar</string>
+    <string name="coverSettings">Ajustes de carátula</string>
+    <string name="deleteServer">Borrar este servidor</string>
+    <string name="drawer_close">Cerrar el cajón</string>
+    <string name="drawer_open">Abrir el cajón</string>
     <string name="edit">Editar</string>
     <string name="enableLightNowPlayingTheme">Usar el tema claro para la Reproducción en curso</string>
     <string name="enableLightNowPlayingThemeDescription">Reiniciar la aplicación para ver los cambios</string>
+    <string name="libraryTabActivity">Librería</string>
     <string name="manage">Administrar</string>
     <string name="outputsDescription">Activar/Desactivar Salidas de MPD</string>
     <string name="paused">En pausa</string>
@@ -116,7 +121,6 @@
     <string name="about">Acerca de…</string>
     <string name="connectionFailed">Conexión fallida</string>
     <string name="connectionFailedMessage">La conexión al servidor MPD ha fallado! Revise si el servidor está funcionando. (%s)</string>
-    <string name="connect">Conectar</string>
     <string name="connecting">Conectando…</string>
     <string name="connectingToServer">Conectando al servidor MPD.</string>
     <string name="connected">Conectado</string>
@@ -143,7 +147,6 @@
     <string name="search">Buscar</string>
     <string name="search_label">MPDroid</string>
     <string name="search_hint">Buscar…</string>
-    <string name="libraryTabActivity">Librería</string>
     <string name="warningTitle">Por favor, leer</string>
     <string name="warningText1">Bienvenido a MPDroid 1.0 !\nEste mensaje se mostrará solo la primera vez.\n\nPrimero que todo, si no sabes lo que es un servidor MPD, deberías desinstalar esta aplicación, no está hecha para tí.\n\nFallo importante conocido : El widget a veces se cierra o agota la batería.\n\nA usuarios previos, un montón de gracias por su soporte y contribuciones.</string>
     <string name="editPlaylist">Editar</string>
@@ -169,7 +172,6 @@
     <string name="coverFileName">Nombre de las carátulas</string>
     <string name="coverFileNameDescription">Nombre estándar de las carátulas en el servidor, ej.: folder.jpg (cover.jpg para usuarios de vortexbox)</string>
     <string name="cacheUsage">Uso de caché</string>
-    <string name="deleteServer">Borrar este servidor</string>
     <string name="aboutIcon">Icono original de la aplicación por Asher (http://kyo-tux.deviantart.com/) y brsev (http://brsev.deviantart.com/), modificado por MPDroid.</string>
     <string name="connectionFailedMessageSetting">Conexión fallida, revise los ajustes de conexión. (%s)</string>
     <string name="no_result">Sin resultados</string>
@@ -260,8 +262,6 @@
     <string name="enableInternetCoverDescription">Obtener carátulas usando varios servicios de internet (enviando la información de la canción)</string>
     <string name="gracenoteClientId">ID de Cliente de GraceNote</string>
     <string name="gracenoteClientIdDescription">ID de Cliente de GraceNote (XXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)</string>
-    <string name="drawer_open">Abrir el cajón</string>
-    <string name="drawer_close">Cerrar el cajón</string>
 
     <string name="nowPlayingSettingsTitle">Ajustes de Reproducción en curso</string>
     <string name="enableSmallSeekbars">Utilizar una barra de búsqueda más pequeña</string>

@@ -19,12 +19,17 @@
     <!-- Unused strings, commented for possible for later use.
     <string name="aboutDescription">Über MPDroid</string>
     <string name="albumGridWifiUnavailable">Wi-Fi nicht verfügbar, es werden keine neuen Bilder empfangen</string>
+    <string name="connect">Verbinde</string>
     <string name="configurationName">Konfigurationsname</string>
     <string name="coverSettings">Albencover-Einstellungen</string>
     <string name="clientSettings">Client-Einstellungen</string>
+    <string name="deleteServer">Diesen Server löschen</string>
+    <string name="drawer_close">Schließe drawer</string>
+    <string name="drawer_open">Zeige drawer</string>
     <string name="edit">Ändern</string>
     <string name="enableLightNowPlayingTheme">Benutze helles Theme für "Du hörst"</string>
     <string name="enableLightNowPlayingThemeDescription">Starte die App neu, um Änderung anzuwenden</string>
+    <string name="libraryTabActivity">Bibliothek</string>
     <string name="manage">Verwalten</string>
     <string name="outputsDescription">Aktiviere/Deaktiviere MPD-Ausgänge</string>
     <string name="paused">Angehalten</string>
@@ -119,7 +124,6 @@
     <string name="about">Über</string>
     <string name="connectionFailed">Verbindung fehlgeschlagen</string>
     <string name="connectionFailedMessage">Die Verbindung zum MPD-Server ist fehlgeschlagen! Bitte überprüfen Sie, ob der Server läuft und erreichbar ist. (%s)</string>
-    <string name="connect">Verbinde</string>
     <string name="connecting">Verbinde …</string>
     <string name="connectingToServer">Verbinde mit MPD-Server.</string>
     <string name="connected">Verbunden</string>
@@ -146,7 +150,6 @@
     <string name="search">Suchen</string>
     <string name="search_label">MPDroid</string>
     <string name="search_hint">Suchen …</string>
-    <string name="libraryTabActivity">Bibliothek</string>
     <string name="warningTitle">Bitte lesen</string>
     <string name="warningText1">Willkommen bei MPDroid 1.0!\nDiese Meldung wird nur einmal angezeigt.\n\nZuerst: Falls Sie nicht wissen, was ein MPD-Server ist, sollten Sie diese App wieder deinstallieren. Sie ist nichts für Sie.\nWichtig! Bekannter Fehler: Das Widget stürzt manchmal ab oder erhöht den Batterieverbrauch.\n\nFür Benutzer der alten Version: Vielen Dank für Ihre Unterstützung und Mitarbeit. Ich hoffe wirklich, dass Ihnen diese neue MPDroid-Version gefällt. Sie können mir gerne per E-Mail mitteilen, was Ihnen gefällt oder auch nicht gefällt  :)\nDie alte Version gibt es noch auf meiner Github-Seite.</string>
     <string name="editPlaylist">Bearbeiten</string>
@@ -173,7 +176,6 @@
     <string name="coverFileName">Albencover-Datei</string>
     <string name="coverFileNameDescription">Dateiname der Albencover z.B. folder.jpg (cover.jpg für Vortexbox-Benutzer)</string>
     <string name="cacheUsage">Belegter Cache-Speicher</string>
-    <string name="deleteServer">Diesen Server löschen</string>
     <string name="aboutIcon">Original App-Logo von Asher (http://kyo-tux.deviantart.com/) und brsev (http://brsev.deviantart.com/), bearbeitet für MPDroid.</string>
     <string name="connectionFailedMessageSetting">Die Verbindung zum MPD-Server ist fehlgeschlagen! Prüfen Sie die Verbindungseinstellungen. (%s)</string>
     <string name="no_result">Keine Ergebnisse</string>
@@ -264,8 +266,6 @@
     <string name="enableInternetCoverDescription">Cover über verschiedene Anbieter herunterladen (sendet Titel-Informationen)</string>
     <string name="gracenoteClientId">GraceNote-Client-ID</string>
     <string name="gracenoteClientIdDescription">GraceNote-Client-ID (XXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)</string>
-    <string name="drawer_open">Zeige drawer</string>
-    <string name="drawer_close">Schließe drawer</string>
 
     <string name="nowPlayingSettingsTitle">"Du hörst"-Einstellungen</string>
     <string name="enableSmallSeekbars">Kleine Schieberegler</string>
