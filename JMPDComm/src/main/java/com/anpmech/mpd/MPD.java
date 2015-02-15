@@ -696,7 +696,7 @@ public class MPD {
      */
     public Collection<Music> find(final String type, final String locatorString)
             throws IOException, MPDException {
-        return genericSearch(MPDCommand.MPD_CMD_FIND, type, locatorString);
+        return genericSearch(MPDCommand.MPD_CMD_FIND, type, locatorString,true);
     }
 
     public List<Music> find(final String[] args) throws IOException, MPDException {
@@ -756,10 +756,10 @@ public class MPD {
     }
 
     protected List<Music> genericSearch(final String searchCommand, final String type,
-            final String strToFind) throws IOException, MPDException {
+            final String strToFind, final boolean sort) throws IOException, MPDException {
         final List<String> response = mConnection.send(searchCommand, type, strToFind);
 
-        return MusicBuilder.buildMusicFromList(response, true);
+        return MusicBuilder.buildMusicFromList(response, sort);
     }
 
     public int getAlbumCount(final Artist artist, final boolean useAlbumArtistTag)
@@ -1666,14 +1666,15 @@ public class MPD {
      *                      MPD_SEARCH_FILENAME
      * @param locatorString case-insensitive locator locatorString. Anything that contains {@code
      *                      locatorString} will be returned in the results.
+     * @param sort          Sort search results alphabetically
      * @return a Collection of {@code Music}.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      * @see com.anpmech.mpd.item.Music
      */
-    public List<Music> search(final String type, final String locatorString)
+    public List<Music> search(final String type, final String locatorString, boolean sort)
             throws IOException, MPDException {
-        return genericSearch(MPDCommand.MPD_CMD_SEARCH, type, locatorString);
+        return genericSearch(MPDCommand.MPD_CMD_SEARCH, type, locatorString,sort);
     }
 
     public List<Music> search(final String[] args) throws IOException, MPDException {

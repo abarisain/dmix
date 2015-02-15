@@ -31,8 +31,10 @@ import com.namelessdev.mpdroid.views.SearchResultDataBinder;
 
 import android.app.SearchManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
 import android.support.annotation.StringRes;
 import android.support.v4.app.FragmentTransaction;
@@ -190,7 +192,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         List<Music> arrayMusic = null;
 
         try {
-            arrayMusic = mApp.oMPDAsyncHelper.oMPD.search("any", finalSearch);
+            arrayMusic = mApp.oMPDAsyncHelper.oMPD.search("any", finalSearch,false);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "MPD search failure.", e);
 
@@ -207,7 +209,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         String tmpValue;
         boolean valueFound;
         for (final Music music : arrayMusic) {
-            if (music.getTitle() != null && music.getTitle().toLowerCase().contains(finalSearch)) {
+            if (music.getTitle() != null && music.getTitle().toLowerCase().contains(finalSearch)
+                    && !music.getFullPath().startsWith("spotify:artist:")
+                    && !music.getFullPath().startsWith("spotify:album:")) {
                 mSongResults.add(music);
             }
             valueFound = false;
@@ -255,9 +259,13 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             }
         }
 
-        Collections.sort(mArtistResults);
-        Collections.sort(mAlbumResults);
-        Collections.sort(mSongResults, Music.COMPARE_WITHOUT_TRACK_NUMBER);
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (settings.getBoolean("sortSearchResults", true)) {
+            Collections.sort(mArtistResults);
+            Collections.sort(mAlbumResults);
+            Collections.sort(mSongResults, Music.COMPARE_WITHOUT_TRACK_NUMBER);
+        }
 
         runOnUiThread(new Runnable() {
             @Override
