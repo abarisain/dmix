@@ -22,7 +22,6 @@ import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.melnykov.fab.FloatingActionButton;
-import com.namelessdev.mpdroid.MPDroidActivities;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
@@ -37,14 +36,12 @@ import com.namelessdev.mpdroid.views.SongDataBinder;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.StringRes;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.PopupMenuCompat;
 import android.support.v7.graphics.Palette;
@@ -530,7 +527,7 @@ public class SongsFragment extends BrowseFragment<Music> {
             final String artist = fixedAlbumInfo.getArtistName();
             mHeaderArtist.setText(artist);
             if (mHeaderAlbum != null) {
-                mHeaderAlbum.setText(fixedAlbumInfo.getAlbum());
+                mHeaderAlbum.setText(fixedAlbumInfo.getAlbumName());
             }
             mHeaderInfo.setText(getHeaderInfoString());
             if (mCoverHelper != null) {
