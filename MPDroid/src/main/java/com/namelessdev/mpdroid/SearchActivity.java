@@ -209,7 +209,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         String tmpValue;
         boolean valueFound;
         for (final Music music : arrayMusic) {
-            if (music.getTitle() != null && music.getTitle().toLowerCase().contains(finalSearch)) {
+            if (music.getTitle() != null && music.getTitle().toLowerCase().contains(finalSearch)
+                    && !music.getFullPath().startsWith("spotify:artist:")
+                    && !music.getFullPath().startsWith("spotify:album:")) {
                 mSongResults.add(music);
             }
             valueFound = false;
