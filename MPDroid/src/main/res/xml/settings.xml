@@ -180,6 +180,13 @@
             android:persistent="true"
             android:summary="@string/showAlbumTrackCountDescription"
             android:title="@string/showAlbumTrackCount" />
+
+	<CheckBoxPreference
+	    android:defaultValue="true"
+	    android:key="sortSearchResults"
+	    android:persistent="true"
+	    android:summary="@string/sortSearchResultsDescription"
+	    android:title="@string/sortSearchResults" /> 
     </PreferenceScreen>
 
     <PreferenceScreen

@@ -164,6 +164,8 @@
     <string name="sortAlbumsByYearDescription">Sort albums by year</string>
     <string name="showAlbumTrackCount">Album track count</string>
     <string name="showAlbumTrackCountDescription">Show number of tracks on album</string>
+    <string name="sortSearchResults">Sort search results</string>
+    <string name="sortSearchResultsDescription">Sort search results alphabetically</string>
     <string name="enableLocalCover">Download local cover art</string>
     <string name="enableLocalCoverDescription">Get cover art from the server running MPD (requires a web server, read the wiki!)</string>
     <string name="musicPath">Path to music</string>
