@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2015 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,58 +35,20 @@ import android.view.View;
  * Class that is meant to help standard Toolbars (and ActionBars)
  */
 public class ToolbarHelper {
-    private ToolbarHelper() {}
 
-    /**
-     * Make the toolbar show a "back" button. Use this when you have the toolbar inside an activity.
-     */
-    @SuppressWarnings("unused")
-    public static void showBackButton(final Activity activity, Toolbar toolbar) {
-        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (activity != null) {
-                    activity.onBackPressed();
-                }
-            }
-        });
-    }
-
-    /**
-     * Make the toolbar show a "back" button. Use this when you have the toolbar inside a fragment.
-     */
-    public static void showBackButton(final Fragment fragment, Toolbar toolbar) {
-        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Activity a = fragment.getActivity();
-                if (a != null) {
-                    a.onBackPressed();
-                }
-            }
-        });
-    }
-
-    public static void hideBackButton(Toolbar toolbar) {
-        toolbar.setNavigationIcon(null);
-        toolbar.setNavigationOnClickListener(null);
+    private ToolbarHelper() {
     }
 
     public static void addSearchView(Activity activity, Toolbar toolbar) {
         toolbar.inflateMenu(R.menu.mpd_searchmenu);
         // Don't catch everything, we'd rather have a crash than an unusuable search field
-        SearchView searchView = (SearchView) toolbar.getMenu().findItem(R.id.menu_search).getActionView();
+        SearchView searchView = (SearchView) toolbar.getMenu().findItem(R.id.menu_search)
+                .getActionView();
         manuallySetupSearchView(activity, searchView);
     }
 
-    public static void manuallySetupSearchView(Activity activity, SearchView searchView) {
-        SearchManager searchManager = (SearchManager) activity.getSystemService(Context.SEARCH_SERVICE);
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(activity.getComponentName()));
-    }
-
-    public static void addStandardMenuItemClickListener(final Fragment fragment, Toolbar toolbar, final Toolbar.OnMenuItemClickListener chainedListener) {
+    public static void addStandardMenuItemClickListener(final Fragment fragment, Toolbar toolbar,
+            final Toolbar.OnMenuItemClickListener chainedListener) {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(final MenuItem menuItem) {
@@ -108,7 +70,8 @@ public class ToolbarHelper {
     }
 
     @SuppressWarnings("unused")
-    public static void addStandardMenuItemClickListener(final Activity activity, Toolbar toolbar, final Toolbar.OnMenuItemClickListener chainedListener) {
+    public static void addStandardMenuItemClickListener(final Activity activity, Toolbar toolbar,
+            final Toolbar.OnMenuItemClickListener chainedListener) {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(final MenuItem menuItem) {
@@ -124,6 +87,50 @@ public class ToolbarHelper {
                 }
 
                 return false;
+            }
+        });
+    }
+
+    public static void hideBackButton(Toolbar toolbar) {
+        toolbar.setNavigationIcon(null);
+        toolbar.setNavigationOnClickListener(null);
+    }
+
+    public static void manuallySetupSearchView(Activity activity, SearchView searchView) {
+        SearchManager searchManager = (SearchManager) activity
+                .getSystemService(Context.SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(activity.getComponentName()));
+    }
+
+    /**
+     * Make the toolbar show a "back" button. Use this when you have the toolbar inside a fragment.
+     */
+    public static void showBackButton(final Fragment fragment, Toolbar toolbar) {
+        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Activity a = fragment.getActivity();
+                if (a != null) {
+                    a.onBackPressed();
+                }
+            }
+        });
+    }
+
+    /**
+     * Make the toolbar show a "back" button. Use this when you have the toolbar inside an
+     * activity.
+     */
+    @SuppressWarnings("unused")
+    public static void showBackButton(final Activity activity, Toolbar toolbar) {
+        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activity != null) {
+                    activity.onBackPressed();
+                }
             }
         });
     }

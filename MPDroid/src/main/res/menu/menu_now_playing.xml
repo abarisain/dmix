@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2010-2014 The MPDroid Project
+  ~ Copyright (C) 2010-2015 The MPDroid Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,9 +15,12 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.namelessdev.mpdroid.NowPlayingActivity">
-    <item android:id="@+id/action_settings" android:title="@string/settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/settings"
+        app:showAsAction="never" />
 </menu>

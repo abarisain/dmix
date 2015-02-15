@@ -35,8 +35,8 @@
             android:layout_height="fill_parent"
             android:layout_centerInParent="true"
             android:scaleType="fitCenter"
-            android:transitionName="cover"
-            android:src="@drawable/no_cover_art_big" />
+            android:src="@drawable/no_cover_art_big"
+            android:transitionName="cover" />
 
         <ProgressBar
             android:id="@+id/albumCoverProgress"

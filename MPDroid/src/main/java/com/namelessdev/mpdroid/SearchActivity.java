@@ -396,7 +396,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.mpd_searchmenu, menu);
         ToolbarHelper.manuallySetupSearchView(this,
-                (android.support.v7.widget.SearchView) menu.findItem(R.id.menu_search).getActionView());
+                (android.support.v7.widget.SearchView) menu.findItem(R.id.menu_search)
+                        .getActionView());
         return true;
     }
 

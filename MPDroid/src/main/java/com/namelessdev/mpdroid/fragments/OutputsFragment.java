@@ -40,9 +40,9 @@ import java.util.Collection;
 
 public class OutputsFragment extends ListFragment implements AdapterView.OnItemClickListener {
 
-    private static final String TAG = "OutputsFragment";
-
     public static final String EXTRA = "Outputs";
+
+    private static final String TAG = "OutputsFragment";
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 

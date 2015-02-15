@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2015 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,20 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
 
     private ViewPager mNowPlayingPager;
 
-    public void showQueue() {
-        // TODO : Implement stub
+    private ViewPager initializeNowPlayingPager() {
+        final ViewPager nowPlayingPager = (ViewPager) findViewById(R.id.pager);
+        if (nowPlayingPager != null) {
+            nowPlayingPager.setAdapter(new MainMenuPagerAdapter());
+            nowPlayingPager.setOnPageChangeListener(
+                    new ViewPager.SimpleOnPageChangeListener() {
+                        @Override
+                        public void onPageSelected(final int position) {
+                            refreshQueueIndicator(position != 0);
+                        }
+                    });
+        }
+
+        return nowPlayingPager;
     }
 
     @Override
@@ -116,7 +128,6 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
         final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
         final MPDStatus mpdStatus = mpd.getStatus();
 
-
         final MenuItem saveItem = menu.findItem(R.id.PLM_Save);
         final MenuItem clearItem = menu.findItem(R.id.PLM_Clear);
         if (!mIsDualPaneMode && mNowPlayingPager != null
@@ -147,23 +158,6 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
         return true;
     }
 
-    private ViewPager initializeNowPlayingPager() {
-        final ViewPager nowPlayingPager = (ViewPager) findViewById(R.id.pager);
-        if (nowPlayingPager != null) {
-            nowPlayingPager.setAdapter(new MainMenuPagerAdapter());
-            nowPlayingPager.setOnPageChangeListener(
-                    new ViewPager.SimpleOnPageChangeListener() {
-                        @Override
-                        public void onPageSelected(final int position) {
-                            refreshQueueIndicator(position != 0);
-                        }
-                    });
-        }
-
-        return nowPlayingPager;
-    }
-
-
     private void refreshQueueIndicator(final boolean queueShown) {
         /*if (mHeaderPlayQueue != null) {
             if (queueShown) {
@@ -178,6 +172,10 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
         } else {
             setTitle(R.string.nowPlaying);
         }
+    }
+
+    public void showQueue() {
+        // TODO : Implement stub
     }
 
     private class MainMenuPagerAdapter extends PagerAdapter {

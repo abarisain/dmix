@@ -18,19 +18,15 @@ package com.namelessdev.mpdroid;
 
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
-import com.namelessdev.mpdroid.fragments.OutputsFragment;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,23 +35,11 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.transition.Fade;
 import android.transition.Transition;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.PopupMenu;
-import android.widget.TextView;
 
 public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implements
         ILibraryFragmentActivity {
@@ -262,7 +246,8 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     }
 
     @Override
-    public void pushLibraryFragment(final Fragment fragment, final String label, final View transitionView, final String transitionName, final Transition transition) {
+    public void pushLibraryFragment(final Fragment fragment, final String label,
+            final View transitionView, final String transitionName, final Transition transition) {
         final String title;
         if (fragment instanceof BrowseFragment) {
             title = ((BrowseFragment<?>) fragment).getTitle();

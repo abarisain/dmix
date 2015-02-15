@@ -41,12 +41,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
-import android.transition.ChangeBounds;
-import android.transition.ChangeImageTransform;
-import android.transition.ChangeTransform;
-import android.transition.Fade;
 import android.transition.TransitionInflater;
-import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -258,8 +253,10 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         }
 
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new SongsFragment().init((Album) mItems.get(position), thumbnail, albumCoverView.getTransitionName()),
-                "songs", albumCoverView, albumCoverView.getTransitionName(), inflater.inflateTransition(R.transition.album_songs_transition));
+                new SongsFragment().init((Album) mItems.get(position), thumbnail,
+                        albumCoverView.getTransitionName()),
+                "songs", albumCoverView, albumCoverView.getTransitionName(),
+                inflater.inflateTransition(R.transition.album_songs_transition));
     }
 
     @Override

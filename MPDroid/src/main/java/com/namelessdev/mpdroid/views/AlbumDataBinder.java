@@ -146,7 +146,8 @@ public class AlbumDataBinder<T extends Item<T>> extends BaseDataBinder<T> {
 
         loadAlbumCovers(holder, album);
 
-        ViewCompat.setTransitionName(holder.mAlbumCover, SongsFragment.COVER_TRANSITION_NAME_BASE + position);
+        ViewCompat.setTransitionName(holder.mAlbumCover,
+                SongsFragment.COVER_TRANSITION_NAME_BASE + position);
     }
 
     @Override

@@ -1,3 +1,3 @@
 <component name="DependencyValidationManager">
-  <scope name="StringComparator" pattern="file[JMPDCommAndroid]:org/a0z/mpd/item/StringComparators.java" />
+  <scope name="StringComparator" pattern="file[JMPDCommAndroid]:com/anpmech/mpd/item/StringComparators.java" />
 </component>

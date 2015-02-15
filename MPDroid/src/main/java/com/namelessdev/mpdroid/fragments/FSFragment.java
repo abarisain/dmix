@@ -30,8 +30,6 @@ import com.namelessdev.mpdroid.tools.Tools;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -229,6 +227,12 @@ public class FSFragment extends BrowseFragment {
     }
 
     @Override
+    public void onSaveInstanceState(final Bundle outState) {
+        outState.putString(Directory.EXTRA, mDirectory);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     protected boolean onToolbarMenuItemClick(final MenuItem item) {
         // Menu actions...
         if (item.getItemId() == R.id.menu_update) {
@@ -246,12 +250,6 @@ public class FSFragment extends BrowseFragment {
         }
 
         return super.onToolbarMenuItemClick(item);
-    }
-
-    @Override
-    public void onSaveInstanceState(final Bundle outState) {
-        outState.putString(Directory.EXTRA, mDirectory);
-        super.onSaveInstanceState(outState);
     }
 
     private void refreshDirectory() {

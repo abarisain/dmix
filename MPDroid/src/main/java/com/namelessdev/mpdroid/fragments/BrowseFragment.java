@@ -88,11 +88,11 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     public static final int POPUP_COVER_SELECTIVE_CLEAN = 11;
 
+    private static final String ARGUMENT_EMBEDDED = "embedded";
+
     private static final int MIN_ITEMS_BEFORE_FASTSCROLL = 50;
 
     private static final String TAG = "BrowseFragment";
-
-    private static final String ARGUMENT_EMBEDDED = "embedded";
 
     protected final MPDApplication mApp = MPDApplication.getInstance();
 
@@ -298,6 +298,15 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         return "";
     }
 
+    /**
+     * Override if you have your own toolbar
+     */
+    protected void hideToolbar() {
+        if (mToolbar != null) {
+            mToolbar.setVisibility(View.GONE);
+        }
+    }
+
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -369,6 +378,13 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
             gotoArtistItem.setOnMenuItemClickListener(this);
 
         }
+    }
+
+    /**
+     * Override this to add custom items to the Toolbar.
+     */
+    protected void onCreateToolbarMenu() {
+
     }
 
     @Override
@@ -462,6 +478,13 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         super.onStop();
     }
 
+    /**
+     * Override this to add actions on toolbar menu item click
+     */
+    protected boolean onToolbarMenuItemClick(final MenuItem item) {
+        return false;
+    }
+
     @Override
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -469,38 +492,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
             mList.setAdapter(getCustomListAdapter());
         }
         refreshFastScrollStyle();
-    }
-
-    protected void setupStandardToolbar(View rootview) {
-        mToolbar = (Toolbar) rootview.findViewById(R.id.toolbar);
-
-        ToolbarHelper.showBackButton(this, mToolbar);
-        ToolbarHelper.addSearchView(getActivity(), mToolbar);
-        ToolbarHelper.addStandardMenuItemClickListener(this, mToolbar, new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(final MenuItem menuItem) {
-                return onToolbarMenuItemClick(menuItem);
-            }
-        });
-        onCreateToolbarMenu();
-        mToolbar.setTitle(getTitle());
-        updateToolbarVisibility();
-        // TODO : Add "refresh" menu item
-        // FIXME : Embedded fragments can't show their menu item. This is problematic, especially for FS and Streams.
-    }
-
-    /**
-     * Override this to add custom items to the Toolbar.
-     */
-    protected void onCreateToolbarMenu() {
-
-    }
-
-    /**
-     * Override this to add actions on toolbar menu item click
-     */
-    protected boolean onToolbarMenuItemClick(final MenuItem item) {
-        return false;
     }
 
     /**
@@ -544,9 +535,18 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         }
     }
 
+    public void scrollToTop() {
+        try {
+            mList.setSelection(-1);
+        } catch (final Exception e) {
+            // What if the list is empty or some other bug ? I don't want any
+            // crashes because of that
+        }
+    }
+
     /**
-     * Set wether the fragment is embedded or not. An embedded BrowseFragment will not show a toolbar.
-     * @param embedded
+     * Set wether the fragment is embedded or not. An embedded BrowseFragment will not show a
+     * toolbar.
      */
     public void setEmbedded(boolean embedded) {
         Bundle arguments = getArguments();
@@ -564,7 +564,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     /**
      * Set the view transition name in case it's used with a ListView
-     * @param name
      */
     public void setViewTransitionName(String name) {
         Bundle arguments = getArguments();
@@ -578,22 +577,23 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         setArguments(arguments);
     }
 
-    public void scrollToTop() {
-        try {
-            mList.setSelection(-1);
-        } catch (final Exception e) {
-            // What if the list is empty or some other bug ? I don't want any
-            // crashes because of that
-        }
-    }
+    protected void setupStandardToolbar(View rootview) {
+        mToolbar = (Toolbar) rootview.findViewById(R.id.toolbar);
 
-    /**
-     * Override if you have your own toolbar
-     */
-    protected void hideToolbar() {
-        if (mToolbar != null) {
-            mToolbar.setVisibility(View.GONE);
-        }
+        ToolbarHelper.showBackButton(this, mToolbar);
+        ToolbarHelper.addSearchView(getActivity(), mToolbar);
+        ToolbarHelper.addStandardMenuItemClickListener(this, mToolbar,
+                new Toolbar.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(final MenuItem menuItem) {
+                        return onToolbarMenuItemClick(menuItem);
+                    }
+                });
+        onCreateToolbarMenu();
+        mToolbar.setTitle(getTitle());
+        updateToolbarVisibility();
+        // TODO : Add "refresh" menu item
+        // FIXME : Embedded fragments can't show their menu item. This is problematic, especially for FS and Streams.
     }
 
     /**
@@ -602,22 +602,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     protected void showToolbar() {
         if (mToolbar != null) {
             mToolbar.setVisibility(View.VISIBLE);
-        }
-    }
-
-    protected void updateToolbarVisibility() {
-        boolean shouldShowToolbar = true;
-
-        final Bundle arguments = getArguments();
-
-        if (arguments != null) {
-            shouldShowToolbar = !arguments.getBoolean(ARGUMENT_EMBEDDED, false);
-        }
-
-        if (shouldShowToolbar) {
-            showToolbar();
-        } else {
-            hideToolbar();
         }
     }
 
@@ -664,5 +648,21 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
                 asyncUpdate();
             }
         });
+    }
+
+    protected void updateToolbarVisibility() {
+        boolean shouldShowToolbar = true;
+
+        final Bundle arguments = getArguments();
+
+        if (arguments != null) {
+            shouldShowToolbar = !arguments.getBoolean(ARGUMENT_EMBEDDED, false);
+        }
+
+        if (shouldShowToolbar) {
+            showToolbar();
+        } else {
+            hideToolbar();
+        }
     }
 }

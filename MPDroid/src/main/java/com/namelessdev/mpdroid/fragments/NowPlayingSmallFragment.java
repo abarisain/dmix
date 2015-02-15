@@ -21,7 +21,6 @@ import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.NowPlayingActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
@@ -143,7 +142,6 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
             }
         });
         mCoverHelper.addCoverDownloadListener(coverArtListener);
-
 
         view.setOnClickListener(new OnClickListener() {
             @Override

@@ -24,5 +24,6 @@ public interface ILibraryFragmentActivity {
 
     void pushLibraryFragment(Fragment fragment, String label);
 
-    void pushLibraryFragment(Fragment fragment, String label, View transitionView, String transitionName, Transition transition);
+    void pushLibraryFragment(Fragment fragment, String label, View transitionView,
+            String transitionName, Transition transition);
 }
