@@ -910,7 +910,6 @@ public class MPD {
         } else {
             artistNames = listArtists(genre, true);
         }
-        Collections.sort(artistNames, String.CASE_INSENSITIVE_ORDER);
 
         artists = new ArrayList<>(artistNames.size());
         if (!artistNames.isEmpty()) {
