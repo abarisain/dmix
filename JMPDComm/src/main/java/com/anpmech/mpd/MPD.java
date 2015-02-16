@@ -919,6 +919,7 @@ public class MPD {
         } else {
             artistNames = listArtists(genre.getName(), true);
         }
+        Collections.sort(artistNames, String.CASE_INSENSITIVE_ORDER);
 
         artists = new ArrayList<>(artistNames.size());
         if (!artistNames.isEmpty()) {
@@ -1234,10 +1235,6 @@ public class MPD {
         return response;
     }
 
-    public List<String> listAlbumArtists(final Genre genre) throws IOException, MPDException {
-        return listAlbumArtists(genre, true);
-    }
-
     /**
      * List all album artist names from database.
      *
@@ -1245,14 +1242,13 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listAlbumArtists(final Genre genre, final boolean sortInsensitive)
+    public List<String> listAlbumArtists(final Genre genre)
             throws IOException, MPDException {
         final List<String> response = mConnection.send(
                 MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM_ARTIST,
                 Music.TAG_GENRE, genre.getName());
 
         Tools.parseResponse(response, Music.RESPONSE_ALBUM_ARTIST);
-        sort(response, sortInsensitive);
 
         return response;
     }
@@ -1495,17 +1491,6 @@ public class MPD {
     /**
      * List all artist names from database.
      *
-     * @return artist names from database.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public List<String> listArtists(final String genre) throws IOException, MPDException {
-        return listArtists(genre, true);
-    }
-
-    /**
-     * List all artist names from database.
-     *
      * @param sortInsensitive boolean for insensitive sort when true
      * @return artist names from database.
      * @throws IOException  Thrown upon a communication error with the server.
@@ -1517,7 +1502,6 @@ public class MPD {
                 Music.TAG_ARTIST, Music.TAG_GENRE, genre);
 
         Tools.parseResponse(response, Music.RESPONSE_ARTIST);
-        sort(response, sortInsensitive);
 
         return response;
     }
