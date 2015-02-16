@@ -36,6 +36,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class ArtistsFragment extends BrowseFragment<Artist> {
 
@@ -83,6 +84,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre, true);
                     } else {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(true);
+                        Collections.sort(mItems);
                     }
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
@@ -90,6 +92,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre, false);
                     } else {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(false);
+                        Collections.sort(mItems);
                     }
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
@@ -98,6 +101,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre);
                     } else {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists();
+                        Collections.sort(mItems);
                     }
                     break;
             }

@@ -871,7 +871,6 @@ public class MPD {
         final List<Artist> artists = getArtists(true);
 
         Item.merge(artists, getArtists(false));
-        Collections.sort(artists);
 
         return artists;
     }
@@ -892,7 +891,7 @@ public class MPD {
                 artists.add(new Artist(artist));
             }
         }
-        Collections.sort(artists);
+
         return artists;
     }
 
