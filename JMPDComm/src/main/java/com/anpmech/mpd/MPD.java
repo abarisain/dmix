@@ -1083,7 +1083,6 @@ public class MPD {
     public List<Music> getSongs(final Album album) throws IOException, MPDException {
         final List<Music> songs = MusicBuilder
                 .buildMusicFromList(mConnection.send(getSongsCommand(album)));
-        Collections.sort(songs);
 
         if (album.hasAlbumArtist()) {
             // remove songs that don't have this album artist (mpd >=0.18 puts them in)
