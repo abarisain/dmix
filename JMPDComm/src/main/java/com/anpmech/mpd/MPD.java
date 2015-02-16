@@ -235,6 +235,9 @@ public class MPD {
                             artistPair[0], artistPair[1]);
         } else {
             final List<Music> songs = getSongs(album);
+
+            Collections.sort(songs);
+
             commandQueue = MPDPlaylist.addAllCommand(songs);
         }
 
@@ -506,7 +509,11 @@ public class MPD {
             mConnection.send(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
                     Music.TAG_ALBUM, album.getName(), artistPair[0], artistPair[1]);
         } else {
-            addToPlaylist(playlist, getSongs(album));
+            final List<Music> songs = getSongs(album);
+
+            Collections.sort(songs);
+
+            addToPlaylist(playlist, songs);
         }
     }
 
@@ -1101,9 +1108,7 @@ public class MPD {
                 }
             }
         }
-        if (null != songs) {
-            Collections.sort(songs);
-        }
+
         return songs;
     }
 
@@ -1114,7 +1119,11 @@ public class MPD {
         Collections.sort(albums);
 
         for (final Album album : albums) {
-            songs.addAll(getSongs(album));
+            final List<Music> albumSongs = getSongs(album);
+
+            Collections.sort(albumSongs);
+
+            songs.addAll(albumSongs);
         }
         return songs;
     }

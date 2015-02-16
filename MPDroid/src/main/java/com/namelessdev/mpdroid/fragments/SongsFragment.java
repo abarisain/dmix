@@ -66,6 +66,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class SongsFragment extends BrowseFragment<Music> {
 
@@ -166,6 +167,7 @@ public class SongsFragment extends BrowseFragment<Music> {
         try {
             if (getActivity() != null) {
                 mItems = mApp.oMPDAsyncHelper.oMPD.getSongs(mAlbum);
+                Collections.sort(mItems);
             }
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to async update.", e);
