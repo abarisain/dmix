@@ -98,10 +98,12 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public MPD(final InetAddress server, final int port, final String password)
+    public MPD(final InetAddress server, final int port, final CharSequence password)
             throws MPDException, IOException {
         this();
-        connect(server, port, password);
+
+        setDefaultPassword(password);
+        connect(server, port);
     }
 
     /**
@@ -112,10 +114,9 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public MPD(final String server, final int port, final String password)
+    public MPD(final String server, final int port, final CharSequence password)
             throws IOException, MPDException {
-        this();
-        connect(server, port, password);
+        this(InetAddress.getByName(server), port, password);
     }
 
     private static String[] getAlbumArtistPair(final Album album) {
@@ -584,6 +585,9 @@ public class MPD {
 
     /**
      * Connects to the default MPD server.
+     * <p/>
+     * If there is a default password that is not included in the {@code MPD_HOST} environment
+     * variable, {@link #setDefaultPassword(CharSequence)} must be called prior to this method.
      *
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
@@ -595,42 +599,51 @@ public class MPD {
 
     /**
      * Connects to a MPD server.
+     * <p/>
+     * If there is a default password, {@link #setDefaultPassword(CharSequence)} must be called
+     * prior to this method.
      *
      * @param server server address or host name
      * @param port   server port
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public final synchronized void connect(final InetAddress server, final int port,
-            final String password) throws IOException, MPDException {
+    public final synchronized void connect(final InetAddress server, final int port)
+            throws IOException, MPDException {
         if (!isConnected()) {
-            mConnection.connect(server, port, password);
-            mIdleConnection.connect(server, port, password);
+            mConnection.connect(server, port);
+            mIdleConnection.connect(server, port);
         }
     }
 
     /**
      * Connects to a MPD server.
+     * <p/>
+     * If there is a default password, {@link #setDefaultPassword(CharSequence)} must be called
+     * prior to this method.
      *
      * @param server server address or host name
      * @param port   server port
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public final void connect(final String server, final int port, final String password)
+    public final void connect(final String server, final int port)
             throws IOException, MPDException {
         final InetAddress address = InetAddress.getByName(server);
-        connect(address, port, password);
+        connect(address, port);
     }
 
     /**
      * Connects to a MPD server.
+     * <p/>
+     * If there is a default password, {@link #setDefaultPassword(CharSequence)} must be called
+     * prior to this method.
      *
      * @param server server address or host name and port (server:port)
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public final void connect(final String server, final String password) throws IOException,
+    public final void connect(final String server) throws IOException,
             MPDException {
         int port = MPDCommand.DEFAULT_MPD_PORT;
         final String host;
@@ -640,7 +653,7 @@ public class MPD {
             host = server.substring(0, server.lastIndexOf(':'));
             port = Integer.parseInt(server.substring(server.lastIndexOf(':') + 1));
         }
-        connect(host, port, password);
+        connect(host, port);
     }
 
     public void disableOutput(final int id) throws IOException, MPDException {
@@ -1739,6 +1752,16 @@ public class MPD {
     public void setCrossFade(final int time) throws IOException, MPDException {
         mConnection
                 .send(MPDCommand.MPD_CMD_CROSSFADE, Integer.toString(Math.max(0, time)));
+    }
+
+    /**
+     * This sets the default password for the MPD server.
+     *
+     * @param password The default password for this MPD server.
+     */
+    public final void setDefaultPassword(final CharSequence password) {
+        mConnection.setDefaultPassword(password);
+        mIdleConnection.setDefaultPassword(password);
     }
 
     /**

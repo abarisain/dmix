@@ -94,7 +94,8 @@ public class MPDAsyncWorker implements Handler.Callback,
     /** Connects the {@code MPD} object to the media server. */
     private void connect() {
         try {
-            mMPD.connect(mConInfo.server, mConInfo.port, mConInfo.password);
+            mMPD.setDefaultPassword(mConInfo.password);
+            mMPD.connect(mConInfo.server, mConInfo.port);
             mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Error while connecting to the server.", e);

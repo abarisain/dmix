@@ -118,7 +118,7 @@ public abstract class MPDConnection {
     private int[] mMPDVersion = {0, 0, 0};
 
     /** Current media server password. */
-    private String mPassword = null;
+    private MPDCommand mPassword = null;
 
     /** The host/port pair used to connect to the media server. */
     private InetSocketAddress mSocketAddress;
@@ -128,7 +128,7 @@ public abstract class MPDConnection {
      *
      * @param readWriteTimeout The read write timeout for this connection.
      * @param maxConnections   Maximum number of sockets to allow running at one time.
-     * @see #connect(java.net.InetAddress, int, String)
+     * @see #connect(java.net.InetAddress, int)
      */
     MPDConnection(final int readWriteTimeout, final int maxConnections) {
         super();
@@ -165,20 +165,21 @@ public abstract class MPDConnection {
      *                      host}/{@code port} pair with the {@code password}.
      */
     public void connect() throws IOException, MPDException {
-        connect(getDefaultAddress(), getDefaultPort(), mPassword);
+        connect(getDefaultAddress(), getDefaultPort());
     }
 
     /**
-     * Sets up connection to host/port pair with MPD password.
+     * Sets up connection to host/port pair.
+     * <p/>
+     * If a main password is required, it MUST be called prior to calling this method.
      *
-     * @param host     The media server host to connect to.
-     * @param port     The media server port to connect to.
-     * @param password The MPD protocol password to pass upon connection.
+     * @param host The media server host to connect to.
+     * @param port The media server port to connect to.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown upon an error sending a simple command to the {@code
      *                      host}/{@code port} pair with the {@code password}.
      */
-    public final void connect(final InetAddress host, final int port, final String password)
+    public final void connect(final InetAddress host, final int port)
             throws IOException, MPDException {
         innerDisconnect();
 
@@ -187,7 +188,6 @@ public abstract class MPDConnection {
         }
 
         mCancelled = false;
-        mPassword = password;
         mSocketAddress = new InetSocketAddress(host, port);
 
         final MPDCommand mpdCommand = MPDCommand.create(Reflection.CMD_ACTION_COMMANDS);
@@ -228,7 +228,7 @@ public abstract class MPDConnection {
         if (atIndex == -1) {
             mPassword = null;
         } else {
-            mPassword = host.substring(0, atIndex);
+            setDefaultPassword(host.substring(0, atIndex));
             host = host.substring(atIndex + 1);
         }
 
@@ -337,19 +337,18 @@ public abstract class MPDConnection {
      */
     private CommandResult processCommand(final MPDCommand command)
             throws IOException, MPDException {
-        final CommandResult result;
-
         // Bypass thread pool queue if the thread already comes from the pool to avoid deadlock.
         if (Thread.currentThread().getName().startsWith(POOL_THREAD_NAME_PREFIX)) {
-            result = new CommandProcessor(command).call();
-        } else {
-            try {
-                result = mExecutor.submit(new CommandProcessor(command)).get();
-                // Spam the log with the largest pool size
-                //Log.debug(mTag, "Largest pool size: " + mExecutor.getLargestPoolSize());
-            } catch (final ExecutionException | InterruptedException e) {
-                throw new IOException(e);
-            }
+            throw new IllegalThreadStateException("Don't call from within the executor.");
+        }
+
+        final CommandResult result;
+        try {
+            result = mExecutor.submit(new CommandProcessor(command)).get();
+            // Spam the log with the largest pool size
+            //Log.debug(mTag, "Largest pool size: " + mExecutor.getLargestPoolSize());
+        } catch (final ExecutionException | InterruptedException e) {
+            throw new IOException(e);
         }
 
         if (result.getResponse() == null) {
@@ -488,6 +487,19 @@ public abstract class MPDConnection {
         return result;
     }
 
+    /**
+     * Sets the default password for this connection.
+     *
+     * @param password The main password for this connection.
+     */
+    public void setDefaultPassword(final CharSequence password) {
+        if (password == null) {
+            mPassword = null;
+        } else {
+            mPassword = MPDCommand.create(MPDCommand.MPD_CMD_PASSWORD, password);
+        }
+    }
+
     protected abstract void setInputStream(InputStreamReader inputStream);
 
     protected abstract void setOutputStream(OutputStreamWriter outputStream);
@@ -538,7 +550,7 @@ public abstract class MPDConnection {
                         result.setConnectionResult(innerConnect());
                     }
 
-                    write();
+                    write(mCommand);
                     result.setResponse(read());
                 } catch (final IOException e) {
                     handleFailure(result, e);
@@ -608,7 +620,8 @@ public abstract class MPDConnection {
             }
 
             if (mPassword != null) {
-                send(MPDCommand.MPD_CMD_PASSWORD, mPassword);
+                write(mPassword);
+                read(); /** Ignore the output, unless, it's an exception. */
             }
 
             return line;
@@ -731,8 +744,8 @@ public abstract class MPDConnection {
          *
          * @throws IOException Thrown upon error transferring command to media server.
          */
-        private void write() throws IOException {
-            final String cmdString = mCommand.getCommand();
+        private void write(final MPDCommand mpdCommand) throws IOException {
+            final String cmdString = mpdCommand.getCommand();
 
             // Uncomment for extreme command debugging
             //Log.debug(mTag, "Sending MPDCommand : " + cmdString);
