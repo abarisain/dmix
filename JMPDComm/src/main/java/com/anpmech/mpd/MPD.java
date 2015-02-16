@@ -917,7 +917,7 @@ public class MPD {
         if (useAlbumArtist) {
             artistNames = listAlbumArtists(genre);
         } else {
-            artistNames = listArtists(genre.getName(), true);
+            artistNames = listArtists(genre, true);
         }
         Collections.sort(artistNames, String.CASE_INSENSITIVE_ORDER);
 
@@ -1496,10 +1496,10 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listArtists(final String genre, final boolean sortInsensitive)
+    public List<String> listArtists(final Genre genre, final boolean sortInsensitive)
             throws IOException, MPDException {
         final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
-                Music.TAG_ARTIST, Music.TAG_GENRE, genre);
+                Music.TAG_ARTIST, Music.TAG_GENRE, genre.getName());
 
         Tools.parseResponse(response, Music.RESPONSE_ARTIST);
 
