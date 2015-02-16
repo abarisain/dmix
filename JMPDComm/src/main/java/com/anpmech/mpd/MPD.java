@@ -896,6 +896,7 @@ public class MPD {
 
         if (useAlbumArtist) {
             artistNames = listAlbumArtists();
+            Collections.sort(artistNames, String.CASE_INSENSITIVE_ORDER);
         } else {
             artistNames = listArtists(true);
         }
@@ -1200,10 +1201,6 @@ public class MPD {
         return mIdleConnection.isConnected();
     }
 
-    public List<String> listAlbumArtists() throws IOException, MPDException {
-        return listAlbumArtists(true);
-    }
-
     /**
      * List all album artist names from database.
      *
@@ -1211,13 +1208,11 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listAlbumArtists(final boolean sortInsensitive)
-            throws IOException, MPDException {
+    public List<String> listAlbumArtists() throws IOException, MPDException {
         final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
                 Music.TAG_ALBUM_ARTIST);
 
         Tools.parseResponse(response, Music.RESPONSE_ALBUM_ARTIST);
-        sort(response, sortInsensitive);
 
         return response;
     }
