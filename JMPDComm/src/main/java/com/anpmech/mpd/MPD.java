@@ -713,7 +713,10 @@ public class MPD {
     }
 
     public List<Music> find(final String[] args) throws IOException, MPDException {
-        return genericSearch(MPDCommand.MPD_CMD_FIND, args, true);
+        final List<Music> music = genericSearch(MPDCommand.MPD_CMD_FIND, args);
+        Collections.sort(music);
+
+        return music;
     }
 
     /*
@@ -763,15 +766,9 @@ public class MPD {
         }
     }
 
-    protected List<Music> genericSearch(final CharSequence searchCommand, final String[] args,
-            final boolean sort) throws IOException, MPDException {
-        final List<Music> music = MusicBuilder.buildMusicFromList(mConnection.send(searchCommand, args));
-
-        if (sort) {
-            Collections.sort(music);
-        }
-
-        return music;
+    protected List<Music> genericSearch(final CharSequence searchCommand, final String... args)
+            throws IOException, MPDException {
+        return MusicBuilder.buildMusicFromList(mConnection.send(searchCommand, args));
     }
 
     protected List<Music> genericSearch(final CharSequence searchCommand, final String type,
@@ -1039,7 +1036,7 @@ public class MPD {
         final String[] args = new String[1];
         args[0] = playlist.getFullPath();
 
-        return genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
+        return genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args);
     }
 
     /**
@@ -1086,7 +1083,7 @@ public class MPD {
                 if (STREAMS_PLAYLIST.equals(pair[VALUE])) {
                     final String[] args = {pair[VALUE]};
 
-                    savedStreams = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
+                    savedStreams = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args);
                     break;
                 }
             }
@@ -1698,8 +1695,11 @@ public class MPD {
         return genericSearch(MPDCommand.MPD_CMD_SEARCH, type, locatorString);
     }
 
-    public List<Music> search(final String[] args) throws IOException, MPDException {
-        return genericSearch(MPDCommand.MPD_CMD_SEARCH, args, true);
+    public List<Music> search(final String... args) throws IOException, MPDException {
+        final List<Music> music = genericSearch(MPDCommand.MPD_CMD_SEARCH, args);
+        Collections.sort(music);
+
+        return music;
     }
 
     /**
