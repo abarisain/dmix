@@ -38,6 +38,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
 
@@ -71,7 +72,8 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
     @Override
     protected void asyncUpdate() {
         try {
-            mItems = mApp.oMPDAsyncHelper.oMPD.getPlaylists(true);
+            mItems = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
+            Collections.sort(mItems);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }

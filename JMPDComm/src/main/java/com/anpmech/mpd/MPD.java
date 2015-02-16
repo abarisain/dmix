@@ -1054,18 +1054,7 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<PlaylistFile> getPlaylists() throws IOException, MPDException {
-        return getPlaylists(false);
-    }
-
-    /**
-     * Returns a list of all available playlists
-     *
-     * @param sort whether the return list should be sorted
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public List<PlaylistFile> getPlaylists(final boolean sort)
+    public List<PlaylistFile> getPlaylists()
             throws IOException, MPDException {
         final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LISTPLAYLISTS);
         final List<PlaylistFile> result = new ArrayList<>(response.size());
@@ -1075,9 +1064,6 @@ public class MPD {
                     result.add(new PlaylistFile(pair[VALUE]));
                 }
             }
-        }
-        if (sort) {
-            Collections.sort(result);
         }
 
         return result;
