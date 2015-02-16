@@ -193,14 +193,6 @@ public class MPD {
         return MPDCommand.create(MPDCommand.MPD_CMD_PLAY, Integer.toString(position));
     }
 
-    private static void sort(final List<String> list, final boolean sensitive) {
-        if (sensitive) {
-            Collections.sort(list);
-        } else {
-            Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
-        }
-    }
-
     /**
      * Adds a {@code Album} item object to the playlist queue.
      *
@@ -1517,23 +1509,10 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> listGenres() throws IOException, MPDException {
-        return listGenres(true);
-    }
-
-    /**
-     * List all genre names from database.
-     *
-     * @param sortInsensitive boolean for insensitive sort when true
-     * @return artist names from database.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public List<String> listGenres(final boolean sortInsensitive) throws IOException, MPDException {
         final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
                 Music.TAG_GENRE);
 
         Tools.parseResponse(response, Music.RESPONSE_GENRE);
-        sort(response, sortInsensitive);
 
         return response;
     }
