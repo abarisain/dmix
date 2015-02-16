@@ -972,7 +972,7 @@ public class MPD {
 
     public List<Genre> getGenres() throws IOException, MPDException {
         final List<String> genreNames = listGenres();
-        List<Genre> genres;
+        final List<Genre> genres;
 
         if (genreNames.isEmpty()) {
             genres = Collections.emptyList();
@@ -982,8 +982,6 @@ public class MPD {
             for (final String genre : genreNames) {
                 genres.add(new Genre(genre));
             }
-
-            Collections.sort(genres);
         }
 
         return genres;

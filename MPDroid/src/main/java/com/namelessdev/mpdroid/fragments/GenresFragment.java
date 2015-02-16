@@ -31,6 +31,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class GenresFragment extends BrowseFragment<Genre> {
 
@@ -64,6 +65,7 @@ public class GenresFragment extends BrowseFragment<Genre> {
     protected void asyncUpdate() {
         try {
             mItems = mApp.oMPDAsyncHelper.oMPD.getGenres();
+            Collections.sort(mItems);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update list of genres.", e);
         }
