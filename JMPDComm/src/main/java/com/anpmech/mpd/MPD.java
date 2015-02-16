@@ -763,16 +763,24 @@ public class MPD {
         }
     }
 
-    protected List<Music> genericSearch(final String searchCommand, final String[] args,
+    protected List<Music> genericSearch(final CharSequence searchCommand, final String[] args,
             final boolean sort) throws IOException, MPDException {
-        return MusicBuilder.buildMusicFromList(mConnection.send(searchCommand, args), sort);
+        final List<Music> music = MusicBuilder.buildMusicFromList(mConnection.send(searchCommand, args));
+
+        if (sort) {
+            Collections.sort(music);
+        }
+
+        return music;
     }
 
-    protected List<Music> genericSearch(final String searchCommand, final String type,
+    protected List<Music> genericSearch(final CharSequence searchCommand, final String type,
             final String strToFind) throws IOException, MPDException {
         final List<String> response = mConnection.send(searchCommand, type, strToFind);
+        final List<Music> music = MusicBuilder.buildMusicFromList(response);
+        Collections.sort(music);
 
-        return MusicBuilder.buildMusicFromList(response, true);
+        return music;
     }
 
     public int getAlbumCount(final Artist artist, final boolean useAlbumArtistTag)
@@ -1089,7 +1097,8 @@ public class MPD {
 
     public List<Music> getSongs(final Album album) throws IOException, MPDException {
         final List<Music> songs = MusicBuilder
-                .buildMusicFromList(mConnection.send(getSongsCommand(album)), true);
+                .buildMusicFromList(mConnection.send(getSongsCommand(album)));
+        Collections.sort(songs);
 
         if (album.hasAlbumArtist()) {
             // remove songs that don't have this album artist (mpd >=0.18 puts them in)
@@ -1402,7 +1411,7 @@ public class MPD {
     public List<Music> listAllInfo() throws IOException, MPDException {
         final List<String> allInfo = mConnection.send(MPDCommand.MPD_CMD_LISTALLINFO);
 
-        return MusicBuilder.buildMusicFromList(allInfo, false);
+        return MusicBuilder.buildMusicFromList(allInfo);
     }
 
     /**

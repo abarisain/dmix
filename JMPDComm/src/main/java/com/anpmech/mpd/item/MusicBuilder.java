@@ -32,7 +32,6 @@ import com.anpmech.mpd.Tools;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import static com.anpmech.mpd.Tools.KEY;
@@ -55,7 +54,7 @@ public final class MusicBuilder {
      *
      * @param response A music listing command response.
      * @return A Music object.
-     * @see #buildMusicFromList(java.util.List, boolean)
+     * @see #buildMusicFromList(java.util.List)
      */
     static Music build(final Collection<String> response) {
         String albumName = null;
@@ -172,16 +171,12 @@ public final class MusicBuilder {
      * @return A Music object.
      * @see #build(java.util.Collection)
      */
-    public static List<Music> buildMusicFromList(final List<String> response, final boolean sort) {
+    public static List<Music> buildMusicFromList(final List<String> response) {
         final Collection<int[]> ranges = Tools.getRanges(response);
         final List<Music> result = new ArrayList<>(ranges.size());
 
         for (final int[] range : ranges) {
             result.add(build(response.subList(range[0], range[1])));
-        }
-
-        if (sort) {
-            Collections.sort(result);
         }
 
         return result;
