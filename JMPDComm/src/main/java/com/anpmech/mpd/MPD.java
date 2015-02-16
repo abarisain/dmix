@@ -779,11 +779,6 @@ public class MPD {
 
     public int getAlbumCount(final Artist artist, final boolean useAlbumArtistTag)
             throws IOException, MPDException {
-        return listAlbums(artist.getName(), useAlbumArtistTag).size();
-    }
-
-    public int getAlbumCount(final String artist, final boolean useAlbumArtistTag)
-            throws IOException, MPDException {
         return listAlbums(artist, useAlbumArtistTag).size();
     }
 
@@ -808,7 +803,7 @@ public class MPD {
         if (artist == null) {
             albums = getAllAlbums();
         } else {
-            final List<String> albumNames = listAlbums(artist.getName(), useAlbumArtist);
+            final List<String> albumNames = listAlbums(artist, useAlbumArtist);
             albums = new ArrayList<>(albumNames.size());
 
             Collections.sort(albumNames, String.CASE_INSENSITIVE_ORDER);
@@ -1295,9 +1290,17 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listAlbums(final String artist, final boolean useAlbumArtist)
+    public List<String> listAlbums(final Artist artist, final boolean useAlbumArtist)
             throws IOException, MPDException {
-        final List<String> response = mConnection.send(listAlbumsCommand(artist, useAlbumArtist));
+        final MPDCommand command;
+
+        if (artist == null) {
+            command = listAlbumsCommand(null, useAlbumArtist);
+        } else {
+            command = listAlbumsCommand(artist.getName(), useAlbumArtist);
+        }
+
+        final List<String> response = mConnection.send(command);
 
         Tools.parseResponse(response, Music.RESPONSE_ALBUM);
 

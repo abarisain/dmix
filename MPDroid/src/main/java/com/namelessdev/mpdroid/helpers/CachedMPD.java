@@ -248,7 +248,7 @@ public class CachedMPD extends MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     @Override
-    public List<String> listAlbums(final String artist, final boolean useAlbumArtist)
+    public List<String> listAlbums(final Artist artist, final boolean useAlbumArtist)
             throws IOException, MPDException {
         final List<String> albums;
 

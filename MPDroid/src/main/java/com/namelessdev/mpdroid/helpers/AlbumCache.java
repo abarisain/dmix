@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Music;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
@@ -147,11 +148,11 @@ public class AlbumCache {
         return mAlbumSet;
     }
 
-    public Set<String> getAlbums(final String artist, final boolean albumArtist) {
+    public Set<String> getAlbums(final Artist artist, final boolean albumArtist) {
         final Set<String> albums = new HashSet<>();
         for (final List<String> ai : mAlbumSet) {
-            if (albumArtist && ai.get(2).equals(artist) ||
-                    !albumArtist && ai.get(1).equals(artist)) {
+            if (albumArtist && ai.get(2).equals(artist.getName()) ||
+                    !albumArtist && ai.get(1).equals(artist.getName())) {
                 albums.add(ai.get(0));
             }
         }
