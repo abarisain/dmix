@@ -543,13 +543,8 @@ public abstract class MPDConnection {
                 } catch (final IOException e) {
                     handleFailure(result, e);
                 } catch (final MPDException ex1) {
-                    // Avoid getting in an infinite loop if an error occurred in the password cmd
-                    if (ex1.mErrorCode == MPDException.ACK_ERROR_PASSWORD ||
-                            ex1.mErrorCode == MPDException.ACK_ERROR_PERMISSION) {
-                        result.setException(ex1);
-                    } else {
-                        handleFailure(result, ex1);
-                    }
+                    result.setException(ex1);
+                    break;
                 }
 
                 retryCount++;
@@ -572,18 +567,6 @@ public abstract class MPDConnection {
          * @param e      The exception to set.
          */
         private void handleFailure(final CommandResult result, final IOException e) {
-            if (isFailureHandled(result)) {
-                result.setException(e);
-            }
-        }
-
-        /**
-         * Used after a server error, sleeps for a small time then tries to reconnect.
-         *
-         * @param result The {@code CommandResult} which stores the connection failure.
-         * @param e      The exception to set.
-         */
-        private void handleFailure(final CommandResult result, final MPDException e) {
             if (isFailureHandled(result)) {
                 result.setException(e);
             }
