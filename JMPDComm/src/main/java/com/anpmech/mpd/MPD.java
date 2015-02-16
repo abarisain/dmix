@@ -275,6 +275,9 @@ public class MPD {
                     .add(MPDCommand.MPD_CMD_FIND_ADD, Music.TAG_ARTIST, artist.getName());
         } else {
             final List<Music> songs = getSongs(artist);
+
+            Collections.sort(songs);
+
             commandQueue = MPDPlaylist.addAllCommand(songs);
         }
 
@@ -524,7 +527,11 @@ public class MPD {
             mConnection.send(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
                     Music.TAG_ARTIST, artist.getName());
         } else {
-            addToPlaylist(playlist, getSongs(artist));
+            final List<Music> songs = getSongs(artist);
+
+            Collections.sort(songs);
+
+            addToPlaylist(playlist, songs);
         }
     }
 
@@ -1116,15 +1123,10 @@ public class MPD {
         final List<Album> albums = getAlbums(artist, false, false);
         final List<Music> songs = new ArrayList<>(albums.size());
 
-        Collections.sort(albums);
-
         for (final Album album : albums) {
-            final List<Music> albumSongs = getSongs(album);
-
-            Collections.sort(albumSongs);
-
-            songs.addAll(albumSongs);
+            songs.addAll(getSongs(album));
         }
+
         return songs;
     }
 
