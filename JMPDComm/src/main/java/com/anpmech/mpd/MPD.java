@@ -789,7 +789,7 @@ public class MPD {
 
     public List<Album> getAlbums(final Artist artist, final boolean sortByYear,
             final boolean trackCountNeeded) throws IOException, MPDException {
-        List<Album> albums = getAlbums(artist, sortByYear, trackCountNeeded, false);
+        final List<Album> albums = getAlbums(artist, sortByYear, trackCountNeeded, false);
 
         // 1. the null artist list already contains all albums
         // 2. the "unknown artist" should not list unknown album artists
@@ -832,10 +832,10 @@ public class MPD {
                 if (!sortByYear) {
                     addAlbumSongDetails(albums);
                 }
-
-                Collections.sort(albums);
             }
         }
+
+        Collections.sort(albums);
 
         return albums;
     }
@@ -867,7 +867,6 @@ public class MPD {
             }
         }
 
-        Collections.sort(albums);
         return albums;
     }
 
