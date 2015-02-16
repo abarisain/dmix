@@ -835,8 +835,6 @@ public class MPD {
             }
         }
 
-        Collections.sort(albums);
-
         return albums;
     }
 
