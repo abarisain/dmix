@@ -84,16 +84,16 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre, true);
                     } else {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(true);
-                        Collections.sort(mItems);
                     }
+                    Collections.sort(mItems);
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
                     if (mGenre != null) {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre, false);
                     } else {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(false);
-                        Collections.sort(mItems);
                     }
+                    Collections.sort(mItems);
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
                 default:

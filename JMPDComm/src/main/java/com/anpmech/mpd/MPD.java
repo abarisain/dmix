@@ -918,7 +918,6 @@ public class MPD {
             }
         }
 
-        Collections.sort(artists);
         return artists;
     }
 
