@@ -896,10 +896,10 @@ public class MPD {
 
         if (useAlbumArtist) {
             artistNames = listAlbumArtists();
-            Collections.sort(artistNames, String.CASE_INSENSITIVE_ORDER);
         } else {
-            artistNames = listArtists(true);
+            artistNames = listArtists();
         }
+        Collections.sort(artistNames, String.CASE_INSENSITIVE_ORDER);
 
         artists = new ArrayList<>(artistNames.size());
         if (!artistNames.isEmpty()) {
@@ -1417,24 +1417,10 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> listArtists() throws IOException, MPDException {
-        return listArtists(true);
-    }
-
-    /**
-     * List all artist names from database.
-     *
-     * @param sortInsensitive boolean for insensitive sort when true
-     * @return artist names from database.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public List<String> listArtists(final boolean sortInsensitive)
-            throws IOException, MPDException {
         final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
                 Music.TAG_ARTIST);
 
         Tools.parseResponse(response, Music.RESPONSE_ARTIST);
-        sort(response, sortInsensitive);
 
         return response;
     }
