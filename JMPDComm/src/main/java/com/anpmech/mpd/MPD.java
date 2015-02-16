@@ -459,6 +459,7 @@ public class MPD {
 
                 /** Then extract the date and path from a song of the album. */
                 final List<Music> songs = getFirstTrack(album);
+
                 if (!songs.isEmpty()) {
                     albumBuilder.setSongDetails(songs.get(0).getDate(),
                             songs.get(0).getParentDirectory());
@@ -943,22 +944,19 @@ public class MPD {
         args[4] = Music.TAG_TRACK;
         args[5] = "1";
         List<Music> songs = find(args);
-        Collections.sort(songs);
         if (songs.isEmpty()) {
             args[5] = "01";
             songs = find(args);
-            Collections.sort(songs);
         }
         if (songs.isEmpty()) {
             args[5] = "1";
             songs = search(args);
-            Collections.sort(songs);
         }
         if (songs.isEmpty()) {
             final String[] args2 = Arrays.copyOf(args, 4); // find all tracks
             songs = find(args2);
-            Collections.sort(songs);
         }
+
         return songs;
     }
 
