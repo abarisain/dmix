@@ -849,6 +849,9 @@ public class MPD {
             albums = listAllAlbumsGrouped(false);
         } else {
             final List<String> albumNames = listAlbums();
+
+            Collections.sort(albumNames, String.CASE_INSENSITIVE_ORDER);
+
             if (albumNames.isEmpty()) {
                 albums = Collections.emptyList();
             } else {
@@ -1271,10 +1274,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> listAlbums() throws IOException, MPDException {
-        final List<String> albumNames = listAlbums(null, false);
-        Collections.sort(albumNames, String.CASE_INSENSITIVE_ORDER);
-
-        return albumNames;
+        return listAlbums(null, false);
     }
 
     /**
