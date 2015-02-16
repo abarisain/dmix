@@ -713,10 +713,7 @@ public class MPD {
     }
 
     public List<Music> find(final String[] args) throws IOException, MPDException {
-        final List<Music> music = genericSearch(MPDCommand.MPD_CMD_FIND, args);
-        Collections.sort(music);
-
-        return music;
+        return genericSearch(MPDCommand.MPD_CMD_FIND, args);
     }
 
     /*
@@ -944,9 +941,11 @@ public class MPD {
         args[4] = Music.TAG_TRACK;
         args[5] = "1";
         List<Music> songs = find(args);
+        Collections.sort(songs);
         if (songs.isEmpty()) {
             args[5] = "01";
             songs = find(args);
+            Collections.sort(songs);
         }
         if (songs.isEmpty()) {
             args[5] = "1";
@@ -956,6 +955,7 @@ public class MPD {
         if (songs.isEmpty()) {
             final String[] args2 = Arrays.copyOf(args, 4); // find all tracks
             songs = find(args2);
+            Collections.sort(songs);
         }
         return songs;
     }
