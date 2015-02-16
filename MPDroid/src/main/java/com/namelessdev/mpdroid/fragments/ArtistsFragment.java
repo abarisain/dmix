@@ -85,7 +85,6 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
                     } else {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(true);
                     }
-                    Collections.sort(mItems);
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
                     if (mGenre != null) {
@@ -93,19 +92,17 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
                     } else {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(false);
                     }
-                    Collections.sort(mItems);
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
                 default:
                     if (mGenre != null) {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre);
-                        Collections.sort(mItems);
                     } else {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists();
-                        Collections.sort(mItems);
                     }
                     break;
             }
+            Collections.sort(mItems);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }
