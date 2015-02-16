@@ -951,6 +951,7 @@ public class MPD {
         if (songs.isEmpty()) {
             args[5] = "1";
             songs = search(args);
+            Collections.sort(songs);
         }
         if (songs.isEmpty()) {
             final String[] args2 = Arrays.copyOf(args, 4); // find all tracks
@@ -1696,10 +1697,7 @@ public class MPD {
     }
 
     public List<Music> search(final String... args) throws IOException, MPDException {
-        final List<Music> music = genericSearch(MPDCommand.MPD_CMD_SEARCH, args);
-        Collections.sort(music);
-
-        return music;
+        return genericSearch(MPDCommand.MPD_CMD_SEARCH, args);
     }
 
     /**
