@@ -110,7 +110,7 @@
         <item name="toolbarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>
 
-    <style name="AppTheme.Settings" parent="@style/AppTheme.Light"/>
+    <style name="AppTheme.Settings" parent="@style/AppTheme.Light" />
 
     <style name="AppTheme.MainMenu" parent="AppTheme">
         <item name="android:windowActionBarOverlay">true</item>

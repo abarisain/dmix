@@ -33,7 +33,6 @@ import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.Reflection;
-import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
@@ -47,7 +46,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -544,16 +542,6 @@ public abstract class MPDConnection {
                     write();
                     isCommandSent = true;
                     result.setResponse(read());
-                } catch (final EOFException ex0) {
-                    handleFailure(result, ex0);
-
-                    // Do not fail when the IDLE response has not been read (to improve connection
-                    // failure robustness). Just send the "changed playlist" result to force the MPD
-                    // status to be refreshed.
-                    if (MPDCommand.MPD_CMD_IDLE.equals(baseCommand)) {
-                        result.setResponse(Collections.singletonList(
-                                "changed: " + IdleSubsystemMonitor.IDLE_PLAYLIST));
-                    }
                 } catch (final IOException e) {
                     handleFailure(result, e);
                 } catch (final MPDException ex1) {
