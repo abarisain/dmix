@@ -811,6 +811,8 @@ public class MPD {
             final List<String> albumNames = listAlbums(artist.getName(), useAlbumArtist);
             albums = new ArrayList<>(albumNames.size());
 
+            Collections.sort(albumNames, String.CASE_INSENSITIVE_ORDER);
+
             if (!albumNames.isEmpty()) {
                 final AlbumBuilder albumBuilder = new AlbumBuilder();
 
@@ -1278,7 +1280,10 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> listAlbums() throws IOException, MPDException {
-        return listAlbums(null, false);
+        final List<String> albumNames = listAlbums(null, false);
+        Collections.sort(albumNames, String.CASE_INSENSITIVE_ORDER);
+
+        return albumNames;
     }
 
     /**
@@ -1292,11 +1297,9 @@ public class MPD {
      */
     public List<String> listAlbums(final String artist, final boolean useAlbumArtist)
             throws IOException, MPDException {
-        final List<String> response =
-                mConnection.send(listAlbumsCommand(artist, useAlbumArtist));
+        final List<String> response = mConnection.send(listAlbumsCommand(artist, useAlbumArtist));
 
         Tools.parseResponse(response, Music.RESPONSE_ALBUM);
-        sort(response, false);
 
         return response;
     }
