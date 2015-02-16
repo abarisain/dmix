@@ -1318,6 +1318,9 @@ public class MPD {
         final List<Album> artistAlbums = listAllAlbumsGrouped(false, includeUnknownAlbum);
         final List<Album> albumArtistAlbums = listAllAlbumsGrouped(true, includeUnknownAlbum);
 
+        Collections.sort(artistAlbums);
+        Collections.sort(albumArtistAlbums);
+
         for (final Album artistAlbum : artistAlbums) {
             final ListIterator<Album> iterator = albumArtistAlbums.listIterator();
 
@@ -1382,8 +1385,6 @@ public class MPD {
                 }
             }
         }
-
-        Collections.sort(result);
 
         return result;
     }
