@@ -191,6 +191,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         try {
             arrayMusic = mApp.oMPDAsyncHelper.oMPD.search("any", finalSearch);
+            Collections.sort(arrayMusic);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "MPD search failure.", e);
 

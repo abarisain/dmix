@@ -322,7 +322,8 @@ public class MPD {
             commandQueue
                     .add(MPDCommand.MPD_CMD_FIND_ADD, Music.TAG_GENRE, genre.getName());
         } else {
-            final Collection<Music> music = find(Music.TAG_GENRE, genre.getName());
+            final List<Music> music = find(Music.TAG_GENRE, genre.getName());
+            Collections.sort(music);
 
             commandQueue = MPDPlaylist.addAllCommand(music);
         }
@@ -547,7 +548,8 @@ public class MPD {
             mConnection.send(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
                     Music.TAG_GENRE, genre.getName());
         } else {
-            final Collection<Music> music = find(Music.TAG_GENRE, genre.getName());
+            final List<Music> music = find(Music.TAG_GENRE, genre.getName());
+            Collections.sort(music);
 
             addToPlaylist(playlist, music);
         }
@@ -707,7 +709,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      * @see com.anpmech.mpd.item.Music
      */
-    public Collection<Music> find(final String type, final String locatorString)
+    public List<Music> find(final String type, final String locatorString)
             throws IOException, MPDException {
         return genericSearch(MPDCommand.MPD_CMD_FIND, type, locatorString);
     }
@@ -771,10 +773,8 @@ public class MPD {
     protected List<Music> genericSearch(final CharSequence searchCommand, final String type,
             final String strToFind) throws IOException, MPDException {
         final List<String> response = mConnection.send(searchCommand, type, strToFind);
-        final List<Music> music = MusicBuilder.buildMusicFromList(response);
-        Collections.sort(music);
 
-        return music;
+        return MusicBuilder.buildMusicFromList(response);
     }
 
     public int getAlbumCount(final Artist artist, final boolean useAlbumArtistTag)
