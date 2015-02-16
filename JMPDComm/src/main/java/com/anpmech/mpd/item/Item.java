@@ -37,27 +37,30 @@ import java.util.ResourceBundle;
 
 public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
 
-    /*
-     * Merge item lists, for example received by album artist and artist
-     * requests. Sorted lists required!
+    /**
+     * This method merges two Item type lists.
+     *
+     * @param list1 The first list to merge, the list which will be merged into.
+     * @param list2 The second list to merge, don't use this list after calling this method.
      */
-    public static <T extends Item<T>> List<T> merged(final List<T> albumArtists,
-            final List<T> artists) {
-        removeUnknown(albumArtists);
+    public static <T extends Item<T>> void merge(final List<T> list1, final List<T> list2) {
+        removeUnknown(list1);
 
-        int jStart = albumArtists.size() - 1;
-        for (int i = artists.size() - 1; i >= 0; i--) { // artists
+        Collections.sort(list1);
+        Collections.sort(list2);
+
+        int jStart = list1.size() - 1;
+        for (int i = list2.size() - 1; i >= 0; i--) { // artists
             for (int j = jStart; j >= 0; j--) { // album artists
-                if (albumArtists.get(j).doesNameExist(artists.get(i))) {
+                if (list1.get(j).doesNameExist(list2.get(i))) {
                     jStart = j;
-                    artists.remove(i);
+                    list2.remove(i);
                     break;
                 }
             }
         }
-        artists.addAll(albumArtists);
-        Collections.sort(artists);
-        return artists;
+
+        list1.addAll(list2);
     }
 
     /**

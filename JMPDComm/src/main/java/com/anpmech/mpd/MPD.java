@@ -794,7 +794,8 @@ public class MPD {
         // 1. the null artist list already contains all albums
         // 2. the "unknown artist" should not list unknown album artists
         if (artist != null && !artist.isUnknown()) {
-            albums = Item.merged(getAlbums(artist, sortByYear, trackCountNeeded, true), albums);
+            Item.merge(albums, getAlbums(artist, sortByYear, trackCountNeeded, true));
+            Collections.sort(albums);
         }
 
         return albums;
@@ -871,7 +872,12 @@ public class MPD {
     }
 
     public List<Artist> getArtists() throws IOException, MPDException {
-        return Item.merged(getArtists(true), getArtists(false));
+        final List<Artist> artists = getArtists(true);
+
+        Item.merge(artists, getArtists(false));
+        Collections.sort(artists);
+
+        return artists;
     }
 
     public List<Artist> getArtists(final boolean useAlbumArtist) throws IOException, MPDException {
@@ -895,7 +901,12 @@ public class MPD {
     }
 
     public List<Artist> getArtists(final Genre genre) throws IOException, MPDException {
-        return Item.merged(getArtists(genre, true), getArtists(genre, false));
+        final List<Artist> artists = getArtists(genre, true);
+
+        Item.merge(artists, getArtists(genre, false));
+        Collections.sort(artists);
+
+        return artists;
     }
 
     public List<Artist> getArtists(final Genre genre, final boolean useAlbumArtist)
@@ -915,6 +926,7 @@ public class MPD {
                 artists.add(new Artist(artist));
             }
         }
+
         Collections.sort(artists);
         return artists;
     }
