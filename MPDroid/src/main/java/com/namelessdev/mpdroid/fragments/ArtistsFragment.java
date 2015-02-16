@@ -99,6 +99,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
                 default:
                     if (mGenre != null) {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre);
+                        Collections.sort(mItems);
                     } else {
                         mItems = mApp.oMPDAsyncHelper.oMPD.getArtists();
                         Collections.sort(mItems);

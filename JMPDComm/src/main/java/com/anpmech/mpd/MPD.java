@@ -899,7 +899,6 @@ public class MPD {
         final List<Artist> artists = getArtists(genre, true);
 
         Item.merge(artists, getArtists(genre, false));
-        Collections.sort(artists);
 
         return artists;
     }
