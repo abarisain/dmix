@@ -408,23 +408,6 @@ public abstract class MPDConnection {
     }
 
     /**
-     * Communicates with the server by sending a command and receiving the response and defining
-     * non-fatal ACK codes.
-     *
-     * @param command        The command to be sent to the server.
-     * @param nonfatalErrors Errors to consider as non-fatal for this command. These MPD error
-     *                       codes with this command will not return any exception.
-     * @param args           Arguments to the command to be sent to the server.
-     * @return The result from the command sent to the server.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public List<String> send(final CharSequence command, final int[] nonfatalErrors,
-            final CharSequence... args) throws IOException, MPDException {
-        return send(MPDCommand.create(command, nonfatalErrors, args));
-    }
-
-    /**
      * Sends the commands (without separated results) which were {@code add}ed to the queue.
      *
      * @param commandQueue The CommandQueue to send.
@@ -653,29 +636,6 @@ public abstract class MPDConnection {
             return failureHandled;
         }
 
-        /**
-         * This method is a place to specify if a ACK is not actually an error message we don't
-         * consider to be a fatal error.
-         *
-         * @param message The message to check.
-         * @return True if the message indicates a non-fatal error, false otherwise.
-         */
-        private boolean isNonfatalACK(final String message) {
-            final boolean isNonfatalACK;
-            final int errorCode = MPDException.getAckErrorCode(message);
-
-            if (mCommand.isErrorNonfatal(errorCode)) {
-                isNonfatalACK = true;
-                if (DEBUG) {
-                    Log.debug(mTag, "Non-fatal ACK emitted, exception suppressed: " + message);
-                }
-            } else {
-                isNonfatalACK = false;
-            }
-
-            return isNonfatalACK;
-        }
-
         private void logError(final CommandResult result, final CharSequence baseCommand,
                 final int retryCount) {
             final StringBuilder stringBuilder = new StringBuilder(50);
@@ -721,11 +681,6 @@ public abstract class MPDConnection {
                 }
 
                 if (line.startsWith(MPD_RESPONSE_ERR)) {
-                    validResponse = true;
-                    if (isNonfatalACK(line)) {
-                        break;
-                    }
-
                     throw new MPDException(line);
                 }
                 result.add(line);

@@ -269,12 +269,18 @@ public class Sticker {
         String foundSticker = null;
 
         if (isAvailable()) {
-            /** Do not throw exception when attempting to retrieve a non-existant sticker. */
-            final int[] nonfatalErrors = {MPDException.ACK_ERROR_NO_EXIST};
-            final List<String> response = mConnection.send(CMD_ACTION_GET, nonfatalErrors,
-                    CMD_STICKER_TYPE_SONG, entry.getFullPath(), name);
+            List<String> response = Collections.emptyList();
+            try {
+                response = mConnection.send(CMD_ACTION_GET, CMD_STICKER_TYPE_SONG,
+                        entry.getFullPath(), name);
+            } catch (final MPDException e) {
+                /** Do not throw exception when attempting to retrieve a non-existent sticker. */
+                if (e.mErrorCode != MPDException.ACK_ERROR_NO_EXIST) {
+                    throw e;
+                }
+            }
 
-            if (response == null) {
+            if (response.isEmpty()) {
                 if (DEBUG) {
                     Log.debug(TAG, "No responses received from sticker get query. FullPath: " +
                             entry.getFullPath());

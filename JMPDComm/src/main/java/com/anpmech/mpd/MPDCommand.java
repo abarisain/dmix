@@ -27,8 +27,6 @@
 
 package com.anpmech.mpd;
 
-import java.util.Arrays;
-
 /**
  * A class representing one MPD protocol command and it's arguments.
  */
@@ -138,26 +136,18 @@ public class MPDCommand {
     /** The fully formatted protocol command and arguments. */
     private final String mCommand;
 
-    /** This field stores any {@code ACK} errors to be considered as non-fatal. */
-    private final int[] mNonfatalErrors;
-
     /**
      * The constructor for a command to be sent to the MPD protocol compatible media server.
      *
-     * @param baseCommand        The base protocol command to be sent.
-     * @param command            The full command with arguments to to be sent.
-     * @param nonfatalErrorCodes Errors to consider as non-fatal for this command. These MPD error
-     *                           codes with this command will not return any exception.
+     * @param baseCommand The base protocol command to be sent.
+     * @param command     The full command with arguments to to be sent.
      * @see #create(CharSequence, CharSequence...)
-     * @see #create(CharSequence, int[], CharSequence...)
      */
-    private MPDCommand(final CharSequence baseCommand, final String command,
-            final int[] nonfatalErrorCodes) {
+    private MPDCommand(final CharSequence baseCommand, final String command) {
         super();
 
         mBaseCommand = baseCommand;
         mCommand = command;
-        mNonfatalErrors = nonfatalErrorCodes;
     }
 
     /**
@@ -182,26 +172,12 @@ public class MPDCommand {
      * This creates a command to be sent to the MPD protocol compatible media server, with a
      * parameter to add error codes to consider as non-fatal.
      *
-     * @param command            The protocol command for this {@code MPDCommand}.
-     * @param nonfatalErrorCodes Errors to consider as non-fatal for this command. These MPD error
-     *                           codes with this command will not return any exception.
-     * @param args               The arguments for the command argument.
-     * @return An object to use to send protocol commands to the server.
-     */
-    public static MPDCommand create(final CharSequence command, final int[] nonfatalErrorCodes,
-            final CharSequence... args) {
-        return new MPDCommand(command, getCommand(command, args), nonfatalErrorCodes);
-    }
-
-    /**
-     * This creates a command to be sent to the MPD protocol compatible media server.
-     *
      * @param command The protocol command for this {@code MPDCommand}.
      * @param args    The arguments for the command argument.
      * @return An object to use to send protocol commands to the server.
      */
     public static MPDCommand create(final CharSequence command, final CharSequence... args) {
-        return create(command, EMPTY_INT_ARRAY, args);
+        return new MPDCommand(command, getCommand(command, args));
     }
 
     /**
@@ -256,26 +232,6 @@ public class MPDCommand {
     }
 
     /**
-     * This method is used to check if this command was loaded with a command code, specified by
-     * the parameter, which is to be considered as non-fatal.
-     *
-     * @param errorCodeToCheck The {@code ACK} error code to check.
-     * @return True if the {@code ACK} error code was loaded as non-fatal, false otherwise.
-     */
-    public boolean isErrorNonfatal(final int errorCodeToCheck) {
-        boolean result = false;
-
-        for (final int errorCode : mNonfatalErrors) {
-            if (errorCode == errorCodeToCheck) {
-                result = true;
-                break;
-            }
-        }
-
-        return result;
-    }
-
-    /**
      * This returns a debugging string with the results of all internal fields.
      *
      * @return A debugging string with the results of all internal fields.
@@ -285,7 +241,6 @@ public class MPDCommand {
         return "MPDCommand{" +
                 "mBaseCommand=" + mBaseCommand +
                 ", mCommand=" + mCommand +
-                ", mNonfatalErrors=" + Arrays.toString(mNonfatalErrors) +
                 '}';
     }
 }
