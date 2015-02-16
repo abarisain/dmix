@@ -127,6 +127,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
 
         try {
             mItems = mApp.oMPDAsyncHelper.oMPD.getAlbums(mArtist, sortByYear, mIsCountDisplayed);
+            Collections.sort(mItems);
 
             if (sortByYear) {
                 Collections.sort(mItems, Album.SORT_BY_DATE);

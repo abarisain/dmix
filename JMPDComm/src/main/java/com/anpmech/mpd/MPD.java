@@ -795,7 +795,6 @@ public class MPD {
         // 2. the "unknown artist" should not list unknown album artists
         if (artist != null && !artist.isUnknown()) {
             Item.merge(albums, getAlbums(artist, sortByYear, trackCountNeeded, true));
-            Collections.sort(albums);
         }
 
         return albums;
@@ -1118,6 +1117,9 @@ public class MPD {
     public List<Music> getSongs(final Artist artist) throws IOException, MPDException {
         final List<Album> albums = getAlbums(artist, false, false);
         final List<Music> songs = new ArrayList<>(albums.size());
+
+        Collections.sort(albums);
+
         for (final Album album : albums) {
             songs.addAll(getSongs(album));
         }
