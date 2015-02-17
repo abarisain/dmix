@@ -851,11 +851,8 @@ public class MPD {
         // Use MPD 0.19's album grouping feature if available.
         if (mConnection.isProtocolVersionSupported(0, 19)) {
             albums = listAllAlbumsGrouped(false);
-            Collections.sort(albums);
         } else {
             final List<String> albumNames = listAlbums();
-
-            Collections.sort(albumNames, String.CASE_INSENSITIVE_ORDER);
 
             if (albumNames.isEmpty()) {
                 albums = Collections.emptyList();
