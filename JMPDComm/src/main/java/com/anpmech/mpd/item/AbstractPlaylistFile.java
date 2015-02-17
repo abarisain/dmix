@@ -47,6 +47,38 @@ abstract class AbstractPlaylistFile<T extends PlaylistFile> extends Item<Playlis
         mFullPath = path;
     }
 
+    /**
+     * Compares a PlaylistFile object with a general contract of comparison that is reflexive,
+     * symmetric and transitive.
+     *
+     * @param o The object to compare this instance with.
+     * @return True if the objects are equal with regard to te general contract, false otherwise.
+     */
+    @Override
+    public boolean equals(final Object o) {
+        Boolean isEqual = null;
+
+        if (this == o) {
+            isEqual = Boolean.TRUE;
+        } else if (o == null || getClass() != o.getClass()) {
+            isEqual = Boolean.FALSE;
+        }
+
+        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
+            /** This has to be the same due to the class check above. */
+            //noinspection unchecked
+            final T directory = (T) o;
+
+            isEqual = Boolean.valueOf(mFullPath.equals(directory.mFullPath));
+        }
+
+        if (isEqual == null) {
+            isEqual = Boolean.TRUE;
+        }
+
+        return isEqual.booleanValue();
+    }
+
     @Override
     public String getFullPath() {
         return mFullPath;
@@ -65,5 +97,18 @@ abstract class AbstractPlaylistFile<T extends PlaylistFile> extends Item<Playlis
             }
         }
         return result;
+    }
+
+    /**
+     * Returns an integer hash code for this PlaylistFile. By contract, any two objects for which
+     * {@link #equals} returns {@code true} must return the same hash code value. This means that
+     * subclasses of {@code Object} usually override both methods or neither method.
+     *
+     * @return This PlaylistFile hash code.
+     * @see Object#equals(Object)
+     */
+    @Override
+    public int hashCode() {
+        return mFullPath.hashCode();
     }
 }

@@ -47,7 +47,7 @@ abstract class AbstractGenre<T extends Genre> extends Item<Genre> {
     }
 
     /**
-     * Compares an Artist object with a general contract of comparison that is reflexive, symmetric
+     * Compares a Genre object with a general contract of comparison that is reflexive, symmetric
      * and transitive.
      *
      * @param o The object to compare this instance with.
@@ -93,7 +93,7 @@ abstract class AbstractGenre<T extends Genre> extends Item<Genre> {
      * #equals} returns {@code true} must return the same hash code value. This means that
      * subclasses of {@code Object} usually override both methods or neither method.
      *
-     * @return This Artist hash code.
+     * @return This Genre hash code.
      * @see Object#equals(Object)
      */
     @Override

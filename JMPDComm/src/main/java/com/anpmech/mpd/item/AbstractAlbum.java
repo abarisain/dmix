@@ -217,11 +217,11 @@ abstract class AbstractAlbum<T extends Album> extends Item<Album> {
     }
 
     /**
-     * Returns an integer hash code for this Artist. By contract, any two objects for which {@link
+     * Returns an integer hash code for this Album. By contract, any two objects for which {@link
      * #equals} returns {@code true} must return the same hash code value. This means that
      * subclasses of {@code Object} usually override both methods or neither method.
      *
-     * @return This Artist hash code.
+     * @return This Album hash code.
      * @see Object#equals(Object)
      */
     @Override

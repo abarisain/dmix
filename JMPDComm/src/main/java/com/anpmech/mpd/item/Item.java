@@ -112,7 +112,26 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
         return comparisonResult;
     }
 
+    /**
+     * Compares an Item object with a general contract of comparison that is reflexive, symmetric
+     * and transitive.
+     *
+     * @param o The object to compare this instance with.
+     * @return True if the objects are equal with regard to te general contract, false otherwise.
+     */
+    public abstract boolean equals(final Object o);
+
     public abstract String getName();
+
+    /**
+     * Returns an integer hash code for this Item. By contract, any two objects for which {@link
+     * #equals} returns {@code true} must return the same hash code value. This means that
+     * subclasses of {@code Object} usually override both methods or neither method.
+     *
+     * @return This Item hash code.
+     * @see Object#equals(Object)
+     */
+    public abstract int hashCode();
 
     /**
      * Checks the name of this item against the name of the item in the {@code other} parameter.

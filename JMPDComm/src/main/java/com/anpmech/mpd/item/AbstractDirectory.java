@@ -34,6 +34,7 @@ import com.anpmech.mpd.exception.MPDException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -133,6 +134,48 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
      */
     public boolean containsDir(final String filename) {
         return mDirectoryEntries.containsKey(filename);
+    }
+
+    /**
+     * Compares a Directory object with a general contract of comparison that is reflexive,
+     * symmetric and transitive.
+     *
+     * @param o The object to compare this instance with.
+     * @return True if the objects are equal with regard to te general contract, false otherwise.
+     */
+    @Override
+    public boolean equals(final Object o) {
+        Boolean isEqual = null;
+
+        if (this == o) {
+            isEqual = Boolean.TRUE;
+        } else if (o == null || getClass() != o.getClass()) {
+            isEqual = Boolean.FALSE;
+        }
+
+        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
+            /** This has to be the same due to the class check above. */
+            //noinspection unchecked
+            final T directory = (T) o;
+
+            final Object[][] equalsObjects = {
+                    {mDirectoryEntries, directory.mDirectoryEntries},
+                    {mFileEntries, directory.mFileEntries},
+                    {mFilename, directory.mFilename},
+                    {mParent, directory.mParent},
+                    {mPlaylistEntries, directory.mPlaylistEntries}
+            };
+
+            if (Tools.isNotEqual(equalsObjects)) {
+                isEqual = Boolean.FALSE;
+            }
+        }
+
+        if (isEqual == null) {
+            isEqual = Boolean.TRUE;
+        }
+
+        return isEqual.booleanValue();
     }
 
     /**
@@ -264,6 +307,22 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
         }
 
         return playlistFilesCompared;
+    }
+
+    /**
+     * Returns an integer hash code for this Directory. By contract, any two objects for which
+     * {@link #equals} returns {@code true} must return the same hash code value. This means that
+     * subclasses of {@code Object} usually override both methods or neither method.
+     *
+     * @return This Directory hash code.
+     * @see Object#equals(Object)
+     */
+    @Override
+    public int hashCode() {
+        final Object[] objects = {mDirectoryEntries, mFileEntries, mFilename, mParent,
+                mPlaylistEntries, mName};
+
+        return Arrays.hashCode(objects);
     }
 
     /**

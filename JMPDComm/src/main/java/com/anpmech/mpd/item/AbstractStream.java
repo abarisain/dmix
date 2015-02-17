@@ -80,7 +80,7 @@ abstract class AbstractStream<T extends Stream> extends Item<Stream> {
     }
 
     /**
-     * Compares an Artist object with a general contract of comparison that is reflexive, symmetric
+     * Compares a Stream object with a general contract of comparison that is reflexive, symmetric
      * and transitive.
      *
      * @param o The object to compare this instance with.
@@ -131,6 +131,14 @@ abstract class AbstractStream<T extends Stream> extends Item<Stream> {
         return mUrl;
     }
 
+    /**
+     * Returns an integer hash code for this Stream. By contract, any two objects for which {@link
+     * #equals} returns {@code true} must return the same hash code value. This means that
+     * subclasses of {@code Object} usually override both methods or neither method.
+     *
+     * @return This Stream hash code.
+     * @see Object#equals(Object)
+     */
     @Override
     public int hashCode() {
         return Arrays.hashCode(new Object[]{mName, mUrl});

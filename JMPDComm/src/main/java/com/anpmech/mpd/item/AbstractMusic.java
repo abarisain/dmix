@@ -462,10 +462,11 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     }
 
     /**
-     * Compares this Music object to another.
+     * Compares a Music object with a general contract of comparison that is reflexive, symmetric
+     * and transitive.
      *
-     * @param o the object to compare this instance with.
-     * @return True if fields of both Objects are equal, and are of the same class.
+     * @param o The object to compare this instance with.
+     * @return True if the objects are equal with regard to te general contract, false otherwise.
      */
     @Override
     public boolean equals(final Object o) {
@@ -804,6 +805,14 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
         return streamName;
     }
 
+    /**
+     * Returns an integer hash code for this Music item. By contract, any two objects for which
+     * {@link #equals} returns {@code true} must return the same hash code value. This means that
+     * subclasses of {@code Object} usually override both methods or neither method.
+     *
+     * @return This Music item hash code.
+     * @see Object#equals(Object)
+     */
     @Override
     public int hashCode() {
         final Object[] objects = {mAlbumName, mArtistName, mAlbumArtistName, mGenreName, mName,
