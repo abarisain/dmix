@@ -139,16 +139,6 @@ abstract class AbstractAlbum<T extends Album> extends Item<Album> {
         mPath = path;
     }
 
-    @Override
-    public boolean doesNameExist(final Item<Album> o) {
-        final boolean result;
-
-        final AbstractAlbum<Album> a = (AbstractAlbum<Album>) o;
-        result = mName.equals(a.mName) && mArtist.doesNameExist(a.mArtist);
-
-        return result;
-    }
-
     /**
      * Compares an Artist object with a general contract of comparison that is reflexive, symmetric
      * and transitive.
@@ -246,6 +236,16 @@ abstract class AbstractAlbum<T extends Album> extends Item<Album> {
         result = 31 * result + (int) (mDuration ^ (mDuration >>> 32));
         result = 31 * result + (int) (mSongCount ^ (mSongCount >>> 32));
         result = 31 * result + (int) (mDate ^ (mDate >>> 32));
+
+        return result;
+    }
+
+    @Override
+    public boolean isNameSame(final Item<Album> otherItem) {
+        final boolean result;
+
+        final AbstractAlbum<Album> a = (AbstractAlbum<Album>) otherItem;
+        result = mName.equals(a.mName) && mArtist.isNameSame(a.mArtist);
 
         return result;
     }

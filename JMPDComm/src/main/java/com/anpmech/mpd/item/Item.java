@@ -42,9 +42,12 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
 
     /**
      * This method merges two Item type lists.
+     * <p/>
+     * This method removes unknown items and items not of the same name, then adds the remainder to
+     * {@code list1}.
      *
      * @param list1 The first list to merge, the list which will be merged into.
-     * @param list2 The second list to merge, don't use this list after calling this method.
+     * @param list2 The second list to merge, do not reuse this list after calling this method.
      */
     public static <T extends Item<T>> void merge(final List<T> list1, final List<T> list2) {
         Collections.sort(list1);
@@ -68,14 +71,13 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
                     continue;
                 }
 
-                if (item1.doesNameExist(item2)) {
+                if (item1.isNameSame(item2)) {
                     position = iterator1.previousIndex();
                     iterator2.remove();
                     break;
                 }
             }
         }
-
 
         list1.addAll(list2);
     }
@@ -110,18 +112,24 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
         return comparisonResult;
     }
 
-    public boolean doesNameExist(final Item<T> o) {
+    public abstract String getName();
+
+    /**
+     * Checks the name of this item against the name of the item in the {@code other} parameter.
+     *
+     * @param otherItem The other item to check the name against.
+     * @return True if both names are not null and one name is equal to the other.
+     */
+    public boolean isNameSame(final Item<T> otherItem) {
         boolean nameExists = false;
         final String name = getName();
 
-        if (name != null && o != null) {
-            nameExists = name.equals(o.getName());
+        if (name != null && otherItem != null) {
+            nameExists = name.equals(otherItem.getName());
         }
 
         return nameExists;
     }
-
-    public abstract String getName();
 
     public boolean isUnknown() {
         final String name = getName();

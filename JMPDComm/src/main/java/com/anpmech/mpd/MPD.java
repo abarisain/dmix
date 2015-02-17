@@ -1317,7 +1317,7 @@ public class MPD {
                 final Album albumArtistAlbum = iterator.next();
 
                 if (artistAlbum.getArtist() != null &&
-                        artistAlbum.doesNameExist(albumArtistAlbum)) {
+                        artistAlbum.isNameSame(albumArtistAlbum)) {
                     iterator.set(artistAlbum);
                 }
             }
