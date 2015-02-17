@@ -27,6 +27,9 @@
 
 package com.anpmech.mpd.item;
 
+
+import com.anpmech.mpd.Log;
+
 import java.text.Collator;
 import java.util.Collections;
 import java.util.List;
@@ -44,41 +47,37 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
      * @param list2 The second list to merge, don't use this list after calling this method.
      */
     public static <T extends Item<T>> void merge(final List<T> list1, final List<T> list2) {
-        removeUnknown(list1);
-
         Collections.sort(list1);
         Collections.sort(list2);
 
-        int jStart = list1.size() - 1;
-        for (int i = list2.size() - 1; i >= 0; i--) { // artists
-            for (int j = jStart; j >= 0; j--) { // album artists
-                if (list1.get(j).doesNameExist(list2.get(i))) {
-                    jStart = j;
-                    list2.remove(i);
+        final ListIterator<T> iterator2 = list2.listIterator();
+        int position = 0;
+        ListIterator<T> iterator1 = list1.listIterator(position);
+
+        while (iterator2.hasNext()) {
+            final Item<T> item2 = iterator2.next();
+
+            if (position != iterator1.previousIndex()) {
+                iterator1 = list1.listIterator(position);
+            }
+            while (iterator1.hasNext()) {
+                final Item<T> item1 = iterator1.next();
+
+                if (item1.isUnknown()) {
+                    iterator1.remove();
+                    continue;
+                }
+
+                if (item1.doesNameExist(item2)) {
+                    position = iterator1.previousIndex();
+                    iterator2.remove();
                     break;
                 }
             }
         }
 
+
         list1.addAll(list2);
-    }
-
-    /**
-     * Removes any unknown entries from a list.
-     *
-     * @param items The items to search for an unknown item.
-     */
-    private static <T extends Item<T>> void removeUnknown(final List<T> items) {
-        final ListIterator<T> iterator = items.listIterator(items.size());
-
-        // remove "" from items, because the Unknown
-        // AlbumArtist would fall back to an Artist, the "Unknown"
-        // Entry must come from the Artists.
-        while (iterator.hasPrevious()) {
-            if (iterator.previous().isUnknown()) {
-                iterator.remove();
-            }
-        }
     }
 
     /**
