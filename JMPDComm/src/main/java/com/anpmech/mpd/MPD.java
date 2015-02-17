@@ -813,8 +813,6 @@ public class MPD {
             final List<String> albumNames = listAlbums(artist, useAlbumArtist);
             albums = new ArrayList<>(albumNames.size());
 
-            Collections.sort(albumNames, String.CASE_INSENSITIVE_ORDER);
-
             if (!albumNames.isEmpty()) {
                 final AlbumBuilder albumBuilder = new AlbumBuilder();
 
