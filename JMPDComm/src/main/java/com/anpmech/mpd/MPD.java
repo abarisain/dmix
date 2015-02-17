@@ -853,6 +853,7 @@ public class MPD {
         // Use MPD 0.19's album grouping feature if available.
         if (mConnection.isProtocolVersionSupported(0, 19)) {
             albums = listAllAlbumsGrouped(false);
+            Collections.sort(albums);
         } else {
             final List<String> albumNames = listAlbums();
 
@@ -1314,9 +1315,6 @@ public class MPD {
             throws IOException, MPDException {
         final List<Album> artistAlbums = listAllAlbumsGrouped(false, includeUnknownAlbum);
         final List<Album> albumArtistAlbums = listAllAlbumsGrouped(true, includeUnknownAlbum);
-
-        Collections.sort(artistAlbums);
-        Collections.sort(albumArtistAlbums);
 
         for (final Album artistAlbum : artistAlbums) {
             final ListIterator<Album> iterator = albumArtistAlbums.listIterator();
