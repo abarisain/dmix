@@ -66,7 +66,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -411,21 +410,14 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         // Menu actions...
         boolean result = true;
 
-        if (item.getItemId() == R.id.PLM_Clear) {
-            QueueControl.run(QueueControl.CLEAR);
-            mSongList.clear();
-            if (isAdded()) {
-                Tools.notifyUser(R.string.playlistCleared);
-            }
-            ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
-        } else if (item.getItemId() == R.id.PLM_Save) {
-            List<PlaylistFile> playLists;
+        if (item.getItemId() == R.id.PLM_Save) {
+            List<PlaylistFile> playLists = Collections.emptyList();
             try {
                 playLists = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
             } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to receive list of playlists.", e);
-                playLists = new ArrayList<>(0);
             }
+
             Collections.sort(playLists);
             final String[] playlistsArray = new String[playLists.size() + 1];
             for (int p = 0; p < playLists.size(); p++) {

@@ -19,6 +19,8 @@ package com.namelessdev.mpdroid;
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.namelessdev.mpdroid.helpers.MPDControl;
+import com.namelessdev.mpdroid.helpers.QueueControl;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
@@ -32,6 +34,8 @@ import android.view.ViewGroup;
 
 
 public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
+
+    private static final String TAG = "NowPlayingActivity";
 
     private boolean mIsDualPaneMode;
 
@@ -68,7 +72,6 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
         mNowPlayingPager = initializeNowPlayingPager();
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -80,44 +83,48 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        boolean result = true;
-        //final boolean itemHandled = mQueueFragment != null && mQueueFragment.onOptionsItemSelected(item);
-
-        final boolean itemHandled = false;
+        boolean itemHandled = true;
 
         // Handle item selection
-        if (!itemHandled) {
-            switch (item.getItemId()) {
-                case R.id.menu_search:
-                    onSearchRequested();
-                    break;
-                case R.id.GMM_Stream:
-                    if (mApp.isStreamActive()) {
-                        mApp.stopStreaming();
-                    } else if (mApp.oMPDAsyncHelper.oMPD.isConnected()) {
-                        mApp.startStreaming();
-                    }
-                    break;
-                case R.id.GMM_Consume:
-                    MPDControl.run(MPDControl.ACTION_CONSUME);
-                    break;
-                case R.id.GMM_Single:
-                    MPDControl.run(MPDControl.ACTION_SINGLE);
-                    break;
-                case R.id.GMM_ShowNotification:
-                    if (mApp.isNotificationActive()) {
-                        mApp.stopNotification();
-                    } else {
-                        mApp.startNotification();
-                        mApp.setPersistentOverride(false);
-                    }
-                    break;
-                default:
-                    result = super.onOptionsItemSelected(item);
-                    break;
-            }
+        switch (item.getItemId()) {
+            case R.id.menu_search:
+                onSearchRequested();
+                break;
+            case R.id.GMM_Stream:
+                if (mApp.isStreamActive()) {
+                    mApp.stopStreaming();
+                } else if (mApp.oMPDAsyncHelper.oMPD.isConnected()) {
+                    mApp.startStreaming();
+                }
+                break;
+            case R.id.GMM_Consume:
+                MPDControl.run(MPDControl.ACTION_CONSUME);
+                break;
+            case R.id.GMM_Single:
+                MPDControl.run(MPDControl.ACTION_SINGLE);
+                break;
+            case R.id.GMM_ShowNotification:
+                if (mApp.isNotificationActive()) {
+                    mApp.stopNotification();
+                } else {
+                    mApp.startNotification();
+                    mApp.setPersistentOverride(false);
+                }
+                break;
+            case R.id.PLM_Clear:
+                QueueControl.run(QueueControl.CLEAR);
+                Tools.notifyUser(R.string.playlistCleared);
+                break;
+            /**
+             * TODO: Need to reimplement R.id.PLM_Save
+             * (QueueFragment:onOptionsItemSelected(final MenuItem item))
+             */
+            default:
+                itemHandled = super.onOptionsItemSelected(item);
+                break;
         }
-        return result;
+
+        return itemHandled;
     }
 
     @Override
