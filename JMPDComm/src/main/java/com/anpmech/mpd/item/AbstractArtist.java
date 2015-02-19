@@ -116,13 +116,13 @@ abstract class AbstractArtist<T extends Artist> extends Item<Artist> {
     }
 
     @Override
-    public String sortText() {
+    public String sortName() {
         final String result;
 
         if (mSort == null && mName == null) {
             result = "";
         } else if (mSort == null) {
-            result = super.sortText();
+            result = super.sortName();
         } else {
             result = mSort;
         }

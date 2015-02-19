@@ -28,8 +28,6 @@
 package com.anpmech.mpd.item;
 
 
-import com.anpmech.mpd.Log;
-
 import java.text.Collator;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +37,12 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
+
+    private static final Collator COLLATOR = Collator.getInstance();
+
+    static {
+        COLLATOR.setStrength(Collator.PRIMARY);
+    }
 
     /**
      * This method merges two Item type lists.
@@ -93,8 +97,8 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
     @Override
     public int compareTo(final Item<T> another) {
         final int comparisonResult;
-        final String sorted = sortText();
-        final String anotherSorted = another.sortText();
+        final String sorted = sortName();
+        final String anotherSorted = another.sortName();
 
         // sort "" behind everything else
         if (sorted == null || sorted.isEmpty()) {
@@ -106,7 +110,7 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
         } else if (anotherSorted == null || anotherSorted.isEmpty()) {
             comparisonResult = -1;
         } else {
-            comparisonResult = Collator.getInstance().compare(sorted, anotherSorted);
+            comparisonResult = COLLATOR.compare(sorted, anotherSorted);
         }
 
         return comparisonResult;
@@ -185,8 +189,22 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
         return mainText;
     }
 
+    /**
+     * This returns the name of the item, without any case changes.
+     *
+     * @return The name manipulated for sorting, without case changes.
+     */
+    String sortName() {
+        return getName();
+    }
+
+    /**
+     * This returns the name of the item, with case change for sorting.
+     *
+     * @return The name manipulated for sorting with lowered case change lowered.
+     */
     public String sortText() {
-        String name = getName();
+        String name = sortName();
 
         if (name != null) {
             name = name.toLowerCase(Locale.getDefault());
