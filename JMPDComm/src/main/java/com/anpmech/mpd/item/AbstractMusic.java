@@ -566,7 +566,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
         } else if (mArtistName != null && !mArtistName.isEmpty()) {
             result = mArtistName;
         } else {
-            result = getArtist().mainText();
+            result = getArtist().toString();
         }
 
         return result;
@@ -845,7 +845,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The title of this item, the full path otherwise.
      */
     @Override
-    public String mainText() {
+    public String toString() {
         return getTitle();
     }
 }

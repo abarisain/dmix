@@ -32,16 +32,37 @@ import java.text.Collator;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+/**
+ * This is a generic representation of a Item "object" from the MPD protocol.
+ *
+ * @param <T> The Item type.
+ */
 public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
 
+    /**
+     * This {@link java.text.Collator} is used for comparison and sorting of {@code Item}s.
+     */
     private static final Collator COLLATOR = Collator.getInstance();
+
+    /**
+     * The ResourceBundle from which to retrieve any necessary translations.
+     */
+    private static final ResourceBundle RESOURCE;
+
+    /**
+     * The bundle name for the "Unknown" or empty metadata for an item.
+     */
+    private static final String UNKNOWN_METADATA = "UnknownMetadata";
 
     static {
         COLLATOR.setStrength(Collator.PRIMARY);
+        RESOURCE = ResourceBundle.getBundle(UNKNOWN_METADATA);
+    }
+
+    Item() {
+        super();
     }
 
     /**
@@ -125,6 +146,11 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
      */
     public abstract boolean equals(final Object o);
 
+    /**
+     * Gets a generic representation of the Item's name.
+     *
+     * @return A generic representation of the Item's name.
+     */
     public abstract String getName();
 
     /**
@@ -154,39 +180,15 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
         return nameExists;
     }
 
+    /**
+     * This returns false if the name is unknown.
+     *
+     * @return True if the value from {@link #getName()} is empty or null, false otherwise.
+     */
     public boolean isUnknown() {
         final String name = getName();
 
         return name == null || name.isEmpty();
-    }
-
-    /**
-     * Returns the generated name for the item, and if null or empty the output may be translated
-     * by resource, if available.
-     *
-     * @return If empty or null a translated "UnknownMetadata" string, if available, otherwise the
-     * given name of the item.
-     */
-    public String mainText() {
-        String mainText = getName();
-
-        if (mainText == null || mainText.isEmpty()) {
-            final String unknownKey = "UnknownMetadata";
-            final String key = unknownKey + getClass().getSimpleName();
-            ResourceBundle labels;
-
-            try {
-                labels = ResourceBundle.getBundle(unknownKey);
-            } catch (final MissingResourceException ignored) {
-                labels = ResourceBundle.getBundle(unknownKey, Locale.ENGLISH);
-            }
-
-            if (labels.containsKey(key)) {
-                mainText = (String) labels.getObject(key);
-            }
-        }
-
-        return mainText;
     }
 
     /**
@@ -207,15 +209,31 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
         String name = sortName();
 
         if (name != null) {
-            name = name.toLowerCase(Locale.getDefault());
+            name = name.toLowerCase();
         }
 
         return name;
     }
 
+    /**
+     * Returns the generated name for the Item, and if null or empty the output may be translated
+     * by resource, if available.
+     *
+     * @return If empty or null a translated "UnknownMetadata" string, if available, otherwise the
+     * given name of the item.
+     */
     @Override
     public String toString() {
-        return mainText();
-    }
+        String mainText = getName();
 
+        if (mainText == null || mainText.isEmpty()) {
+            final String key = UNKNOWN_METADATA + getClass().getSimpleName();
+
+            if (RESOURCE.containsKey(key)) {
+                mainText = RESOURCE.getString(key);
+            }
+        }
+
+        return mainText;
+    }
 }

@@ -359,12 +359,12 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         switch (mPager.getCurrentItem()) {
             case 0:
                 final Artist artist = mArtistResults.get((int) info.id);
-                menu.setHeaderTitle(artist.mainText());
+                menu.setHeaderTitle(artist.toString());
                 setContextForObject(artist);
                 break;
             case 1:
                 final Album album = mAlbumResults.get((int) info.id);
-                menu.setHeaderTitle(album.mainText());
+                menu.setHeaderTitle(album.toString());
                 setContextForObject(album);
                 break;
             case 2:
@@ -372,7 +372,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 final MenuItem gotoAlbumItem = menu
                         .add(Menu.NONE, GOTO_ALBUM, 0, R.string.goToAlbum);
                 gotoAlbumItem.setOnMenuItemClickListener(this);
-                menu.setHeaderTitle(music.mainText());
+                menu.setHeaderTitle(music.toString());
                 setContextForObject(music);
                 break;
             default:

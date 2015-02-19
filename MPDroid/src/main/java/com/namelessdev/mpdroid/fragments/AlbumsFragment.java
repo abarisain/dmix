@@ -200,7 +200,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
                 title = null;
             }
         } else {
-            title = mArtist.mainText();
+            title = mArtist.toString();
         }
 
         return title;

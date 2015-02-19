@@ -243,7 +243,7 @@ public class SongsFragment extends BrowseFragment<Music> {
         if (mAlbum == null) {
             result = getString(R.string.songs);
         } else {
-            result = mAlbum.mainText();
+            result = mAlbum.toString();
         }
 
         return result;

@@ -107,7 +107,7 @@ public class AlbumDataBinder<T extends Item<T>> extends BaseDataBinder<T> {
         final long songCount = album.getSongCount();
 
         if (artist != null) {
-            info.append(artist.mainText());
+            info.append(artist.toString());
         }
 
         if (mUseYear && album.getDate() > 0L) {
@@ -136,7 +136,7 @@ public class AlbumDataBinder<T extends Item<T>> extends BaseDataBinder<T> {
         }
 
         // display "artist - album title"
-        holder.mAlbumName.setText(album.mainText());
+        holder.mAlbumName.setText(album.toString());
         if (info.length() == 0) {
             holder.mAlbumInfo.setVisibility(View.GONE);
         } else {
