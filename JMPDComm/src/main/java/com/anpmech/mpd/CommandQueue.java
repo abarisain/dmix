@@ -29,6 +29,8 @@ package com.anpmech.mpd;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -65,8 +67,7 @@ public class CommandQueue extends AbstractList<MPDCommand> {
     }
 
     /**
-     * A constructor for the CommandQueue to initialize the backing store with a static empty
-     * array.
+     * A constructor for the CommandQueue to initialize the backing store with an empty list.
      */
     public CommandQueue() {
         this(0);
@@ -86,6 +87,26 @@ public class CommandQueue extends AbstractList<MPDCommand> {
     }
 
     /**
+     * Initiates a CommandQueue with the commands given in the parameter.
+     *
+     * @param commands The commands to initiate this CommandQueue with.
+     */
+    public CommandQueue(final MPDCommand... commands) {
+        this(Arrays.asList(commands));
+    }
+
+    /**
+     * Initiates a CommandQueue with the commands given in the parameter.
+     *
+     * @param commands The commands to initiate this CommandQueue with.
+     */
+    public CommandQueue(final Collection<MPDCommand> commands) {
+        this(commands.size());
+
+        addAll(commands);
+    }
+
+    /*
      * Add a command to the specified position of this command queue.
      *
      * @param location The position of this command queue to add the new command.
