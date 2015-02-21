@@ -106,7 +106,29 @@ public class CommandQueue extends AbstractList<MPDCommand> {
         addAll(commands);
     }
 
-    /*
+    /**
+     * This method, simply, removes all newlines from the end of the StringBuilder, except for one,
+     * exclusively, and if one doesn't exist, adds one.
+     *
+     * @param stringBuilder The string builder to clean the newline for.
+     */
+    private static void cleanNewline(final StringBuilder stringBuilder) {
+        int newline = stringBuilder.length() - 1;
+        char lastChar = stringBuilder.charAt(newline);
+
+        if (lastChar == MPDCommand.MPD_CMD_NEWLINE) {
+            do {
+                newline--;
+                lastChar = stringBuilder.charAt(newline);
+            } while (lastChar == MPDCommand.MPD_CMD_NEWLINE);
+
+            stringBuilder.setLength(newline + 2);
+        } else {
+            stringBuilder.append(MPDCommand.MPD_CMD_NEWLINE);
+        }
+    }
+
+    /**
      * Add a command to the specified position of this command queue.
      *
      * @param location The position of this command queue to add the new command.
@@ -245,14 +267,6 @@ public class CommandQueue extends AbstractList<MPDCommand> {
 
         if (mCommandQueue.size() == 1) {
             stringBuilder = new StringBuilder(mCommandQueue.get(0).getCommand());
-            final int newlineStart =
-                    stringBuilder.indexOf(String.valueOf(MPDCommand.MPD_CMD_NEWLINE));
-
-            /**
-             * Since this is a MPDCommand extraction, there will be a newline.
-             * In reference MPD implementation 0.19+, a newline alone disconnects.
-             */
-            stringBuilder.setLength(newlineStart);
         } else {
             stringBuilder = new StringBuilder(mCommandQueueStringLength);
             if (separated) {
@@ -267,6 +281,8 @@ public class CommandQueue extends AbstractList<MPDCommand> {
             }
             stringBuilder.append(MPD_CMD_END_BULK);
         }
+
+        cleanNewline(stringBuilder);
 
         return stringBuilder.toString();
     }
