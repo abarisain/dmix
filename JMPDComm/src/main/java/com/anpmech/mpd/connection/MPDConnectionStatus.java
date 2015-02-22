@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * This class is a {@link MPDConnection} status tracker.
  */
-public class MPDConnectionStatus {
+public abstract class MPDConnectionStatus {
 
     /**
      * This flag enables or disables debug log output.
@@ -84,7 +84,7 @@ public class MPDConnectionStatus {
      *
      * @param line The {@link String} to output to the log.
      */
-    private static void debug(final String line) {
+    protected static void debug(final String line) {
         if (DEBUG) {
             Log.debug(TAG, line);
         }
@@ -110,6 +110,14 @@ public class MPDConnectionStatus {
     public long getChangeTime() {
         return mLastChangeTime;
     }
+
+    /**
+     * This should implement the current status of the connection blocking.
+     *
+     * @return This should return true if the connection has potential to block and is blocking,
+     * false otherwise.
+     */
+    abstract boolean isBlocked();
 
     /**
      * Whether the connection was cancelled by the client.
@@ -150,11 +158,31 @@ public class MPDConnectionStatus {
     }
 
     /**
+     * This should implement what occurs when a connection is blocking, if it has potential to
+     * block.
+     */
+    abstract void setBlocked();
+
+    /**
+     * This should implement what occurs when a connection is not blocking, if it has potential to
+     * block.
+     */
+    abstract void setNotBlocked();
+
+
+    /**
+     * This is called when called by the disconnection timer.
+     */
+    void statusChangeCancelled(final String reason) {
+        mIsCancelled = true;
+        statusChangeDisconnected(reason);
+    }
+
+    /**
      * This is called when the connection is dropped by the client, itself.
      */
     void statusChangeCancelled() {
-        mIsCancelled = true;
-        statusChangeDisconnected("Cancelled by client.");
+        statusChangeCancelled("Cancelled by client.");
     }
 
     /**
@@ -230,6 +258,17 @@ public class MPDConnectionStatus {
                 });
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "MPDConnectionStatus{" +
+                "mConnectionListeners=" + mConnectionListeners +
+                ", mConnectionStatus=" + mConnectionStatus +
+                ", mIsCancelled=" + mIsCancelled +
+                ", mIsConnecting=" + mIsConnecting +
+                ", mLastChangeTime=" + mLastChangeTime +
+                '}';
     }
 
     /**

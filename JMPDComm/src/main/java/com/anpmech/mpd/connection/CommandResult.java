@@ -27,24 +27,22 @@
 
 package com.anpmech.mpd.connection;
 
-import com.anpmech.mpd.exception.MPDException;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.StringTokenizer;
 
 /** This class stores the result for MPDCallable. */
 class CommandResult {
 
-    private Boolean isIOExceptionLast = null;
+    private final String mConnectionResult;
 
-    private String mConnectionResult;
+    private final List<String> mResponse;
 
-    private IOException mIOException;
+    CommandResult(final String header, final List<String> response) {
+        super();
 
-    private MPDException mMPDException;
-
-    private List<String> mResponse;
+        mConnectionResult = header;
+        mResponse = response;
+    }
 
     /**
      * Returns the first string response from the media server after connection. This method is
@@ -57,14 +55,6 @@ class CommandResult {
         return mConnectionResult;
     }
 
-    final IOException getIOException() {
-        return mIOException;
-    }
-
-    final MPDException getMPDException() {
-        return mMPDException;
-    }
-
     /**
      * Processes the {@code CommandResult} connection response to store the current media server
      * MPD protocol version.
@@ -72,7 +62,7 @@ class CommandResult {
      * @return Returns the MPD version retained from the connection result.
      */
     public int[] getMPDVersion() {
-        final int subHeaderLength = (MPDConnection.MPD_RESPONSE_OK + " MPD ").length();
+        final int subHeaderLength = (MPDConnection.CMD_RESPONSE_OK + " MPD ").length();
         final String formatResponse = mConnectionResult.substring(subHeaderLength);
 
         final StringTokenizer stringTokenizer = new StringTokenizer(formatResponse, ".");
@@ -103,32 +93,5 @@ class CommandResult {
         }
 
         return isHeaderValid;
-    }
-
-    public Boolean isIOExceptionLast() {
-        return isIOExceptionLast;
-    }
-
-    final void setConnectionResult(final String result) {
-        mConnectionResult = result;
-    }
-
-    final void setException(final IOException exception) {
-        isIOExceptionLast = Boolean.TRUE;
-        mIOException = exception;
-    }
-
-    final void setException(final MPDException exception) {
-        isIOExceptionLast = Boolean.FALSE;
-        mMPDException = exception;
-    }
-
-    final void setResponse(final List<String> response) {
-        if (response == null) {
-            mResponse = null;
-        } else {
-            //noinspection AssignmentToCollectionOrArrayFieldFromParameter
-            mResponse = response;
-        }
     }
 }

@@ -27,52 +27,50 @@
 
 package com.anpmech.mpd.connection;
 
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
-
 /**
- * Class representing a connection to MPD Server.
+ * This class is a {@link MPDConnectionStatus} which has potential to block the connection.
  */
-public class MPDConnectionMonoSocket extends MPDConnection {
+class BlockingConnectionStatus extends MPDConnectionStatus {
 
-    private InputStreamReader mInputStream;
+    /**
+     * This tracks the connection as blocked or not blocked.
+     */
+    private volatile boolean mIsBlocked;
 
-    private OutputStreamWriter mOutputStream;
+    /**
+     * This checks if the connection has been marked as blocking.
+     *
+     * @return True if the connection has been marked as blocking, false otherwise.
+     */
+    @Override
+    boolean isBlocked() {
+        return mIsBlocked;
+    }
 
-    private Socket mSocket;
+    /**
+     * This sets the connection status as blocked.
+     */
+    @Override
+    void setBlocked() {
+        debug("Connection blocked");
 
-    public MPDConnectionMonoSocket(final int readWriteTimeout) {
-        super(readWriteTimeout, 1);
+        mIsBlocked = true;
+    }
+
+    /**
+     * This sets the connection status as not blocked.
+     */
+    @Override
+    void setNotBlocked() {
+        debug("Connection not blocked.");
+
+        mIsBlocked = false;
     }
 
     @Override
-    public InputStreamReader getInputStream() {
-        return mInputStream;
-    }
-
-    @Override
-    public OutputStreamWriter getOutputStream() {
-        return mOutputStream;
-    }
-
-    @Override
-    protected Socket getSocket() {
-        return mSocket;
-    }
-
-    @Override
-    public void setInputStream(final InputStreamReader inputStream) {
-        mInputStream = inputStream;
-    }
-
-    @Override
-    public void setOutputStream(final OutputStreamWriter outputStream) {
-        mOutputStream = outputStream;
-    }
-
-    @Override
-    protected void setSocket(final Socket socket) {
-        mSocket = socket;
+    public String toString() {
+        return "BlockingConnectionStatus{" +
+                "mIsBlocked=" + mIsBlocked +
+                "} " + super.toString();
     }
 }

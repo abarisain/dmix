@@ -32,6 +32,8 @@ import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.MPDPlaylist;
 import com.anpmech.mpd.connection.MPDConnection;
+import com.anpmech.mpd.connection.MPDConnectionStatus;
+import com.anpmech.mpd.connection.MonoIOMPDConnection;
 import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.event.TrackPositionListener;
 import com.anpmech.mpd.exception.MPDException;
@@ -158,6 +160,8 @@ public class IdleSubsystemMonitor extends Thread {
         final MPDStatusMap status = mMPD.getStatus();
         final MPDPlaylist playlist = mMPD.getPlaylist();
         final MPDStatisticsMap statistics = mMPD.getStatistics();
+        final MonoIOMPDConnection connection = mMPD.getIdleConnection().getThreadUnsafeConnection();
+        final MPDConnectionStatus connectionStatus = connection.getConnectionStatus();
 
         /** Just for initialization purposes */
         MPDStatus oldStatus = status;
@@ -338,11 +342,13 @@ public class IdleSubsystemMonitor extends Thread {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     private List<String> waitForChanges() throws IOException, MPDException {
-        final MPDConnection mpdIdleConnection = mMPD.getIdleConnection();
+        final MonoIOMPDConnection mpdIdleConnection =
+                mMPD.getIdleConnection().getThreadUnsafeConnection();
+        final MPDConnectionStatus connectionStatus = mpdIdleConnection.getConnectionStatus();
         final MPDCommand idleCommand = MPDCommand.create(MPDCommand.MPD_CMD_IDLE,
                 mSupportedSubsystems);
 
-        while (mpdIdleConnection != null && mpdIdleConnection.isConnected()) {
+        while (connectionStatus.isConnected()) {
             final List<String> data = mpdIdleConnection.send(idleCommand);
 
             if (data.isEmpty()) {

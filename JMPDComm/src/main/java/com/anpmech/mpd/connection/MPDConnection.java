@@ -28,31 +28,22 @@
 package com.anpmech.mpd.connection;
 
 import com.anpmech.mpd.CommandQueue;
-import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.concurrent.MPDExecutor;
+import com.anpmech.mpd.concurrent.MPDFuture;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.Reflection;
 
-import java.io.BufferedReader;
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Class representing a connection to MPD Server.
@@ -60,91 +51,116 @@ import java.util.concurrent.TimeUnit;
 public abstract class MPDConnection {
 
     /**
+     * The command response for a successful command.
+     */
+    static final String CMD_RESPONSE_OK = "OK";
+
+    /**
+     * The debug flag to enable or disable debug logging output.
+     */
+    static final boolean DEBUG = false;
+
+    /**
+     * The MPD protocol charset used since 0.10.0.
+     */
+    static final String MPD_PROTOCOL_CHARSET = "UTF-8";
+
+    /**
+     * The default MPD host address.
+     */
+    private static final String DEFAULT_HOST = "127.0.0.1";
+
+    /**
+     * The default MPD host address port.
+     */
+    private static final int DEFAULT_PORT = 6600;
+
+    /**
+     * The default environment variable for host address storage.
+     */
+    private static final String ENVIRONMENT_KEY_HOST = "MPD_HOST";
+
+    /**
+     * The default environment variable for port address storage.
+     */
+    private static final String ENVIRONMENT_KEY_PORT = "MPD_PORT";
+
+    /**
+     * The highest available IPv4 port.
+     */
+    private static final int MAX_PORT = 65535;
+
+    /**
      * Response for each successful command executed in a command list if used with {@code
      * MPD_CMD_START_BULK_OK}.
      */
-    public static final String MPD_CMD_BULK_SEP = "list_OK";
+    private static final String MPD_CMD_BULK_SEP = "list_OK";
 
-    static final String MPD_RESPONSE_OK = "OK";
+    /**
+     * The error message given when attempting to send a empty command queue.
+     */
+    private static final String NO_EMPTY_COMMAND_QUEUE = "Cannot send an empty command queue.";
 
-    private static final int CONNECTION_TIMEOUT = 10000;
-
-    /** The debug flag to enable or disable debug logging output. */
-    private static final boolean DEBUG = false;
-
-    /** Default buffer size for the socket. */
-    private static final int DEFAULT_BUFFER_SIZE = 1024;
-
-    private static final String DEFAULT_HOST = "127.0.0.1";
-
-    private static final int DEFAULT_PORT = 6600;
-
-    private static final String ENVIRONMENT_KEY_HOST = "MPD_HOST";
-
-    private static final String ENVIRONMENT_KEY_PORT = "MPD_PORT";
-
-    private static final int MAX_PORT = 65535;
-
-    /** Maximum number of times to attempt command processing. */
-    private static final int MAX_REQUEST_RETRY = 3;
-
-    private static final String MPD_RESPONSE_ERR = "ACK";
-
+    /**
+     * The error given if a command is sent prior to connection.
+     */
     private static final String NO_ENDPOINT_ERROR = "Connection endpoint not yet established.";
 
-    private static final String POOL_THREAD_NAME_PREFIX = "pool";
+    /**
+     * This object tracks the status of this connection.
+     */
+    final MPDConnectionStatus mConnectionStatus;
 
-    /** A set containing all available commands, populated on connection. */
-    private final Collection<String> mAvailableCommands = new HashSet<>();
+    /**
+     * The command communication timeout.
+     */
+    final int mReadWriteTimeout;
 
-    /** The {@code ExecutorService} used to process commands. */
-    private final ThreadPoolExecutor mExecutor;
+    /**
+     * A set containing all available commands, populated on connection.
+     */
+    private final Collection<String> mAvailableCommands = new ArrayList<>();
 
-    /** The lock for this connection. */
+    /**
+     * The lock for this connection.
+     */
     private final Object mLock = new Object();
 
-    /** The command communication timeout. */
-    private final int mReadWriteTimeout;
+    /**
+     * The host/port pair used to connect to the media server.
+     */
+    InetSocketAddress mSocketAddress;
 
-    private final String mTag;
-
-    /** If set to true, this will cancel any processing commands at next opportunity. */
-    private boolean mCancelled = false;
-
-    /** User facing connection status. */
-    private boolean mIsConnected = false;
-
-    /** Current media server's major/minor/micro version. */
+    /**
+     * Current media server's major/minor/micro version.
+     */
     private int[] mMPDVersion = {0, 0, 0};
 
-    /** Current media server password. */
-    private MPDCommand mPassword = null;
-
-    /** The host/port pair used to connect to the media server. */
-    private InetSocketAddress mSocketAddress;
+    /**
+     * The default media server password command.
+     */
+    private MPDCommand mPassword;
 
     /**
      * The constructor method. This method does not connect to the server.
      *
      * @param readWriteTimeout The read write timeout for this connection.
-     * @param maxConnections   Maximum number of sockets to allow running at one time.
+     * @param connectionStatus The {@link MPDConnectionStatus} object relating to this connection.
      * @see #connect(InetAddress, int)
      */
-    MPDConnection(final int readWriteTimeout, final int maxConnections) {
+    MPDConnection(final int readWriteTimeout, final MPDConnectionStatus connectionStatus) {
         super();
 
         mReadWriteTimeout = readWriteTimeout;
-        mExecutor = new ThreadPoolExecutor(1, maxConnections, (long) mReadWriteTimeout,
-                TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-        mExecutor.prestartCoreThread();
-        if (maxConnections > 1) {
-            mTag = "MPDConnectionMultiSocket";
-            mExecutor.allowCoreThreadTimeOut(true);
-        } else {
-            mTag = "MPDConnectionMonoSocket";
-        }
+        mConnectionStatus = connectionStatus;
     }
 
+    /**
+     * Get default address port from the {@code MPD_HOST} environment variable.
+     *
+     * @return The InetAddress generated from the {@code MPD_HOST} environment variable, if it
+     * exists, null otherwise.
+     */
     private static int getDefaultPort() {
         int port;
 
@@ -158,6 +174,14 @@ public abstract class MPDConnection {
     }
 
     /**
+     * The method is used to disallow any further command sending until next {@link #connect()}
+     * call.
+     */
+    public void cancel() {
+        mConnectionStatus.statusChangeCancelled();
+    }
+
+    /**
      * This method calls standard defaults for the host/port pair and MPD password, if it exists.
      *
      * @throws IOException  Thrown upon a communication error with the server.
@@ -165,7 +189,7 @@ public abstract class MPDConnection {
      *                      host}/{@code port} pair with the {@code password}.
      */
     public void connect() throws IOException, MPDException {
-        connect(getDefaultAddress(), getDefaultPort());
+        connect(getDefaultHost(), getDefaultPort());
     }
 
     /**
@@ -179,46 +203,67 @@ public abstract class MPDConnection {
      * @throws MPDException Thrown upon an error sending a simple command to the {@code
      *                      host}/{@code port} pair with the {@code password}.
      */
-    public final void connect(final InetAddress host, final int port)
-            throws IOException, MPDException {
-        innerDisconnect();
-
+    public void connect(final InetAddress host, final int port) throws IOException, MPDException {
         if (port < 0 || port > MAX_PORT) {
             throw new MalformedURLException("Port must be an integer between 0 and 65535.");
         }
 
-        mCancelled = false;
-        mSocketAddress = new InetSocketAddress(host, port);
+        synchronized (mLock) {
+            final InetSocketAddress address = new InetSocketAddress(host, port);
+            final boolean hostChanged = !address.equals(mSocketAddress);
+            debug("hasHostChanged: " + hostChanged + " isCancelled: " + mConnectionStatus
+                    .isCancelled());
+            if (hostChanged || !mConnectionStatus.isConnected() ||
+                    mConnectionStatus.isCancelled()) {
+                debug("Information changed, connecting");
+                mConnectionStatus.unsetCancelled();
+                mSocketAddress = address;
 
-        final MPDCommand mpdCommand = MPDCommand.create(Reflection.CMD_ACTION_COMMANDS);
-        final CommandResult commandResult = processCommand(mpdCommand);
+                final CommandResult commandResult = submit(Reflection.CMD_ACTION_COMMANDS).get();
 
-        if (!commandResult.isHeaderValid()) {
-            throw new IOException("Failed initial connection.");
+                /**
+                 * Don't worry too much about it if we didn't get a connection header. Sometimes,
+                 * we'll have been told we disconnected when we had not.
+                 */
+                if (commandResult.isHeaderValid()) {
+                    final List<String> response = commandResult.getResponse();
+                    Tools.parseResponse(response, Reflection.CMD_RESPONSE_COMMANDS);
+                    mAvailableCommands.clear();
+                    mAvailableCommands.addAll(response);
+
+                    mMPDVersion = commandResult.getMPDVersion();
+                }
+            } else {
+                debug("Not reconnecting, already connected with same information");
+            }
         }
-
-        synchronized (mAvailableCommands) {
-            final List<String> response = commandResult.getResponse();
-            Tools.parseResponse(response, Reflection.CMD_RESPONSE_COMMANDS);
-            mAvailableCommands.clear();
-            mAvailableCommands.addAll(response);
-        }
-
-        mIsConnected = true;
-        mMPDVersion = commandResult.getMPDVersion();
     }
 
     /**
-     * The method to disconnect from the current connected server.
+     * This method outputs the {@code line} parameter to {@link com.anpmech.mpd.Log#debug(String,
+     * String)} if {@link #DEBUG} is set to true.
      *
-     * @throws IOException Thrown upon disconnection error.
+     * @param line The {@link String} to output to the log.
      */
-    public void disconnect() throws IOException {
-        mCancelled = true;
-        innerDisconnect();
-    }
+    abstract void debug(final String line);
 
-    private InetAddress getDefaultAddress() throws UnknownHostException {
+    /**
+     * This method retrieves a CommandProcessor for the particular extending class.
+     *
+     * @param command The command line to be processed.
+     * @return A command processor, ready for {@link java.util.concurrent.ExecutorService}
+     * submission.
+     */
+    abstract Callable<CommandResult> getCommandProcessor(final String command);
+
+    /**
+     * Get default address from the {@code MPD_HOST} environment variable.
+     *
+     * @return The InetAddress generated from the {@code MPD_HOST} environment variable, if it
+     * exists, null otherwise.
+     * @throws UnknownHostException If the address lookup fails.
+     */
+    private InetAddress getDefaultHost() throws UnknownHostException {
         String host = System.getenv(ENVIRONMENT_KEY_HOST);
         if (host == null) {
             host = DEFAULT_HOST;
@@ -256,35 +301,15 @@ public abstract class MPDConnection {
         if (mSocketAddress == null) {
             throw new IllegalStateException(NO_ENDPOINT_ERROR);
         }
+
         return mSocketAddress.getPort();
     }
-
-    protected abstract InputStreamReader getInputStream();
 
     /**
      * The current MPD protocol version.
      */
     public int[] getMPDVersion() {
         return mMPDVersion.clone();
-    }
-
-    protected abstract OutputStreamWriter getOutputStream();
-
-    protected abstract Socket getSocket();
-
-    /**
-     * A low level disconnect method for the socket(s).
-     *
-     * @throws IOException Thrown if there is a problem closing the socket.
-     */
-    private void innerDisconnect() throws IOException {
-        mIsConnected = false;
-        synchronized (mLock) {
-            if (getSocket() != null) {
-                getSocket().close();
-                setSocket(null);
-            }
-        }
     }
 
     /**
@@ -295,15 +320,6 @@ public abstract class MPDConnection {
      */
     public boolean isCommandAvailable(final String command) {
         return mAvailableCommands.contains(command);
-    }
-
-    /**
-     * A user facing connection inquiry method.
-     *
-     * @return True if socket(s) are connected, false otherwise.
-     */
-    public boolean isConnected() {
-        return mIsConnected;
     }
 
     /**
@@ -328,57 +344,74 @@ public abstract class MPDConnection {
     }
 
     /**
+     * This method sets up the {@link CommandQueue} (and prefixes with the password, if applicable)
+     * for ExecutorService processing.
+     *
+     * @param commandQueue The CommandQueue to process.
+     * @return The response to the CommandQueue.
+     */
+    private MPDFuture<CommandResult> processCommand(final CommandQueue commandQueue) {
+        if (commandQueue.isEmpty()) {
+            throw new IllegalStateException(NO_EMPTY_COMMAND_QUEUE);
+        }
+
+        if (mPassword != null) {
+            commandQueue.add(0, mPassword);
+        }
+
+        return processCommand(commandQueue.toString());
+    }
+
+    /**
+     * This method sets up the {@link MPDCommand} (and prefixes with the password, if applicable)
+     * for ExecutorService processing.
+     *
+     * @param mpdCommand The command to be processed.
+     * @return The response from the command.
+     */
+    private MPDFuture<CommandResult> processCommand(final MPDCommand mpdCommand) {
+        final String commandString;
+
+        if (mPassword == null) {
+            commandString = mpdCommand.getCommand();
+        } else {
+            commandString = new CommandQueue(mPassword, mpdCommand).toString();
+        }
+
+        return processCommand(commandString);
+    }
+
+    /**
      * Processes the command by setting up the command processor executor.
      *
-     * @param command The command to be processed.
+     * @param command The command string to be processed.
      * @return The response to the processed command.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    private CommandResult processCommand(final MPDCommand command)
-            throws IOException, MPDException {
-        // Bypass thread pool queue if the thread already comes from the pool to avoid deadlock.
-        if (Thread.currentThread().getName().startsWith(POOL_THREAD_NAME_PREFIX)) {
-            throw new IllegalThreadStateException("Don't call from within the executor.");
+    private MPDFuture<CommandResult> processCommand(final String command) {
+        debug("processCommand() command: " + command);
+
+        final Callable<CommandResult> callable = getCommandProcessor(command);
+
+        return MPDExecutor.submit(callable);
+    }
+
+    /**
+     * This method sets up the {@link CommandQueue} (and prefixes with the password, if applicable)
+     * for ExecutorService processing.
+     *
+     * @param commandQueue The CommandQueue to process.
+     * @return The response to the CommandQueue.
+     */
+    private MPDFuture<CommandResult> processCommandSeparated(final CommandQueue commandQueue) {
+        if (commandQueue.isEmpty()) {
+            throw new IllegalStateException(NO_EMPTY_COMMAND_QUEUE);
         }
 
-        final CommandResult result;
-        try {
-            result = mExecutor.submit(new CommandProcessor(command)).get();
-            // Spam the log with the largest pool size
-            //Log.debug(mTag, "Largest pool size: " + mExecutor.getLargestPoolSize());
-        } catch (final ExecutionException | InterruptedException e) {
-            throw new IOException(e);
+        if (mPassword != null) {
+            commandQueue.add(0, mPassword);
         }
 
-        if (result.getResponse() == null) {
-            if (result.isIOExceptionLast() == null) {
-                final String exceptionString;
-
-                if (mCancelled) {
-                    exceptionString = "Connection cancelled, not a bug but exception is required.";
-                } else {
-                    /**
-                     * This should not occur, and this exception should extend RuntimeException,
-                     * BUT a RuntimeException would most likely not help the situation.
-                     */
-                    exceptionString = "No result, no exception. This is a bug. Please report.";
-                }
-
-                throw new IOException(
-                        exceptionString + '\n' +
-                                "Cancelled: " + mCancelled + '\n' +
-                                "Command: " + command + '\n' +
-                                "Connected: " + mIsConnected + '\n' +
-                                "Connection result: " + result.getConnectionResult() + '\n');
-            } else if (result.isIOExceptionLast().equals(Boolean.TRUE)) {
-                throw result.getIOException();
-            } else if (result.isIOExceptionLast().equals(Boolean.FALSE)) {
-                throw result.getMPDException();
-            }
-        }
-
-        return result;
+        return processCommand(commandQueue.toStringSeparated());
     }
 
     /**
@@ -390,7 +423,7 @@ public abstract class MPDConnection {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> send(final MPDCommand command) throws IOException, MPDException {
-        return processCommand(command).getResponse();
+        return processCommand(command).get().getResponse();
     }
 
     /**
@@ -404,7 +437,7 @@ public abstract class MPDConnection {
      */
     public List<String> send(final CharSequence command, final CharSequence... args)
             throws IOException, MPDException {
-        return send(MPDCommand.create(command, args));
+        return submit(command, args).get().getResponse();
     }
 
     /**
@@ -416,31 +449,7 @@ public abstract class MPDConnection {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> send(final CommandQueue commandQueue) throws IOException, MPDException {
-        return send(commandQueue, false);
-    }
-
-    /**
-     * Sends the commands which were {@code add}ed to the queue.
-     *
-     * @param commandQueue The CommandQueue to send.
-     * @return The results of from the media server.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    private List<String> send(final CommandQueue commandQueue, final boolean separated)
-            throws IOException, MPDException {
-        if (commandQueue.isEmpty()) {
-            throw new IllegalStateException("Cannot send an empty command queue.");
-        }
-
-        final MPDCommand mpdCommand;
-        if (separated) {
-            mpdCommand = MPDCommand.create(commandQueue.toStringSeparated());
-        } else {
-            mpdCommand = MPDCommand.create(commandQueue.toString());
-        }
-
-        return send(mpdCommand);
+        return processCommand(commandQueue).get().getResponse();
     }
 
     /**
@@ -453,7 +462,14 @@ public abstract class MPDConnection {
      */
     public List<List<String>> sendSeparated(final CommandQueue commandQueue)
             throws IOException, MPDException {
-        final List<String> response = send(commandQueue, true);
+        final List<String> response = processCommandSeparated(commandQueue).get().getResponse();
+
+        /** TODO: Fix to push the future down. */
+        if (mPassword != null) {
+            /** Remove the password response. */
+            response.remove(0);
+        }
+
         final Collection<int[]> ranges = Tools.getRanges(response, MPD_CMD_BULK_SEP);
         final List<List<String>> result = new ArrayList<>(ranges.size());
 
@@ -483,230 +499,35 @@ public abstract class MPDConnection {
         }
     }
 
-    protected abstract void setInputStream(InputStreamReader inputStream);
-
-    protected abstract void setOutputStream(OutputStreamWriter outputStream);
-
-    protected abstract void setSocket(Socket socket);
-
     /**
-     * This method shuts down any running executors in this connection.
+     * Submits the command and arguments to the {@link MPDExecutor}.
+     *
+     * @param command The command to be sent to the server.
+     * @param args    Arguments to the command to be sent to the server.
+     * @return A {@link MPDFuture} for tracking and modification of the submission.
      */
-    public Runnable shutdown() {
-        return new Runnable() {
-            @Override
-            public void run() {
-                if (!mExecutor.isShutdown() && !mExecutor.isTerminating()) {
-                    mExecutor.shutdown();
-                }
-            }
-        };
+    public MPDFuture<CommandResult> submit(final CharSequence command,
+            final CharSequence... args) {
+        return submit(MPDCommand.create(command, args));
     }
 
-    /** This class communicates with the server by sending the command and processing the result. */
-    private class CommandProcessor implements Callable<CommandResult> {
+    /**
+     * Submits the command to the {@link MPDExecutor}.
+     *
+     * @param command The command to be sent to the server.
+     * @return A {@link MPDFuture} for tracking and modification of the submission.
+     */
+    public MPDFuture<CommandResult> submit(final MPDCommand command) {
+        return processCommand(command);
+    }
 
-        /** The command to be processed. */
-        private final MPDCommand mCommand;
-
-        CommandProcessor(final MPDCommand mpdCommand) {
-            super();
-
-            mCommand = mpdCommand;
-        }
-
-        /**
-         * This is the default class method.
-         *
-         * @return A {@code CommandResult} from the processed command.
-         */
-        @Override
-        public final CommandResult call() {
-            int retryCount = 0;
-            final CommandResult result = new CommandResult();
-            final CharSequence baseCommand = mCommand.getBaseCommand();
-
-            while (result.getResponse() == null && retryCount < MAX_REQUEST_RETRY && !mCancelled) {
-                try {
-                    if (getSocket() == null || !getSocket().isConnected() ||
-                            getSocket().isClosed()) {
-                        result.setConnectionResult(innerConnect());
-                    }
-
-                    write(mCommand);
-                    result.setResponse(read());
-                } catch (final IOException e) {
-                    handleFailure(result, e);
-                } catch (final MPDException ex1) {
-                    result.setException(ex1);
-                    break;
-                }
-
-                retryCount++;
-            }
-
-            if (!mCancelled) {
-                if (result.getResponse() == null) {
-                    logError(result, baseCommand, retryCount);
-                } else {
-                    mIsConnected = true;
-                }
-            }
-            return result;
-        }
-
-        /**
-         * Used after a server error, sleeps for a small time then tries to reconnect.
-         *
-         * @param result The {@code CommandResult} which stores the connection failure.
-         * @param e      The exception to set.
-         */
-        private void handleFailure(final CommandResult result, final IOException e) {
-            if (isFailureHandled(result)) {
-                result.setException(e);
-            }
-        }
-
-        /**
-         * This is the low level media server connection method.
-         *
-         * @return The initial response from the connection.
-         * @throws IOException  Thrown upon a communication error with the server.
-         * @throws MPDException Thrown if an error occurs as a result of command execution.
-         */
-        private String innerConnect() throws IOException, MPDException {
-            final String line;
-
-            // Always release existing socket if any before creating a new one
-            if (getSocket() != null) {
-                try {
-                    innerDisconnect();
-                } catch (final IOException ignored) {
-                }
-            }
-
-            setSocket(new Socket());
-            getSocket().setSoTimeout(mReadWriteTimeout);
-            getSocket().connect(mSocketAddress, CONNECTION_TIMEOUT);
-            setInputStream(new InputStreamReader(getSocket().getInputStream(), "UTF-8"));
-            final BufferedReader in = new BufferedReader(getInputStream(), DEFAULT_BUFFER_SIZE);
-            setOutputStream(new OutputStreamWriter(getSocket().getOutputStream(), "UTF-8"));
-            line = in.readLine();
-
-            if (line == null) {
-                throw new IOException("No response from server.");
-            }
-
-            /** Protocol says OK will begin the session, otherwise assume IO error. */
-            if (!line.startsWith(MPD_RESPONSE_OK)) {
-                throw new IOException("Bogus response from server.");
-            }
-
-            if (mPassword != null) {
-                write(mPassword);
-                read(); /** Ignore the output, unless, it's an exception. */
-            }
-
-            return line;
-        }
-
-        /**
-         * Used after a server error, sleeps for a small time then tries to reconnect.
-         *
-         * @param result The {@code CommandResult} which stores the connection failure.
-         */
-        private boolean isFailureHandled(final CommandResult result) {
-            boolean failureHandled = false;
-            mIsConnected = false;
-
-            try {
-                Thread.sleep(500L);
-            } catch (final InterruptedException ignored) {
-            }
-
-            try {
-                innerConnect();
-                failureHandled = true;
-            } catch (final MPDException me) {
-                result.setException(me);
-            } catch (final IOException ie) {
-                result.setException(ie);
-            }
-
-            return failureHandled;
-        }
-
-        private void logError(final CommandResult result, final CharSequence baseCommand,
-                final int retryCount) {
-            final StringBuilder stringBuilder = new StringBuilder(50);
-
-            stringBuilder.append("Command ");
-            stringBuilder.append(baseCommand);
-            stringBuilder.append(" failed after ");
-            stringBuilder.append(retryCount + 1);
-
-            if (retryCount == 0) {
-                stringBuilder.append(" attempt.");
-            } else {
-                stringBuilder.append(" attempts.");
-            }
-
-            if (result.isIOExceptionLast() == null) {
-                Log.error(mTag, stringBuilder.toString());
-            } else if (result.isIOExceptionLast().equals(Boolean.TRUE)) {
-                Log.error(mTag, stringBuilder.toString(), result.getIOException());
-            } else if (result.isIOExceptionLast().equals(Boolean.FALSE)) {
-                Log.error(mTag, stringBuilder.toString(), result.getMPDException());
-            }
-        }
-
-        /**
-         * Read the server response after a {@code write()} to the server.
-         *
-         * @return A String list of responses.
-         * @throws IOException  Thrown if there was a problem reading from from the media server.
-         * @throws MPDException Thrown if there was a server side error with the command that was
-         *                      sent.
-         */
-        private List<String> read() throws MPDException, IOException {
-            final List<String> result = new ArrayList<>();
-            final BufferedReader in = new BufferedReader(getInputStream(), DEFAULT_BUFFER_SIZE);
-            boolean validResponse = false;
-
-            for (String line = in.readLine(); line != null; line = in.readLine()) {
-
-                if (line.startsWith(MPD_RESPONSE_OK)) {
-                    validResponse = true;
-                    break;
-                }
-
-                if (line.startsWith(MPD_RESPONSE_ERR)) {
-                    throw new MPDException(line);
-                }
-                result.add(line);
-            }
-
-            if (!validResponse) {
-                // Close socket if there is no response...
-                // Something is wrong (e.g. MPD shutdown..)
-                throw new EOFException("Connection lost");
-            }
-            return result;
-        }
-
-        /**
-         * Sends the command to the server.
-         *
-         * @throws IOException Thrown upon error transferring command to media server.
-         */
-        private void write(final MPDCommand mpdCommand) throws IOException {
-            final String cmdString = mpdCommand.getCommand();
-
-            // Uncomment for extreme command debugging
-            //Log.debug(mTag, "Sending MPDCommand : " + cmdString);
-
-            getOutputStream().write(cmdString);
-            getOutputStream().flush();
-        }
+    /**
+     * Submits this CommandQueue to the {@link MPDExecutor}.
+     *
+     * @param commandQueue The The CommandQueue to send to the server.
+     * @return A {@link MPDFuture} for tracking and response processing.
+     */
+    public MPDFuture<CommandResult> submit(final CommandQueue commandQueue) {
+        return processCommand(commandQueue);
     }
 }

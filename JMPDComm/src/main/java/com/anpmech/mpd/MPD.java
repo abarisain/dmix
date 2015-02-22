@@ -28,8 +28,10 @@
 package com.anpmech.mpd;
 
 import com.anpmech.mpd.connection.MPDConnection;
-import com.anpmech.mpd.connection.MPDConnectionMonoSocket;
-import com.anpmech.mpd.connection.MPDConnectionMultiSocket;
+import com.anpmech.mpd.connection.MPDConnectionStatus;
+import com.anpmech.mpd.connection.MonoIOMPDConnection;
+import com.anpmech.mpd.connection.MultiIOMPDConnection;
+import com.anpmech.mpd.connection.ThreadSafeMonoConnection;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.AlbumBuilder;
@@ -71,7 +73,7 @@ public class MPD {
 
     private final MPDConnection mConnection;
 
-    private final MPDConnection mIdleConnection;
+    private final ThreadSafeMonoConnection mIdleConnection;
 
     private final MPDStatisticsMap mStatistics;
 
@@ -82,8 +84,8 @@ public class MPD {
      */
     public MPD() {
         super();
-        mConnection = new MPDConnectionMultiSocket(5000, 2);
-        mIdleConnection = new MPDConnectionMonoSocket(0);
+        mConnection = new MultiIOMPDConnection(5000);
+        mIdleConnection = new MonoIOMPDConnection(0);
 
         mPlaylist = new MPDPlaylist(mConnection);
         mStatistics = new MPDStatisticsMap(mConnection);
@@ -675,23 +677,8 @@ public class MPD {
      * @throws IOException if an error occur while closing connection
      */
     public synchronized void disconnect() throws IOException {
-        IOException ex = null;
-        if (mConnection != null && mConnection.isConnected()) {
-            try {
-                mConnection.disconnect();
-            } catch (final IOException e) {
-                ex = (ex != null) ? ex : e;// Always keep first non null
-                // exception
-            }
-        }
-        if (mIdleConnection != null && mIdleConnection.isConnected()) {
-            try {
-                mIdleConnection.disconnect();
-            } catch (final IOException e) {
-                ex = (ex != null) ? ex : e;// Always keep non null first
-                // exception
-            }
-        }
+        mIdleConnection.disconnect();
+        mConnection.cancel();
     }
 
     public void editSavedStream(final String url, final String name, final Integer pos)
@@ -927,6 +914,15 @@ public class MPD {
         return artists;
     }
 
+    /**
+     * This returns the connection status of the mono connection utilized by this class.
+     *
+     * @return The MPDConnectionStatus class for the mono connection used by this class.
+     */
+    public MPDConnectionStatus getConnectionStatus() {
+        return mIdleConnection.getConnectionStatus();
+    }
+
     protected List<Music> getFirstTrack(final Album album) throws IOException, MPDException {
         final Artist artist = album.getArtist();
         final String[] args = new String[6];
@@ -990,7 +986,12 @@ public class MPD {
         return mConnection.getHostPort();
     }
 
-    public MPDConnection getIdleConnection() {
+    /**
+     * This returns a thread safe version of the mono socket IO connection.
+     *
+     * @return A thread safe version of the mono socket IO connection.
+     */
+    public ThreadSafeMonoConnection getIdleConnection() {
         return mIdleConnection;
     }
 
@@ -1185,7 +1186,7 @@ public class MPD {
      * @return true when connected and false when not connected
      */
     public boolean isConnected() {
-        return mIdleConnection.isConnected();
+        return mIdleConnection.getConnectionStatus().isConnected();
     }
 
     /**
@@ -1766,22 +1767,6 @@ public class MPD {
      */
     public void shutdown() throws IOException, MPDException {
         mConnection.send(MPDCommand.MPD_CMD_KILL);
-    }
-
-    /**
-     * This method returns a thread which will shut down all running threads. This should be added
-     * to the client's shutdown hooks, if applicable.
-     *
-     * @return A thread containing all executors to shutdown.
-     */
-    public Thread shutdownExecutors() {
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mConnection.shutdown().run();
-                mIdleConnection.shutdown().run();
-            }
-        });
     }
 
     /**

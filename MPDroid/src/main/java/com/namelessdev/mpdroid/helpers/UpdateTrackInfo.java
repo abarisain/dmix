@@ -152,6 +152,11 @@ public class UpdateTrackInfo {
          */
         @Override
         protected final Void doInBackground(final MPDStatus... params) {
+            try {
+                params[0].waitForValidity();
+            } catch (final InterruptedException ignored) {
+            }
+
             final int songPos = params[0].getSongPos();
             mCurrentTrack = mApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
 
