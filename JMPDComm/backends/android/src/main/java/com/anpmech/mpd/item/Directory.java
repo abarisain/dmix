@@ -93,12 +93,21 @@ public class Directory extends AbstractDirectory<Directory> {
         final String remainingPath;
         final int slashIndex = subdirectory.indexOf(MPD_SEPARATOR);
 
-        if (slashIndex == 0) {
-            throw new IllegalArgumentException("name starts with '" + MPD_SEPARATOR + '\'');
-        }
+        if (slashIndex == 0 || slashIndex == subdirectory.length() - 1) {
+            final StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Subdirectory: ");
+            stringBuilder.append(subdirectory);
+            stringBuilder.append(" illegally");
+            if (slashIndex == 0) {
+                stringBuilder.append(" begins");
+            } else {
+                stringBuilder.append(" ends");
+            }
+            stringBuilder.append(" with '");
+            stringBuilder.append(MPD_SEPARATOR);
+            stringBuilder.append('\'');
 
-        if (slashIndex == subdirectory.length() - 1) {
-            throw new IllegalArgumentException("name ends with " + MPD_SEPARATOR + '\'');
+            throw new IllegalArgumentException(stringBuilder.toString());
         }
 
         // split path
