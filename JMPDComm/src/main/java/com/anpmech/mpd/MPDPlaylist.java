@@ -37,7 +37,9 @@ import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -126,7 +128,13 @@ public class MPDPlaylist {
         }
 
         commandQueue.add(MPD_CMD_PLAYLIST_MOVE_ID, Integer.toString(currentTrackID), "0");
-        commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, "1:" + playlistLength);
+        if (mpd.getIdleConnection().isProtocolVersionSupported(0, 16)) {
+            commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, "1:" + playlistLength);
+        } else {
+            for (int i = playlistLength - 1; i >= 1; i--) {
+                commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Integer.toString(i));
+            }
+        }
 
         return commandQueue;
     }
@@ -400,7 +408,15 @@ public class MPDPlaylist {
      */
     void removeByIndex(final int... songs) throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
-        commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Tools.sequentialToRange(songs));
+        if (mConnection.isProtocolVersionSupported(0, 16)) {
+            commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Tools.sequentialToRange(songs));
+        } else {
+            Arrays.sort(songs);
+
+            for (int i = songs.length - 1; i >= 0; i--) {
+                commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Integer.toString(i));
+            }
+        }
         mConnection.send(commandQueue);
     }
 
@@ -414,7 +430,16 @@ public class MPDPlaylist {
      */
     void removeByIndex(final List<Integer> songs) throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
-        commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Tools.sequentialToRange(songs));
+
+        if (mConnection.isProtocolVersionSupported(0, 16)) {
+            commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, Tools.sequentialToRange(songs));
+        } else {
+            Collections.sort(songs, Collections.reverseOrder());
+            for (final Integer song : songs) {
+                commandQueue.add(MPD_CMD_PLAYLIST_REMOVE, song.toString());
+            }
+        }
+
         mConnection.send(commandQueue);
     }
 
