@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.event.TrackPositionListener;
 import com.anpmech.mpd.exception.MPDException;
@@ -78,7 +79,8 @@ import java.util.TimerTask;
 
 import static com.namelessdev.mpdroid.tools.Tools.notifyUser;
 
-public class NowPlayingFragment extends Fragment implements StatusChangeListener,
+public class NowPlayingFragment extends Fragment implements
+        MPDConnectionListener, StatusChangeListener,
         TrackPositionListener, OnSharedPreferenceChangeListener, OnMenuItemClickListener,
         UpdateTrackInfo.FullTrackInfoUpdate {
 
@@ -297,13 +299,29 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         }
     }
 
+    /**
+     * Called upon connection.
+     */
     @Override
-    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
-        if (connected) {
-            forceStatusUpdate();
-        } else {
-            mSongNameText.setText(R.string.notConnected);
-        }
+    public void connectionConnected() {
+        forceStatusUpdate();
+    }
+
+    /**
+     * Called when connecting.
+     */
+    @Override
+    public void connectionConnecting() {
+    }
+
+    /**
+     * Called upon disconnection.
+     *
+     * @param reason The reason given for disconnection.
+     */
+    @Override
+    public void connectionDisconnected(final String reason) {
+        mSongNameText.setText(R.string.notConnected);
     }
 
     private void downloadCover(final AlbumInfo albumInfo) {
@@ -800,8 +818,15 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
     }
 
     @Override
+    public void onPause() {
+        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().removeListener(this);
+        super.onPause();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().addListener(this);
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         mIsAudioNameTextEnabled = settings.getBoolean("enableAudioText", false);
         forceStatusUpdate();

@@ -16,20 +16,42 @@
 
 package com.namelessdev.mpdroid;
 
+import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 
-public class SettingsActivity extends ActionBarActivity implements StatusChangeListener {
+public class SettingsActivity extends ActionBarActivity implements
+        MPDConnectionListener, StatusChangeListener {
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
     private SettingsFragment mSettingsFragment;
 
+    /**
+     * Called upon connection.
+     */
     @Override
-    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
+    public void connectionConnected() {
+        mSettingsFragment.onConnectionStateChanged();
+    }
+
+    /**
+     * Called when connecting.
+     */
+    @Override
+    public void connectionConnecting() {
+    }
+
+    /**
+     * Called upon disconnection.
+     *
+     * @param reason The reason given for disconnection.
+     */
+    @Override
+    public void connectionDisconnected(final String reason) {
         mSettingsFragment.onConnectionStateChanged();
     }
 
@@ -43,15 +65,22 @@ public class SettingsActivity extends ActionBarActivity implements StatusChangeL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
         mSettingsFragment = new SettingsFragment();
-        mApp.oMPDAsyncHelper.addStatusChangeListener(this);
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, mSettingsFragment).commit();
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void onPause() {
+        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().removeListener(this);
         mApp.oMPDAsyncHelper.removeStatusChangeListener(this);
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mApp.oMPDAsyncHelper.addStatusChangeListener(this);
+        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().addListener(this);
     }
 
     @Override

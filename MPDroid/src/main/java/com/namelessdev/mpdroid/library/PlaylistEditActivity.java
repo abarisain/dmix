@@ -92,10 +92,6 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
         }
     };
 
-    @Override
-    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
-    }
-
     private List<Music> getMusic() {
         List<Music> musics;
 

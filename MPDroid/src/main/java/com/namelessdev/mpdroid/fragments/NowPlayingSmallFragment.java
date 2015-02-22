@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
@@ -50,7 +51,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class NowPlayingSmallFragment extends Fragment implements StatusChangeListener,
+public class NowPlayingSmallFragment extends Fragment implements
+        MPDConnectionListener, StatusChangeListener,
         UpdateTrackInfo.TrackInfoUpdate {
 
     private static final String TAG = "NowPlayingSmallFragment";
@@ -74,13 +76,31 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     private TextView mSongTitle;
 
+    /**
+     * Called upon connection.
+     */
     @Override
-    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
-        if (connected && isAdded()) {
+    public void connectionConnected() {
+        if (isAdded()) {
             mApp.updateTrackInfo.refresh(mApp.oMPDAsyncHelper.oMPD.getStatus(), true);
         }
+    }
 
-        if (!connected && isAdded()) {
+    /**
+     * Called when connecting.
+     */
+    @Override
+    public void connectionConnecting() {
+    }
+
+    /**
+     * Called upon disconnection.
+     *
+     * @param reason The reason given for disconnection.
+     */
+    @Override
+    public void connectionDisconnected(final String reason) {
+        if (isAdded()) {
             mSongTitle.setText(R.string.notConnected);
             mSongArtist.setText("");
         }
@@ -180,6 +200,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
 
     @Override
     public void onPause() {
+        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().removeListener(this);
         mApp.updateTrackInfo.removeCallback(this);
         super.onPause();
     }
@@ -187,6 +208,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
     @Override
     public void onResume() {
         super.onResume();
+        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().addListener(this);
         final MPDStatus mpdStatus = mApp.oMPDAsyncHelper.oMPD.getStatus();
 
         if (mApp.updateTrackInfo == null) {

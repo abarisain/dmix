@@ -35,10 +35,6 @@ import com.anpmech.mpd.subsystem.status.MPDStatus;
 public abstract class AbstractStatusChangeListener implements StatusChangeListener {
 
     @Override
-    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
-    }
-
-    @Override
     public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
     }
 

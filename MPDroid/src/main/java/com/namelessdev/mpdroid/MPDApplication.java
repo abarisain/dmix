@@ -16,10 +16,10 @@
 
 package com.namelessdev.mpdroid;
 
+import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
-import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.service.MPDroidService;
 import com.namelessdev.mpdroid.service.NotificationHandler;
@@ -40,7 +40,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -54,7 +53,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MPDApplication extends Application implements
-        ConnectionListener,
+        MPDConnectionListener,
         Handler.Callback,
         MPDAsyncHelper.ConnectionInfoListener {
 
@@ -197,16 +196,28 @@ public class MPDApplication extends Application implements
     }
 
     private void connectMPD() {
+        // really connect
+        oMPDAsyncHelper.connect();
+    }
+
+    /**
+     * Called upon connection.
+     */
+    @Override
+    public void connectionConnected() {
+        dismissAlertDialog();
+    }
+
+    /**
+     * Called when connecting.
+     */
+    @Override
+    public void connectionConnecting() {
         // dismiss possible dialog
         dismissAlertDialog();
 
-        /** Returns null if the calling thread is not associated with a Looper.*/
-        final Looper localLooper = Looper.myLooper();
-        final boolean isUIThread =
-                localLooper != null && localLooper.equals(Looper.getMainLooper());
-
         // show connecting to server dialog, only on the main thread.
-        if (mCurrentActivity != null && isUIThread) {
+        if (mCurrentActivity != null) {
             mAlertDialog = new ProgressDialog(mCurrentActivity);
             mAlertDialog.setTitle(R.string.connecting);
             mAlertDialog.setMessage(getResources().getString(R.string.connectingToServer));
@@ -227,19 +238,15 @@ public class MPDApplication extends Application implements
         }
 
         cancelDisconnectScheduler();
-
-        // really connect
-        oMPDAsyncHelper.connect();
     }
 
     /**
-     * Handles the connection failure with a {@code AlertDialog} user facing message box.
+     * Called upon disconnection.
      *
-     * @param message The reason the connection failed.
+     * @param reason The reason given for disconnection.
      */
     @Override
-    public final synchronized void connectionFailed(final String message) {
-
+    public void connectionDisconnected(final String reason) {
         if (mAlertDialog == null || mAlertDialog instanceof ProgressDialog ||
                 !mAlertDialog.isShowing()) {
 
@@ -250,9 +257,9 @@ public class MPDApplication extends Application implements
                 try {
                     // are we in the settings activity?
                     if (mCurrentActivity.getClass().equals(SettingsActivity.class)) {
-                        mAlertDialog = buildConnectionFailedSettings(message).show();
+                        mAlertDialog = buildConnectionFailedSettings(reason).show();
                     } else {
-                        mAlertDialog = buildConnectionFailedMessage(message).show();
+                        mAlertDialog = buildConnectionFailedMessage(reason).show();
                     }
                 } catch (final RuntimeException e) {
                     /**
@@ -263,11 +270,6 @@ public class MPDApplication extends Application implements
                 }
             }
         }
-    }
-
-    @Override
-    public final synchronized void connectionSucceeded(final String message) {
-        dismissAlertDialog();
     }
 
     final void disconnect() {
@@ -445,7 +447,7 @@ public class MPDApplication extends Application implements
 
         oMPDAsyncHelper = new MPDAsyncHelper();
         mSettingsHelper = new SettingsHelper(oMPDAsyncHelper);
-        oMPDAsyncHelper.addConnectionListener(this);
+        oMPDAsyncHelper.oMPD.getConnectionStatus().addListener(this);
 
         mDisconnectScheduler = new Timer();
     }

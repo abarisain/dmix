@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.service;
 
+import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
@@ -54,6 +55,7 @@ import java.util.List;
 public final class MPDroidService extends Service implements
         AudioManager.OnAudioFocusChangeListener,
         MPDAsyncHelper.ConnectionInfoListener,
+        MPDConnectionListener,
         StatusChangeListener {
 
     /** Enable this to get various DEBUG messages from this module. */
@@ -182,26 +184,31 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * The status monitor listener callback method called upon media server connection change
-     * events.
-     *
-     * @param connected      New connection state: true, connected; false, disconnected.
-     * @param connectionLost True when connection was lost, false otherwise.
+     * Called upon connection.
      */
     @Override
-    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
-        if (DEBUG) {
-            Log.d(TAG, "connectionStateChanged(" + connected + ", " + connectionLost + ')');
-        }
+    public void connectionConnected() {
+        stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatusMap.STATE_UNKNOWN);
+    }
 
-        if (connected) {
-            stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatusMap.STATE_UNKNOWN);
-        } else {
-            final long idleDelay = 10000L; /** Give 10 Seconds for Network Problems */
+    /**
+     * Called when connecting.
+     */
+    @Override
+    public void connectionConnecting() {
+    }
 
-            if (!mHandler.hasMessages(DISCONNECT_ON_NO_CONNECTION)) {
-                mHandler.sendEmptyMessageDelayed(DISCONNECT_ON_NO_CONNECTION, idleDelay);
-            }
+    /**
+     * Called upon disconnection.
+     *
+     * @param reason The reason given for disconnection.
+     */
+    @Override
+    public void connectionDisconnected(final String reason) {
+        final long idleDelay = 10000L; /** Give 10 Seconds for Network Problems */
+
+        if (!mHandler.hasMessages(DISCONNECT_ON_NO_CONNECTION)) {
+            mHandler.sendEmptyMessageDelayed(DISCONNECT_ON_NO_CONNECTION, idleDelay);
         }
     }
 
@@ -238,6 +245,7 @@ public final class MPDroidService extends Service implements
         final SettingsHelper settingsHelper = new SettingsHelper(MPD_ASYNC_HELPER);
         settingsHelper.updateConnectionSettings();
 
+        MPD_ASYNC_HELPER.oMPD.getConnectionStatus().addListener(this);
         if (!MPD_ASYNC_HELPER.oMPD.isConnected()) {
             MPD_ASYNC_HELPER.connect();
         }

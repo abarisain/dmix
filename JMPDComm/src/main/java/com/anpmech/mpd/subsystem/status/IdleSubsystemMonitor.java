@@ -31,7 +31,7 @@ import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.MPDPlaylist;
-import com.anpmech.mpd.connection.MPDConnection;
+import com.anpmech.mpd.concurrent.MPDExecutor;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.connection.MonoIOMPDConnection;
 import com.anpmech.mpd.event.StatusChangeListener;
@@ -167,11 +167,15 @@ public class IdleSubsystemMonitor extends Thread {
         MPDStatus oldStatus = status;
 
         while (!mGiveup) {
-            Boolean connectionState = Boolean.valueOf(mMPD.isConnected());
             boolean connectionStateChanged = false;
 
-            if (connectionLost || oldConnectionState != connectionState) {
-                if (mMPD.isConnected()) {
+            try {
+                connectionStatus.waitForConnection();
+            } catch (final InterruptedException ignored) {
+            }
+
+            if (connectionLost || oldConnectionState != connectionStatus.isConnected()) {
+                if (connectionStatus.isConnected()) {
                     try {
                         oldStatus = status.getImmutableStatus();
                         statistics.update();
@@ -182,16 +186,12 @@ public class IdleSubsystemMonitor extends Thread {
                     }
                 }
 
-                for (final StatusChangeListener listener : mStatusChangeListeners) {
-                    listener.connectionStateChanged(connectionState.booleanValue(), connectionLost);
-                }
-
                 connectionLost = false;
-                oldConnectionState = connectionState;
+                oldConnectionState = connectionStatus.isConnected();
                 connectionStateChanged = true;
             }
 
-            if (connectionState.equals(Boolean.TRUE)) {
+            if (connectionStatus.isConnected()) {
                 // playlist
                 try {
                     boolean dbChanged = false;
@@ -310,8 +310,6 @@ public class IdleSubsystemMonitor extends Thread {
                         }
                     }
                 } catch (final IOException e) {
-                    // connection lost
-                    connectionState = Boolean.FALSE;
                     connectionLost = true;
                     if (mMPD.isConnected()) {
                         Log.error(TAG, "Exception caught while looping.", e);
@@ -320,18 +318,7 @@ public class IdleSubsystemMonitor extends Thread {
                     Log.error(TAG, "Exception caught while looping.", e);
                 }
             }
-
-            try {
-                synchronized (this) {
-                    if (!mMPD.isConnected()) {
-                        wait(mDelay);
-                    }
-                }
-            } catch (final InterruptedException e) {
-                Log.error(TAG, "Interruption caught during disconnection and wait.", e);
-            }
         }
-
     }
 
     /**
@@ -344,11 +331,10 @@ public class IdleSubsystemMonitor extends Thread {
     private List<String> waitForChanges() throws IOException, MPDException {
         final MonoIOMPDConnection mpdIdleConnection =
                 mMPD.getIdleConnection().getThreadUnsafeConnection();
-        final MPDConnectionStatus connectionStatus = mpdIdleConnection.getConnectionStatus();
         final MPDCommand idleCommand = MPDCommand.create(MPDCommand.MPD_CMD_IDLE,
                 mSupportedSubsystems);
 
-        while (connectionStatus.isConnected()) {
+        while (true) {
             final List<String> data = mpdIdleConnection.send(idleCommand);
 
             if (data.isEmpty()) {
@@ -357,6 +343,5 @@ public class IdleSubsystemMonitor extends Thread {
 
             return data;
         }
-        throw new IOException("IDLE connection lost");
     }
 }

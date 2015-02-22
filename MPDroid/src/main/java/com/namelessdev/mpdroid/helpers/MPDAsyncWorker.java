@@ -96,18 +96,9 @@ public class MPDAsyncWorker implements Handler.Callback,
         try {
             mMPD.setDefaultPassword(mConInfo.password);
             mMPD.connect(mConInfo.server, mConInfo.port);
-            mHelperHandler.sendEmptyMessage(MPDAsyncHelper.EVENT_CONNECT_SUCCEEDED);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Error while connecting to the server.", e);
-            mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_CONNECT_FAILED,
-                    Tools.toObjectArray(e.getMessage())).sendToTarget();
         }
-    }
-
-    @Override
-    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
-        mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_CONNECTION_STATE,
-                Tools.toObjectArray(connected, connectionLost)).sendToTarget();
     }
 
     /** Disconnects the {@code MPD} object from the media server. */

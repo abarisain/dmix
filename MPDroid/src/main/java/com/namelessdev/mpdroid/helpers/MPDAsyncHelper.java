@@ -42,31 +42,25 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     private static final int LOCAL_UID = 600;
 
-    static final int EVENT_CONNECT_FAILED = LOCAL_UID + 2;
+    static final int EVENT_PLAYLIST = LOCAL_UID + 1;
 
-    static final int EVENT_CONNECT_SUCCEEDED = LOCAL_UID + 3;
+    static final int EVENT_RANDOM = LOCAL_UID + 2;
 
-    static final int EVENT_CONNECTION_STATE = LOCAL_UID + 4;
+    static final int EVENT_REPEAT = LOCAL_UID + 3;
 
-    static final int EVENT_PLAYLIST = LOCAL_UID + 5;
+    static final int EVENT_SET_USE_CACHE = LOCAL_UID + 4;
 
-    static final int EVENT_RANDOM = LOCAL_UID + 6;
+    static final int EVENT_STATE = LOCAL_UID + 5;
 
-    static final int EVENT_REPEAT = LOCAL_UID + 7;
+    static final int EVENT_TRACK = LOCAL_UID + 6;
 
-    static final int EVENT_SET_USE_CACHE = LOCAL_UID + 8;
+    static final int EVENT_TRACK_POSITION = LOCAL_UID + 7;
 
-    static final int EVENT_STATE = LOCAL_UID + 9;
+    static final int EVENT_UPDATE_STATE = LOCAL_UID + 8;
 
-    static final int EVENT_TRACK = LOCAL_UID + 10;
+    static final int EVENT_VOLUME = LOCAL_UID + 9;
 
-    static final int EVENT_TRACK_POSITION = LOCAL_UID + 11;
-
-    static final int EVENT_UPDATE_STATE = LOCAL_UID + 12;
-
-    static final int EVENT_VOLUME = LOCAL_UID + 13;
-
-    static final int EVENT_STICKER_CHANGED = LOCAL_UID + 14;
+    static final int EVENT_STICKER_CHANGED = LOCAL_UID + 10;
 
     private static final String TAG = "MPDAsyncHelper";
 
@@ -77,8 +71,6 @@ public class MPDAsyncHelper implements Handler.Callback {
     private final Collection<AsyncExecListener> mAsyncExecListeners;
 
     private final Collection<ConnectionInfoListener> mConnectionInfoListeners;
-
-    private final Collection<ConnectionListener> mConnectionListeners;
 
     private final Collection<StatusChangeListener> mStatusChangeListeners;
 
@@ -107,7 +99,6 @@ public class MPDAsyncHelper implements Handler.Callback {
         new SettingsHelper(this).updateConnectionSettings();
 
         mAsyncExecListeners = new WeakLinkedList<>("AsyncExecListener");
-        mConnectionListeners = new WeakLinkedList<>("ConnectionListener");
         mConnectionInfoListeners = new WeakLinkedList<>("ConnectionInfoListener");
         mStatusChangeListeners = new WeakLinkedList<>("StatusChangeListener");
         mTrackPositionListeners = new WeakLinkedList<>("TrackPositionListener");
@@ -122,12 +113,6 @@ public class MPDAsyncHelper implements Handler.Callback {
     public void addConnectionInfoListener(final ConnectionInfoListener listener) {
         if (!mConnectionInfoListeners.contains(listener)) {
             mConnectionInfoListeners.add(listener);
-        }
-    }
-
-    public void addConnectionListener(final ConnectionListener listener) {
-        if (!mConnectionListeners.contains(listener)) {
-            mConnectionListeners.add(listener);
         }
     }
 
@@ -188,22 +173,6 @@ public class MPDAsyncHelper implements Handler.Callback {
         try {
             final Object[] args = (Object[]) msg.obj;
             switch (msg.what) {
-                case EVENT_CONNECTION_STATE:
-                    for (final StatusChangeListener listener : mStatusChangeListeners) {
-                        listener.connectionStateChanged((Boolean) args[0], (Boolean) args[1]);
-                    }
-                    // Also notify Connection Listener...
-                    if ((Boolean) args[0]) {
-                        for (final ConnectionListener listener : mConnectionListeners) {
-                            listener.connectionSucceeded("");
-                        }
-                    }
-                    if ((Boolean) args[1]) {
-                        for (final ConnectionListener listener : mConnectionListeners) {
-                            listener.connectionFailed("Connection Lost");
-                        }
-                    }
-                    break;
                 case MPDAsyncWorker.EVENT_CONNECTION_CONFIG:
                     mConnectionInfo = (ConnectionInfo) args[0];
                     for (final ConnectionInfoListener listener : mConnectionInfoListeners) {
@@ -258,16 +227,6 @@ public class MPDAsyncHelper implements Handler.Callback {
                         listener.stickerChanged((MPDStatus) args[0]);
                     }
                     break;
-                case EVENT_CONNECT_FAILED:
-                    for (final ConnectionListener listener : mConnectionListeners) {
-                        listener.connectionFailed((String) args[0]);
-                    }
-                    break;
-                case EVENT_CONNECT_SUCCEEDED:
-                    for (final ConnectionListener listener : mConnectionListeners) {
-                        listener.connectionSucceeded(null);
-                    }
-                    break;
                 case MPDAsyncWorker.EVENT_EXEC_ASYNC_FINISHED:
                     // Asynchronous operation finished, call the listeners and supply the JobID...
                     for (final AsyncExecListener listener : mAsyncExecListeners) {
@@ -297,10 +256,6 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     public void removeConnectionInfoListener(final ConnectionInfoListener listener) {
         mConnectionInfoListeners.remove(listener);
-    }
-
-    public void removeConnectionListener(final ConnectionListener listener) {
-        mConnectionListeners.remove(listener);
     }
 
     public void removeStatusChangeListener(final StatusChangeListener listener) {
@@ -343,13 +298,5 @@ public class MPDAsyncHelper implements Handler.Callback {
     public interface ConnectionInfoListener {
 
         void onConnectionConfigChange(ConnectionInfo connectionInfo);
-    }
-
-    // PMix internal ConnectionListener interface
-    public interface ConnectionListener {
-
-        void connectionFailed(String message);
-
-        void connectionSucceeded(String message);
     }
 }

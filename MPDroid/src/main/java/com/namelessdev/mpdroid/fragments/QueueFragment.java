@@ -150,10 +150,6 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         }
     };
 
-    @Override
-    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
-    }
-
     protected AbstractPlaylistMusic getPlaylistItemSong(final int songID) {
         AbstractPlaylistMusic song = null;
         for (final AbstractPlaylistMusic music : mSongList) {

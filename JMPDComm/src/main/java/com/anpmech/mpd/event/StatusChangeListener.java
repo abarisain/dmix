@@ -35,14 +35,6 @@ import com.anpmech.mpd.subsystem.status.MPDStatus;
 public interface StatusChangeListener {
 
     /**
-     * Called when MPD server connection changes state. (connected/disconnected)
-     *
-     * @param connected      new connection state: true, connected; false, disconnected.
-     * @param connectionLost true when connection was lost, false otherwise.
-     */
-    void connectionStateChanged(boolean connected, boolean connectionLost);
-
-    /**
      * Called when the MPD server update database starts and stops.
      *
      * @param updating  true when updating, false when not updating.
