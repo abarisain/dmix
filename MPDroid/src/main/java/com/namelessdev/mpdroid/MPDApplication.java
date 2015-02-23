@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid;
 
-import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
@@ -25,26 +24,16 @@ import com.namelessdev.mpdroid.service.MPDroidService;
 import com.namelessdev.mpdroid.service.NotificationHandler;
 import com.namelessdev.mpdroid.service.ServiceBinder;
 import com.namelessdev.mpdroid.service.StreamHandler;
-import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Application;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnKeyListener;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.WindowManager.BadTokenException;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -53,15 +42,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MPDApplication extends Application implements
-        MPDConnectionListener,
         Handler.Callback,
         MPDAsyncHelper.ConnectionInfoListener {
 
     private static final boolean DEBUG = false;
 
     private static final long DISCONNECT_TIMER = 15000L;
-
-    private static final int SETTINGS = 5;
 
     private static final String TAG = "MPDApplication";
 
@@ -74,10 +60,6 @@ public class MPDApplication extends Application implements
 
     public UpdateTrackInfo updateTrackInfo = null;
 
-    private AlertDialog mAlertDialog = null;
-
-    private Activity mCurrentActivity = null;
-
     private Timer mDisconnectScheduler = null;
 
     private boolean mIsNotificationActive = false;
@@ -89,10 +71,6 @@ public class MPDApplication extends Application implements
     private ServiceBinder mServiceBinder;
 
     private SharedPreferences mSettings = null;
-
-    private SettingsHelper mSettingsHelper = null;
-
-    private boolean mSettingsShown = false;
 
     public static MPDApplication getInstance() {
         return sInstance;
@@ -111,49 +89,7 @@ public class MPDApplication extends Application implements
         }
     }
 
-    /**
-     * Builds the Connection Failed dialog box for anything other than the settings activity.
-     *
-     * @param message The reason the connection failed.
-     * @return The built {@code AlertDialog} object.
-     */
-    private AlertDialog.Builder buildConnectionFailedMessage(final String message) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(mCurrentActivity);
-        final OnClickListener oDialogClickListener = new DialogClickListener();
-
-        builder.setTitle(R.string.connectionFailed);
-        builder.setMessage(
-                getResources().getString(R.string.connectionFailedMessage, message));
-        builder.setCancelable(false);
-
-        builder.setNegativeButton(R.string.quit, oDialogClickListener);
-        builder.setNeutralButton(R.string.settings, oDialogClickListener);
-        builder.setPositiveButton(R.string.retry, oDialogClickListener);
-
-        return builder;
-    }
-
-    /**
-     * Builds the Connection Failed dialog box for the Settings activity.
-     *
-     * @param message The reason the connection failed.
-     * @return The built {@code AlertDialog} object.
-     */
-    private AlertDialog.Builder buildConnectionFailedSettings(final String message) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(mCurrentActivity);
-
-        builder.setCancelable(false);
-        builder.setMessage(
-                getResources().getString(R.string.connectionFailedMessageSetting, message));
-        builder.setPositiveButton("OK", new OnClickListener() {
-            @Override
-            public void onClick(final DialogInterface dialog, final int which) {
-            }
-        });
-        return builder;
-    }
-
-    private void cancelDisconnectScheduler() {
+    void cancelDisconnectScheduler() {
         mDisconnectScheduler.cancel();
         mDisconnectScheduler.purge();
         mDisconnectScheduler = new Timer();
@@ -175,99 +111,8 @@ public class MPDApplication extends Application implements
                         IdleSubsystemMonitor.IDLE_UPDATE
                 });
             }
-            if (!oMPDAsyncHelper.oMPD.isConnected() && (mCurrentActivity == null
-                    || !mCurrentActivity.getClass().equals(WifiConnectionSettings.class))) {
-                connect();
-            }
-        }
-    }
-
-    public final void connect() {
-        if (!mSettingsHelper.updateConnectionSettings()) {
-            // Absolutely no settings defined! Open Settings!
-            if (mCurrentActivity != null && !mSettingsShown) {
-                mCurrentActivity.startActivityForResult(new Intent(mCurrentActivity,
-                        WifiConnectionSettings.class), SETTINGS);
-                mSettingsShown = true;
-            }
-        }
-
-        connectMPD();
-    }
-
-    private void connectMPD() {
-        // really connect
-        oMPDAsyncHelper.connect();
-    }
-
-    /**
-     * Called upon connection.
-     */
-    @Override
-    public void connectionConnected() {
-        dismissAlertDialog();
-    }
-
-    /**
-     * Called when connecting.
-     */
-    @Override
-    public void connectionConnecting() {
-        // dismiss possible dialog
-        dismissAlertDialog();
-
-        // show connecting to server dialog, only on the main thread.
-        if (mCurrentActivity != null) {
-            mAlertDialog = new ProgressDialog(mCurrentActivity);
-            mAlertDialog.setTitle(R.string.connecting);
-            mAlertDialog.setMessage(getResources().getString(R.string.connectingToServer));
-            mAlertDialog.setCancelable(false);
-            mAlertDialog.setOnKeyListener(new OnKeyListener() {
-                @Override
-                public boolean onKey(final DialogInterface dialog, final int keyCode,
-                        final KeyEvent event) {
-                    // Handle all keys!
-                    return true;
-                }
-            });
-            try {
-                mAlertDialog.show();
-            } catch (final BadTokenException ignored) {
-                // Can't display it. Don't care.
-            }
-        }
-
-        cancelDisconnectScheduler();
-    }
-
-    /**
-     * Called upon disconnection.
-     *
-     * @param reason The reason given for disconnection.
-     */
-    @Override
-    public void connectionDisconnected(final String reason) {
-        if (mAlertDialog == null || mAlertDialog instanceof ProgressDialog ||
-                !mAlertDialog.isShowing()) {
-
-            // dismiss possible dialog
-            dismissAlertDialog();
-
-            if (mCurrentActivity != null && !mConnectionLocks.isEmpty()) {
-                try {
-                    // are we in the settings activity?
-                    if (mCurrentActivity.getClass().equals(SettingsActivity.class)) {
-                        mAlertDialog = buildConnectionFailedSettings(reason).show();
-                    } else {
-                        mAlertDialog = buildConnectionFailedMessage(reason).show();
-                    }
-                } catch (final RuntimeException e) {
-                    /**
-                     * Unfortunately, AlertDialog can throw RuntimeException if not initialized
-                     * and we're given no meaningful way to fix this, so, we'll have to catch it.
-                     */
-                    Log.e(TAG, "Failed to show the connection failed alert dialog.", e);
-                }
+            if (!oMPDAsyncHelper.oMPD.isConnected()) {
+                oMPDAsyncHelper.connect();
             }
         }
     }
@@ -275,18 +120,6 @@ public class MPDApplication extends Application implements
     final void disconnect() {
         cancelDisconnectScheduler();
         startDisconnectScheduler();
-    }
-
-    private void dismissAlertDialog() {
-        if (mAlertDialog != null) {
-            if (mAlertDialog.isShowing()) {
-                try {
-                    mAlertDialog.dismiss();
-                } catch (final IllegalArgumentException | IllegalStateException ignored) {
-                    // We don't care, it has already been destroyed
-                }
-            }
-        }
     }
 
     /**
@@ -446,8 +279,6 @@ public class MPDApplication extends Application implements
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
 
         oMPDAsyncHelper = new MPDAsyncHelper();
-        mSettingsHelper = new SettingsHelper(oMPDAsyncHelper);
-        oMPDAsyncHelper.oMPD.getConnectionStatus().addListener(this);
 
         mDisconnectScheduler = new Timer();
     }
@@ -460,14 +291,6 @@ public class MPDApplication extends Application implements
     public final void removeConnectionLock(final Object lockOwner) {
         mConnectionLocks.remove(lockOwner);
         checkConnectionNeeded();
-    }
-
-    public final void setActivity(final Object activity) {
-        if (activity instanceof Activity) {
-            mCurrentActivity = (Activity) activity;
-        }
-
-        addConnectionLock(activity);
     }
 
     /**
@@ -547,36 +370,5 @@ public class MPDApplication extends Application implements
         }
         setupServiceBinder();
         mServiceBinder.sendMessageToService(StreamHandler.STOP);
-    }
-
-    public final void unsetActivity(final Object activity) {
-        removeConnectionLock(activity);
-
-        if (mCurrentActivity != null && mCurrentActivity.equals(activity)) {
-            mCurrentActivity = null;
-        }
-    }
-
-    private class DialogClickListener implements OnClickListener {
-
-        @Override
-        public final void onClick(final DialogInterface dialog, final int which) {
-            switch (which) {
-                case DialogInterface.BUTTON_NEUTRAL:
-                    final Intent intent =
-                            new Intent(mCurrentActivity, WifiConnectionSettings.class);
-                    // Show Settings
-                    mCurrentActivity.startActivityForResult(intent, SETTINGS);
-                    break;
-                case DialogInterface.BUTTON_NEGATIVE:
-                    mCurrentActivity.finish();
-                    break;
-                case DialogInterface.BUTTON_POSITIVE:
-                    connectMPD();
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 }

@@ -24,6 +24,7 @@ import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
+import com.namelessdev.mpdroid.ErrorHandler;
 import com.namelessdev.mpdroid.MPDroidActivities;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -54,6 +55,8 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
         OnClickListener, AdapterView.OnItemClickListener {
 
     private static final String TAG = "PlaylistEditActivity";
+
+    private ErrorHandler mErrorHandler;
 
     private boolean mIsFirstRefresh = true;
 
@@ -225,15 +228,15 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        mApp.setActivity(this);
+    protected void onPause() {
+        mErrorHandler.stop();
+        super.onPause();
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        mApp.unsetActivity(this);
+    protected void onResume() {
+        super.onResume();
+        mErrorHandler = new ErrorHandler(this);
     }
 
     @Override

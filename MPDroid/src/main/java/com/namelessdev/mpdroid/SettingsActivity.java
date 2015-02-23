@@ -28,6 +28,8 @@ public class SettingsActivity extends ActionBarActivity implements
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
+    private ErrorHandler mErrorHandler;
+
     private SettingsFragment mSettingsFragment;
 
     /**
@@ -71,6 +73,7 @@ public class SettingsActivity extends ActionBarActivity implements
 
     @Override
     public void onPause() {
+        mErrorHandler.stop();
         mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().removeListener(this);
         mApp.oMPDAsyncHelper.removeStatusChangeListener(this);
         super.onPause();
@@ -80,19 +83,8 @@ public class SettingsActivity extends ActionBarActivity implements
     public void onResume() {
         super.onResume();
         mApp.oMPDAsyncHelper.addStatusChangeListener(this);
+        mErrorHandler = new ErrorHandler(this);
         mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().addListener(this);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mApp.setActivity(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mApp.setActivity(this);
     }
 
     @Override

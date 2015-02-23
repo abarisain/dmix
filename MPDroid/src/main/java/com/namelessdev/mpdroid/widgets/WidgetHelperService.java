@@ -45,7 +45,7 @@ public class WidgetHelperService extends IntentService {
     @Override
     protected void onHandleIntent(final Intent intent) {
         // get MPD connection
-        mApp.setActivity(this);
+        mApp.addConnectionLock(this);
 
         // prepare values for runnable
         final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
@@ -60,7 +60,7 @@ public class WidgetHelperService extends IntentService {
         });
 
         // clean up
-        mApp.unsetActivity(this);
+        mApp.removeConnectionLock(this);
     }
 
     void processIntent(final String action, final MPD mpd) {

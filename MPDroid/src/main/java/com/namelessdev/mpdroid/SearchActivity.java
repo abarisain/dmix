@@ -103,6 +103,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     @StringRes
     private int mAddedString;
 
+    private ErrorHandler mErrorHandler;
+
     private ListView mListAlbums = null;
 
     private View mListAlbumsFrame = null;
@@ -500,15 +502,15 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        mApp.setActivity(this);
+    public void onPause() {
+        mErrorHandler.stop();
+        super.onPause();
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        mApp.unsetActivity(this);
+    public void onResume() {
+        super.onResume();
+        mErrorHandler = new ErrorHandler(this);
     }
 
     @Override

@@ -178,8 +178,7 @@ public final class Tools {
     }
 
     public static void notifyUser(@StringRes final int resId, final Object... format) {
-        final String formattedString =
-                MPDApplication.getInstance().getResources().getString(resId, format);
+        final String formattedString = APP.getResources().getString(resId, format);
         Toast.makeText(APP, formattedString, Toast.LENGTH_SHORT).show();
     }
 

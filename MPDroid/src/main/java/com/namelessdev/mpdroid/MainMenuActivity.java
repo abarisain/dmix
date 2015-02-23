@@ -58,6 +58,8 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
     private int mBackPressExitCount;
 
+    private ErrorHandler mErrorHandler;
+
     private Handler mExitCounterReset = new Handler();
 
     private FragmentManager mFragmentManager;
@@ -200,6 +202,7 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
     @Override
     protected void onPause() {
+        mErrorHandler.stop();
         if (DEBUG) {
             unregisterReceiver(MPDConnectionHandler.getInstance());
         }
@@ -217,6 +220,8 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     protected void onResume() {
         super.onResume();
         mBackPressExitCount = 0;
+        mErrorHandler = new ErrorHandler(this);
+
         if (DEBUG) {
             registerReceiver(MPDConnectionHandler.getInstance(),
                     new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
@@ -226,18 +231,10 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     @Override
     public void onStart() {
         super.onStart();
-        mApp.setActivity(this);
 
         if (mApp.isNotificationPersistent()) {
             mApp.startNotification();
         }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        mApp.unsetActivity(this);
     }
 
     @Override

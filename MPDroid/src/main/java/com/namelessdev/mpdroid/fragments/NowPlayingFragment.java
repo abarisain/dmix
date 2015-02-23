@@ -869,7 +869,6 @@ public class NowPlayingFragment extends Fragment implements
         mApp.updateTrackInfo.addCallback(this);
         mApp.oMPDAsyncHelper.addStatusChangeListener(this);
         mApp.oMPDAsyncHelper.addTrackPositionListener(this);
-        mApp.setActivity(this);
     }
 
     @Override
@@ -880,7 +879,6 @@ public class NowPlayingFragment extends Fragment implements
         mApp.oMPDAsyncHelper.removeStatusChangeListener(this);
         mApp.oMPDAsyncHelper.removeTrackPositionListener(this);
         stopPosTimer();
-        mApp.unsetActivity(this);
     }
 
     /**

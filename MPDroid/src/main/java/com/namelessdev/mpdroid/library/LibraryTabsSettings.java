@@ -18,7 +18,7 @@ package com.namelessdev.mpdroid.library;
 
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
-import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.ErrorHandler;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
@@ -38,9 +38,9 @@ import java.util.List;
 
 public class LibraryTabsSettings extends PreferenceActivity {
 
-    private final MPDApplication mApp = MPDApplication.getInstance();
-
     private SeparatedListAdapter mAdapter;
+
+    private ErrorHandler mErrorHandler;
 
     private ArrayList<Object> mTabList;
 
@@ -124,15 +124,15 @@ public class LibraryTabsSettings extends PreferenceActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        mApp.setActivity(this);
+    protected void onPause() {
+        mErrorHandler.stop();
+        super.onPause();
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        mApp.unsetActivity(this);
+    protected void onResume() {
+        super.onResume();
+        mErrorHandler = new ErrorHandler(this);
     }
 
     private void refreshTable() {

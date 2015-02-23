@@ -465,17 +465,11 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     @Override
     public void onStart() {
         super.onStart();
-        mApp.setActivity(getActivity());
+
         if (!mFirstUpdateDone) {
             mFirstUpdateDone = true;
             updateList();
         }
-    }
-
-    @Override
-    public void onStop() {
-        mApp.unsetActivity(getActivity());
-        super.onStop();
     }
 
     /**
