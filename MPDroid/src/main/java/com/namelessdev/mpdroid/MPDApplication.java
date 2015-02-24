@@ -42,7 +42,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -440,12 +439,6 @@ public class MPDApplication extends Application implements
         CrashlyticsWrapper.start(this);
 
         mSettings = PreferenceManager.getDefaultSharedPreferences(this);
-
-        final StrictMode.VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().penaltyLog().build();
-        final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll()
-                .build();
-        StrictMode.setThreadPolicy(policy);
-        StrictMode.setVmPolicy(vmPolicy);
 
         // Init the default preferences (meaning we won't have different defaults between code/xml)
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
