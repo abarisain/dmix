@@ -56,21 +56,33 @@ public class MPDApplication extends Application implements
     private final Collection<Object> mConnectionLocks =
             Collections.synchronizedCollection(new LinkedList<>());
 
-    public MPDAsyncHelper oMPDAsyncHelper = null;
+    public MPDAsyncHelper oMPDAsyncHelper;
 
-    public UpdateTrackInfo updateTrackInfo = null;
+    public UpdateTrackInfo updateTrackInfo;
 
-    private Timer mDisconnectScheduler = null;
+    private Timer mDisconnectScheduler;
 
-    private boolean mIsNotificationActive = false;
+    private boolean mIsNotificationActive;
 
-    private boolean mIsNotificationOverridden = false;
+    private boolean mIsNotificationOverridden;
 
-    private boolean mIsStreamActive = false;
+    private boolean mIsStreamActive;
 
     private ServiceBinder mServiceBinder;
 
-    private SharedPreferences mSettings = null;
+    private SharedPreferences mSettings;
+
+    /**
+     * A simple method used to suppress or emit debug log output, depending on the {@link #DEBUG}
+     * boolean.
+     *
+     * @param line The log output.
+     */
+    private static void debug(final String line) {
+        if (DEBUG) {
+            Log.d(TAG, line);
+        }
+    }
 
     public static MPDApplication getInstance() {
         return sInstance;
@@ -86,6 +98,7 @@ public class MPDApplication extends Application implements
             mConnectionLocks.add(lockOwner);
             checkConnectionNeeded();
             cancelDisconnectScheduler();
+            debug("Added lock owner: " + lockOwner + ", " + mConnectionLocks.size() + " remain.");
         }
     }
 
@@ -132,16 +145,12 @@ public class MPDApplication extends Application implements
     public final boolean handleMessage(final Message msg) {
         boolean result = true;
 
-        if (DEBUG) {
-            Log.d(TAG, "Message received: " + ServiceBinder.getHandlerValue(msg.what) +
-                    " with value: " + ServiceBinder.getHandlerValue(msg.arg1));
-        }
+        debug("Message received: " + ServiceBinder.getHandlerValue(msg.what) +
+                " with value: " + ServiceBinder.getHandlerValue(msg.arg1));
 
         switch (msg.what) {
             case MPDroidService.REQUEST_UNBIND:
-                if (DEBUG) {
-                    Log.d(TAG, "Service requested unbind, complying.");
-                }
+                debug("Service requested unbind, complying.");
                 mServiceBinder.doUnbindService();
                 break;
             case NotificationHandler.IS_ACTIVE:
@@ -149,7 +158,7 @@ public class MPDApplication extends Application implements
                 mServiceBinder.setServicePersistent(true);
                 break;
             case ServiceBinder.CONNECTED:
-                Log.d(TAG, "MPDApplication is bound to the service.");
+                debug("MPDApplication is bound to the service.");
                 oMPDAsyncHelper.addConnectionInfoListener(this);
                 break;
             case ServiceBinder.DISCONNECTED:
@@ -220,9 +229,7 @@ public class MPDApplication extends Application implements
             result = false;
         }
 
-        if (DEBUG) {
-            Log.d(TAG, "Notification is persistent: " + result);
-        }
+        debug("Notification is persistent: " + result);
         return result;
     }
 
@@ -232,8 +239,8 @@ public class MPDApplication extends Application implements
      * @return True if streaming service is running, false otherwise.
      */
     public final boolean isStreamActive() {
-        if (DEBUG && mServiceBinder != null) {
-            Log.d(TAG, "ServiceBound: " + mServiceBinder.isServiceBound() + " isStreamActive: " +
+        if (mServiceBinder != null) {
+            debug("ServiceBound: " + mServiceBinder.isServiceBound() + " isStreamActive: " +
                     mIsStreamActive);
         }
         return mServiceBinder != null && mServiceBinder.isServiceBound() && mIsStreamActive;
@@ -268,7 +275,7 @@ public class MPDApplication extends Application implements
     public final void onCreate() {
         super.onCreate();
         sInstance = this;
-        Log.d(TAG, "onCreate Application");
+        debug("onCreate Application");
 
         // Don't worry FOSS guys, crashlytics is not included in the "foss" flavour
         CrashlyticsWrapper.start(this);
@@ -291,6 +298,7 @@ public class MPDApplication extends Application implements
     public final void removeConnectionLock(final Object lockOwner) {
         mConnectionLocks.remove(lockOwner);
         checkConnectionNeeded();
+        debug("Removing lock owner: " + lockOwner + ", " + mConnectionLocks.size() + " remain.");
     }
 
     /**
@@ -322,6 +330,7 @@ public class MPDApplication extends Application implements
 
     private void startDisconnectScheduler() {
         try {
+            debug("Scheduling disconnection.");
             mDisconnectScheduler.schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -337,9 +346,7 @@ public class MPDApplication extends Application implements
 
     public final void startNotification() {
         if (!mIsNotificationActive) {
-            if (DEBUG) {
-                Log.d(TAG, "Starting notification.");
-            }
+            debug("Starting notification.");
             setupServiceBinder();
             mServiceBinder
                     .sendMessageToService(NotificationHandler.START, isNotificationPersistent());
@@ -348,26 +355,20 @@ public class MPDApplication extends Application implements
 
     public final void startStreaming() {
         if (!mIsStreamActive) {
-            if (DEBUG) {
-                Log.d(TAG, "Starting stream.");
-            }
+            debug("Starting stream.");
             setupServiceBinder();
             mServiceBinder.sendMessageToService(StreamHandler.START);
         }
     }
 
     public final void stopNotification() {
-        if (DEBUG) {
-            Log.d(TAG, "Stop notification.");
-        }
+        debug("Stop notification.");
         setupServiceBinder();
         mServiceBinder.sendMessageToService(NotificationHandler.STOP);
     }
 
     public final void stopStreaming() {
-        if (DEBUG) {
-            Log.d(TAG, "Stop streaming.");
-        }
+        debug("Stop streaming.");
         setupServiceBinder();
         mServiceBinder.sendMessageToService(StreamHandler.STOP);
     }
