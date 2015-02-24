@@ -87,8 +87,6 @@ public class IdleSubsystemMonitor extends Thread {
 
     private static final String TAG = "IdleStatusMonitor";
 
-    private final long mDelay;
-
     private final MPD mMPD;
 
     private final Queue<StatusChangeListener> mStatusChangeListeners;
@@ -103,15 +101,12 @@ public class IdleSubsystemMonitor extends Thread {
      * Constructs an IdleStatusMonitor.
      *
      * @param mpd                 MPD server to monitor.
-     * @param delay               status query interval.
      * @param supportedSubsystems Idle subsystems to support, see IDLE fields in this class.
      */
-    public IdleSubsystemMonitor(final MPD mpd, final long delay,
-            final String[] supportedSubsystems) {
+    public IdleSubsystemMonitor(final MPD mpd, final String[] supportedSubsystems) {
         super(TAG);
 
         mMPD = mpd;
-        mDelay = delay;
         mGiveup = false;
         mStatusChangeListeners = new LinkedList<>();
         mTrackPositionListeners = new LinkedList<>();
@@ -152,10 +147,6 @@ public class IdleSubsystemMonitor extends Thread {
      */
     @Override
     public void run() {
-        // initialize value cache
-        boolean oldConnectionState = false;
-        boolean connectionLost = false;
-
         /** Objects to keep cached in {@link MPD} */
         final MPDStatusMap status = mMPD.getStatus();
         final MPDPlaylist playlist = mMPD.getPlaylist();
@@ -165,16 +156,15 @@ public class IdleSubsystemMonitor extends Thread {
 
         /** Just for initialization purposes */
         MPDStatus oldStatus = status;
+        long lastConnected = Long.MIN_VALUE;
 
         while (!mGiveup) {
-            boolean connectionStateChanged = false;
+            final long statusChangeTime = connectionStatus.getChangeTime();
+            final boolean connectionReset = lastConnected != statusChangeTime;
 
-            try {
-                connectionStatus.waitForConnection();
-            } catch (final InterruptedException ignored) {
-            }
+            if (connectionReset) {
+                lastConnected = statusChangeTime;
 
-            if (connectionLost || oldConnectionState != connectionStatus.isConnected()) {
                 if (connectionStatus.isConnected()) {
                     try {
                         oldStatus = status.getImmutableStatus();
@@ -184,213 +174,189 @@ public class IdleSubsystemMonitor extends Thread {
                     } catch (final IOException | MPDException e) {
                         Log.error(TAG, "Failed to force a status update.", e);
                     }
+                } else {
+                    try {
+                        connectionStatus.waitForConnection();
+                    } catch (final InterruptedException ignored) {
+                    }
+                    continue;
                 }
-
-                connectionLost = false;
-                oldConnectionState = connectionStatus.isConnected();
-                connectionStateChanged = true;
             }
 
-            if (connectionStatus.isConnected()) {
-                // playlist
-                try {
-                    boolean dbChanged = false;
-                    boolean statusChanged = false;
-                    boolean stickerChanged = false;
+            // playlist
+            try {
+                boolean dbChanged = false;
+                boolean statusChanged = false;
+                boolean stickerChanged = false;
 
-                    if (connectionStateChanged) {
-                        dbChanged = statusChanged = true;
-                    } else {
-                        final List<String> changes = waitForChanges();
+                if (connectionReset) {
+                    dbChanged = true;
+                    statusChanged = true;
+                } else {
+                    final List<String> changes = connection.send(MPDCommand.MPD_CMD_IDLE,
+                            mSupportedSubsystems);
 
-                        oldStatus = status.getImmutableStatus();
-                        status.update();
+                    oldStatus = status.getImmutableStatus();
+                    status.update();
 
-                        for (final String change : changes) {
-                            switch (change.substring("changed: ".length())) {
-                                case IDLE_DATABASE:
-                                    statistics.update();
-                                    dbChanged = true;
-                                    statusChanged = true;
-                                    break;
-                                case IDLE_PLAYLIST:
-                                    statusChanged = true;
-                                    break;
-                                case IDLE_STICKER:
-                                    stickerChanged = true;
-                                    break;
-                                default:
-                                    statusChanged = true;
-                                    break;
-                            }
-
-                            if (dbChanged && statusChanged) {
+                    for (final String change : changes) {
+                        switch (change.substring("changed: ".length())) {
+                            case IDLE_DATABASE:
+                                statistics.update();
+                                dbChanged = true;
+                                statusChanged = true;
                                 break;
-                            }
+                            case IDLE_PLAYLIST:
+                                statusChanged = true;
+                                break;
+                            case IDLE_STICKER:
+                                stickerChanged = true;
+                                break;
+                            default:
+                                statusChanged = true;
+                                break;
+                        }
+
+                        if (dbChanged && statusChanged) {
+                            break;
                         }
                     }
+                }
 
-                    if (statusChanged) {
-                        // playlist
-                        final int oldPlaylistVersion = oldStatus.getPlaylistVersion();
-                        if (connectionStateChanged ||
-                                oldPlaylistVersion != status.getPlaylistVersion()) {
-                            playlist.refresh(status);
+                if (statusChanged) {
+                    // playlist
+                    final int oldPlaylistVersion = oldStatus.getPlaylistVersion();
+                    if (connectionReset || oldPlaylistVersion != status.getPlaylistVersion()) {
+                        playlist.refresh(status);
 
-                            for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                MPDExecutor.submitCallback(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listener.playlistChanged(status, oldPlaylistVersion);
-                                    }
-                                });
-                            }
-                        }
-
-                        // song
-                        /**
-                         * songId is used here, otherwise, once consume mode is enabled getSongPos
-                         * would never iterate without manual user playlist queue intervention and
-                         * trackChanged() would never be called.
-                         */
-                        if (connectionStateChanged || oldStatus.getSongId() != status.getSongId()) {
-                            final int oldSongPos = oldStatus.getSongPos();
-                            for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                MPDExecutor.submitCallback(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listener.trackChanged(status, oldSongPos);
-                                    }
-                                });
-                            }
-                        }
-
-                        // time
-                        if (connectionStateChanged ||
-                                oldStatus.getElapsedTime() != status.getElapsedTime()) {
-                            for (final TrackPositionListener listener : mTrackPositionListeners) {
-                                MPDExecutor.submitCallback(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listener.trackPositionChanged(status);
-                                    }
-                                });
-                            }
-                        }
-
-                        // state
-                        final int oldState = oldStatus.getState();
-                        if (connectionStateChanged || !status.isState(oldState)) {
-                            for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                MPDExecutor.submitCallback(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listener.stateChanged(status, oldState);
-                                    }
-                                });
-                            }
-                        }
-
-                        // volume
-                        final int oldVolume = oldStatus.getVolume();
-                        if (connectionStateChanged || oldVolume != status.getVolume()) {
-                            for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                MPDExecutor.submitCallback(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listener.volumeChanged(status, oldVolume);
-                                    }
-                                });
-                            }
-                        }
-
-                        // repeat
-                        final boolean oldRepeat = oldStatus.isRepeat();
-                        if (connectionStateChanged || oldRepeat != status.isRepeat()) {
-                            for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                MPDExecutor.submitCallback(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listener.repeatChanged(status.isRepeat());
-                                    }
-                                });
-                            }
-                        }
-
-                        // random
-                        if (connectionStateChanged || oldStatus.isRandom() != status.isRandom()) {
-                            for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                MPDExecutor.submitCallback(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listener.randomChanged(status.isRandom());
-                                    }
-                                });
-                            }
-                        }
-
-                        // update database
-                        if (connectionStateChanged ||
-                                oldStatus.isUpdating() != status.isUpdating()) {
-                            final boolean myDbChanged = dbChanged;
-                            for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                MPDExecutor.submitCallback(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listener.libraryStateChanged(status.isUpdating(),
-                                                myDbChanged);
-                                    }
-                                });
-                            }
-                        }
-                    }
-
-                    if (stickerChanged) {
-                        if (DEBUG) {
-                            Log.debug(TAG, "Sticker changed");
-                        }
                         for (final StatusChangeListener listener : mStatusChangeListeners) {
                             MPDExecutor.submitCallback(new Runnable() {
                                 @Override
                                 public void run() {
-                                    listener.stickerChanged(status);
+                                    listener.playlistChanged(status, oldPlaylistVersion);
                                 }
                             });
                         }
                     }
-                } catch (final IOException e) {
-                    connectionLost = true;
-                    if (mMPD.isConnected()) {
-                        Log.error(TAG, "Exception caught while looping.", e);
+
+                    // song
+                    /**
+                     * songId is used here, otherwise, once consume mode is enabled getSongPos
+                     * would never iterate without manual user playlist queue intervention and
+                     * trackChanged() would never be called.
+                     */
+                    if (connectionReset || oldStatus.getSongId() != status.getSongId()) {
+                        final int oldSongPos = oldStatus.getSongPos();
+                        for (final StatusChangeListener listener : mStatusChangeListeners) {
+                            MPDExecutor.submitCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.trackChanged(status, oldSongPos);
+                                }
+                            });
+                        }
                     }
-                } catch (final MPDException e) {
+
+                    // time
+                    if (connectionReset ||
+                            oldStatus.getElapsedTime() != status.getElapsedTime()) {
+                        for (final TrackPositionListener listener : mTrackPositionListeners) {
+                            MPDExecutor.submitCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.trackPositionChanged(status);
+                                }
+                            });
+                        }
+                    }
+
+                    // state
+                    final int oldState = oldStatus.getState();
+                    if (connectionReset || !status.isState(oldState)) {
+                        for (final StatusChangeListener listener : mStatusChangeListeners) {
+                            MPDExecutor.submitCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.stateChanged(status, oldState);
+                                }
+                            });
+                        }
+                    }
+
+                    // volume
+                    final int oldVolume = oldStatus.getVolume();
+                    if (connectionReset || oldVolume != status.getVolume()) {
+                        for (final StatusChangeListener listener : mStatusChangeListeners) {
+                            MPDExecutor.submitCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.volumeChanged(status, oldVolume);
+                                }
+                            });
+                        }
+                    }
+
+                    // repeat
+                    final boolean oldRepeat = oldStatus.isRepeat();
+                    if (connectionReset || oldRepeat != status.isRepeat()) {
+                        for (final StatusChangeListener listener : mStatusChangeListeners) {
+                            MPDExecutor.submitCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.repeatChanged(status.isRepeat());
+                                }
+                            });
+                        }
+                    }
+
+                    // random
+                    if (connectionReset || oldStatus.isRandom() != status.isRandom()) {
+                        for (final StatusChangeListener listener : mStatusChangeListeners) {
+                            MPDExecutor.submitCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.randomChanged(status.isRandom());
+                                }
+                            });
+                        }
+                    }
+
+                    // update database
+                    if (connectionReset ||
+                            oldStatus.isUpdating() != status.isUpdating()) {
+                        final boolean myDbChanged = dbChanged;
+                        for (final StatusChangeListener listener : mStatusChangeListeners) {
+                            MPDExecutor.submitCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.libraryStateChanged(status.isUpdating(),
+                                            myDbChanged);
+                                }
+                            });
+                        }
+                    }
+                }
+
+                if (stickerChanged) {
+                    if (DEBUG) {
+                        Log.debug(TAG, "Sticker changed");
+                    }
+                    for (final StatusChangeListener listener : mStatusChangeListeners) {
+                        MPDExecutor.submitCallback(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.stickerChanged(status);
+                            }
+                        });
+                    }
+                }
+            } catch (final IOException e) {
+                if (mMPD.isConnected()) {
                     Log.error(TAG, "Exception caught while looping.", e);
                 }
+            } catch (final MPDException e) {
+                Log.error(TAG, "Exception caught while looping.", e);
             }
-        }
-    }
-
-    /**
-     * Wait for server changes using "idle" command on the dedicated connection.
-     *
-     * @return Data read from the server.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    private List<String> waitForChanges() throws IOException, MPDException {
-        final MonoIOMPDConnection mpdIdleConnection =
-                mMPD.getIdleConnection().getThreadUnsafeConnection();
-        final MPDCommand idleCommand = MPDCommand.create(MPDCommand.MPD_CMD_IDLE,
-                mSupportedSubsystems);
-
-        while (true) {
-            final List<String> data = mpdIdleConnection.send(idleCommand);
-
-            if (data.isEmpty()) {
-                continue;
-            }
-
-            return data;
         }
     }
 }

@@ -32,7 +32,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.text.format.DateUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -238,8 +237,7 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     /** Starts the JMPDComm MPD Status Monitor. */
     private void startStatusMonitor() {
-        mStatusMonitor =
-                new IdleSubsystemMonitor(mMPD, DateUtils.SECOND_IN_MILLIS / 2L, mIdleSubsystems);
+        mStatusMonitor = new IdleSubsystemMonitor(mMPD, mIdleSubsystems);
         mStatusMonitor.addStatusChangeListener(this);
         mStatusMonitor.addTrackPositionListener(this);
         mStatusMonitor.start();
