@@ -236,8 +236,14 @@ public class IdleSubsystemMonitor extends Thread {
                         if (connectionStateChanged ||
                                 oldPlaylistVersion != status.getPlaylistVersion()) {
                             playlist.refresh(status);
+
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                listener.playlistChanged(status, oldPlaylistVersion);
+                                MPDExecutor.submitCallback(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.playlistChanged(status, oldPlaylistVersion);
+                                    }
+                                });
                             }
                         }
 
@@ -248,8 +254,14 @@ public class IdleSubsystemMonitor extends Thread {
                          * trackChanged() would never be called.
                          */
                         if (connectionStateChanged || oldStatus.getSongId() != status.getSongId()) {
+                            final int oldSongPos = oldStatus.getSongPos();
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                listener.trackChanged(status, oldStatus.getSongPos());
+                                MPDExecutor.submitCallback(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.trackChanged(status, oldSongPos);
+                                    }
+                                });
                             }
                         }
 
@@ -257,7 +269,12 @@ public class IdleSubsystemMonitor extends Thread {
                         if (connectionStateChanged ||
                                 oldStatus.getElapsedTime() != status.getElapsedTime()) {
                             for (final TrackPositionListener listener : mTrackPositionListeners) {
-                                listener.trackPositionChanged(status);
+                                MPDExecutor.submitCallback(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.trackPositionChanged(status);
+                                    }
+                                });
                             }
                         }
 
@@ -265,7 +282,12 @@ public class IdleSubsystemMonitor extends Thread {
                         final int oldState = oldStatus.getState();
                         if (connectionStateChanged || !status.isState(oldState)) {
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                listener.stateChanged(status, oldState);
+                                MPDExecutor.submitCallback(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.stateChanged(status, oldState);
+                                    }
+                                });
                             }
                         }
 
@@ -273,7 +295,12 @@ public class IdleSubsystemMonitor extends Thread {
                         final int oldVolume = oldStatus.getVolume();
                         if (connectionStateChanged || oldVolume != status.getVolume()) {
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                listener.volumeChanged(status, oldVolume);
+                                MPDExecutor.submitCallback(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.volumeChanged(status, oldVolume);
+                                    }
+                                });
                             }
                         }
 
@@ -281,22 +308,39 @@ public class IdleSubsystemMonitor extends Thread {
                         final boolean oldRepeat = oldStatus.isRepeat();
                         if (connectionStateChanged || oldRepeat != status.isRepeat()) {
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                listener.repeatChanged(status.isRepeat());
+                                MPDExecutor.submitCallback(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.repeatChanged(status.isRepeat());
+                                    }
+                                });
                             }
                         }
 
-                        // volume
+                        // random
                         if (connectionStateChanged || oldStatus.isRandom() != status.isRandom()) {
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                listener.randomChanged(status.isRandom());
+                                MPDExecutor.submitCallback(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.randomChanged(status.isRandom());
+                                    }
+                                });
                             }
                         }
 
                         // update database
                         if (connectionStateChanged ||
                                 oldStatus.isUpdating() != status.isUpdating()) {
+                            final boolean myDbChanged = dbChanged;
                             for (final StatusChangeListener listener : mStatusChangeListeners) {
-                                listener.libraryStateChanged(status.isUpdating(), dbChanged);
+                                MPDExecutor.submitCallback(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.libraryStateChanged(status.isUpdating(),
+                                                myDbChanged);
+                                    }
+                                });
                             }
                         }
                     }
@@ -306,7 +350,12 @@ public class IdleSubsystemMonitor extends Thread {
                             Log.debug(TAG, "Sticker changed");
                         }
                         for (final StatusChangeListener listener : mStatusChangeListeners) {
-                            listener.stickerChanged(status);
+                            MPDExecutor.submitCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.stickerChanged(status);
+                                }
+                            });
                         }
                     }
                 } catch (final IOException e) {
