@@ -34,6 +34,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import static com.anpmech.mpd.Tools.KEY;
 import static com.anpmech.mpd.Tools.VALUE;
@@ -79,6 +81,14 @@ class ResponseMap {
      * The log class identifier.
      */
     private static final String TAG = "ResponseMap";
+
+    /**
+     * This Semaphore allows blocking to wait for the map's initial update.
+     * <p/>
+     * This Semaphore is constructed with a lack of permits, denoting no map validity until set
+     * otherwise.
+     */
+    private final Semaphore mMapValidity = new Semaphore(0);
 
     /**
      * The storage map for the &lt;Key, Value&gt; pairs from the response.
@@ -390,5 +400,44 @@ class ResponseMap {
          */
         mResponseMap.keySet().retainAll(map.keySet());
         mResponseMap.putAll(map);
+
+        if (mMapValidity.availablePermits() == 0) {
+            mMapValidity.release();
+        }
+    }
+
+    /**
+     * Blocks indefinitely until this object is valid.
+     *
+     * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
+     */
+    public void waitForValidity() throws InterruptedException {
+        try {
+            mMapValidity.acquire();
+        } finally {
+            mMapValidity.release();
+        }
+    }
+
+    /**
+     * Blocks for the given waiting time.
+     *
+     * @param timeout The time to wait for a valid object.
+     * @param unit    The time unit of the {@code timeout} argument.
+     * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
+     */
+    public boolean waitForValidity(final long timeout, final TimeUnit unit)
+            throws InterruptedException {
+        boolean isValid = false;
+
+        try {
+            isValid = mMapValidity.tryAcquire(timeout, unit);
+        } finally {
+            if (isValid) {
+                mMapValidity.release();
+            }
+        }
+
+        return isValid;
     }
 }

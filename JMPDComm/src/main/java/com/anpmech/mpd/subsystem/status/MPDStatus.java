@@ -31,7 +31,7 @@ package com.anpmech.mpd.subsystem.status;
  * An interface to the {@link MPDStatusMap} class for the methods which are not required for
  * MPDStatusMap modification.
  */
-public interface MPDStatus {
+public interface MPDStatus extends Response {
 
     /**
      * Retrieves current track bit rate.
@@ -239,18 +239,4 @@ public interface MPDStatus {
      * @see #getUpdatePID()
      */
     boolean isUpdating();
-
-    /**
-     * Lets callers know if the subclass Object is valid.
-     *
-     * @return True if the subclass is valid, false otherwise.
-     */
-    boolean isValid();
-
-    /**
-     * Retrieves a string representation of the {@link ResponseMap} and this object.
-     *
-     * @return A string representation of the ResponseMap and this resulting object.
-     */
-    String toString();
 }

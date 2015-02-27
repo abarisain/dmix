@@ -191,6 +191,7 @@ public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
      *
      * @return A string representation of the ResponseMap and this resulting object.
      */
+    @Override
     public String toString() {
         return super.toString() +
                 "MPDStatistics: {" +

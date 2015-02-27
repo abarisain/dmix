@@ -27,62 +27,40 @@
 
 package com.anpmech.mpd.subsystem.status;
 
-import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
- * An interface to the {@link MPDStatisticsMap} class for the methods which are not required for
- * MPDStatisticsMap modification.
+ * This is a base interface for {@link com.anpmech.mpd.subsystem.status.ResponseMap} methods.
  */
-public interface MPDStatistics extends Response {
+interface Response {
 
     /**
-     * Retrieves total number of albums in the connected media server's database.
+     * Lets callers know if the subclass Object is valid.
      *
-     * @return total number of albums in the connected media server's database.
+     * @return True if the subclass is valid, false otherwise.
      */
-    long getAlbums();
+    boolean isValid();
 
     /**
-     * Retrieves total number of artists in the server database.
+     * Retrieves a string representation of the {@link ResponseMap} and this object.
      *
-     * @return The total number of artists in the server database.
+     * @return A string representation of the ResponseMap and this resulting object.
      */
-    long getArtists();
+    String toString();
 
     /**
-     * Retrieves the amount of time the media server would take to play every song in the database
-     * once.
+     * Blocks indefinitely until this object is valid.
      *
-     * @return Retrieves the amount of time (in seconds) mpd would take to play every song in the db
-     * once.
+     * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
      */
-    long getDBPlaytime();
+    void waitForValidity() throws InterruptedException;
 
     /**
-     * Retrieves last database update time.
+     * Blocks for the given waiting time.
      *
-     * @return The last database update time.
+     * @param timeout The time to wait for a valid object.
+     * @param unit    The time unit of the {@code timeout} argument.
+     * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
      */
-    Date getDBUpdateTime();
-
-    /**
-     * Retrieves time the media server has been playing audio.
-     *
-     * @return How long the media server has been actually playing audio in seconds.
-     */
-    long getPlayTime();
-
-    /**
-     * Retrieves total number of songs.
-     *
-     * @return The total number of songs.
-     */
-    long getSongs();
-
-    /**
-     * Retrieves server up time.
-     *
-     * @return The server up time.
-     */
-    long getUpTime();
+    boolean waitForValidity(final long timeout, final TimeUnit unit) throws InterruptedException;
 }
