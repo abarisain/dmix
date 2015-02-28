@@ -129,7 +129,11 @@ public class MPDAsyncHelper implements Handler.Callback {
     }
 
     public void connect() {
-        mWorkerHandler.sendEmptyMessage(MPDAsyncWorker.EVENT_CONNECT);
+        /**
+         * Because the Handler queue can be incredibly slow.
+         */
+        mWorkerHandler.sendMessageAtFrontOfQueue(
+                Message.obtain(mWorkerHandler, MPDAsyncWorker.EVENT_CONNECT));
     }
 
     public void disconnect() {
