@@ -17,7 +17,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="72dip"
+    android:layout_height="68dip"
     android:layout_gravity="left"
     android:background="?android:attr/activatedBackgroundIndicator"
     android:baselineAligned="true"
@@ -53,7 +53,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="Fooooooo"
-            android:textAppearance="?android:attr/textAppearanceListItem" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -71,7 +71,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Fooooooo"
-                android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="?attr/listItemSecondaryTextColor" />
 
             <ImageView

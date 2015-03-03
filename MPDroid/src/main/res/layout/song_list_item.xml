@@ -31,6 +31,8 @@
         android:layout_height="match_parent"
         android:layout_toLeftOf="@+id/track_duration"
         android:layout_toRightOf="@+id/track_number"
+        android:paddingTop="8dip"
+        android:paddingBottom="8dip"
         android:orientation="vertical"
         android:paddingLeft="@dimen/material_list_item_element_horizontal_padding">
 
@@ -42,7 +44,7 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
-            android:textAppearance="?android:attr/textAppearanceListItem"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             tools:text="Into The Galaxy" />
 
         <TextView
@@ -52,9 +54,8 @@
             android:layout_weight="1"
             android:ellipsize="end"
             android:gravity="center_vertical"
-            android:paddingBottom="5dip"
             android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:textColor="?attr/listItemSecondaryTextColor"
             tools:text="Artist" />
     </LinearLayout>

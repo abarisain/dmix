@@ -55,19 +55,6 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <com.melnykov.fab.FloatingActionButton
-        android:id="@+id/album_menu"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/albumCoverFrame"
-        android:layout_marginRight="32dp"
-        android:layout_marginTop="-32dp"
-        android:src="@drawable/ic_media_play"
-        fab:fab_colorNormal="@color/fab_color"
-        fab:fab_colorPressed="@color/fab_color_pressed"
-        fab:fab_colorRipple="@color/fab_color_ripple" />
-
     <RelativeLayout
         android:id="@+id/tracks_info_container"
         android:layout_width="match_parent"
@@ -114,4 +101,16 @@
             tools:text="Artist" />
     </RelativeLayout>
 
+    <com.melnykov.fab.FloatingActionButton
+        android:id="@+id/album_menu"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/albumCoverFrame"
+        android:layout_marginRight="32dp"
+        android:layout_marginTop="-32dp"
+        android:src="@drawable/ic_media_play"
+        fab:fab_colorNormal="@color/fab_color"
+        fab:fab_colorPressed="@color/fab_color_pressed"
+        fab:fab_colorRipple="@color/fab_color_ripple" />
 </RelativeLayout>
