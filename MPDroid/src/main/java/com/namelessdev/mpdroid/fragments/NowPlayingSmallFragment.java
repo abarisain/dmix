@@ -37,6 +37,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -149,10 +150,14 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                 Intent intent = new Intent(getActivity(), NowPlayingActivity.class);
                 // create the transition animation - the images in the layouts
                 // of both activities are defined with android:transitionName="cover"
-                ActivityOptions options = ActivityOptions
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    ActivityOptions options = ActivityOptions
                         .makeSceneTransitionAnimation(getActivity(), mCoverArt, "cover");
-                // start the new activity
-                getActivity().startActivity(intent, options.toBundle());
+                    // start the new activity
+                    getActivity().startActivity(intent, options.toBundle());
+                } else {
+                    getActivity().startActivity(intent);
+                }
             }
         });
         return view;

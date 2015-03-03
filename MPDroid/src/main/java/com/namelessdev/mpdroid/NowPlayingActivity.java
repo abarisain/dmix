@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.QueueControl;
 import com.namelessdev.mpdroid.tools.Tools;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -59,12 +60,16 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getWindow().requestFeature(android.view.Window.FEATURE_CONTENT_TRANSITIONS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().requestFeature(android.view.Window.FEATURE_CONTENT_TRANSITIONS);
+        }
         super.onCreate(savedInstanceState);
 
-        Transition ts = new Fade();  //Slide(); //Explode();
-        getWindow().setEnterTransition(ts);
-        getWindow().setExitTransition(ts);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Transition ts = new Fade();  //Slide(); //Explode();
+            getWindow().setEnterTransition(ts);
+            getWindow().setExitTransition(ts);
+        }
 
         setContentView(R.layout.activity_now_playing);
 

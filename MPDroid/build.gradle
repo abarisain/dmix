@@ -43,10 +43,10 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 16
         targetSdkVersion 21
         versionCode 54
-        versionName "1.07.2 Final " + gitShortHash()
+        versionName "1.07.3 Beta " + gitShortHash()
     }
 
     lintOptions {

@@ -38,6 +38,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
@@ -245,19 +246,26 @@ public class AlbumsFragment extends BrowseFragment<Album> {
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
-        final TransitionInflater inflater = TransitionInflater.from(getActivity());
-        final ImageView albumCoverView = (ImageView) view.findViewById(R.id.albumCover);
+        final Album album = (Album) mItems.get(position);
 
-        Bitmap thumbnail = null;
-        if (albumCoverView.getDrawable() instanceof BitmapDrawable) {
-            thumbnail = ((BitmapDrawable) albumCoverView.getDrawable()).getBitmap();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            final TransitionInflater inflater = TransitionInflater.from(getActivity());
+            final ImageView albumCoverView = (ImageView) view.findViewById(R.id.albumCover);
+
+            Bitmap thumbnail = null;
+            if (albumCoverView.getDrawable() instanceof BitmapDrawable) {
+                thumbnail = ((BitmapDrawable) albumCoverView.getDrawable()).getBitmap();
+            }
+
+            ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
+                    new SongsFragment().init(album, thumbnail,
+                            albumCoverView.getTransitionName()),
+                    "songs", albumCoverView, albumCoverView.getTransitionName(),
+                    inflater.inflateTransition(R.transition.album_songs_transition));
+        } else {
+            ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
+                    new SongsFragment().init(album), "songs");
         }
-
-        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new SongsFragment().init((Album) mItems.get(position), thumbnail,
-                        albumCoverView.getTransitionName()),
-                "songs", albumCoverView, albumCoverView.getTransitionName(),
-                inflater.inflateTransition(R.transition.album_songs_transition));
     }
 
     @Override
