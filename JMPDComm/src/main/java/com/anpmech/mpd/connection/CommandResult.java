@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /** This class stores the result for MPDCallable. */
-class CommandResult {
+public class CommandResult {
 
     private final String mConnectionResult;
 
@@ -77,7 +77,7 @@ class CommandResult {
         return version;
     }
 
-    final List<String> getResponse() {
+    public final List<String> getResponse() {
         /** No need, we already made the collection immutable on the way in. */
         //noinspection ReturnOfCollectionOrArrayField
         return mResponse;

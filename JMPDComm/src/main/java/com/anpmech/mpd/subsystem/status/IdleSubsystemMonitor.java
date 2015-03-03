@@ -32,6 +32,8 @@ import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.MPDPlaylist;
 import com.anpmech.mpd.concurrent.MPDExecutor;
+import com.anpmech.mpd.concurrent.MPDFuture;
+import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.connection.MonoIOMPDConnection;
 import com.anpmech.mpd.event.StatusChangeListener;
@@ -42,6 +44,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.CancellationException;
 
 /**
  * A monitoring class representing the <A HREF="http://www.musicpd.org/doc/protocol/command_reference.html#command_idle"
@@ -97,6 +100,8 @@ public class IdleSubsystemMonitor extends Thread {
 
     private volatile boolean mGiveup;
 
+    private MPDFuture<CommandResult> mIdleTracker;
+
     /**
      * Constructs an IdleStatusMonitor.
      *
@@ -136,6 +141,10 @@ public class IdleSubsystemMonitor extends Thread {
      */
     public void giveup() {
         mGiveup = true;
+
+        if (mIdleTracker != null) {
+            mIdleTracker.cancel(true);
+        }
     }
 
     public boolean isGivingUp() {
@@ -193,8 +202,10 @@ public class IdleSubsystemMonitor extends Thread {
                     dbChanged = true;
                     statusChanged = true;
                 } else {
-                    final List<String> changes = connection.send(MPDCommand.MPD_CMD_IDLE,
+                    mIdleTracker = connection.submit(MPDCommand.MPD_CMD_IDLE,
                             mSupportedSubsystems);
+
+                    final List<String> changes = mIdleTracker.get().getResponse();
 
                     oldStatus = status.getImmutableStatus();
                     status.update();
@@ -350,6 +361,9 @@ public class IdleSubsystemMonitor extends Thread {
                         });
                     }
                 }
+            } catch (final CancellationException ignored) {
+                /** If a FutureTask is cancelled, just continue. */
+                continue;
             } catch (final IOException e) {
                 if (mMPD.isConnected()) {
                     Log.error(TAG, "Exception caught while looping.", e);
