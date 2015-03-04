@@ -19,7 +19,7 @@ package com.namelessdev.mpdroid.helpers;
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.event.TrackPositionListener;
-import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
@@ -42,25 +42,7 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     private static final int LOCAL_UID = 600;
 
-    static final int EVENT_PLAYLIST = LOCAL_UID + 1;
-
-    static final int EVENT_RANDOM = LOCAL_UID + 2;
-
-    static final int EVENT_REPEAT = LOCAL_UID + 3;
-
-    static final int EVENT_SET_USE_CACHE = LOCAL_UID + 4;
-
-    static final int EVENT_STATE = LOCAL_UID + 5;
-
-    static final int EVENT_TRACK = LOCAL_UID + 6;
-
-    static final int EVENT_TRACK_POSITION = LOCAL_UID + 7;
-
-    static final int EVENT_UPDATE_STATE = LOCAL_UID + 8;
-
-    static final int EVENT_VOLUME = LOCAL_UID + 9;
-
-    static final int EVENT_STICKER_CHANGED = LOCAL_UID + 10;
+    static final int EVENT_SET_USE_CACHE = LOCAL_UID + 1;
 
     private static final String TAG = "MPDAsyncHelper";
 
@@ -72,13 +54,11 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     private final Collection<ConnectionInfoListener> mConnectionInfoListeners;
 
-    private final Collection<StatusChangeListener> mStatusChangeListeners;
+    private final IdleSubsystemMonitor mIdleSubsystemMonitor;
 
-    private final Collection<TrackPositionListener> mTrackPositionListeners;
+    private final MPDAsyncWorker mMPDAsyncWorker;
 
     private final Handler mWorkerHandler;
-
-    private final MPDAsyncWorker oMPDAsyncWorker;
 
     private ConnectionInfo mConnectionInfo = new ConnectionInfo();
 
@@ -94,14 +74,13 @@ public class MPDAsyncHelper implements Handler.Callback {
         super();
         oMPD = new CachedMPD(cached);
 
-        oMPDAsyncWorker = new MPDAsyncWorker(new Handler(this), oMPD);
-        mWorkerHandler = oMPDAsyncWorker.startThread();
+        mIdleSubsystemMonitor = new IdleSubsystemMonitor(oMPD);
+        mMPDAsyncWorker = new MPDAsyncWorker(new Handler(this), oMPD);
+        mWorkerHandler = mMPDAsyncWorker.startThread();
         new SettingsHelper(this).updateConnectionSettings();
 
         mAsyncExecListeners = new WeakLinkedList<>("AsyncExecListener");
         mConnectionInfoListeners = new WeakLinkedList<>("ConnectionInfoListener");
-        mStatusChangeListeners = new WeakLinkedList<>("StatusChangeListener");
-        mTrackPositionListeners = new WeakLinkedList<>("TrackPositionListener");
     }
 
     public void addAsyncExecListener(final AsyncExecListener listener) {
@@ -116,16 +95,28 @@ public class MPDAsyncHelper implements Handler.Callback {
         }
     }
 
+    /**
+     * Adds a {@link com.anpmech.mpd.event.StatusChangeListener} from the associated
+     * {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor}.
+     *
+     * @param listener The {@link com.anpmech.mpd.event.StatusChangeListener} to add for
+     *                 notification for the
+     *                 {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor}.
+     */
     public void addStatusChangeListener(final StatusChangeListener listener) {
-        if (!mStatusChangeListeners.contains(listener)) {
-            mStatusChangeListeners.add(listener);
-        }
+        mIdleSubsystemMonitor.addStatusChangeListener(listener);
     }
 
+    /**
+     * Adds a {@link com.anpmech.mpd.event.TrackPositionListener} from the associated
+     * {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor}.
+     *
+     * @param listener The {@link com.anpmech.mpd.event.TrackPositionListener} to add for
+     *                 notification for the
+     *                 {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor}.
+     */
     public void addTrackPositionListener(final TrackPositionListener listener) {
-        if (!mTrackPositionListeners.contains(listener)) {
-            mTrackPositionListeners.add(listener);
-        }
+        mIdleSubsystemMonitor.addTrackPositionListener(listener);
     }
 
     public void connect() {
@@ -183,54 +174,6 @@ public class MPDAsyncHelper implements Handler.Callback {
                         listener.onConnectionConfigChange(mConnectionInfo);
                     }
                     break;
-                case EVENT_PLAYLIST:
-                    for (final StatusChangeListener listener : mStatusChangeListeners) {
-                        listener.playlistChanged((MPDStatus) args[0], (Integer) args[1]);
-                    }
-                    break;
-                case EVENT_RANDOM:
-                    for (final StatusChangeListener listener : mStatusChangeListeners) {
-                        listener.randomChanged((Boolean) args[0]);
-                    }
-                    break;
-                case EVENT_REPEAT:
-                    for (final StatusChangeListener listener : mStatusChangeListeners) {
-                        listener.repeatChanged((Boolean) args[0]);
-                    }
-                    break;
-                case EVENT_SET_USE_CACHE:
-                    ((CachedMPD) oMPD).setUseCache((Boolean) args[0]);
-                    break;
-                case EVENT_STATE:
-                    for (final StatusChangeListener listener : mStatusChangeListeners) {
-                        listener.stateChanged((MPDStatus) args[0], (int) args[1]);
-                    }
-                    break;
-                case EVENT_TRACK:
-                    for (final StatusChangeListener listener : mStatusChangeListeners) {
-                        listener.trackChanged((MPDStatus) args[0], (int) args[1]);
-                    }
-                    break;
-                case EVENT_UPDATE_STATE:
-                    for (final StatusChangeListener listener : mStatusChangeListeners) {
-                        listener.libraryStateChanged((Boolean) args[0], (Boolean) args[1]);
-                    }
-                    break;
-                case EVENT_VOLUME:
-                    for (final StatusChangeListener listener : mStatusChangeListeners) {
-                        listener.volumeChanged((MPDStatus) args[0], (Integer) args[1]);
-                    }
-                    break;
-                case EVENT_TRACK_POSITION:
-                    for (final TrackPositionListener listener : mTrackPositionListeners) {
-                        listener.trackPositionChanged((MPDStatus) args[0]);
-                    }
-                    break;
-                case EVENT_STICKER_CHANGED:
-                    for (final StatusChangeListener listener : mStatusChangeListeners) {
-                        listener.stickerChanged((MPDStatus) args[0]);
-                    }
-                    break;
                 case MPDAsyncWorker.EVENT_EXEC_ASYNC_FINISHED:
                     // Asynchronous operation finished, call the listeners and supply the JobID...
                     for (final AsyncExecListener listener : mAsyncExecListeners) {
@@ -250,8 +193,15 @@ public class MPDAsyncHelper implements Handler.Callback {
         return result;
     }
 
+    /**
+     * Checks to see if the {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor} is
+     * active.
+     *
+     * @return True if the {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor} is active,
+     * false otherwise.
+     */
     public boolean isStatusMonitorAlive() {
-        return oMPDAsyncWorker.isStatusMonitorAlive();
+        return !mIdleSubsystemMonitor.isStopped();
     }
 
     public void removeAsyncExecListener(final AsyncExecListener listener) {
@@ -262,12 +212,28 @@ public class MPDAsyncHelper implements Handler.Callback {
         mConnectionInfoListeners.remove(listener);
     }
 
+    /**
+     * Removes a {@link com.anpmech.mpd.event.StatusChangeListener} from the associated
+     * {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor}.
+     *
+     * @param listener The {@link com.anpmech.mpd.event.StatusChangeListener} to remove from
+     *                 notification for the
+     *                 {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor}.
+     */
     public void removeStatusChangeListener(final StatusChangeListener listener) {
-        mStatusChangeListeners.remove(listener);
+        mIdleSubsystemMonitor.removeStatusChangeListener(listener);
     }
 
+    /**
+     * Removes a {@link com.anpmech.mpd.event.TrackPositionListener} from the associated
+     * {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor}.
+     *
+     * @param listener The {@link com.anpmech.mpd.event.TrackPositionListener} to remove from
+     *                 notification for the
+     *                 {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor}.
+     */
     public void removeTrackPositionListener(final TrackPositionListener listener) {
-        mTrackPositionListeners.remove(listener);
+        mIdleSubsystemMonitor.removeTrackPositionListener(listener);
     }
 
     /**
@@ -277,20 +243,29 @@ public class MPDAsyncHelper implements Handler.Callback {
      */
     public void setConnectionSettings(final ConnectionInfo connectionInfo) {
         mConnectionInfo = connectionInfo;
-        oMPDAsyncWorker.setConnectionSettings(connectionInfo);
+        mMPDAsyncWorker.setConnectionSettings(connectionInfo);
     }
 
     public void setUseCache(final boolean useCache) {
         ((CachedMPD) oMPD).setUseCache(useCache);
     }
 
-    public void startStatusMonitor(final String[] idleSubsystems) {
-        Message.obtain(mWorkerHandler, MPDAsyncWorker.EVENT_START_STATUS_MONITOR, idleSubsystems)
-                .sendToTarget();
+    /**
+     * Starts the associated {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor}.
+     *
+     * @param idleSubsystems The subsystems to track in the associated
+     *                       {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor}.
+     */
+    public void startIdleMonitor(final String[] idleSubsystems) {
+        mIdleSubsystemMonitor.setSupportedSubsystems(idleSubsystems);
+        mIdleSubsystemMonitor.start();
     }
 
-    public void stopStatusMonitor() {
-        mWorkerHandler.sendEmptyMessage(MPDAsyncWorker.EVENT_STOP_STATUS_MONITOR);
+    /**
+     * Stops the associated {@link com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor}.
+     */
+    public void stopIdleMonitor() {
+        mIdleSubsystemMonitor.stop();
     }
 
     // Interface for callback when Asynchronous operations are finished

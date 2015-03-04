@@ -41,9 +41,8 @@ import com.anpmech.mpd.event.TrackPositionListener;
 import com.anpmech.mpd.exception.MPDException;
 
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.CancellationException;
 
 /**
@@ -53,73 +52,127 @@ import java.util.concurrent.CancellationException;
  */
 public class IdleSubsystemMonitor implements Runnable {
 
-    /** The song database has been modified after update. */
+    /**
+     * The song database has been modified after update.
+     *
+     * @see #IDLE_UPDATE
+     */
     public static final String IDLE_DATABASE = "database";
 
-    /** A message was received on a channel this client is subscribed to. */
+    /**
+     * A message was received on a channel this client is subscribed to.
+     */
     public static final String IDLE_MESSAGE = "message";
 
-    /** Emitted after the mixer volume has been modified. */
+    /**
+     * Emitted after the mixer volume has been modified.
+     */
     public static final String IDLE_MIXER = "mixer";
 
-    /** Emitted after an option (repeat, random, cross fade, Replay Gain) modification. */
+    /**
+     * Emitted after an option (repeat, random, cross fade, Replay Gain) modification.
+     */
     public static final String IDLE_OPTIONS = "options";
 
-    /** Emitted after a output has been enabled or disabled. */
+    /**
+     * Emitted after a output has been enabled or disabled.
+     */
     public static final String IDLE_OUTPUT = "output";
 
-    /** Emitted after upon current playing status change. */
+    /**
+     * Emitted after upon current playing status change.
+     */
     public static final String IDLE_PLAYER = "player";
 
-    /** Emitted after the playlist queue has been modified. */
+    /**
+     * Emitted after the playlist queue has been modified.
+     */
     public static final String IDLE_PLAYLIST = "playlist";
 
-    /** Emitted after the sticker database has been modified. */
+    /**
+     * Emitted after the sticker database has been modified.
+     */
     public static final String IDLE_STICKER = "sticker";
 
-    /** Emitted after a server side stored playlist has been added, removed or modified. */
+    /**
+     * Emitted after a server side stored playlist has been added, removed or modified.
+     */
     public static final String IDLE_STORED_PLAYLIST = "stored_playlist";
 
-    /** Emitted after a client has added or removed subscription to a channel. */
+    /**
+     * Emitted after a client has added or removed subscription to a channel.
+     */
     public static final String IDLE_SUBSCRIPTION = "subscription";
 
-    /** Emitted after a database update has started or finished. See IDLE_DATABASE */
+    /**
+     * Emitted after a database update has started or finished.
+     *
+     * @see #IDLE_DATABASE
+     */
     public static final String IDLE_UPDATE = "update";
 
+    /**
+     * The debug boolean flag.
+     */
     private static final boolean DEBUG = false;
 
+    /**
+     * The general error message.
+     */
     private static final String GENERAL_ERROR = "Exception caught while looping.";
 
+    /**
+     * The class log identifier.
+     */
     private static final String TAG = "IdleStatusMonitor";
 
+    /**
+     * The MPD object to keep updated.
+     */
     private final MPD mMPD;
 
-    private final Queue<StatusChangeListener> mStatusChangeListeners;
+    /**
+     * The status change listeners to keep updated with this tracker.
+     */
+    private final List<StatusChangeListener> mStatusChangeListeners;
 
-    private final String[] mSupportedSubsystems;
+    /**
+     * The track position change listener.
+     */
+    private final List<TrackPositionListener> mTrackPositionListeners;
 
-    private final Queue<TrackPositionListener> mTrackPositionListeners;
-
+    /**
+     * This Future tracks the status of the Idle command.
+     */
     private MPDFuture<CommandResult> mIdleTracker;
 
+    /**
+     * This Future tracks the status of this monitor.
+     */
     private MPDFuture<?> mMonitorTracker;
 
+    /**
+     * This is the loop terminator.
+     */
     private volatile boolean mStop;
 
     /**
-     * Constructs an IdleStatusMonitor.
-     *
-     * @param mpd                 MPD server to monitor.
-     * @param supportedSubsystems Idle subsystems to support, see IDLE fields in this class.
+     * The supported idle subsystems from IDLE_*.
      */
-    public IdleSubsystemMonitor(final MPD mpd, final String[] supportedSubsystems) {
+    private String[] mSupportedSubsystems;
+
+    /**
+     * Sole constructor.
+     *
+     * @param mpd MPD server to monitor.
+     */
+    public IdleSubsystemMonitor(final MPD mpd) {
         super();
 
         mMPD = mpd;
         mStop = false;
-        mStatusChangeListeners = new LinkedList<>();
-        mTrackPositionListeners = new LinkedList<>();
-        mSupportedSubsystems = supportedSubsystems.clone();
+        mStatusChangeListeners = new ArrayList<>();
+        mTrackPositionListeners = new ArrayList<>();
     }
 
     /**
@@ -128,7 +181,9 @@ public class IdleSubsystemMonitor implements Runnable {
      * @param listener a {@code StatusChangeListener}.
      */
     public void addStatusChangeListener(final StatusChangeListener listener) {
-        mStatusChangeListeners.add(listener);
+        if (!mStatusChangeListeners.contains(listener)) {
+            mStatusChangeListeners.add(listener);
+        }
     }
 
     /**
@@ -137,17 +192,52 @@ public class IdleSubsystemMonitor implements Runnable {
      * @param listener a {@code TrackPositionListener}.
      */
     public void addTrackPositionListener(final TrackPositionListener listener) {
-        mTrackPositionListeners.add(listener);
+        if (!mTrackPositionListeners.contains(listener)) {
+            mTrackPositionListeners.add(listener);
+        }
     }
 
-    public boolean isAlive() {
-        return mMonitorTracker != null && !mMonitorTracker.isDone();
+    /**
+     * An IdleStatusMonitor status tracker, tracking started or stopped status.
+     *
+     * @return True if the IdleStatusMonitor is monitoring, false otherwise.
+     */
+    public boolean isStopped() {
+        return mMonitorTracker == null || mMonitorTracker.isDone();
     }
 
+    /**
+     * An IdleStatusMonitor status tracker, tracking only whether the tracker is starting.
+     *
+     * @return True if the IdleStatusMonitor is in the process of stopping.
+     */
     public boolean isStopping() {
         return mStop;
     }
 
+    /**
+     * Removes a {@code StatusChangeListener}.
+     *
+     * @param listener a {@code StatusChangeListener}.
+     */
+    public void removeStatusChangeListener(final StatusChangeListener listener) {
+        mStatusChangeListeners.remove(listener);
+    }
+
+    /**
+     * Removes a {@code TrackPositionListener}.
+     *
+     * @param listener a {@code TrackPositionListener}.
+     */
+    public void removeTrackPositionListener(final TrackPositionListener listener) {
+        mTrackPositionListeners.remove(listener);
+    }
+
+    /**
+     * Starts executing the active part of the class' code. This method is
+     * called when a thread is started that has been created with a class which
+     * implements {@code Runnable}.
+     */
     @Override
     public void run() {
         /** Objects to keep cached in {@link MPD} */
@@ -370,9 +460,21 @@ public class IdleSubsystemMonitor implements Runnable {
         }
     }
 
-    public void start() {
-        stop();
+    /**
+     * Sets the idle subsystems to track, if empty or not set defaulting to all subsystems.
+     *
+     * @param supportedSubsystems Idle subsystems to support, see IDLE fields in this class.
+     */
+    public void setSupportedSubsystems(final String... supportedSubsystems) {
+        mSupportedSubsystems = supportedSubsystems;
+    }
 
+    /**
+     * Stops the IdleStatusMonitor, if running, then starts.
+     * <p/>
+     * This method does not stop a running IdleSubsystemMonitor, so stop first, if applicable.
+     */
+    public void start() {
         mStop = false;
 
         /** We don't need to store the FutureTask for this one, we stop in a gentler way. */
@@ -380,7 +482,7 @@ public class IdleSubsystemMonitor implements Runnable {
     }
 
     /**
-     * Gracefully terminate tread.
+     * Stops the IdleStatusMonitor.
      */
     public void stop() {
         mStop = true;

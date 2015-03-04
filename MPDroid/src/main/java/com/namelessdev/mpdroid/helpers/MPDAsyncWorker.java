@@ -17,15 +17,10 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.anpmech.mpd.MPD;
-import com.anpmech.mpd.event.StatusChangeListener;
-import com.anpmech.mpd.event.TrackPositionListener;
 import com.anpmech.mpd.exception.MPDException;
-import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
-import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.GracenoteCover;
-import com.namelessdev.mpdroid.tools.Tools;
 
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -40,9 +35,7 @@ import java.io.IOException;
  * Asynchronous worker thread-class for long during operations on JMPDComm.
  */
 public class MPDAsyncWorker implements Handler.Callback,
-        SharedPreferences.OnSharedPreferenceChangeListener,
-        StatusChangeListener,
-        TrackPositionListener {
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
 
@@ -58,10 +51,6 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     static final int EVENT_EXEC_ASYNC_FINISHED = LOCAL_UID + 5;
 
-    static final int EVENT_START_STATUS_MONITOR = LOCAL_UID + 6;
-
-    static final int EVENT_STOP_STATUS_MONITOR = LOCAL_UID + 7;
-
     private static final String TAG = "MPDAsyncWorker";
 
     /** A handler for the MPDAsyncHelper object. */
@@ -69,22 +58,15 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     private final MPD mMPD;
 
-    private final SharedPreferences mSettings;
-
     /** A store for the current connection information. */
     private ConnectionInfo mConInfo = new ConnectionInfo();
-
-    private String[] mIdleSubsystems;
-
-    private IdleSubsystemMonitor mStatusMonitor;
-
-    private Handler mWorkerHandler;
 
     MPDAsyncWorker(final Handler helperHandler, final MPD mpd) {
         super();
 
-        mSettings = PreferenceManager.getDefaultSharedPreferences(MPDApplication.getInstance());
-        mSettings.registerOnSharedPreferenceChangeListener(this);
+        final SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(MPDApplication.getInstance());
+        settings.registerOnSharedPreferenceChangeListener(this);
 
         mHelperHandler = helperHandler;
         mMPD = mpd;
@@ -124,13 +106,6 @@ public class MPDAsyncWorker implements Handler.Callback,
             case EVENT_CONNECT:
                 connect();
                 break;
-            case EVENT_START_STATUS_MONITOR:
-                mIdleSubsystems = (String[]) msg.obj;
-                startStatusMonitor();
-                break;
-            case EVENT_STOP_STATUS_MONITOR:
-                stopStatusMonitor();
-                break;
             case EVENT_DISCONNECT:
                 disconnect();
                 break;
@@ -145,29 +120,6 @@ public class MPDAsyncWorker implements Handler.Callback,
         }
 
         return result;
-    }
-
-    /**
-     * Checks the JMPDComm MPD Status Monitor for activity.
-     *
-     * @return True if the JMPDComm MPD Status Monitor is active, false otherwise.
-     */
-    public boolean isStatusMonitorAlive() {
-        final boolean isMonitorAlive;
-
-        if (mStatusMonitor != null && mStatusMonitor.isAlive() && !mStatusMonitor.isStopping()) {
-            isMonitorAlive = true;
-        } else {
-            isMonitorAlive = false;
-        }
-
-        return isMonitorAlive;
-    }
-
-    @Override
-    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
-        mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_UPDATE_STATE,
-                Tools.toObjectArray(updating, dbChanged)).sendToTarget();
     }
 
     /**
@@ -199,24 +151,6 @@ public class MPDAsyncWorker implements Handler.Callback,
         }
     }
 
-    @Override
-    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
-        mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_PLAYLIST,
-                Tools.toObjectArray(mpdStatus, oldPlaylistVersion)).sendToTarget();
-    }
-
-    @Override
-    public void randomChanged(final boolean random) {
-        mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_RANDOM, Tools.toObjectArray(random))
-                .sendToTarget();
-    }
-
-    @Override
-    public void repeatChanged(final boolean repeating) {
-        mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_REPEAT, Tools.toObjectArray(repeating))
-                .sendToTarget();
-    }
-
     /**
      * Sets the connection settings.
      *
@@ -235,14 +169,6 @@ public class MPDAsyncWorker implements Handler.Callback,
         }
     }
 
-    /** Starts the JMPDComm MPD Status Monitor. */
-    private void startStatusMonitor() {
-        mStatusMonitor = new IdleSubsystemMonitor(mMPD, mIdleSubsystems);
-        mStatusMonitor.addStatusChangeListener(this);
-        mStatusMonitor.addTrackPositionListener(this);
-        mStatusMonitor.start();
-    }
-
     /**
      * Initiates the worker thread {@code Handler} in an off UI thread {@code Looper}.
      *
@@ -252,49 +178,7 @@ public class MPDAsyncWorker implements Handler.Callback,
         final HandlerThread handlerThread = new HandlerThread("MPDAsyncWorker");
 
         handlerThread.start();
-        mWorkerHandler = new Handler(handlerThread.getLooper(), this);
 
-        return mWorkerHandler;
-    }
-
-    @Override
-    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
-        mHelperHandler
-                .obtainMessage(MPDAsyncHelper.EVENT_STATE, Tools.toObjectArray(mpdStatus, oldState))
-                .sendToTarget();
-    }
-
-    @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
-        mHelperHandler
-                .obtainMessage(MPDAsyncHelper.EVENT_STICKER_CHANGED, Tools.toObjectArray(mpdStatus))
-                .sendToTarget();
-    }
-
-    /** Stops the JMPDComm MPD Status Monitor */
-    private void stopStatusMonitor() {
-        if (mStatusMonitor != null) {
-            mStatusMonitor.stop();
-        }
-    }
-
-    @Override
-    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
-        mHelperHandler
-                .obtainMessage(MPDAsyncHelper.EVENT_TRACK, Tools.toObjectArray(mpdStatus, oldTrack))
-                .sendToTarget();
-    }
-
-    @Override
-    public void trackPositionChanged(final MPDStatus status) {
-        mHelperHandler
-                .obtainMessage(MPDAsyncHelper.EVENT_TRACK_POSITION, Tools.toObjectArray(status))
-                .sendToTarget();
-    }
-
-    @Override
-    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
-        mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_VOLUME,
-                Tools.toObjectArray(mpdStatus, oldVolume)).sendToTarget();
+        return new Handler(handlerThread.getLooper(), this);
     }
 }

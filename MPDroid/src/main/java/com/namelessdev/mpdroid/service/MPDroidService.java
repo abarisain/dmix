@@ -251,7 +251,7 @@ public final class MPDroidService extends Service implements
         }
 
         if (!MPD_ASYNC_HELPER.isStatusMonitorAlive()) {
-            MPD_ASYNC_HELPER.startStatusMonitor(new String[]{
+            MPD_ASYNC_HELPER.startIdleMonitor(new String[]{
                     IdleSubsystemMonitor.IDLE_PLAYER,
                     IdleSubsystemMonitor.IDLE_PLAYLIST
             });
@@ -836,7 +836,7 @@ public final class MPDroidService extends Service implements
                  * Don't remove the status change listener here. It
                  * causes a bug with the weak linked list, somehow.
                  */
-                MPD_ASYNC_HELPER.stopStatusMonitor();
+                MPD_ASYNC_HELPER.stopIdleMonitor();
                 MPD_ASYNC_HELPER.disconnect();
             }
         }

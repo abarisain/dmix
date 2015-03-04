@@ -113,7 +113,7 @@ public class MPDApplication extends Application implements
             disconnect();
         } else {
             if (!oMPDAsyncHelper.isStatusMonitorAlive()) {
-                oMPDAsyncHelper.startStatusMonitor(new String[]{
+                oMPDAsyncHelper.startIdleMonitor(new String[]{
                         IdleSubsystemMonitor.IDLE_DATABASE,
                         IdleSubsystemMonitor.IDLE_MIXER,
                         IdleSubsystemMonitor.IDLE_OPTIONS,
@@ -335,7 +335,7 @@ public class MPDApplication extends Application implements
                 @Override
                 public void run() {
                     Log.w(TAG, "Disconnecting (" + DISCONNECT_TIMER + " ms timeout)");
-                    oMPDAsyncHelper.stopStatusMonitor();
+                    oMPDAsyncHelper.stopIdleMonitor();
                     oMPDAsyncHelper.disconnect();
                 }
             }, DISCONNECT_TIMER);
