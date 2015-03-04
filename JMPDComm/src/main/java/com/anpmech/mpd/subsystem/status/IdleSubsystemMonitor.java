@@ -51,7 +51,7 @@ import java.util.concurrent.CancellationException;
  * target="_top"> idle</A> command response of the <A HREF="http://www.musicpd.org/doc/protocol"
  * target="_top">MPD protocol</A>.
  */
-public class IdleSubsystemMonitor extends Thread {
+public class IdleSubsystemMonitor implements Runnable {
 
     /** The song database has been modified after update. */
     public static final String IDLE_DATABASE = "database";
@@ -88,6 +88,8 @@ public class IdleSubsystemMonitor extends Thread {
 
     private static final boolean DEBUG = false;
 
+    private static final String GENERAL_ERROR = "Exception caught while looping.";
+
     private static final String TAG = "IdleStatusMonitor";
 
     private final MPD mMPD;
@@ -98,9 +100,11 @@ public class IdleSubsystemMonitor extends Thread {
 
     private final Queue<TrackPositionListener> mTrackPositionListeners;
 
-    private volatile boolean mGiveup;
-
     private MPDFuture<CommandResult> mIdleTracker;
+
+    private MPDFuture<?> mMonitorTracker;
+
+    private volatile boolean mStop;
 
     /**
      * Constructs an IdleStatusMonitor.
@@ -109,10 +113,10 @@ public class IdleSubsystemMonitor extends Thread {
      * @param supportedSubsystems Idle subsystems to support, see IDLE fields in this class.
      */
     public IdleSubsystemMonitor(final MPD mpd, final String[] supportedSubsystems) {
-        super(TAG);
+        super();
 
         mMPD = mpd;
-        mGiveup = false;
+        mStop = false;
         mStatusChangeListeners = new LinkedList<>();
         mTrackPositionListeners = new LinkedList<>();
         mSupportedSubsystems = supportedSubsystems.clone();
@@ -136,24 +140,14 @@ public class IdleSubsystemMonitor extends Thread {
         mTrackPositionListeners.add(listener);
     }
 
-    /**
-     * Gracefully terminate tread.
-     */
-    public void giveup() {
-        mGiveup = true;
-
-        if (mIdleTracker != null) {
-            mIdleTracker.cancel(true);
-        }
+    public boolean isAlive() {
+        return mMonitorTracker != null && !mMonitorTracker.isDone();
     }
 
-    public boolean isGivingUp() {
-        return mGiveup;
+    public boolean isStopping() {
+        return mStop;
     }
 
-    /**
-     * Main thread method
-     */
     @Override
     public void run() {
         /** Objects to keep cached in {@link MPD} */
@@ -167,7 +161,7 @@ public class IdleSubsystemMonitor extends Thread {
         MPDStatus oldStatus = status;
         long lastConnected = Long.MIN_VALUE;
 
-        while (!mGiveup) {
+        while (!mStop) {
             final long statusChangeTime = connectionStatus.getChangeTime();
             final boolean connectionReset = lastConnected != statusChangeTime;
 
@@ -192,7 +186,6 @@ public class IdleSubsystemMonitor extends Thread {
                 }
             }
 
-            // playlist
             try {
                 boolean dbChanged = false;
                 boolean statusChanged = false;
@@ -205,6 +198,10 @@ public class IdleSubsystemMonitor extends Thread {
                     mIdleTracker = connection.submit(MPDCommand.MPD_CMD_IDLE,
                             mSupportedSubsystems);
 
+                    /**
+                     * We block here until the idle command response returns or
+                     * {@link #mIdleTracker} is cancelled by another thread.
+                     */
                     final List<String> changes = mIdleTracker.get().getResponse();
 
                     oldStatus = status.getImmutableStatus();
@@ -340,8 +337,7 @@ public class IdleSubsystemMonitor extends Thread {
                             MPDExecutor.submitCallback(new Runnable() {
                                 @Override
                                 public void run() {
-                                    listener.libraryStateChanged(status.isUpdating(),
-                                            myDbChanged);
+                                    listener.libraryStateChanged(status.isUpdating(), myDbChanged);
                                 }
                             });
                         }
@@ -366,11 +362,31 @@ public class IdleSubsystemMonitor extends Thread {
                 continue;
             } catch (final IOException e) {
                 if (mMPD.isConnected()) {
-                    Log.error(TAG, "Exception caught while looping.", e);
+                    Log.error(TAG, GENERAL_ERROR, e);
                 }
             } catch (final MPDException e) {
-                Log.error(TAG, "Exception caught while looping.", e);
+                Log.error(TAG, GENERAL_ERROR, e);
             }
+        }
+    }
+
+    public void start() {
+        stop();
+
+        mStop = false;
+
+        /** We don't need to store the FutureTask for this one, we stop in a gentler way. */
+        mMonitorTracker = MPDExecutor.submit(this);
+    }
+
+    /**
+     * Gracefully terminate tread.
+     */
+    public void stop() {
+        mStop = true;
+
+        if (mIdleTracker != null) {
+            mIdleTracker.cancel(true);
         }
     }
 }

@@ -155,7 +155,7 @@ public class MPDAsyncWorker implements Handler.Callback,
     public boolean isStatusMonitorAlive() {
         final boolean isMonitorAlive;
 
-        if (mStatusMonitor != null && mStatusMonitor.isAlive() && !mStatusMonitor.isGivingUp()) {
+        if (mStatusMonitor != null && mStatusMonitor.isAlive() && !mStatusMonitor.isStopping()) {
             isMonitorAlive = true;
         } else {
             isMonitorAlive = false;
@@ -274,7 +274,7 @@ public class MPDAsyncWorker implements Handler.Callback,
     /** Stops the JMPDComm MPD Status Monitor */
     private void stopStatusMonitor() {
         if (mStatusMonitor != null) {
-            mStatusMonitor.giveup();
+            mStatusMonitor.stop();
         }
     }
 
