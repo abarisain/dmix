@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.service;
 
+import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.ConnectionInfo;
@@ -93,6 +94,8 @@ public final class StreamHandler implements
      * service.
      */
     private static final int INVALID_INT = -1;
+
+    private static final MPD MPD = MPDApplication.getInstance().getMPD();
 
     /** Workaround to delay preparation of stream on Android 4.4.2 and earlier. */
     private static final int PREPARE_ASYNC = 1;
@@ -571,10 +574,10 @@ public final class StreamHandler implements
         Toast.makeText(mServiceContext, toastOutput, Toast.LENGTH_LONG).show();
     }
 
-    void start(final int mpdState, final ConnectionInfo connectionInfo) {
+    void start(final ConnectionInfo connectionInfo) {
         mConnectionInfo = connectionInfo;
         mIsActive = true;
-        mIsPlaying = MPDStatusMap.STATE_PLAYING == mpdState;
+        mIsPlaying = MPD.getStatus().getState() == MPDStatusMap.STATE_PLAYING;
         if (!mPreparingStream && mIsPlaying) {
             tryToStream();
         }
@@ -582,15 +585,13 @@ public final class StreamHandler implements
 
     /**
      * A JMPDComm callback which is invoked on MPD status change.
-     *
-     * @param mpdStatus MPDStatus after event.
      */
-    void stateChanged(final MPDStatus mpdStatus) {
+    void stateChanged() {
         if (DEBUG) {
             Log.d(TAG, "StreamHandler.stateChanged()");
         }
 
-        final int state = mpdStatus.getState();
+        final int state = MPD.getStatus().getState();
 
         if (mIsActive) {
             switch (state) {
@@ -600,6 +601,8 @@ public final class StreamHandler implements
                     tryToStream();
                     break;
                 case MPDStatusMap.STATE_STOPPED:
+                    final MPDStatus mpdStatus = MPD.getStatus();
+
                     /** Detect final song and let onCompletion handle it */
                     if (mpdStatus.getNextSongPos() == -1 || mpdStatus.getPlaylistLength() == 0) {
                         break;

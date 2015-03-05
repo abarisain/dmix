@@ -225,14 +225,14 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
 
     /**
      * Used to keep the state updated.
-     *
-     * @param mpdStatus An MPDStatus object.
      */
-    final void stateChanged(final MPDStatus mpdStatus) {
+    final void stateChanged() {
+        final MPDStatus status = MPDApplication.getInstance().getMPD().getStatus();
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            mSeekBar.updateSeekTime(mpdStatus.getElapsedTime());
+            mSeekBar.updateSeekTime(status.getElapsedTime());
         }
-        getRemoteState(mpdStatus.getState());
+        getRemoteState(status.getState());
     }
 
     /** Cleans up this object prior to closing the parent. */

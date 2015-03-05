@@ -17,8 +17,8 @@
 package com.namelessdev.mpdroid.service;
 
 import com.anpmech.mpd.item.Music;
-import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
@@ -340,8 +340,8 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
         mIsMediaPlayerBuffering = false;
     }
 
-    final void stateChanged(final MPDStatus mpdStatus) {
-        switch (mpdStatus.getState()) {
+    final void stateChanged() {
+        switch (MPDApplication.getInstance().getMPD().getStatus().getState()) {
             case MPDStatusMap.STATE_PLAYING:
                 setPlayState(true);
                 break;

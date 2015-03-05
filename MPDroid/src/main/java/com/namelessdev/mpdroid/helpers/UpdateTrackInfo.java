@@ -44,6 +44,8 @@ public class UpdateTrackInfo {
 
     private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
+    private final MPDStatus mMPDStatus = mApp.getMPD().getStatus();
+
     private final Sticker mSticker;
 
     private boolean mForceCoverUpdate = false;
@@ -68,13 +70,13 @@ public class UpdateTrackInfo {
         mTrackInfoListener = listener;
     }
 
-    public final void refresh(final MPDStatus mpdStatus) {
-        refresh(mpdStatus, false);
+    public final void refresh() {
+        refresh(false);
     }
 
-    public final void refresh(final MPDStatus mpdStatus, final boolean forceCoverUpdate) {
+    public final void refresh(final boolean forceCoverUpdate) {
         mForceCoverUpdate = forceCoverUpdate;
-        new UpdateTrackInfoAsync().execute(mpdStatus);
+        new UpdateTrackInfoAsync().execute();
     }
 
     public final void removeCallback(final TrackInfoUpdate ignored) {
@@ -126,7 +128,7 @@ public class UpdateTrackInfo {
         void onTrackInfoUpdate(CharSequence artist, CharSequence title);
     }
 
-    private class UpdateTrackInfoAsync extends AsyncTask<MPDStatus, Void, Void> {
+    private class UpdateTrackInfoAsync extends AsyncTask<Void, Void, Void> {
 
         private AlbumInfo mAlbumInfo = null;
 
@@ -151,13 +153,13 @@ public class UpdateTrackInfo {
          * @return A null {@code Void} object, ignore it.
          */
         @Override
-        protected final Void doInBackground(final MPDStatus... params) {
+        protected final Void doInBackground(final Void... params) {
             try {
-                params[0].waitForValidity();
+                mMPDStatus.waitForValidity();
             } catch (final InterruptedException ignored) {
             }
 
-            final int songPos = params[0].getSongPos();
+            final int songPos = mMPDStatus.getSongPos();
             mCurrentTrack = mApp.getMPD().getPlaylist().getByIndex(songPos);
 
             if (mCurrentTrack != null) {

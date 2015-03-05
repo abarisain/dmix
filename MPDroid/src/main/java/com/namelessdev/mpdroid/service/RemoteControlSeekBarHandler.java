@@ -17,7 +17,6 @@
 package com.namelessdev.mpdroid.service;
 
 import com.anpmech.mpd.event.TrackPositionListener;
-import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
@@ -110,12 +109,10 @@ public class RemoteControlSeekBarHandler implements
 
     /**
      * Used to keep the remote control client track bar updated.
-     *
-     * @param status New MPD status, containing current track position
      */
     @Override
-    public final void trackPositionChanged(final MPDStatus status) {
-        updateSeekTime(status.getElapsedTime());
+    public final void trackPositionChanged() {
+        updateSeekTime(MPDApplication.getInstance().getMPD().getStatus().getElapsedTime());
     }
 
     /**

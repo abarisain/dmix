@@ -16,12 +16,12 @@
 
 package com.namelessdev.mpdroid.library;
 
+import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDPlaylist;
 import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
-import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.ErrorHandler;
@@ -56,6 +56,8 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
 
     private static final String TAG = "PlaylistEditActivity";
 
+    private final MPD mMPD = mApp.getMPD();
+
     private ErrorHandler mErrorHandler;
 
     private boolean mIsFirstRefresh = true;
@@ -79,13 +81,13 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
             final Integer songID = (Integer) itemFrom.get(Music.RESPONSE_SONG_ID);
             if (mIsPlayQueue) {
                 try {
-                    mApp.getMPD().getPlaylist().move(songID, to);
+                    mMPD.getPlaylist().move(songID, to);
                 } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to move a track on the queue.", e);
                 }
             } else {
                 try {
-                    mApp.getMPD().movePlaylistSong(mPlaylist, from, to);
+                    mMPD.movePlaylistSong(mPlaylist, from, to);
                 } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to rename a playlist.", e);
                 }
@@ -99,11 +101,11 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
         List<Music> musics;
 
         if (mIsPlayQueue) {
-            final MPDPlaylist playlist = mApp.getMPD().getPlaylist();
+            final MPDPlaylist playlist = mMPD.getPlaylist();
             musics = playlist.getMusicList();
         } else {
             try {
-                musics = mApp.getMPD().getPlaylistSongs(mPlaylist);
+                musics = mMPD.getPlaylistSongs(mPlaylist);
             } catch (final IOException | MPDException e) {
                 Log.d(TAG, "Playlist update failure.", e);
                 musics = Collections.emptyList();
@@ -134,9 +136,9 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
 
             try {
                 if (mIsPlayQueue) {
-                    mApp.getMPD().getPlaylist().removeById(positions);
+                    mMPD.getPlaylist().removeById(positions);
                 } else {
-                    mApp.getMPD().removeFromPlaylist(mPlaylist, positions);
+                    mMPD.removeFromPlaylist(mPlaylist, positions);
                 }
             } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to remove.", e);
@@ -240,35 +242,35 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
     }
 
     @Override
-    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+    public void playlistChanged(final int oldPlaylistVersion) {
         update();
 
     }
 
     @Override
-    public void randomChanged(final boolean random) {
+    public void randomChanged() {
     }
 
     @Override
-    public void repeatChanged(final boolean repeating) {
+    public void repeatChanged() {
     }
 
     @Override
-    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
+    public void stateChanged(final int oldState) {
     }
 
     @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
+    public void stickerChanged() {
     }
 
     @Override
-    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
+    public void trackChanged(final int oldTrack) {
         if (mIsPlayQueue) {
             // Mark running track...
             for (final AbstractMap<String, Object> song : mSongList) {
                 final int songId = ((Integer) song.get(Music.RESPONSE_SONG_ID)).intValue();
 
-                if (songId == mpdStatus.getSongId()) {
+                if (songId == mMPD.getStatus().getSongId()) {
                     song.put("play", android.R.drawable.ic_media_play);
                 } else {
                     song.put("play", 0);
@@ -285,7 +287,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
         // TODO: Preserve position!!!
         mSongList = new ArrayList<>();
         final String[] columnNames = {"play", Music.TAG_TITLE, Music.TAG_ARTIST, "marked"};
-        final int playingID = mApp.getMPD().getStatus().getSongId();
+        final int playingID = mMPD.getStatus().getSongId();
         final int pos = null == mListView ? -1 : mListView.getFirstVisiblePosition();
         final View view = null == mListView ? null : mListView.getChildAt(0);
         final int top = null == view ? -1 : view.getTop();
@@ -337,7 +339,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
     }
 
     @Override
-    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
+    public void volumeChanged(final int oldVolume) {
     }
 
 }

@@ -27,8 +27,6 @@
 
 package com.anpmech.mpd.event;
 
-import com.anpmech.mpd.subsystem.status.MPDStatus;
-
 /**
  * Represents a change in current playing track position on MPD server.
  */
@@ -36,8 +34,6 @@ public interface TrackPositionListener {
 
     /**
      * Called when track position changes on server.
-     *
-     * @param status New MPD status, containing current track position
      */
-    void trackPositionChanged(MPDStatus status);
+    void trackPositionChanged();
 }

@@ -27,8 +27,6 @@
 
 package com.anpmech.mpd.event;
 
-import com.anpmech.mpd.subsystem.status.MPDStatus;
-
 /*
  * Abstract implementation of the StatusChange. Just for convenience.
  */
@@ -39,27 +37,27 @@ public abstract class AbstractStatusChangeListener implements StatusChangeListen
     }
 
     @Override
-    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+    public void playlistChanged(final int oldPlaylistVersion) {
     }
 
     @Override
-    public void randomChanged(final boolean random) {
+    public void randomChanged() {
     }
 
     @Override
-    public void repeatChanged(final boolean repeating) {
+    public void repeatChanged() {
     }
 
     @Override
-    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
+    public void stateChanged(final int oldState) {
     }
 
     @Override
-    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
+    public void trackChanged(final int oldTrack) {
     }
 
     @Override
-    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
+    public void volumeChanged(final int oldVolume) {
     }
 
 }

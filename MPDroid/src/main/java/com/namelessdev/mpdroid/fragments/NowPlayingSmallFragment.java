@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.item.Music;
@@ -66,6 +67,8 @@ public class NowPlayingSmallFragment extends Fragment implements
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
+    private final MPDStatus mMPDStatus = mApp.getMPD().getStatus();
+
     private ImageButton mButtonPlayPause;
 
     private ImageView mCoverArt;
@@ -82,7 +85,7 @@ public class NowPlayingSmallFragment extends Fragment implements
     @Override
     public void connectionConnected() {
         if (isAdded()) {
-            mApp.updateTrackInfo.refresh(mApp.getMPD().getStatus(), true);
+            mApp.updateTrackInfo.refresh(true);
         }
     }
 
@@ -209,7 +212,6 @@ public class NowPlayingSmallFragment extends Fragment implements
     public void onResume() {
         super.onResume();
         mApp.getMPD().getConnectionStatus().addListener(this);
-        final MPDStatus mpdStatus = mApp.getMPD().getStatus();
 
         if (mApp.updateTrackInfo == null) {
             mApp.updateTrackInfo = new UpdateTrackInfo();
@@ -217,11 +219,11 @@ public class NowPlayingSmallFragment extends Fragment implements
         mApp.updateTrackInfo.addCallback(this);
 
         if (mApp.getMPD().isConnected()) {
-            mApp.updateTrackInfo.refresh(mpdStatus, true);
+            mApp.updateTrackInfo.refresh(true);
         }
 
         /** mpdStatus might be null here, no problem it'll be generated in the method. */
-        updatePlayPauseButton(mpdStatus);
+        updatePlayPauseButton();
     }
 
     @Override
@@ -249,45 +251,47 @@ public class NowPlayingSmallFragment extends Fragment implements
     }
 
     @Override
-    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+    public void playlistChanged(final int oldPlaylistVersion) {
         /**
          * If the current song is a stream, the metadata can change in place, and that will only
          * change the playlist, not the track, so, update if we detect a stream.
          */
         if (isAdded()) {
+            final MPD mpd = mApp.getMPD();
+            final MPDStatus mpdStatus = mpd.getStatus();
             final int songPos = mpdStatus.getSongPos();
-            final Music currentSong =
-                    mApp.getMPD().getPlaylist().getByIndex(songPos);
+            final Music currentSong = mpd.getPlaylist().getByIndex(songPos);
+
             if (currentSong != null && currentSong.isStream() ||
                     mpdStatus.isState(MPDStatusMap.STATE_STOPPED)) {
-                mApp.updateTrackInfo.refresh(mpdStatus, true);
+                mApp.updateTrackInfo.refresh(true);
             }
         }
     }
 
     @Override
-    public void randomChanged(final boolean random) {
+    public void randomChanged() {
 
     }
 
     @Override
-    public void repeatChanged(final boolean repeating) {
+    public void repeatChanged() {
     }
 
     @Override
-    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
-        mApp.updateTrackInfo.refresh(mpdStatus);
-        updatePlayPauseButton(mpdStatus);
+    public void stateChanged(final int oldState) {
+        mApp.updateTrackInfo.refresh();
+        updatePlayPauseButton();
 
     }
 
     @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
+    public void stickerChanged() {
     }
 
     @Override
-    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
-        mApp.updateTrackInfo.refresh(mpdStatus);
+    public void trackChanged(final int oldTrack) {
+        mApp.updateTrackInfo.refresh();
     }
 
     public void updateCover(final AlbumInfo albumInfo) {
@@ -297,16 +301,16 @@ public class NowPlayingSmallFragment extends Fragment implements
         }
     }
 
-    private void updatePlayPauseButton(final MPDStatus status) {
+    private void updatePlayPauseButton() {
         if (isAdded()) {
             final int playPauseResource =
-                    NowPlayingFragment.getPlayPauseResource(status.getState());
+                    NowPlayingFragment.getPlayPauseResource(mMPDStatus.getState());
 
             mButtonPlayPause.setImageResource(playPauseResource);
         }
     }
 
     @Override
-    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
+    public void volumeChanged(final int oldVolume) {
     }
 }

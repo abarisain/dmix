@@ -101,6 +101,8 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
 
     protected final boolean mLightTheme = mApp.isLightThemeSelected();
 
+    private final MPDStatus mMPDStatus = mApp.getMPD().getStatus();
+
     protected ActionMode mActionMode;
 
     protected FragmentActivity mActivity;
@@ -481,13 +483,13 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     }
 
     @Override
-    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+    public void playlistChanged(final int oldPlaylistVersion) {
         update();
 
     }
 
     @Override
-    public void randomChanged(final boolean random) {
+    public void randomChanged() {
     }
 
     protected void refreshListColorCacheHint() {
@@ -541,7 +543,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     }
 
     @Override
-    public void repeatChanged(final boolean repeating) {
+    public void repeatChanged() {
     }
 
     void savePlaylist(final String name) {
@@ -584,7 +586,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     }
 
     public void scrollToNowPlaying() {
-        final int songPos = mApp.getMPD().getStatus().getSongPos();
+        final int songPos = mMPDStatus.getSongPos();
 
         if (songPos == -1) {
             Log.d(TAG, "Missing list item.");
@@ -602,20 +604,20 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     }
 
     @Override
-    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
+    public void stateChanged(final int oldState) {
     }
 
     @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
+    public void stickerChanged() {
     }
 
     @Override
-    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
+    public void trackChanged(final int oldTrack) {
         if (mSongList != null) {
             // Mark running track...
             for (final AbstractPlaylistMusic song : mSongList) {
                 final int newPlay;
-                if (song.getSongId() == mpdStatus.getSongId()) {
+                if (song.getSongId() == mMPDStatus.getSongId()) {
                     if (mLightTheme) {
                         newPlay = R.drawable.ic_media_play_light;
                     } else {
@@ -648,7 +650,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         final ArrayList<AbstractPlaylistMusic> newSongList = new ArrayList<>(musics.size());
 
         if (mLastPlayingID == -1 || forcePlayingIDRefresh) {
-            mLastPlayingID = mApp.getMPD().getStatus().getSongId();
+            mLastPlayingID = mMPDStatus.getSongId();
         }
 
         // The position in the song list of the currently played song
@@ -791,7 +793,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     }
 
     @Override
-    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
+    public void volumeChanged(final int oldVolume) {
     }
 
     private class QueueAdapter extends ArrayAdapter<AbstractPlaylistMusic> {

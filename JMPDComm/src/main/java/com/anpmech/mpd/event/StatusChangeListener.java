@@ -27,8 +27,6 @@
 
 package com.anpmech.mpd.event;
 
-import com.anpmech.mpd.subsystem.status.MPDStatus;
-
 /**
  * Implement this to get idle subsystem status updates.
  */
@@ -45,53 +43,43 @@ public interface StatusChangeListener {
     /**
      * Called when playlist changes on MPD server.
      *
-     * @param mpdStatus          MPDStatus after playlist change.
      * @param oldPlaylistVersion old playlist version.
      */
-    void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion);
+    void playlistChanged(int oldPlaylistVersion);
 
     /**
      * Called when MPD server random feature changes state.
-     *
-     * @param random new random state: true, on; false, off
      */
-    void randomChanged(boolean random);
+    void randomChanged();
 
     /**
      * Called when MPD server repeat feature changes state.
-     *
-     * @param repeating new repeat state: true, on; false, off.
      */
-    void repeatChanged(boolean repeating);
+    void repeatChanged();
 
     /**
      * Called when MPD state changes on server.
      *
-     * @param mpdStatus MPDStatus after event.
-     * @param oldState  previous state.
+     * @param oldState previous state.
      */
-    void stateChanged(MPDStatus mpdStatus, int oldState);
+    void stateChanged(int oldState);
 
     /**
      * Called when any sticker of any track has been changed on server.
-     *
-     * @param mpdStatus {@code MPDStatus} after event.
      */
-    void stickerChanged(MPDStatus mpdStatus);
+    void stickerChanged();
 
     /**
      * Called when playing track is changed on server.
      *
-     * @param mpdStatus {@code MPDStatus} after event.
-     * @param oldTrack  track number before event.
+     * @param oldTrack track number before event.
      */
-    void trackChanged(MPDStatus mpdStatus, int oldTrack);
+    void trackChanged(int oldTrack);
 
     /**
      * Called when volume changes on MPD server.
      *
-     * @param mpdStatus {@code MPDStatus} after event
      * @param oldVolume volume before event
      */
-    void volumeChanged(MPDStatus mpdStatus, int oldVolume);
+    void volumeChanged(int oldVolume);
 }

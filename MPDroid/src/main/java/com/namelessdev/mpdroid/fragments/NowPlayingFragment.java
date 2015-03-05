@@ -109,6 +109,8 @@ public class NowPlayingFragment extends Fragment implements
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
+    private final MPDStatus mMPDStatus = mApp.getMPD().getStatus();
+
     private final Timer mVolTimer = new Timer();
 
     private FragmentActivity mActivity;
@@ -329,14 +331,12 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private void forceStatusUpdate() {
-        final MPDStatus status = mApp.getMPD().getStatus();
-
-        if (status.isValid()) {
-            volumeChanged(status, MPDStatusMap.VOLUME_UNAVAILABLE);
-            updateStatus(status);
-            updateTrackInfo(status, true);
-            setButtonAttribute(getRepeatAttribute(status.isRepeat()), mRepeatButton);
-            setButtonAttribute(getShuffleAttribute(status.isRandom()), mShuffleButton);
+        if (mMPDStatus.isValid()) {
+            volumeChanged(MPDStatusMap.VOLUME_UNAVAILABLE);
+            updateStatus();
+            updateTrackInfo(true);
+            setButtonAttribute(getRepeatAttribute(mMPDStatus.isRepeat()), mRepeatButton);
+            setButtonAttribute(getShuffleAttribute(mMPDStatus.isRandom()), mShuffleButton);
             setStickerVisibility();
         }
     }
@@ -849,11 +849,11 @@ public class NowPlayingFragment extends Fragment implements
                 break;
             case "enableAudioText":
                 mIsAudioNameTextEnabled = sharedPreferences.getBoolean(key, false);
-                updateAudioNameText(mApp.getMPD().getStatus());
+                updateAudioNameText();
                 break;
             case "enableRating":
                 setStickerVisibility();
-                updateTrackInfo(mApp.getMPD().getStatus(), false);
+                updateTrackInfo(false);
                 break;
             default:
                 break;
@@ -900,29 +900,29 @@ public class NowPlayingFragment extends Fragment implements
         mSongNameText.setText(title);
         mSongRating.setRating(trackRating);
         mYearNameText.setText(date);
-        updateAudioNameText(mApp.getMPD().getStatus());
+        updateAudioNameText();
     }
 
     @Override
-    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+    public void playlistChanged(final int oldPlaylistVersion) {
         /**
          * If the current song is a stream, the metadata can change in place, and that will only
          * change the playlist, not the track, so, update if we detect a stream.
          */
         if (mCurrentSong != null && mCurrentSong.isStream() ||
-                mpdStatus.isState(MPDStatusMap.STATE_STOPPED)) {
-            updateTrackInfo(mpdStatus, false);
+                mMPDStatus.isState(MPDStatusMap.STATE_STOPPED)) {
+            updateTrackInfo(false);
         }
     }
 
     @Override
-    public void randomChanged(final boolean random) {
-        setButtonAttribute(getShuffleAttribute(random), mShuffleButton);
+    public void randomChanged() {
+        setButtonAttribute(getShuffleAttribute(mMPDStatus.isRandom()), mShuffleButton);
     }
 
     @Override
-    public void repeatChanged(final boolean repeating) {
-        setButtonAttribute(getRepeatAttribute(repeating), mRepeatButton);
+    public void repeatChanged() {
+        setButtonAttribute(getRepeatAttribute(mMPDStatus.isRepeat()), mRepeatButton);
     }
 
     private void scrollToNowPlaying() {
@@ -1004,15 +1004,15 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     @Override
-    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
+    public void stateChanged(final int oldState) {
         if (mActivity != null) {
-            updateStatus(mpdStatus);
-            updateAudioNameText(mpdStatus);
+            updateStatus();
+            updateAudioNameText();
         }
     }
 
     @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
+    public void stickerChanged() {
         if (mSongRating.getVisibility() == View.VISIBLE && mCurrentSong != null) {
             /** This track is not necessarily the track that was changed. */
             final float rating = getTrackRating();
@@ -1030,11 +1030,9 @@ public class NowPlayingFragment extends Fragment implements
     /**
      * Toggle the track progress bar. This should be called only when the track changes, for
      * position changes, startPosTimer() is sufficient.
-     *
-     * @param status A current {@code MPDStatus} object.
      */
-    private void toggleTrackProgress(final MPDStatus status) {
-        final long totalTime = status.getTotalTime();
+    private void toggleTrackProgress() {
+        final long totalTime = mMPDStatus.getTotalTime();
 
         if (totalTime == MPDStatusMap.DEFAULT_LONG) {
             mSongRating.setVisibility(View.GONE);
@@ -1044,9 +1042,9 @@ public class NowPlayingFragment extends Fragment implements
             mTrackSeekBar.setProgress(0);
             mTrackSeekBar.setEnabled(false);
         } else {
-            final long elapsedTime = status.getElapsedTime();
+            final long elapsedTime = mMPDStatus.getElapsedTime();
 
-            if (status.isState(MPDStatusMap.STATE_PLAYING)) {
+            if (mMPDStatus.isState(MPDStatusMap.STATE_PLAYING)) {
                 startPosTimer(elapsedTime, totalTime);
             } else {
                 stopPosTimer();
@@ -1079,31 +1077,29 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     @Override
-    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
-        updateTrackInfo(mpdStatus, false);
+    public void trackChanged(final int oldTrack) {
+        updateTrackInfo(false);
     }
 
     @Override
-    public void trackPositionChanged(final MPDStatus status) {
-        toggleTrackProgress(status);
+    public void trackPositionChanged() {
+        toggleTrackProgress();
     }
 
     /**
      * This will update the audioNameText (extra track information) field.
-     *
-     * @param status An {@code MPDStatus} object.
      */
-    private void updateAudioNameText(final MPDStatus status) {
+    private void updateAudioNameText() {
         StringBuilder optionalTrackInfo = null;
 
         if (mCurrentSong != null && mIsAudioNameTextEnabled &&
-                !status.isState(MPDStatusMap.STATE_STOPPED)) {
+                !mMPDStatus.isState(MPDStatusMap.STATE_STOPPED)) {
 
             final char[] separator = {' ', '|', ' '};
             final String fullPath = mCurrentSong.getFullPath();
-            final long bitRate = status.getBitrate();
-            final int bitsPerSample = status.getBitsPerSample();
-            final int sampleRate = status.getSampleRate();
+            final long bitRate = mMPDStatus.getBitrate();
+            final int bitsPerSample = mMPDStatus.getBitsPerSample();
+            final int sampleRate = mMPDStatus.getSampleRate();
             String fileExtension = null;
             optionalTrackInfo = new StringBuilder(40);
 
@@ -1166,10 +1162,10 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
-    private void updateStatus(final MPDStatus status) {
-        toggleTrackProgress(status);
+    private void updateStatus() {
+        toggleTrackProgress();
 
-        mPlayPauseButton.setImageResource(getPlayPauseResource(status.getState()));
+        mPlayPauseButton.setImageResource(getPlayPauseResource(mMPDStatus.getState()));
 
         View.OnTouchListener currentListener = null;
         if (mCurrentSong != null) {
@@ -1182,10 +1178,10 @@ public class NowPlayingFragment extends Fragment implements
         mSongInfo.setOnTouchListener(currentListener);
     }
 
-    private void updateTrackInfo(final MPDStatus status, final boolean forcedUpdate) {
+    private void updateTrackInfo(final boolean forcedUpdate) {
         if (mApp.getMPD().isConnected() && isAdded()) {
-            toggleTrackProgress(status);
-            mApp.updateTrackInfo.refresh(status, forcedUpdate);
+            toggleTrackProgress();
+            mApp.updateTrackInfo.refresh(forcedUpdate);
         }
     }
 
@@ -1217,8 +1213,8 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     @Override
-    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
-        final int volume = mpdStatus.getVolume();
+    public void volumeChanged(final int oldVolume) {
+        final int volume = mMPDStatus.getVolume();
 
         toggleVolumeBar(volume);
         mVolumeSeekBar.setProgress(volume);
