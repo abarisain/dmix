@@ -52,7 +52,7 @@ public class WidgetHelperService extends IntentService {
         final String action = intent.getAction();
 
         // schedule real work
-        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.getAsyncHelper().execAsync(new Runnable() {
             @Override
             public void run() {
                 processIntent(action, mpd);

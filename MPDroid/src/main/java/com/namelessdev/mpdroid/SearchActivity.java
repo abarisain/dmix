@@ -406,7 +406,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     @Override
     public void onDestroy() {
-        mApp.oMPDAsyncHelper.removeAsyncExecListener(this);
+        mApp.getAsyncHelper().removeAsyncExecListener(this);
         super.onDestroy();
     }
 
@@ -454,7 +454,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 startActivityForResult(intent, -1);
             }
         } else {
-            mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+            mApp.getAsyncHelper().execAsync(new Runnable() {
                 @Override
                 public void run() {
                     boolean replace = false;
@@ -573,8 +573,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     public void updateList() {
-        mApp.oMPDAsyncHelper.addAsyncExecListener(this);
-        mJobID = mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.getAsyncHelper().addAsyncExecListener(this);
+        mJobID = mApp.getAsyncHelper().execAsync(new Runnable() {
             @Override
             public void run() {
                 asyncUpdate();

@@ -184,7 +184,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     private void addAndReplace(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 
-        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.getAsyncHelper().execAsync(new Runnable() {
             @Override
             public void run() {
                 boolean replace = false;
@@ -250,7 +250,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     private void addToPlaylistFile(final PlaylistFile playlistFile, final int id) {
-        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.getAsyncHelper().execAsync(new Runnable() {
             @Override
             public void run() {
                 add(mItems.get(id), playlistFile);
@@ -406,7 +406,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     @Override
     public void onDestroy() {
         try {
-            mApp.oMPDAsyncHelper.removeAsyncExecListener(this);
+            mApp.getAsyncHelper().removeAsyncExecListener(this);
         } catch (final Exception e) {
             Log.e(TAG, "Error while destroying BrowseFragment", e);
         }
@@ -634,8 +634,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         mLoadingView.setVisibility(View.VISIBLE);
 
         // Loading Artists asynchronous...
-        mApp.oMPDAsyncHelper.addAsyncExecListener(this);
-        mJobID = mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.getAsyncHelper().addAsyncExecListener(this);
+        mJobID = mApp.getAsyncHelper().execAsync(new Runnable() {
             @Override
             public void run() {
                 asyncUpdate();

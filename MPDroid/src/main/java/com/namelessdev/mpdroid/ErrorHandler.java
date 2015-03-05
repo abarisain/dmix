@@ -233,7 +233,7 @@ public class ErrorHandler implements MPDConnectionListener {
                     mActivity.finish();
                     break;
                 case DialogInterface.BUTTON_POSITIVE:
-                    ((MPDApplication) mActivity.getApplication()).oMPDAsyncHelper.connect();
+                    ((MPDApplication) mActivity.getApplication()).getAsyncHelper().connect();
                     break;
                 default:
                     break;

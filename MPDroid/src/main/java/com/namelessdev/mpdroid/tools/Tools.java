@@ -170,7 +170,7 @@ public final class Tools {
     }
 
     public static boolean isServerLocalhost() {
-        return "127.0.0.1".equals(APP.oMPDAsyncHelper.getConnectionSettings().server);
+        return "127.0.0.1".equals(APP.getAsyncHelper().getConnectionSettings().server);
     }
 
     public static boolean isStringEmptyOrNull(final String str) {

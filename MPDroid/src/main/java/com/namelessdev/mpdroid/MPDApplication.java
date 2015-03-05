@@ -65,8 +65,6 @@ public class MPDApplication extends Application implements
     private final Collection<Object> mConnectionLocks =
             Collections.synchronizedCollection(new LinkedList<>());
 
-    public MPDAsyncHelper oMPDAsyncHelper;
-
     public UpdateTrackInfo updateTrackInfo;
 
     private Timer mDisconnectScheduler;
@@ -80,6 +78,8 @@ public class MPDApplication extends Application implements
     private boolean mIsStreamActive;
 
     private MPD mMPD;
+
+    private MPDAsyncHelper mMPDAsyncHelper;
 
     private ServiceBinder mServiceBinder;
 
@@ -158,8 +158,8 @@ public class MPDApplication extends Application implements
                 mIdleSubsystemMonitor.start();
             }
             if (!mMPD.isConnected()) {
-                SettingsHelper.updateConnectionSettings(oMPDAsyncHelper);
-                oMPDAsyncHelper.connect();
+                SettingsHelper.updateConnectionSettings(mMPDAsyncHelper);
+                mMPDAsyncHelper.connect();
             }
         }
     }
@@ -174,7 +174,7 @@ public class MPDApplication extends Application implements
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void connect() throws IOException, MPDException {
-        connect(SettingsHelper.getConnectionSettings(oMPDAsyncHelper.getConnectionSettings()));
+        connect(SettingsHelper.getConnectionSettings(mMPDAsyncHelper.getConnectionSettings()));
     }
 
     /**
@@ -195,6 +195,10 @@ public class MPDApplication extends Application implements
     public final void disconnect() {
         cancelDisconnectScheduler();
         startDisconnectScheduler();
+    }
+
+    public MPDAsyncHelper getAsyncHelper() {
+        return mMPDAsyncHelper;
     }
 
     /**
@@ -230,10 +234,10 @@ public class MPDApplication extends Application implements
                 break;
             case ServiceBinder.CONNECTED:
                 debug("MPDApplication is bound to the service.");
-                oMPDAsyncHelper.addConnectionInfoListener(this);
+                mMPDAsyncHelper.addConnectionInfoListener(this);
                 break;
             case ServiceBinder.DISCONNECTED:
-                oMPDAsyncHelper.removeConnectionInfoListener(this);
+                mMPDAsyncHelper.removeConnectionInfoListener(this);
                 break;
             case StreamHandler.IS_ACTIVE:
                 mIsStreamActive = ServiceBinder.TRUE == msg.arg1;
@@ -293,7 +297,7 @@ public class MPDApplication extends Application implements
     public final boolean isNotificationPersistent() {
         final boolean result;
 
-        if (oMPDAsyncHelper.getConnectionSettings().isNotificationPersistent &&
+        if (mMPDAsyncHelper.getConnectionSettings().isNotificationPersistent &&
                 !mIsNotificationOverridden) {
             result = true;
         } else {
@@ -365,7 +369,7 @@ public class MPDApplication extends Application implements
         // Init the default preferences (meaning we won't have different defaults between code/xml)
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
 
-        oMPDAsyncHelper = new MPDAsyncHelper();
+        mMPDAsyncHelper = new MPDAsyncHelper();
         final boolean useAlbumCache = PreferenceManager.getDefaultSharedPreferences(this)
                 .getBoolean(USE_LOCAL_ALBUM_CACHE_KEY, false);
 

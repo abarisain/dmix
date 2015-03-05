@@ -200,7 +200,7 @@ public class FSFragment extends BrowseFragment {
         if (position > mNumSubDirs - 1 || mNumSubDirs == 0) {
 
             final FilesystemTreeEntry item = (FilesystemTreeEntry) mItems.get(position);
-            mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+            mApp.getAsyncHelper().execAsync(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -235,7 +235,7 @@ public class FSFragment extends BrowseFragment {
     protected boolean onToolbarMenuItemClick(final MenuItem item) {
         // Menu actions...
         if (item.getItemId() == R.id.menu_update) {
-            mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+            mApp.getAsyncHelper().execAsync(new Runnable() {
                 @Override
                 public void run() {
                     try {

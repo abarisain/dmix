@@ -68,7 +68,7 @@ public final class QueueControl {
      * @param intArray The int array argument for the command.
      */
     public static void run(final int command, final int[] intArray) {
-        APP.oMPDAsyncHelper.execAsync(new Runnable() {
+        APP.getAsyncHelper().execAsync(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -90,7 +90,7 @@ public final class QueueControl {
      * @param s       The string argument for the command.
      */
     public static void run(final int command, final String s) {
-        APP.oMPDAsyncHelper.execAsync(new Runnable() {
+        APP.getAsyncHelper().execAsync(new Runnable() {
             @Override
             public void run() {
                 try {

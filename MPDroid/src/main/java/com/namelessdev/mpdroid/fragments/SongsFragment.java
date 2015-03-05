@@ -391,7 +391,7 @@ public class SongsFragment extends BrowseFragment<Music> {
                     intent.putExtra(Artist.EXTRA, mAlbum.getArtist());
                     startActivityForResult(intent, -1);
                 } else {
-                    mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+                    mApp.getAsyncHelper().execAsync(new Runnable() {
                         @Override
                         public void run() {
                             boolean replace = false;
@@ -497,7 +497,7 @@ public class SongsFragment extends BrowseFragment<Music> {
             final long id) {
         // If in simple mode : add, replace and play the shown album.
         if (mApp.isInSimpleMode()) {
-            mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+            mApp.getAsyncHelper().execAsync(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -517,7 +517,7 @@ public class SongsFragment extends BrowseFragment<Music> {
             final Runnable runnable = addAdapterItem(parent, position);
 
             if (runnable != null) {
-                mApp.oMPDAsyncHelper.execAsync(runnable);
+                mApp.getAsyncHelper().execAsync(runnable);
             }
         }
 

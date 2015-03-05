@@ -116,7 +116,7 @@ public final class MPDroidService extends Service implements
     /** The Android AudioManager, used by this for audio focus control. */
     private AudioManager mAudioManager = null;
 
-    private ConnectionInfo mConnectionInfo = APP.oMPDAsyncHelper.getConnectionSettings();
+    private ConnectionInfo mConnectionInfo = APP.getAsyncHelper().getConnectionSettings();
 
     private Music mCurrentTrack = null;
 

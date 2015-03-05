@@ -142,7 +142,7 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
         final Runnable runnable = addAdapterItem(parent, position);
 
         if (runnable != null) {
-            mApp.oMPDAsyncHelper.execAsync(runnable);
+            mApp.getAsyncHelper().execAsync(runnable);
         }
     }
 

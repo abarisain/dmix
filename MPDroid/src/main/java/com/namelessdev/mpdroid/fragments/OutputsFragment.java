@@ -74,7 +74,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
     @Override
     public void onItemClick(
             final AdapterView<?> parent, final View view, final int position, final long id) {
-        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.getAsyncHelper().execAsync(new Runnable() {
             @Override
             public void run() {
                 final MPD mpd = mApp.getMPD();
@@ -102,7 +102,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
     }
 
     public void refreshOutputs() {
-        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.getAsyncHelper().execAsync(new Runnable() {
             @Override
             public void run() {
                 try {
