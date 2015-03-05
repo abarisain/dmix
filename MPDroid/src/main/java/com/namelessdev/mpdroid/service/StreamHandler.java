@@ -355,7 +355,7 @@ public final class StreamHandler implements
                     }
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS:
-                    MPDControl.run(MPDApplication.getInstance().getMPD(), MPDControl.ACTION_PAUSE);
+                    MPDControl.run(MPDControl.ACTION_PAUSE);
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                     mMediaPlayer.pause();

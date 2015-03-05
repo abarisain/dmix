@@ -42,9 +42,9 @@ public class UpdateTrackInfo {
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
-    private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(mApp);
-
     private final MPDStatus mMPDStatus = mApp.getMPD().getStatus();
+
+    private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
     private final Sticker mSticker;
 

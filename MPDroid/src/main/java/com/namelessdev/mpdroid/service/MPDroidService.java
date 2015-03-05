@@ -431,11 +431,10 @@ public final class MPDroidService extends Service implements
                         if (mIsStreamStarted && mStreamHandler != null &&
                                 mStreamHandler.isActive()) {
                             /** Should never be disconnected. We're streaming! */
-                            if (APP.getMPD() == null ||
-                                    !APP.getMPD().isConnected()) {
+                            if (APP.getMPD() == null || !APP.getMPD().isConnected()) {
                                 initializeAsyncHelper();
                             }
-                            MPDControl.run(APP.getMPD(), MPDControl.ACTION_PAUSE);
+                            MPDControl.run(MPDControl.ACTION_PAUSE);
                             stopStream();
                         }
                         break;
