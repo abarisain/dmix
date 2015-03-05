@@ -104,7 +104,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
     @Override
     protected void add(final Album item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add(item, replace, play);
+            mApp.getMPD().add(item, replace, play);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -114,7 +114,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
     @Override
     protected void add(final Album item, final PlaylistFile playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, item);
+            mApp.getMPD().addToPlaylist(playlist, item);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -127,7 +127,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         final boolean sortByYear = settings.getBoolean(ALBUM_YEAR_SORT_KEY, false);
 
         try {
-            mItems = mApp.oMPDAsyncHelper.oMPD.getAlbums(mArtist, sortByYear, mIsCountDisplayed);
+            mItems = mApp.getMPD().getAlbums(mArtist, sortByYear, mIsCountDisplayed);
             Collections.sort(mItems);
 
             if (sortByYear) {
@@ -136,7 +136,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
 
             if (mGenre != null) { // filter albums not in genre
                 for (int i = mItems.size() - 1; i >= 0; i--) {
-                    if (!mApp.oMPDAsyncHelper.oMPD.isAlbumInGenre(mItems.get(i), mGenre)) {
+                    if (!mApp.getMPD().isAlbumInGenre(mItems.get(i), mGenre)) {
                         mItems.remove(i);
                     }
                 }

@@ -100,7 +100,7 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
             case R.id.GMM_Stream:
                 if (mApp.isStreamActive()) {
                     mApp.stopStreaming();
-                } else if (mApp.oMPDAsyncHelper.oMPD.isConnected()) {
+                } else if (mApp.getMPD().isConnected()) {
                     mApp.startStreaming();
                 }
                 break;
@@ -148,7 +148,7 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
         super.onPrepareOptionsMenu(menu);
 
         final boolean isStreaming = mApp.isStreamActive();
-        final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
+        final MPD mpd = mApp.getMPD();
         final MPDStatus mpdStatus = mpd.getStatus();
 
         final MenuItem saveItem = menu.findItem(R.id.PLM_Save);

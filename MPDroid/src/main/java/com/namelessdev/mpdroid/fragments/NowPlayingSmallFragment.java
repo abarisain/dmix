@@ -82,7 +82,7 @@ public class NowPlayingSmallFragment extends Fragment implements
     @Override
     public void connectionConnected() {
         if (isAdded()) {
-            mApp.updateTrackInfo.refresh(mApp.oMPDAsyncHelper.oMPD.getStatus(), true);
+            mApp.updateTrackInfo.refresh(mApp.getMPD().getStatus(), true);
         }
     }
 
@@ -200,7 +200,7 @@ public class NowPlayingSmallFragment extends Fragment implements
 
     @Override
     public void onPause() {
-        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().removeListener(this);
+        mApp.getMPD().getConnectionStatus().removeListener(this);
         mApp.updateTrackInfo.removeCallback(this);
         super.onPause();
     }
@@ -208,15 +208,15 @@ public class NowPlayingSmallFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().addListener(this);
-        final MPDStatus mpdStatus = mApp.oMPDAsyncHelper.oMPD.getStatus();
+        mApp.getMPD().getConnectionStatus().addListener(this);
+        final MPDStatus mpdStatus = mApp.getMPD().getStatus();
 
         if (mApp.updateTrackInfo == null) {
             mApp.updateTrackInfo = new UpdateTrackInfo();
         }
         mApp.updateTrackInfo.addCallback(this);
 
-        if (mApp.oMPDAsyncHelper.oMPD.isConnected()) {
+        if (mApp.getMPD().isConnected()) {
             mApp.updateTrackInfo.refresh(mpdStatus, true);
         }
 
@@ -227,12 +227,12 @@ public class NowPlayingSmallFragment extends Fragment implements
     @Override
     public void onStart() {
         super.onStart();
-        mApp.oMPDAsyncHelper.addStatusChangeListener(this);
+        mApp.addStatusChangeListener(this);
     }
 
     @Override
     public void onStop() {
-        mApp.oMPDAsyncHelper.removeStatusChangeListener(this);
+        mApp.removeStatusChangeListener(this);
         super.onStop();
     }
 
@@ -257,7 +257,7 @@ public class NowPlayingSmallFragment extends Fragment implements
         if (isAdded()) {
             final int songPos = mpdStatus.getSongPos();
             final Music currentSong =
-                    mApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+                    mApp.getMPD().getPlaylist().getByIndex(songPos);
             if (currentSong != null && currentSong.isStream() ||
                     mpdStatus.isState(MPDStatusMap.STATE_STOPPED)) {
                 mApp.updateTrackInfo.refresh(mpdStatus, true);

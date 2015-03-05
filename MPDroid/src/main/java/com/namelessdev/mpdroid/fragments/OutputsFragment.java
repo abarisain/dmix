@@ -77,7 +77,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
         mApp.oMPDAsyncHelper.execAsync(new Runnable() {
             @Override
             public void run() {
-                final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
+                final MPD mpd = mApp.getMPD();
                 final MPDOutput output = mOutputs.get(position);
                 try {
                     if (getListView().isItemChecked(position)) {
@@ -106,7 +106,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
             @Override
             public void run() {
                 try {
-                    final Collection<MPDOutput> mpdOutputs = mApp.oMPDAsyncHelper.oMPD.getOutputs();
+                    final Collection<MPDOutput> mpdOutputs = mApp.getMPD().getOutputs();
                     mOutputs.clear();
                     mOutputs.addAll(mpdOutputs);
                 } catch (final IOException | MPDException e) {

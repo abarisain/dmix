@@ -121,7 +121,7 @@ public class SongsFragment extends BrowseFragment<Music> {
     @Override
     protected void add(final Music item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add(item, replace, play);
+            mApp.getMPD().add(item, replace, play);
             Tools.notifyUser(R.string.songAdded, item.getTitle(), item.getName());
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add, remove, play.", e);
@@ -131,7 +131,7 @@ public class SongsFragment extends BrowseFragment<Music> {
     @Override
     protected void add(final Music item, final PlaylistFile playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, item);
+            mApp.getMPD().addToPlaylist(playlist, item);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add to playlist.", e);
@@ -166,7 +166,7 @@ public class SongsFragment extends BrowseFragment<Music> {
     public void asyncUpdate() {
         try {
             if (getActivity() != null) {
-                mItems = mApp.oMPDAsyncHelper.oMPD.getSongs(mAlbum);
+                mItems = mApp.getMPD().getSongs(mAlbum);
                 Collections.sort(mItems);
             }
         } catch (final IOException | MPDException e) {
@@ -411,7 +411,7 @@ public class SongsFragment extends BrowseFragment<Music> {
                                     break;
                             }
                             try {
-                                mApp.oMPDAsyncHelper.oMPD.add(mAlbum, replace, play);
+                                mApp.getMPD().add(mAlbum, replace, play);
                                 Tools.notifyUser(R.string.albumAdded, mAlbum);
                             } catch (final IOException | MPDException e) {
                                 Log.e(TAG, "Failed to add, replace, play.", e);
@@ -501,13 +501,13 @@ public class SongsFragment extends BrowseFragment<Music> {
                 @Override
                 public void run() {
                     try {
-                        mApp.oMPDAsyncHelper.oMPD.add(mAlbum, true, true);
+                        mApp.getMPD().add(mAlbum, true, true);
                         // Account for the list header
                         int positionCorrection = 0;
                         if (mList instanceof ListView) {
                             positionCorrection = ((ListView) mList).getHeaderViewsCount();
                         }
-                        mApp.oMPDAsyncHelper.oMPD.seekByIndex(position - positionCorrection, 0L);
+                        mApp.getMPD().seekByIndex(position - positionCorrection, 0L);
                     } catch (final IOException | MPDException e) {
                         Log.e(TAG, "Failed to seek by index.", e);
                     }

@@ -74,17 +74,17 @@ public class SettingsActivity extends ActionBarActivity implements
     @Override
     public void onPause() {
         mErrorHandler.stop();
-        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().removeListener(this);
-        mApp.oMPDAsyncHelper.removeStatusChangeListener(this);
+        mApp.getMPD().getConnectionStatus().removeListener(this);
+        mApp.removeStatusChangeListener(this);
         super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mApp.oMPDAsyncHelper.addStatusChangeListener(this);
+        mApp.addStatusChangeListener(this);
+        mApp.getMPD().getConnectionStatus().addListener(this);
         mErrorHandler = new ErrorHandler(this);
-        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().addListener(this);
     }
 
     @Override

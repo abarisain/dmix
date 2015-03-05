@@ -85,7 +85,7 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     public void onConnectionStateChanged() {
-        final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
+        final MPD mpd = mApp.getMPD();
         final boolean isConnected = mpd.isConnected();
 
         mInformationScreen.setEnabled(isConnected);
@@ -174,7 +174,7 @@ public class SettingsFragment extends PreferenceFragment {
 
         if ("refreshMPDDatabase".equals(preference.getKey())) {
             try {
-                mApp.oMPDAsyncHelper.oMPD.refreshDatabase();
+                mApp.getMPD().refreshDatabase();
             } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to refresh the database.", e);
             }

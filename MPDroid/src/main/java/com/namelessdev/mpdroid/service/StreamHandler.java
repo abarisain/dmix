@@ -19,6 +19,7 @@ package com.namelessdev.mpdroid.service;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.ConnectionInfo;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
@@ -104,9 +105,6 @@ public final class StreamHandler implements
 
     public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + ".ACTION_STOP";
 
-    private final ConnectionInfo mConnectionInfo
-            = MPDroidService.MPD_ASYNC_HELPER.getConnectionSettings();
-
     private final Handler mHandler = new Handler(this);
 
     /** The service context used to acquire the wake lock. */
@@ -114,6 +112,8 @@ public final class StreamHandler implements
 
     /** The audio manager used to obtain audio focus. */
     private AudioManager mAudioManager = null;
+
+    private ConnectionInfo mConnectionInfo;
 
     /** Keep track of the number of errors encountered. */
     private int mErrorIterator = 0;
@@ -229,6 +229,7 @@ public final class StreamHandler implements
         if (DEBUG) {
             Log.d(TAG, "StreamHandler.beginStreaming()");
         }
+
         if (mMediaPlayer == null) {
             windUpResources();
         }
@@ -351,7 +352,7 @@ public final class StreamHandler implements
                     }
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS:
-                    MPDControl.run(MPDroidService.MPD_ASYNC_HELPER.oMPD, MPDControl.ACTION_PAUSE);
+                    MPDControl.run(MPDApplication.getInstance().getMPD(), MPDControl.ACTION_PAUSE);
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                     mMediaPlayer.pause();
@@ -570,7 +571,8 @@ public final class StreamHandler implements
         Toast.makeText(mServiceContext, toastOutput, Toast.LENGTH_LONG).show();
     }
 
-    void start(final int mpdState) {
+    void start(final int mpdState, final ConnectionInfo connectionInfo) {
+        mConnectionInfo = connectionInfo;
         mIsActive = true;
         mIsPlaying = MPDStatusMap.STATE_PLAYING == mpdState;
         if (!mPreparingStream && mIsPlaying) {

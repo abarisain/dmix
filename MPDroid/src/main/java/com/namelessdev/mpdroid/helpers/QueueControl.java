@@ -50,7 +50,7 @@ public final class QueueControl {
 
     private static final int INVALID_INT = -1;
 
-    private static final MPD MPD = APP.oMPDAsyncHelper.oMPD;
+    private static final MPD MPD = APP.getMPD();
 
     private static final MPDPlaylist PLAYLIST = MPD.getPlaylist();
 
@@ -141,11 +141,11 @@ public final class QueueControl {
                 try {
                     switch (command) {
                         case MOVE_TO_LAST:
-                            j = APP.oMPDAsyncHelper.oMPD.getStatus().getPlaylistLength() - 1;
+                            j = MPD.getStatus().getPlaylistLength() - 1;
                             workingCommand = MOVE;
                             break;
                         case MOVE_TO_NEXT:
-                            j = APP.oMPDAsyncHelper.oMPD.getStatus().getSongPos();
+                            j = MPD.getStatus().getSongPos();
 
                             if (i >= j) {
                                 j += 1;

@@ -55,7 +55,7 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
     @Override
     protected void add(final PlaylistFile item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add(item, replace, play);
+            mApp.getMPD().add(item, replace, play);
             if (isAdded()) {
                 Tools.notifyUser(mIrAdded, item);
             }
@@ -72,7 +72,7 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
     @Override
     protected void asyncUpdate() {
         try {
-            mItems = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
+            mItems = mApp.getMPD().getPlaylists();
             Collections.sort(mItems);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
@@ -154,7 +154,7 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
             if (which == DialogInterface.BUTTON_POSITIVE) {
                 final String playlist = mItems.get(mItemIndex).getName();
                 try {
-                    mApp.oMPDAsyncHelper.oMPD.getPlaylist().removePlaylist(playlist);
+                    mApp.getMPD().getPlaylist().removePlaylist(playlist);
                     if (isAdded()) {
                         Tools.notifyUser(R.string.playlistDeleted, playlist);
                     }

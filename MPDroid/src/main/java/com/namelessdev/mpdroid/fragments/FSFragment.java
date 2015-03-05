@@ -62,7 +62,7 @@ public class FSFragment extends BrowseFragment {
         try {
             final Directory toAdd = mCurrentDirectory.getDirectory(item.getName());
             if (toAdd == null) {
-                mApp.oMPDAsyncHelper.oMPD.add((FilesystemTreeEntry) item, replace, play);
+                mApp.getMPD().add((FilesystemTreeEntry) item, replace, play);
                 if (item instanceof PlaylistFile) {
                     Tools.notifyUser(R.string.playlistAdded, item);
                 } else {
@@ -70,7 +70,7 @@ public class FSFragment extends BrowseFragment {
                 }
             } else {
                 // Valid directory
-                mApp.oMPDAsyncHelper.oMPD.add(toAdd, replace, play);
+                mApp.getMPD().add(toAdd, replace, play);
                 Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             }
         } catch (final IOException | MPDException e) {
@@ -84,15 +84,15 @@ public class FSFragment extends BrowseFragment {
             final Directory toAdd = mCurrentDirectory.getDirectory(item.getName());
             if (toAdd == null) {
                 if (item instanceof Music) {
-                    mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Music) item);
+                    mApp.getMPD().addToPlaylist(playlist, (Music) item);
                     Tools.notifyUser(R.string.songAdded, item);
                 } else if (item instanceof PlaylistFile) {
-                    mApp.oMPDAsyncHelper.oMPD.getPlaylist()
+                    mApp.getMPD().getPlaylist()
                             .load(((FilesystemTreeEntry) item).getFullPath());
                 }
             } else {
                 // Valid directory
-                mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, toAdd);
+                mApp.getMPD().addToPlaylist(playlist, toAdd);
                 Tools.notifyUser(R.string.addedDirectoryToPlaylist, item);
             }
         } catch (final IOException | MPDException e) {
@@ -205,13 +205,12 @@ public class FSFragment extends BrowseFragment {
                 public void run() {
                     try {
                         if (item instanceof Music) {
-                            mApp.oMPDAsyncHelper.oMPD
-                                    .add(item, mApp.isInSimpleMode(), mApp.isInSimpleMode());
+                            mApp.getMPD().add(item, mApp.isInSimpleMode(), mApp.isInSimpleMode());
                             if (!mApp.isInSimpleMode()) {
                                 Tools.notifyUser(R.string.songAdded, item);
                             }
                         } else if (item instanceof PlaylistFile) {
-                            mApp.oMPDAsyncHelper.oMPD.getPlaylist().load(item.getFullPath());
+                            mApp.getMPD().getPlaylist().load(item.getFullPath());
                         }
                     } catch (final IOException | MPDException e) {
                         Log.e(TAG, "Failed to add.", e);
@@ -240,7 +239,7 @@ public class FSFragment extends BrowseFragment {
                 @Override
                 public void run() {
                     try {
-                        mApp.oMPDAsyncHelper.oMPD.refreshDatabase(mDirectory);
+                        mApp.getMPD().refreshDatabase(mDirectory);
                     } catch (final IOException | MPDException e) {
                         Log.e(TAG, "Failed to refresh database.", e);
                     }
@@ -260,7 +259,7 @@ public class FSFragment extends BrowseFragment {
         }
 
         try {
-            mApp.oMPDAsyncHelper.oMPD.refreshDirectory(mCurrentDirectory);
+            mApp.getMPD().refreshDirectory(mCurrentDirectory);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to refresh current directory", e);
         }

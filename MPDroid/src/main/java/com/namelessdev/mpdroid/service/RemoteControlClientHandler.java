@@ -20,6 +20,7 @@ import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
 
 import android.app.PendingIntent;
@@ -152,7 +153,7 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
                         /**
                          * This is an ugly fix for now. I will clean this up sooner or later.
                          */
-                        final MPD mpd = MPDroidService.MPD_ASYNC_HELPER.oMPD;
+                        final MPD mpd = MPDApplication.getInstance().getMPD();
                         final int songPos = mpd.getStatus().getSongPos();
                         final Music currentTrack = mpd.getPlaylist().getByIndex(songPos);
 

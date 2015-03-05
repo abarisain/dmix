@@ -44,7 +44,7 @@ public class GenresFragment extends BrowseFragment<Genre> {
     @Override
     protected void add(final Genre item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add(item, replace, play);
+            mApp.getMPD().add(item, replace, play);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add all from playlist.", e);
@@ -54,7 +54,7 @@ public class GenresFragment extends BrowseFragment<Genre> {
     @Override
     protected void add(final Genre item, final PlaylistFile playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, item);
+            mApp.getMPD().addToPlaylist(playlist, item);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add all genre to playlist.", e);
@@ -64,7 +64,7 @@ public class GenresFragment extends BrowseFragment<Genre> {
     @Override
     protected void asyncUpdate() {
         try {
-            mItems = mApp.oMPDAsyncHelper.oMPD.getGenres();
+            mItems = mApp.getMPD().getGenres();
             Collections.sort(mItems);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update list of genres.", e);

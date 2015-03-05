@@ -329,7 +329,7 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private void forceStatusUpdate() {
-        final MPDStatus status = mApp.oMPDAsyncHelper.oMPD.getStatus();
+        final MPDStatus status = mApp.getMPD().getStatus();
 
         if (status.isValid()) {
             volumeChanged(status, MPDStatusMap.VOLUME_UNAVAILABLE);
@@ -559,7 +559,7 @@ public class NowPlayingFragment extends Fragment implements
         float rating = 0.0f;
 
         try {
-            rating = (float) mApp.oMPDAsyncHelper.oMPD.getStickerManager().getRating(mCurrentSong);
+            rating = (float) mApp.getMPD().getStickerManager().getRating(mCurrentSong);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to get the current track rating.", e);
         }
@@ -819,14 +819,14 @@ public class NowPlayingFragment extends Fragment implements
 
     @Override
     public void onPause() {
-        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().removeListener(this);
+        mApp.getMPD().getConnectionStatus().removeListener(this);
         super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().addListener(this);
+        mApp.getMPD().getConnectionStatus().addListener(this);
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         mIsAudioNameTextEnabled = settings.getBoolean("enableAudioText", false);
         forceStatusUpdate();
@@ -849,11 +849,11 @@ public class NowPlayingFragment extends Fragment implements
                 break;
             case "enableAudioText":
                 mIsAudioNameTextEnabled = sharedPreferences.getBoolean(key, false);
-                updateAudioNameText(mApp.oMPDAsyncHelper.oMPD.getStatus());
+                updateAudioNameText(mApp.getMPD().getStatus());
                 break;
             case "enableRating":
                 setStickerVisibility();
-                updateTrackInfo(mApp.oMPDAsyncHelper.oMPD.getStatus(), false);
+                updateTrackInfo(mApp.getMPD().getStatus(), false);
                 break;
             default:
                 break;
@@ -867,8 +867,8 @@ public class NowPlayingFragment extends Fragment implements
             mApp.updateTrackInfo = new UpdateTrackInfo();
         }
         mApp.updateTrackInfo.addCallback(this);
-        mApp.oMPDAsyncHelper.addStatusChangeListener(this);
-        mApp.oMPDAsyncHelper.addTrackPositionListener(this);
+        mApp.addStatusChangeListener(this);
+        mApp.addTrackPositionListener(this);
     }
 
     @Override
@@ -876,8 +876,8 @@ public class NowPlayingFragment extends Fragment implements
         super.onStop();
 
         mApp.updateTrackInfo.removeCallback(this);
-        mApp.oMPDAsyncHelper.removeStatusChangeListener(this);
-        mApp.oMPDAsyncHelper.removeTrackPositionListener(this);
+        mApp.removeStatusChangeListener(this);
+        mApp.removeTrackPositionListener(this);
         stopPosTimer();
     }
 
@@ -900,7 +900,7 @@ public class NowPlayingFragment extends Fragment implements
         mSongNameText.setText(title);
         mSongRating.setRating(trackRating);
         mYearNameText.setText(date);
-        updateAudioNameText(mApp.oMPDAsyncHelper.oMPD.getStatus());
+        updateAudioNameText(mApp.getMPD().getStatus());
     }
 
     @Override
@@ -953,7 +953,7 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private void setStickerVisibility() {
-        if (mApp.oMPDAsyncHelper.oMPD.getStickerManager().isAvailable()) {
+        if (mApp.getMPD().getStickerManager().isAvailable()) {
             applyViewVisibility(mSongRating, "enableRating");
         } else {
             mSongRating.setVisibility(View.GONE);
@@ -1183,7 +1183,7 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private void updateTrackInfo(final MPDStatus status, final boolean forcedUpdate) {
-        if (mApp.oMPDAsyncHelper.oMPD.isConnected() && isAdded()) {
+        if (mApp.getMPD().isConnected() && isAdded()) {
             toggleTrackProgress(status);
             mApp.updateTrackInfo.refresh(status, forcedUpdate);
         }
@@ -1235,7 +1235,7 @@ public class NowPlayingFragment extends Fragment implements
         public boolean onLongClick(final View v) {
             final boolean isConsumed;
             final MPDApplication app = MPDApplication.getInstance();
-            final MPDStatus mpdStatus = app.oMPDAsyncHelper.oMPD.getStatus();
+            final MPDStatus mpdStatus = app.getMPD().getStatus();
 
             if (v.getId() == R.id.playpause && !mpdStatus.isState(MPDStatusMap.STATE_STOPPED)) {
                 MPDControl.run(MPDControl.ACTION_STOP);
@@ -1287,8 +1287,7 @@ public class NowPlayingFragment extends Fragment implements
             final int trackRating = (int) rating * 2;
             if (fromUser && mCurrentSong != null) {
                 try {
-                    mApp.oMPDAsyncHelper.oMPD.getStickerManager().setRating(mCurrentSong,
-                            trackRating);
+                    mApp.getMPD().getStickerManager().setRating(mCurrentSong, trackRating);
                 } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to set the rating.", e);
                 }

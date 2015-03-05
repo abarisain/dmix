@@ -18,16 +18,17 @@ package com.namelessdev.mpdroid.service;
 
 import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.event.StatusChangeListener;
+import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.ConnectionInfo;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDControl;
-import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -45,6 +46,7 @@ import android.os.SystemClock;
 import android.text.format.DateUtils;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +59,8 @@ public final class MPDroidService extends Service implements
         MPDAsyncHelper.ConnectionInfoListener,
         MPDConnectionListener,
         StatusChangeListener {
+
+    private static final MPDApplication APP = MPDApplication.getInstance();
 
     /** Enable this to get various DEBUG messages from this module. */
     static final boolean DEBUG = false;
@@ -74,9 +78,6 @@ public final class MPDroidService extends Service implements
     public static final int CONNECTION_INFO_CHANGED = LOCAL_UID + 3;
 
     public static final int REFRESH_COVER = LOCAL_UID + 4;
-
-    /** The {@code MPDAsyncHelper} for this service. */
-    static final MPDAsyncHelper MPD_ASYNC_HELPER = new MPDAsyncHelper(false);
 
     static final String PACKAGE_NAME = "com.namelessdev.mpdroid.service.";
 
@@ -112,6 +113,8 @@ public final class MPDroidService extends Service implements
 
     /** The Android AudioManager, used by this for audio focus control. */
     private AudioManager mAudioManager = null;
+
+    private ConnectionInfo mConnectionInfo = APP.oMPDAsyncHelper.getConnectionSettings();
 
     private Music mCurrentTrack = null;
 
@@ -188,7 +191,7 @@ public final class MPDroidService extends Service implements
      */
     @Override
     public void connectionConnected() {
-        stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatusMap.STATE_UNKNOWN);
+        stateChanged(APP.getMPD().getStatus(), MPDStatusMap.STATE_UNKNOWN);
     }
 
     /**
@@ -242,21 +245,21 @@ public final class MPDroidService extends Service implements
 
     /** Initialize the {@code MPD} connection, monitors and listeners. */
     private void initializeAsyncHelper() {
-        SettingsHelper.updateConnectionSettings(MPD_ASYNC_HELPER);
-
-        MPD_ASYNC_HELPER.oMPD.getConnectionStatus().addListener(this);
-        if (!MPD_ASYNC_HELPER.oMPD.isConnected()) {
-            MPD_ASYNC_HELPER.connect();
+        APP.getMPD().getConnectionStatus().addListener(this);
+        if (!APP.getMPD().isConnected()) {
+            try {
+                APP.connect();
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Failed to connect service.", e);
+            }
         }
 
-        if (!MPD_ASYNC_HELPER.isStatusMonitorAlive()) {
-            MPD_ASYNC_HELPER.startIdleMonitor(new String[]{
-                    IdleSubsystemMonitor.IDLE_PLAYER,
-                    IdleSubsystemMonitor.IDLE_PLAYLIST
-            });
+        if (!APP.isStatusMonitorAlive()) {
+            APP.startIdleMonitor(IdleSubsystemMonitor.IDLE_PLAYER,
+                    IdleSubsystemMonitor.IDLE_PLAYLIST);
         }
 
-        MPD_ASYNC_HELPER.addStatusChangeListener(this);
+        APP.addStatusChangeListener(this);
         /**
          * From here, upon successful connection, it will go from connectionStateChanged to
          * stateChanged() where handlers will be started as required.
@@ -295,15 +298,14 @@ public final class MPDroidService extends Service implements
             if (mStreamHandler == null) {
                 mStreamHandler = new StreamHandler(this, mHandler, mAudioManager);
             }
-            mStreamHandler.start(mpdStatus.getState());
+            mStreamHandler.start(mpdStatus.getState(), mConnectionInfo);
             mMessageHandler.sendMessageToClients(StreamHandler.IS_ACTIVE, true);
         }
     }
 
     /** Is the notification persistent when taking override into account? */
     private boolean isNotificationPersistent() {
-        return !mIsPersistentOverridden &&
-                MPD_ASYNC_HELPER.getConnectionSettings().isNotificationPersistent;
+        return !mIsPersistentOverridden && mConnectionInfo.isNotificationPersistent;
     }
 
     /** Checks for both service and notification persistence. */
@@ -370,6 +372,8 @@ public final class MPDroidService extends Service implements
      */
     @Override
     public void onConnectionConfigChange(final ConnectionInfo connectionInfo) {
+        mConnectionInfo = connectionInfo;
+
         if (connectionInfo.streamingServerInfoChanged && mIsStreamStarted) {
             Log.d(TAG, "Streaming information changed, resetting.");
             windDownHandlers(false);
@@ -427,11 +431,11 @@ public final class MPDroidService extends Service implements
                         if (mIsStreamStarted && mStreamHandler != null &&
                                 mStreamHandler.isActive()) {
                             /** Should never be disconnected. We're streaming! */
-                            if (MPD_ASYNC_HELPER.oMPD == null ||
-                                    !MPD_ASYNC_HELPER.oMPD.isConnected()) {
+                            if (APP.getMPD() == null ||
+                                    !APP.getMPD().isConnected()) {
                                 initializeAsyncHelper();
                             }
-                            MPDControl.run(MPD_ASYNC_HELPER.oMPD, MPDControl.ACTION_PAUSE);
+                            MPDControl.run(APP.getMPD(), MPDControl.ACTION_PAUSE);
                             stopStream();
                         }
                         break;
@@ -645,8 +649,8 @@ public final class MPDroidService extends Service implements
             }
 
             setHandlerActivity(NotificationHandler.LOCAL_UID, true);
-            if (MPD_ASYNC_HELPER.oMPD.isConnected()) {
-                stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatusMap.STATE_UNKNOWN);
+            if (APP.getMPD().isConnected()) {
+                stateChanged(APP.getMPD().getStatus(), MPDStatusMap.STATE_UNKNOWN);
             } else {
                 initializeAsyncHelper();
                 /**
@@ -671,8 +675,8 @@ public final class MPDroidService extends Service implements
             }
 
             setHandlerActivity(StreamHandler.LOCAL_UID, true);
-            if (MPD_ASYNC_HELPER.oMPD.isConnected()) {
-                stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatusMap.STATE_UNKNOWN);
+            if (APP.getMPD().isConnected()) {
+                stateChanged(APP.getMPD().getStatus(), MPDStatusMap.STATE_UNKNOWN);
             } else {
                 initializeAsyncHelper();
                 /**
@@ -789,7 +793,7 @@ public final class MPDroidService extends Service implements
      */
     private void updateTrack(final MPDStatus mpdStatus) {
         final int songPos = mpdStatus.getSongPos();
-        mCurrentTrack = MPD_ASYNC_HELPER.oMPD.getPlaylist().getByIndex(songPos);
+        mCurrentTrack = APP.getMPD().getPlaylist().getByIndex(songPos);
 
         if (mNotificationHandler != null && mCurrentTrack != null) {
             mRemoteControlClientHandler.update(mCurrentTrack);
@@ -835,8 +839,8 @@ public final class MPDroidService extends Service implements
                  * Don't remove the status change listener here. It
                  * causes a bug with the weak linked list, somehow.
                  */
-                MPD_ASYNC_HELPER.stopIdleMonitor();
-                MPD_ASYNC_HELPER.disconnect();
+                APP.stopIdleMonitor();
+                APP.removeConnectionLock(this);
             }
         }
 
@@ -975,7 +979,7 @@ public final class MPDroidService extends Service implements
 
             switch (what) {
                 case DISCONNECT_ON_NO_CONNECTION:
-                    if (MPD_ASYNC_HELPER.oMPD.isConnected()) {
+                    if (APP.getMPD().isConnected()) {
                         break;
                     }
                     /** Fall through */
@@ -1012,8 +1016,8 @@ public final class MPDroidService extends Service implements
                     mRemoteControlClientHandler.setMediaPlayerBuffering(true);
                     break;
                 case StreamHandler.REQUEST_NOTIFICATION_STOP:
-                    if (mIsNotificationStarted && MPD_ASYNC_HELPER.oMPD.isConnected() &&
-                            MPD_ASYNC_HELPER.oMPD.getStatus().isState(MPDStatusMap.STATE_PLAYING)) {
+                    if (mIsNotificationStarted && APP.getMPD().isConnected() &&
+                            APP.getMPD().getStatus().isState(MPDStatusMap.STATE_PLAYING)) {
                         tryToGetAudioFocus();
                     }
                     streamRequestsNotificationStop();
@@ -1105,9 +1109,8 @@ public final class MPDroidService extends Service implements
             } else {
                 final ClassLoader classLoader = ConnectionInfo.class.getClassLoader();
                 bundle.setClassLoader(classLoader);
-                final ConnectionInfo connectionInfo =
-                        bundle.getParcelable(ConnectionInfo.BUNDLE_KEY);
-                MPD_ASYNC_HELPER.setConnectionSettings(connectionInfo);
+
+                mConnectionInfo = bundle.getParcelable(ConnectionInfo.BUNDLE_KEY);
             }
         }
 

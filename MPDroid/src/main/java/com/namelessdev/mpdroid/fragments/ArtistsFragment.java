@@ -51,7 +51,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
     @Override
     protected void add(final Artist item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add(item, replace, play);
+            mApp.getMPD().add(item, replace, play);
             if (isAdded()) {
                 Tools.notifyUser(mIrAdded, item);
             }
@@ -63,7 +63,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
     @Override
     protected void add(final Artist item, final PlaylistFile playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, item);
+            mApp.getMPD().addToPlaylist(playlist, item);
             if (isAdded()) {
                 Tools.notifyUser(mIrAdded, item);
             }
@@ -81,24 +81,24 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
                     LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
                     if (mGenre != null) {
-                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre, true);
+                        mItems = mApp.getMPD().getArtists(mGenre, true);
                     } else {
-                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(true);
+                        mItems = mApp.getMPD().getArtists(true);
                     }
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
                     if (mGenre != null) {
-                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre, false);
+                        mItems = mApp.getMPD().getArtists(mGenre, false);
                     } else {
-                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(false);
+                        mItems = mApp.getMPD().getArtists(false);
                     }
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
                 default:
                     if (mGenre != null) {
-                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists(mGenre);
+                        mItems = mApp.getMPD().getArtists(mGenre);
                     } else {
-                        mItems = mApp.oMPDAsyncHelper.oMPD.getArtists();
+                        mItems = mApp.getMPD().getArtists();
                     }
                     break;
             }

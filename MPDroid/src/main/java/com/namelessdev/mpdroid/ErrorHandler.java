@@ -66,8 +66,7 @@ public class ErrorHandler implements MPDConnectionListener {
         }
 
         mApp.addConnectionLock(mActivity);
-        final MPDConnectionStatus connectionStatus = mApp.oMPDAsyncHelper.oMPD
-                .getConnectionStatus();
+        final MPDConnectionStatus connectionStatus = mApp.getMPD().getConnectionStatus();
         connectionStatus.addListener(this);
 
         if (connectionStatus.isConnected()) {
@@ -208,7 +207,7 @@ public class ErrorHandler implements MPDConnectionListener {
 
     public void stop() {
         dismissAlertDialog();
-        mApp.oMPDAsyncHelper.oMPD.getConnectionStatus().removeListener(this);
+        mApp.getMPD().getConnectionStatus().removeListener(this);
         mApp.removeConnectionLock(mActivity);
     }
 

@@ -79,13 +79,13 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
             final Integer songID = (Integer) itemFrom.get(Music.RESPONSE_SONG_ID);
             if (mIsPlayQueue) {
                 try {
-                    mApp.oMPDAsyncHelper.oMPD.getPlaylist().move(songID, to);
+                    mApp.getMPD().getPlaylist().move(songID, to);
                 } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to move a track on the queue.", e);
                 }
             } else {
                 try {
-                    mApp.oMPDAsyncHelper.oMPD.movePlaylistSong(mPlaylist, from, to);
+                    mApp.getMPD().movePlaylistSong(mPlaylist, from, to);
                 } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to rename a playlist.", e);
                 }
@@ -99,11 +99,11 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
         List<Music> musics;
 
         if (mIsPlayQueue) {
-            final MPDPlaylist playlist = mApp.oMPDAsyncHelper.oMPD.getPlaylist();
+            final MPDPlaylist playlist = mApp.getMPD().getPlaylist();
             musics = playlist.getMusicList();
         } else {
             try {
-                musics = mApp.oMPDAsyncHelper.oMPD.getPlaylistSongs(mPlaylist);
+                musics = mApp.getMPD().getPlaylistSongs(mPlaylist);
             } catch (final IOException | MPDException e) {
                 Log.d(TAG, "Playlist update failure.", e);
                 musics = Collections.emptyList();
@@ -134,9 +134,9 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
 
             try {
                 if (mIsPlayQueue) {
-                    mApp.oMPDAsyncHelper.oMPD.getPlaylist().removeById(positions);
+                    mApp.getMPD().getPlaylist().removeById(positions);
                 } else {
-                    mApp.oMPDAsyncHelper.oMPD.removeFromPlaylist(mPlaylist, positions);
+                    mApp.getMPD().removeFromPlaylist(mPlaylist, positions);
                 }
             } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to remove.", e);
@@ -168,7 +168,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
             setTitle(mPlaylist.getName());
         }
         update();
-        mApp.oMPDAsyncHelper.addStatusChangeListener(this);
+        mApp.addStatusChangeListener(this);
 
         final DragSortListView trackList = (DragSortListView) mListView;
         trackList.setOnCreateContextMenuListener(this);
@@ -193,7 +193,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
 
     @Override
     public void onDestroy() {
-        mApp.oMPDAsyncHelper.removeStatusChangeListener(this);
+        mApp.removeStatusChangeListener(this);
         super.onDestroy();
     }
 
@@ -285,7 +285,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
         // TODO: Preserve position!!!
         mSongList = new ArrayList<>();
         final String[] columnNames = {"play", Music.TAG_TITLE, Music.TAG_ARTIST, "marked"};
-        final int playingID = mApp.oMPDAsyncHelper.oMPD.getStatus().getSongId();
+        final int playingID = mApp.getMPD().getStatus().getSongId();
         final int pos = null == mListView ? -1 : mListView.getFirstVisiblePosition();
         final View view = null == mListView ? null : mListView.getChildAt(0);
         final int top = null == view ? -1 : view.getTop();

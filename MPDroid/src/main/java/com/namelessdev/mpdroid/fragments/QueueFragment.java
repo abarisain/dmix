@@ -409,7 +409,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         if (item.getItemId() == R.id.PLM_Save) {
             List<PlaylistFile> playLists = Collections.emptyList();
             try {
-                playLists = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
+                playLists = mApp.getMPD().getPlaylists();
             } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to receive list of playlists.", e);
             }
@@ -464,14 +464,14 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
 
     @Override
     public void onPause() {
-        mApp.oMPDAsyncHelper.removeStatusChangeListener(this);
+        mApp.removeStatusChangeListener(this);
         super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mApp.oMPDAsyncHelper.addStatusChangeListener(this);
+        mApp.addStatusChangeListener(this);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -584,7 +584,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     }
 
     public void scrollToNowPlaying() {
-        final int songPos = mApp.oMPDAsyncHelper.oMPD.getStatus().getSongPos();
+        final int songPos = mApp.getMPD().getStatus().getSongPos();
 
         if (songPos == -1) {
             Log.d(TAG, "Missing list item.");
@@ -643,12 +643,12 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
      */
     void update(final boolean forcePlayingIDRefresh) {
         // Save the scroll bar position to restore it after update
-        final MPDPlaylist playlist = mApp.oMPDAsyncHelper.oMPD.getPlaylist();
+        final MPDPlaylist playlist = mApp.getMPD().getPlaylist();
         final List<Music> musics = playlist.getMusicList();
         final ArrayList<AbstractPlaylistMusic> newSongList = new ArrayList<>(musics.size());
 
         if (mLastPlayingID == -1 || forcePlayingIDRefresh) {
-            mLastPlayingID = mApp.oMPDAsyncHelper.oMPD.getStatus().getSongId();
+            mLastPlayingID = mApp.getMPD().getStatus().getSongId();
         }
 
         // The position in the song list of the currently played song

@@ -108,7 +108,7 @@ public final class MPDControl {
      * @param userCommand The command to be run.
      */
     public static void run(final String userCommand) {
-        run(APP.oMPDAsyncHelper.oMPD, userCommand, INVALID_LONG, true);
+        run(APP.getMPD(), userCommand, INVALID_LONG, true);
     }
 
     /**
@@ -119,11 +119,11 @@ public final class MPDControl {
      * @param i           An integer which will be cast to long for run for userCommand argument.
      */
     public static void run(final String userCommand, final int i) {
-        run(APP.oMPDAsyncHelper.oMPD, userCommand, (long) i, true);
+        run(APP.getMPD(), userCommand, (long) i, true);
     }
 
     public static void run(final String userCommand, final long l) {
-        run(APP.oMPDAsyncHelper.oMPD, userCommand, l, true);
+        run(APP.getMPD(), userCommand, l, true);
     }
 
     /**
@@ -336,8 +336,8 @@ public final class MPDControl {
             private boolean shouldPauseForCall() {
                 final TelephonyManager telephonyManager =
                         (TelephonyManager) APP.getSystemService(Context.TELEPHONY_SERVICE);
-                final boolean isPlaying =
-                        APP.oMPDAsyncHelper.oMPD.getStatus().isState(MPDStatusMap.STATE_PLAYING);
+                final boolean isPlaying = APP.getMPD().getStatus()
+                        .isState(MPDStatusMap.STATE_PLAYING);
                 boolean result = false;
 
                 /**

@@ -48,7 +48,7 @@ public class WidgetHelperService extends IntentService {
         mApp.addConnectionLock(this);
 
         // prepare values for runnable
-        final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
+        final MPD mpd = mApp.getMPD();
         final String action = intent.getAction();
 
         // schedule real work

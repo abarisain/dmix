@@ -198,7 +198,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
                         replace = true;
                         break;
                     case ADD_PLAY:
-                        final MPDStatus status = mApp.oMPDAsyncHelper.oMPD.getStatus();
+                        final MPDStatus status = mApp.getMPD().getStatus();
 
                         /**
                          * Let the user know if we're not going to play the added music.
@@ -350,8 +350,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
             }
 
             if (R.string.addPlaylist != mIrAdd && R.string.addStream != mIrAdd &&
-                    mApp.oMPDAsyncHelper.oMPD
-                            .isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS)) {
+                    mApp.getMPD().isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS)) {
 
                 int id = 0;
                 final SubMenu playlistMenu = menu.addSubMenu(R.string.addToPlaylist);
@@ -360,7 +359,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
                 item.setOnMenuItemClickListener(this);
 
                 try {
-                    final List<PlaylistFile> playlists = mApp.oMPDAsyncHelper.oMPD.getPlaylists();
+                    final List<PlaylistFile> playlists = mApp.getMPD().getPlaylists();
 
                     if (null != playlists) {
                         for (final PlaylistFile pl : playlists) {

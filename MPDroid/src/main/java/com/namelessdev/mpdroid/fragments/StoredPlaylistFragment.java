@@ -52,7 +52,7 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
     @Override
     protected void add(final Music item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add(item, replace, play);
+            mApp.getMPD().add(item, replace, play);
             if (!play) {
                 Tools.notifyUser(R.string.songAdded, item.getTitle(), item.getName());
             }
@@ -64,7 +64,7 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
     @Override
     protected void add(final Music item, final PlaylistFile playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, item);
+            mApp.getMPD().addToPlaylist(playlist, item);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -77,7 +77,7 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
             if (getActivity() == null) {
                 return;
             }
-            mItems = mApp.oMPDAsyncHelper.oMPD.getPlaylistSongs(mPlaylist);
+            mItems = mApp.getMPD().getPlaylistSongs(mPlaylist);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }

@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.exception.MPDException;
 import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -37,31 +36,24 @@ import java.io.IOException;
 public class MPDAsyncWorker implements Handler.Callback,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
-
     private static final int LOCAL_UID = 500;
 
     static final int EVENT_CONNECT = LOCAL_UID + 1;
 
     static final int EVENT_CONNECTION_CONFIG = LOCAL_UID + 2;
 
-    static final int EVENT_DISCONNECT = LOCAL_UID + 3;
+    static final int EVENT_EXEC_ASYNC = LOCAL_UID + 3;
 
-    static final int EVENT_EXEC_ASYNC = LOCAL_UID + 4;
-
-    static final int EVENT_EXEC_ASYNC_FINISHED = LOCAL_UID + 5;
+    static final int EVENT_EXEC_ASYNC_FINISHED = LOCAL_UID + 4;
 
     private static final String TAG = "MPDAsyncWorker";
+
+    private static final int UPDATE_CONNECTION_INFO = LOCAL_UID + 5;
 
     /** A handler for the MPDAsyncHelper object. */
     private final Handler mHelperHandler;
 
-    private final MPD mMPD;
-
-    /** A store for the current connection information. */
-    private ConnectionInfo mConInfo = new ConnectionInfo();
-
-    MPDAsyncWorker(final Handler helperHandler, final MPD mpd) {
+    MPDAsyncWorker(final Handler helperHandler) {
         super();
 
         final SharedPreferences settings = PreferenceManager
@@ -69,27 +61,6 @@ public class MPDAsyncWorker implements Handler.Callback,
         settings.registerOnSharedPreferenceChangeListener(this);
 
         mHelperHandler = helperHandler;
-        mMPD = mpd;
-    }
-
-    /** Connects the {@code MPD} object to the media server. */
-    private void connect() {
-        try {
-            mMPD.setDefaultPassword(mConInfo.password);
-            mMPD.connect(mConInfo.server, mConInfo.port);
-        } catch (final IOException | MPDException e) {
-            Log.e(TAG, "Error while connecting to the server.", e);
-        }
-    }
-
-    /** Disconnects the {@code MPD} object from the media server. */
-    private void disconnect() {
-        try {
-            mMPD.disconnect();
-            Log.d(TAG, "Disconnected.");
-        } catch (final IOException e) {
-            Log.e(TAG, "Error on disconnect.", e);
-        }
     }
 
     /**
@@ -104,10 +75,11 @@ public class MPDAsyncWorker implements Handler.Callback,
 
         switch (msg.what) {
             case EVENT_CONNECT:
-                connect();
-                break;
-            case EVENT_DISCONNECT:
-                disconnect();
+                try {
+                    MPDApplication.getInstance().connect();
+                } catch (final MPDException | IOException e) {
+                    Log.e(TAG, "Failed to connect.", e);
+                }
                 break;
             case EVENT_EXEC_ASYNC:
                 final Runnable run = (Runnable) msg.obj;
@@ -136,7 +108,7 @@ public class MPDAsyncWorker implements Handler.Callback,
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences,
             final String key) {
         switch (key) {
-            case USE_LOCAL_ALBUM_CACHE_KEY:
+            case MPDApplication.USE_LOCAL_ALBUM_CACHE_KEY:
                 final boolean useAlbumCache = sharedPreferences.getBoolean(key, false);
 
                 mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_SET_USE_CACHE, useAlbumCache);
@@ -157,15 +129,10 @@ public class MPDAsyncWorker implements Handler.Callback,
      * @param connectionInfo A current {@code ConnectionInfo} object.
      */
     public final void setConnectionSettings(final ConnectionInfo connectionInfo) {
-        if (mConInfo == null) {
-            if (connectionInfo != null) {
-                mConInfo = connectionInfo;
-            }
-        } else if (connectionInfo.serverInfoChanged || connectionInfo.streamingServerInfoChanged
+        if (connectionInfo.serverInfoChanged || connectionInfo.streamingServerInfoChanged
                 || connectionInfo.wasNotificationPersistent !=
                 connectionInfo.isNotificationPersistent) {
-            mHelperHandler.obtainMessage(EVENT_CONNECTION_CONFIG, mConInfo).sendToTarget();
-            mConInfo = connectionInfo;
+            mHelperHandler.obtainMessage(EVENT_CONNECTION_CONFIG, connectionInfo).sendToTarget();
         }
     }
 
@@ -175,7 +142,7 @@ public class MPDAsyncWorker implements Handler.Callback,
      * @return A {@code Handler} for this object.
      */
     final Handler startThread() {
-        final HandlerThread handlerThread = new HandlerThread("MPDAsyncWorker");
+        final HandlerThread handlerThread = new HandlerThread(TAG);
 
         handlerThread.start();
 

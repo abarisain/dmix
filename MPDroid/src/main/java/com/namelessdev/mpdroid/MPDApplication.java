@@ -16,14 +16,20 @@
 
 package com.namelessdev.mpdroid;
 
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.event.StatusChangeListener;
+import com.anpmech.mpd.event.TrackPositionListener;
+import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
+import com.namelessdev.mpdroid.helpers.CachedMPD;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 import com.namelessdev.mpdroid.service.MPDroidService;
 import com.namelessdev.mpdroid.service.NotificationHandler;
 import com.namelessdev.mpdroid.service.ServiceBinder;
 import com.namelessdev.mpdroid.service.StreamHandler;
+import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.annotation.SuppressLint;
@@ -35,6 +41,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -44,6 +51,8 @@ import java.util.TimerTask;
 public class MPDApplication extends Application implements
         Handler.Callback,
         MPDAsyncHelper.ConnectionInfoListener {
+
+    public static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
 
     private static final boolean DEBUG = false;
 
@@ -62,11 +71,15 @@ public class MPDApplication extends Application implements
 
     private Timer mDisconnectScheduler;
 
+    private IdleSubsystemMonitor mIdleSubsystemMonitor;
+
     private boolean mIsNotificationActive;
 
     private boolean mIsNotificationOverridden;
 
     private boolean mIsStreamActive;
+
+    private MPD mMPD;
 
     private ServiceBinder mServiceBinder;
 
@@ -102,6 +115,26 @@ public class MPDApplication extends Application implements
         }
     }
 
+    /**
+     * Adds a {@link StatusChangeListener} from the associated {@link IdleSubsystemMonitor}.
+     *
+     * @param listener The {@link StatusChangeListener} to add for notification for the
+     *                 {@link IdleSubsystemMonitor}.
+     */
+    public void addStatusChangeListener(final StatusChangeListener listener) {
+        mIdleSubsystemMonitor.addStatusChangeListener(listener);
+    }
+
+    /**
+     * Adds a {@link TrackPositionListener} from the associated {@link IdleSubsystemMonitor}.
+     *
+     * @param listener The {@link TrackPositionListener} to add for notification for the
+     *                 {@link IdleSubsystemMonitor}.
+     */
+    public void addTrackPositionListener(final TrackPositionListener listener) {
+        mIdleSubsystemMonitor.addTrackPositionListener(listener);
+    }
+
     void cancelDisconnectScheduler() {
         mDisconnectScheduler.cancel();
         mDisconnectScheduler.purge();
@@ -112,8 +145,8 @@ public class MPDApplication extends Application implements
         if (mConnectionLocks.isEmpty()) {
             disconnect();
         } else {
-            if (!oMPDAsyncHelper.isStatusMonitorAlive()) {
-                oMPDAsyncHelper.startIdleMonitor(new String[]{
+            if (mIdleSubsystemMonitor.isStopped()) {
+                mIdleSubsystemMonitor.setSupportedSubsystems(
                         IdleSubsystemMonitor.IDLE_DATABASE,
                         IdleSubsystemMonitor.IDLE_MIXER,
                         IdleSubsystemMonitor.IDLE_OPTIONS,
@@ -121,18 +154,56 @@ public class MPDApplication extends Application implements
                         IdleSubsystemMonitor.IDLE_PLAYER,
                         IdleSubsystemMonitor.IDLE_PLAYLIST,
                         IdleSubsystemMonitor.IDLE_STICKER,
-                        IdleSubsystemMonitor.IDLE_UPDATE
-                });
+                        IdleSubsystemMonitor.IDLE_UPDATE);
+                mIdleSubsystemMonitor.start();
             }
-            if (!oMPDAsyncHelper.oMPD.isConnected()) {
+            if (!mMPD.isConnected()) {
+                SettingsHelper.updateConnectionSettings(oMPDAsyncHelper);
                 oMPDAsyncHelper.connect();
             }
         }
     }
 
-    final void disconnect() {
+    /**
+     * This method manually connects the global MPD instance using default connection information.
+     * <p/>
+     * This method intentionally blocks the thread, do not use in the UI thread. Instead, use
+     * {@link #addConnectionLock(Object)}.
+     *
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void connect() throws IOException, MPDException {
+        connect(SettingsHelper.getConnectionSettings(oMPDAsyncHelper.getConnectionSettings()));
+    }
+
+    /**
+     * This method manually connects the global MPD instance.
+     * <p/>
+     * This method intentionally blocks the thread, do not use in the UI thread. Instead, use
+     * {@link #addConnectionLock(Object)}.
+     *
+     * @param connectionInfo The connection information to use to connect.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void connect(final ConnectionInfo connectionInfo) throws IOException, MPDException {
+        mMPD.setDefaultPassword(connectionInfo.password);
+        mMPD.connect(connectionInfo.server, connectionInfo.port);
+    }
+
+    public final void disconnect() {
         cancelDisconnectScheduler();
         startDisconnectScheduler();
+    }
+
+    /**
+     * Get the Application MPD instance.
+     *
+     * @return The Application class MPD instance.
+     */
+    public MPD getMPD() {
+        return mMPD;
     }
 
     /**
@@ -234,6 +305,15 @@ public class MPDApplication extends Application implements
     }
 
     /**
+     * Checks to see if the {@link IdleSubsystemMonitor} is active.
+     *
+     * @return True if the {@link IdleSubsystemMonitor} is active, false otherwise.
+     */
+    public boolean isStatusMonitorAlive() {
+        return !mIdleSubsystemMonitor.isStopped();
+    }
+
+    /**
      * Checks for a running Streaming service.
      *
      * @return True if streaming service is running, false otherwise.
@@ -286,6 +366,11 @@ public class MPDApplication extends Application implements
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
 
         oMPDAsyncHelper = new MPDAsyncHelper();
+        final boolean useAlbumCache = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(USE_LOCAL_ALBUM_CACHE_KEY, false);
+
+        mMPD = new CachedMPD(useAlbumCache);
+        mIdleSubsystemMonitor = new IdleSubsystemMonitor(mMPD);
 
         mDisconnectScheduler = new Timer();
     }
@@ -299,6 +384,28 @@ public class MPDApplication extends Application implements
         mConnectionLocks.remove(lockOwner);
         checkConnectionNeeded();
         debug("Removing lock owner: " + lockOwner + ", " + mConnectionLocks.size() + " remain.");
+    }
+
+    /**
+     * Removes a {@link StatusChangeListener} from the associated
+     * {@link IdleSubsystemMonitor}.
+     *
+     * @param listener The {@link StatusChangeListener} to remove from
+     *                 notification for the
+     *                 {@link IdleSubsystemMonitor}.
+     */
+    public void removeStatusChangeListener(final StatusChangeListener listener) {
+        mIdleSubsystemMonitor.removeStatusChangeListener(listener);
+    }
+
+    /**
+     * Removes a {@link TrackPositionListener} from the associated {@link IdleSubsystemMonitor}.
+     *
+     * @param listener The {@link TrackPositionListener} to remove from notification for the
+     *                 {@link IdleSubsystemMonitor}.
+     */
+    public void removeTrackPositionListener(final TrackPositionListener listener) {
+        mIdleSubsystemMonitor.removeTrackPositionListener(listener);
     }
 
     /**
@@ -335,13 +442,28 @@ public class MPDApplication extends Application implements
                 @Override
                 public void run() {
                     Log.w(TAG, "Disconnecting (" + DISCONNECT_TIMER + " ms timeout)");
-                    oMPDAsyncHelper.stopIdleMonitor();
-                    oMPDAsyncHelper.disconnect();
+                    mIdleSubsystemMonitor.stop();
+                    try {
+                        mMPD.disconnect();
+                    } catch (final IOException e) {
+                        Log.e(TAG, "Failed to disconnect");
+                    }
                 }
             }, DISCONNECT_TIMER);
         } catch (final IllegalStateException e) {
             Log.d(TAG, "Disconnection timer interrupted.", e);
         }
+    }
+
+    /**
+     * Starts the associated {@link IdleSubsystemMonitor}.
+     *
+     * @param idleSubsystems The subsystems to track in the associated
+     *                       {@link IdleSubsystemMonitor}.
+     */
+    public void startIdleMonitor(final String... idleSubsystems) {
+        mIdleSubsystemMonitor.setSupportedSubsystems(idleSubsystems);
+        mIdleSubsystemMonitor.start();
     }
 
     public final void startNotification() {
@@ -359,6 +481,13 @@ public class MPDApplication extends Application implements
             setupServiceBinder();
             mServiceBinder.sendMessageToService(StreamHandler.START);
         }
+    }
+
+    /**
+     * Stops the associated {@link IdleSubsystemMonitor}.
+     */
+    public void stopIdleMonitor() {
+        mIdleSubsystemMonitor.stop();
     }
 
     public final void stopNotification() {

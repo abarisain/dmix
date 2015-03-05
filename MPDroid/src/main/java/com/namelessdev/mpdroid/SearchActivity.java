@@ -142,12 +142,12 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             if (artist == null) {
                 final Artist albumArtist = album.getArtist();
 
-                mApp.oMPDAsyncHelper.oMPD.add(album, replace, play);
+                mApp.getMPD().add(album, replace, play);
                 if (albumArtist != null) {
                     note = albumArtist.getName() + " - " + album.getName();
                 }
             } else if (album == null) {
-                mApp.oMPDAsyncHelper.oMPD.add(artist, replace, play);
+                mApp.getMPD().add(artist, replace, play);
                 note = artist.getName();
             }
         } catch (final IOException | MPDException e) {
@@ -161,7 +161,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     protected void add(final Music music, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
+            mApp.getMPD().add(music, replace, play);
             Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -192,7 +192,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         List<Music> arrayMusic = null;
 
         try {
-            arrayMusic = mApp.oMPDAsyncHelper.oMPD.search("any", finalSearch);
+            arrayMusic = mApp.getMPD().search("any", finalSearch);
             Collections.sort(arrayMusic);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "MPD search failure.", e);

@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid.service;
 
 import com.anpmech.mpd.event.TrackPositionListener;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import android.annotation.TargetApi;
@@ -98,11 +99,11 @@ public class RemoteControlSeekBarHandler implements
     final void start() {
         mRemoteControlClient.setOnGetPlaybackPositionListener(this);
         mRemoteControlClient.setPlaybackPositionUpdateListener(this);
-        MPDroidService.MPD_ASYNC_HELPER.addTrackPositionListener(this);
+        MPDApplication.getInstance().addTrackPositionListener(this);
     }
 
     final void stop() {
-        MPDroidService.MPD_ASYNC_HELPER.removeTrackPositionListener(this);
+        MPDApplication.getInstance().removeTrackPositionListener(this);
         mRemoteControlClient.setOnGetPlaybackPositionListener(null);
         mRemoteControlClient.setPlaybackPositionUpdateListener(null);
     }

@@ -57,7 +57,7 @@ public class UpdateTrackInfo {
     private TrackInfoUpdate mTrackInfoListener = null;
 
     public UpdateTrackInfo() {
-        mSticker = mApp.oMPDAsyncHelper.oMPD.getStickerManager();
+        mSticker = mApp.getMPD().getStickerManager();
     }
 
     public final void addCallback(final FullTrackInfoUpdate listener) {
@@ -158,7 +158,7 @@ public class UpdateTrackInfo {
             }
 
             final int songPos = params[0].getSongPos();
-            mCurrentTrack = mApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+            mCurrentTrack = mApp.getMPD().getPlaylist().getByIndex(songPos);
 
             if (mCurrentTrack != null) {
                 if (mCurrentTrack.isStream()) {
