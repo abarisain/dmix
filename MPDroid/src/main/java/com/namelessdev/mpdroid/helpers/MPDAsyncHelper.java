@@ -77,7 +77,7 @@ public class MPDAsyncHelper implements Handler.Callback {
         mIdleSubsystemMonitor = new IdleSubsystemMonitor(oMPD);
         mMPDAsyncWorker = new MPDAsyncWorker(new Handler(this), oMPD);
         mWorkerHandler = mMPDAsyncWorker.startThread();
-        new SettingsHelper(this).updateConnectionSettings();
+        mConnectionInfo = SettingsHelper.getConnectionSettings(null);
 
         mAsyncExecListeners = new WeakLinkedList<>("AsyncExecListener");
         mConnectionInfoListeners = new WeakLinkedList<>("ConnectionInfoListener");

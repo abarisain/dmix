@@ -58,8 +58,7 @@ public class ErrorHandler implements MPDConnectionListener {
         mAlertDialog = new AlertDialog.Builder(activity).create();
         mApp = (MPDApplication) mActivity.getApplication();
 
-        final SettingsHelper settingsHelper = new SettingsHelper(mApp.oMPDAsyncHelper);
-        if (!settingsHelper.updateConnectionSettings()) {
+        if (SettingsHelper.getConnectionSettings(null) == null) {
             final Intent intent = new Intent(mActivity, WifiConnectionSettings.class);
 
             // Absolutely no settings defined! Open Settings!

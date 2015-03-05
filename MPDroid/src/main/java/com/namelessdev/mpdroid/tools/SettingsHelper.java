@@ -27,90 +27,21 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
 
-public class SettingsHelper {
+public final class SettingsHelper {
+
+    private static final MPDApplication APP = MPDApplication.getInstance();
+
+    private static final SharedPreferences SETTINGS =
+            PreferenceManager.getDefaultSharedPreferences(APP);
 
     private static final int DEFAULT_STREAMING_PORT = 8000;
 
-    private final MPDAsyncHelper mMPDAsyncHelper;
-
-    private final SharedPreferences mSettings;
-
-    private final WifiManager mWifiManager;
-
-    public SettingsHelper(final MPDAsyncHelper mpdAsyncHelper) {
+    private SettingsHelper() {
         super();
-
-        // Get Settings and register ourself for updates
-        final MPDApplication app = MPDApplication.getInstance();
-        mSettings = PreferenceManager.getDefaultSharedPreferences(app);
-
-        // get reference on WiFi service
-        mWifiManager = (WifiManager) app.getSystemService(Context.WIFI_SERVICE);
-
-        mMPDAsyncHelper = mpdAsyncHelper;
     }
 
-    private static String getStringWithSSID(final String param, final String wifiSSID) {
-        if (wifiSSID == null) {
-            return param;
-        } else {
-            return wifiSSID + param;
-        }
-    }
-
-    private boolean getBooleanSetting(final String name) {
-        return mSettings.getBoolean(name, false);
-    }
-
-    private String getCurrentSSID() {
-        final WifiInfo info = mWifiManager.getConnectionInfo();
-        final String ssid = info.getSSID();
-        return ssid == null ? null : ssid.replace("\"", "");
-    }
-
-    private int getIntegerSetting(final String name, final int defaultValue) {
-        try {
-            return Integer
-                    .parseInt(mSettings.getString(name, Integer.toString(defaultValue)).trim());
-        } catch (final NumberFormatException ignored) {
-            return MPDCommand.DEFAULT_MPD_PORT;
-        }
-    }
-
-    private String getStringSetting(final String name) {
-        final String value = mSettings.getString(name, "").trim();
-        final String result;
-
-        if (value.isEmpty()) {
-            result = null;
-        } else {
-            result = value;
-        }
-
-        return result;
-    }
-
-    public final boolean updateConnectionSettings() {
-        final String wifiSSID = getCurrentSSID();
-        boolean result = true;
-
-        if (getStringSetting(getStringWithSSID("hostname", wifiSSID)) != null) {
-            // an empty SSID should be null
-            if (wifiSSID != null && wifiSSID.isEmpty()) {
-                updateConnectionSettings(null);
-            } else {
-                updateConnectionSettings(wifiSSID);
-            }
-        } else if (getStringSetting("hostname") != null) {
-            updateConnectionSettings(null);
-        } else {
-            result = false;
-        }
-
-        return result;
-    }
-
-    private void updateConnectionSettings(final String wifiSSID) {
+    private static ConnectionInfo getConnectionSettings(final String wifiSSID,
+            final ConnectionInfo previousInfo) {
         final String server = getStringSetting(getStringWithSSID("hostname", wifiSSID));
         final int port = getIntegerSetting(getStringWithSSID("port", wifiSSID),
                 MPDCommand.DEFAULT_MPD_PORT);
@@ -130,11 +61,87 @@ public class SettingsHelper {
         connectionInfo.setStreamingServer(streamServer, streamPort, streamSuffix);
 
         final boolean persistentNotification =
-                getBooleanSetting(getStringWithSSID("persistentNotification", wifiSSID));
+                SETTINGS.getBoolean(getStringWithSSID("persistentNotification", wifiSSID), false);
         connectionInfo.setPersistentNotification(persistentNotification);
 
-        connectionInfo.setPreviousConnectionInfo(mMPDAsyncHelper.getConnectionSettings());
+        connectionInfo.setPreviousConnectionInfo(previousInfo);
 
-        mMPDAsyncHelper.setConnectionSettings(connectionInfo.build());
+        return connectionInfo.build();
+    }
+
+    public static ConnectionInfo getConnectionSettings(final ConnectionInfo previousInfo) {
+        final String wifiSSID = getCurrentSSID();
+        final ConnectionInfo connectionInfo;
+
+        if (getStringSetting(getStringWithSSID("hostname", wifiSSID)) != null) {
+            // an empty SSID should be null
+            if (wifiSSID != null && wifiSSID.isEmpty()) {
+                connectionInfo = getConnectionSettings(null, previousInfo);
+            } else {
+                connectionInfo = getConnectionSettings(wifiSSID, previousInfo);
+            }
+        } else if (getStringSetting("hostname") != null) {
+            connectionInfo = getConnectionSettings(null, previousInfo);
+        } else {
+            connectionInfo = null;
+        }
+
+        return connectionInfo;
+    }
+
+    private static String getCurrentSSID() {
+        final WifiInfo info =
+                ((WifiManager) APP.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo();
+        final String ssid = info.getSSID();
+        final String result;
+
+        if (ssid == null) {
+            result = null;
+        } else {
+            result = ssid.replace("\"", "");
+        }
+
+        return result;
+    }
+
+    private static int getIntegerSetting(final String name, final int defaultValue) {
+        return Integer.parseInt(
+                SETTINGS.getString(name, Integer.toString(defaultValue)).trim());
+    }
+
+    private static String getStringSetting(final String name) {
+        final String value = SETTINGS.getString(name, "").trim();
+        final String result;
+
+        if (value.isEmpty()) {
+            result = null;
+        } else {
+            result = value;
+        }
+
+        return result;
+    }
+
+    private static String getStringWithSSID(final String param, final String wifiSSID) {
+        final String stringWithSSID;
+
+        if (wifiSSID == null) {
+            stringWithSSID = param;
+        } else {
+            stringWithSSID = wifiSSID + param;
+        }
+
+        return stringWithSSID;
+    }
+
+    public static boolean updateConnectionSettings(final MPDAsyncHelper mpdAsyncHelper) {
+        final ConnectionInfo connectionInfo =
+                getConnectionSettings(mpdAsyncHelper.getConnectionSettings());
+
+        if (connectionInfo != null) {
+            mpdAsyncHelper.setConnectionSettings(connectionInfo);
+        }
+
+        return connectionInfo != null;
     }
 }

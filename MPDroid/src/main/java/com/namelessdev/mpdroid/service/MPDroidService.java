@@ -242,8 +242,7 @@ public final class MPDroidService extends Service implements
 
     /** Initialize the {@code MPD} connection, monitors and listeners. */
     private void initializeAsyncHelper() {
-        final SettingsHelper settingsHelper = new SettingsHelper(MPD_ASYNC_HELPER);
-        settingsHelper.updateConnectionSettings();
+        SettingsHelper.updateConnectionSettings(MPD_ASYNC_HELPER);
 
         MPD_ASYNC_HELPER.oMPD.getConnectionStatus().addListener(this);
         if (!MPD_ASYNC_HELPER.oMPD.isConnected()) {
