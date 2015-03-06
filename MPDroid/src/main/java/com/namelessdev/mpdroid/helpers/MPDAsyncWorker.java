@@ -18,8 +18,10 @@ package com.namelessdev.mpdroid.helpers;
 
 import com.anpmech.mpd.exception.MPDException;
 import com.namelessdev.mpdroid.ConnectionInfo;
+import com.namelessdev.mpdroid.ConnectionSettings;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.GracenoteCover;
+import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -52,6 +54,8 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     /** A handler for the MPDAsyncHelper object. */
     private final Handler mHelperHandler;
+
+    private ConnectionInfo mConnectionInfo = new ConnectionInfo();
 
     MPDAsyncWorker(final Handler helperHandler) {
         super();
@@ -86,6 +90,9 @@ public class MPDAsyncWorker implements Handler.Callback,
                 run.run();
                 mHelperHandler.obtainMessage(EVENT_EXEC_ASYNC_FINISHED, msg.arg1, 0).sendToTarget();
                 break;
+            case UPDATE_CONNECTION_INFO:
+                setConnectionSettings(SettingsHelper.getConnectionSettings(mConnectionInfo));
+                break;
             default:
                 result = false;
                 break;
@@ -107,7 +114,23 @@ public class MPDAsyncWorker implements Handler.Callback,
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences,
             final String key) {
-        switch (key) {
+        String modKey = key;
+
+        final String currentSSID = SettingsHelper.getCurrentSSID();
+        if (key.startsWith(currentSSID)) {
+            modKey = key.substring(currentSSID.length());
+        }
+
+        switch (modKey) {
+            case ConnectionSettings.KEY_HOSTNAME:
+            case ConnectionSettings.KEY_HOSTNAME_STREAMING:
+            case ConnectionSettings.KEY_PASSWORD:
+            case ConnectionSettings.KEY_PERSISTENT_NOTIFICATION:
+            case ConnectionSettings.KEY_PORT:
+            case ConnectionSettings.KEY_PORT_STREAMING:
+            case ConnectionSettings.KEY_SUFFIX_STREAMING:
+                mHelperHandler.sendEmptyMessage(UPDATE_CONNECTION_INFO);
+                break;
             case MPDApplication.USE_LOCAL_ALBUM_CACHE_KEY:
                 final boolean useAlbumCache = sharedPreferences.getBoolean(key, false);
 
@@ -128,10 +151,11 @@ public class MPDAsyncWorker implements Handler.Callback,
      *
      * @param connectionInfo A current {@code ConnectionInfo} object.
      */
-    public final void setConnectionSettings(final ConnectionInfo connectionInfo) {
+    private final void setConnectionSettings(final ConnectionInfo connectionInfo) {
         if (connectionInfo.serverInfoChanged || connectionInfo.streamingServerInfoChanged
                 || connectionInfo.wasNotificationPersistent !=
                 connectionInfo.isNotificationPersistent) {
+            mConnectionInfo = connectionInfo;
             mHelperHandler.obtainMessage(EVENT_CONNECTION_CONFIG, connectionInfo).sendToTarget();
         }
     }
@@ -147,5 +171,18 @@ public class MPDAsyncWorker implements Handler.Callback,
         handlerThread.start();
 
         return new Handler(handlerThread.getLooper(), this);
+    }
+
+    public ConnectionInfo updateConnectionSettings() {
+        final ConnectionInfo connectionInfo =
+                SettingsHelper.getConnectionSettings(mConnectionInfo);
+
+        if (connectionInfo == null) {
+            setConnectionSettings(mConnectionInfo);
+        } else {
+            setConnectionSettings(connectionInfo);
+        }
+
+        return mConnectionInfo;
     }
 }

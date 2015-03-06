@@ -30,6 +30,20 @@ import android.view.MenuItem;
 @SuppressWarnings("deprecation")
 public class ConnectionSettings extends PreferenceActivity {
 
+    public static final String KEY_HOSTNAME = "hostname";
+
+    public static final String KEY_HOSTNAME_STREAMING = "hostnameStreaming";
+
+    public static final String KEY_PASSWORD = "password";
+
+    public static final String KEY_PERSISTENT_NOTIFICATION = "persistentNotification";
+
+    public static final String KEY_PORT = "port";
+
+    public static final String KEY_PORT_STREAMING = "portStreaming";
+
+    public static final String KEY_SUFFIX_STREAMING = "suffixStreaming";
+
     public static final int MAIN = 0;
 
     private static final String KEY_CONNECTION_CATEGORY = "connectionCategory";
@@ -44,7 +58,7 @@ public class ConnectionSettings extends PreferenceActivity {
         prefHost.setTitle(R.string.host);
         prefHost.setSummary(R.string.hostDescription);
         prefHost.setDefaultValue("127.0.0.1");
-        prefHost.setKey(keyPrefix + "hostname");
+        prefHost.setKey(keyPrefix + KEY_HOSTNAME);
         toCategory.addPreference(prefHost);
 
         final EditTextPreference prefPort = new EditTextPreference(this);
@@ -53,7 +67,7 @@ public class ConnectionSettings extends PreferenceActivity {
         prefPort.setTitle(R.string.port);
         prefPort.setSummary(R.string.portDescription);
         prefPort.setDefaultValue("6600");
-        prefPort.setKey(keyPrefix + "port");
+        prefPort.setKey(keyPrefix + KEY_PORT);
         toCategory.addPreference(prefPort);
 
         final EditTextPreference prefPassword = new EditTextPreference(this);
@@ -63,7 +77,7 @@ public class ConnectionSettings extends PreferenceActivity {
         prefPassword.setTitle(R.string.password);
         prefPassword.setSummary(R.string.passwordDescription);
         prefPassword.setDefaultValue("");
-        prefPassword.setKey(keyPrefix + "password");
+        prefPassword.setKey(keyPrefix + KEY_PASSWORD);
         toCategory.addPreference(prefPassword);
 
         final EditTextPreference prefHostStreaming = new EditTextPreference(this);
@@ -73,7 +87,7 @@ public class ConnectionSettings extends PreferenceActivity {
         prefHostStreaming.setTitle(R.string.hostStreaming);
         prefHostStreaming.setSummary(R.string.hostStreamingDescription);
         prefHostStreaming.setDefaultValue("");
-        prefHostStreaming.setKey(keyPrefix + "hostnameStreaming");
+        prefHostStreaming.setKey(keyPrefix + KEY_HOSTNAME_STREAMING);
         toCategory.addPreference(prefHostStreaming);
 
         // Meh.
@@ -83,7 +97,7 @@ public class ConnectionSettings extends PreferenceActivity {
         prefStreamingPort.setTitle(R.string.portStreaming);
         prefStreamingPort.setSummary(R.string.portStreamingDescription);
         prefStreamingPort.setDefaultValue("8000");
-        prefStreamingPort.setKey(keyPrefix + "portStreaming");
+        prefStreamingPort.setKey(keyPrefix + KEY_PORT_STREAMING);
         toCategory.addPreference(prefStreamingPort);
 
         final EditTextPreference suffixStreamingPort = new EditTextPreference(this);
@@ -93,14 +107,14 @@ public class ConnectionSettings extends PreferenceActivity {
         suffixStreamingPort.setTitle(R.string.suffixStreaming);
         suffixStreamingPort.setSummary(R.string.suffixStreamingDescription);
         suffixStreamingPort.setDefaultValue("");
-        suffixStreamingPort.setKey(keyPrefix + "suffixStreaming");
+        suffixStreamingPort.setKey(keyPrefix + KEY_SUFFIX_STREAMING);
         toCategory.addPreference(suffixStreamingPort);
 
         final CheckBoxPreference persistentNotification = new CheckBoxPreference(this);
         persistentNotification.setDefaultValue(false);
         persistentNotification.setTitle(R.string.persistentNotification);
         persistentNotification.setSummary(R.string.persistentNotificationDescription);
-        persistentNotification.setKey(keyPrefix + "persistentNotification");
+        persistentNotification.setKey(keyPrefix + KEY_PERSISTENT_NOTIFICATION);
         toCategory.addPreference(persistentNotification);
 
         onContentChanged();

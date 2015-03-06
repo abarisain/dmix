@@ -17,7 +17,6 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
-import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.WeakLinkedList;
 
 import android.os.Handler;
@@ -48,19 +47,12 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     private final MPDAsyncWorker mMPDAsyncWorker;
 
-    private ConnectionInfo mConnectionInfo;
-
     private Handler mWorkerHandler;
 
-    /**
-     * Private constructor for static class
-     */
     public MPDAsyncHelper() {
         super();
 
         mMPDAsyncWorker = new MPDAsyncWorker(new Handler(this));
-        mConnectionInfo = SettingsHelper.getConnectionSettings(null);
-
         mAsyncExecListeners = new WeakLinkedList<>("AsyncExecListener");
         mConnectionInfoListeners = new WeakLinkedList<>("ConnectionInfoListener");
     }
@@ -111,15 +103,6 @@ public class MPDAsyncHelper implements Handler.Callback {
     }
 
     /**
-     * Get the current {@code ConnectionInfo} object.
-     *
-     * @return A current {@code ConnectionInfo} object.
-     */
-    public ConnectionInfo getConnectionSettings() {
-        return mConnectionInfo;
-    }
-
-    /**
      * This method handles Messages, which comes from the AsyncWorker. This Message handler runs in
      * the UI-Thread, and can therefore send the information back to the listeners of the matching
      * events...
@@ -132,9 +115,8 @@ public class MPDAsyncHelper implements Handler.Callback {
             final Object[] args = (Object[]) msg.obj;
             switch (msg.what) {
                 case MPDAsyncWorker.EVENT_CONNECTION_CONFIG:
-                    mConnectionInfo = (ConnectionInfo) args[0];
                     for (final ConnectionInfoListener listener : mConnectionInfoListeners) {
-                        listener.onConnectionConfigChange(mConnectionInfo);
+                        listener.onConnectionConfigChange((ConnectionInfo) args[0]);
                     }
                     break;
                 case MPDAsyncWorker.EVENT_EXEC_ASYNC_FINISHED:
@@ -165,13 +147,14 @@ public class MPDAsyncHelper implements Handler.Callback {
     }
 
     /**
-     * Stores the {@code ConnectionInfo} object and sends it to the worker.
+     * Updates the connection settings.
+     * <p/>
+     * If the connection settings have changed, the results will call back as well.
      *
-     * @param connectionInfo A current {@code ConnectionInfo} object.
+     * @return The updated connection settings.
      */
-    public void setConnectionSettings(final ConnectionInfo connectionInfo) {
-        mConnectionInfo = connectionInfo;
-        mMPDAsyncWorker.setConnectionSettings(connectionInfo);
+    public ConnectionInfo updateConnectionSettings() {
+        return mMPDAsyncWorker.updateConnectionSettings();
     }
 
     // Interface for callback when Asynchronous operations are finished

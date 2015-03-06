@@ -29,7 +29,6 @@ import com.namelessdev.mpdroid.service.MPDroidService;
 import com.namelessdev.mpdroid.service.NotificationHandler;
 import com.namelessdev.mpdroid.service.ServiceBinder;
 import com.namelessdev.mpdroid.service.StreamHandler;
-import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.annotation.SuppressLint;
@@ -66,6 +65,8 @@ public class MPDApplication extends Application implements
             Collections.synchronizedCollection(new LinkedList<>());
 
     public UpdateTrackInfo updateTrackInfo;
+
+    private ConnectionInfo mConnectionInfo;
 
     private Timer mDisconnectScheduler;
 
@@ -158,7 +159,6 @@ public class MPDApplication extends Application implements
                 mIdleSubsystemMonitor.start();
             }
             if (!mMPD.isConnected()) {
-                SettingsHelper.updateConnectionSettings(mMPDAsyncHelper);
                 mMPDAsyncHelper.connect();
             }
         }
@@ -174,22 +174,9 @@ public class MPDApplication extends Application implements
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void connect() throws IOException, MPDException {
-        connect(SettingsHelper.getConnectionSettings(mMPDAsyncHelper.getConnectionSettings()));
-    }
-
-    /**
-     * This method manually connects the global MPD instance.
-     * <p/>
-     * This method intentionally blocks the thread, do not use in the UI thread. Instead, use
-     * {@link #addConnectionLock(Object)}.
-     *
-     * @param connectionInfo The connection information to use to connect.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void connect(final ConnectionInfo connectionInfo) throws IOException, MPDException {
-        mMPD.setDefaultPassword(connectionInfo.password);
-        mMPD.connect(connectionInfo.server, connectionInfo.port);
+        mConnectionInfo = mMPDAsyncHelper.updateConnectionSettings();
+        mMPD.setDefaultPassword(mConnectionInfo.password);
+        mMPD.connect(mConnectionInfo.server, mConnectionInfo.port);
     }
 
     public final void disconnect() {
@@ -199,6 +186,15 @@ public class MPDApplication extends Application implements
 
     public MPDAsyncHelper getAsyncHelper() {
         return mMPDAsyncHelper;
+    }
+
+    /**
+     * Get the current {@code ConnectionInfo} object.
+     *
+     * @return A current {@code ConnectionInfo} object.
+     */
+    public ConnectionInfo getConnectionSettings() {
+        return mConnectionInfo;
     }
 
     /**
@@ -297,8 +293,7 @@ public class MPDApplication extends Application implements
     public final boolean isNotificationPersistent() {
         final boolean result;
 
-        if (mMPDAsyncHelper.getConnectionSettings().isNotificationPersistent &&
-                !mIsNotificationOverridden) {
+        if (mConnectionInfo.isNotificationPersistent && !mIsNotificationOverridden) {
             result = true;
         } else {
             result = false;
@@ -347,6 +342,8 @@ public class MPDApplication extends Application implements
      */
     @Override
     public final void onConnectionConfigChange(final ConnectionInfo connectionInfo) {
+        mConnectionInfo = connectionInfo;
+
         if (mServiceBinder != null && mServiceBinder.isServiceBound()) {
             final Bundle bundle = new Bundle();
             bundle.setClassLoader(ConnectionInfo.class.getClassLoader());
@@ -370,6 +367,7 @@ public class MPDApplication extends Application implements
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
 
         mMPDAsyncHelper = new MPDAsyncHelper();
+        mConnectionInfo = mMPDAsyncHelper.updateConnectionSettings();
         final boolean useAlbumCache = PreferenceManager.getDefaultSharedPreferences(this)
                 .getBoolean(USE_LOCAL_ALBUM_CACHE_KEY, false);
 
