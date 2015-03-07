@@ -55,7 +55,7 @@ public class MPDException extends Exception {
     public static final int ACK_ERROR_NOT_LIST = 1;
 
     /**
-     * The MPD protocol ACK error code given when the argument target to a command was expected to\
+     * The MPD protocol ACK error code given when the argument target to a command was expected to
      * exist, but does not.
      */
     public static final int ACK_ERROR_NO_EXIST = 50;
@@ -278,6 +278,6 @@ public class MPDException extends Exception {
      * @return True if this exception was caused by an {@code ACK} message, false otherwise.
      */
     public boolean isACKError() {
-        return mErrorCode == ERROR_UNKNOWN;
+        return mErrorCode != ERROR_UNKNOWN;
     }
 }
