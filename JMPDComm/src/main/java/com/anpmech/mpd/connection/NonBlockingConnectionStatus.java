@@ -28,8 +28,7 @@
 package com.anpmech.mpd.connection;
 
 /**
- * This class is a {@link com.anpmech.mpd.connection.MPDConnectionStatus} which has no potential to
- * block the connection.
+ * This class is a {@link MPDConnectionStatus} which has no potential to block the connection.
  */
 class NonBlockingConnectionStatus extends MPDConnectionStatus {
 

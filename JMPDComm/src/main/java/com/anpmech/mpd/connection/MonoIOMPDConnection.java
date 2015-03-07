@@ -54,8 +54,8 @@ public class MonoIOMPDConnection extends MPDConnection implements ThreadSafeMono
     }
 
     /**
-     * This method outputs the {@code line} parameter to {@link Log#debug(String,
-     * String)} if {@link #DEBUG} is set to true.
+     * This method outputs the {@code line} parameter to {@link Log#debug(String, String)} if
+     * {@link #DEBUG} is set to true.
      *
      * @param line The {@link String} to output to the log.
      */
@@ -86,7 +86,7 @@ public class MonoIOMPDConnection extends MPDConnection implements ThreadSafeMono
      * @return A mono socket command processor.
      */
     @Override
-    Callable<CommandResult> getCommandProcessor(final String command) {
+    Callable<CommandResponse> getCommandProcessor(final String command) {
         return new MonoIOCommandProcessor(mSocketAddress, mConnectionStatus, command,
                 mReadWriteTimeout);
     }
@@ -102,8 +102,8 @@ public class MonoIOMPDConnection extends MPDConnection implements ThreadSafeMono
     }
 
     /**
-     * When used with the {@link ThreadSafeMonoConnection} interface,
-     * this returns a thread unsafe version of this instance.
+     * When used with the {@link ThreadSafeMonoConnection} interface, this returns a thread unsafe
+     * version of this instance.
      *
      * @return A thread unsafe version of this instance.
      */

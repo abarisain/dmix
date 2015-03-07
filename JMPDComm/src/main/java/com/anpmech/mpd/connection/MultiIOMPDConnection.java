@@ -79,7 +79,7 @@ public class MultiIOMPDConnection extends MPDConnection {
      * @return A mono socket command processor.
      */
     @Override
-    Callable<CommandResult> getCommandProcessor(final String command) {
+    Callable<CommandResponse> getCommandProcessor(final String command) {
         return new MultiIOCommandProcessor(mSocketAddress, mConnectionStatus, command,
                 mReadWriteTimeout);
     }

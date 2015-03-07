@@ -28,27 +28,22 @@
 package com.anpmech.mpd.connection;
 
 import com.anpmech.mpd.Log;
+import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.exception.MPDException;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.CharBuffer;
 import java.util.concurrent.Callable;
 
 /**
- * This is the foundation for a {@link java.util.concurrent.Callable} class which sends one {@link
- * com.anpmech.mpd.MPDCommand} or {@link com.anpmech.mpd.CommandQueue} string over a blocking
- * connection, returning a {@link com.anpmech.mpd.connection.CommandResult}.
+ * This is the foundation for a {@link Callable} class which sends one {@link MPDCommand} or
+ * {@link com.anpmech.mpd.CommandQueue} string over a blocking connection, returning a
+ * {@link CommandResponse}.
  */
-abstract class IOCommandProcessor implements Callable<CommandResult> {
-
-    /**
-     * The command response for an unsuccessful command.
-     */
-    static final String CMD_RESPONSE_ACK = "ACK";
+abstract class IOCommandProcessor implements Callable<CommandResponse> {
 
     /**
      * The debug tracker flag.
@@ -59,6 +54,11 @@ abstract class IOCommandProcessor implements Callable<CommandResult> {
      * Maximum number of times to attempt command processing.
      */
     private static final int MAX_REQUEST_RETRY = 3;
+
+    /**
+     * Use the {@link BufferedReader} standard buffer size.
+     */
+    private static final int READ_BUFFER_SIZE = 8192;
 
     /**
      * The class log identifier.
@@ -89,8 +89,50 @@ abstract class IOCommandProcessor implements Callable<CommandResult> {
     }
 
     /**
-     * This method outputs the {@code line} parameter to {@link com.anpmech.mpd.Log#debug(String,
-     * String)} if {@link #DEBUG} is set to true.
+     * Checks the MPD response for validity.
+     *
+     * @param stringBuilder The StringBuilder response to check.
+     * @return True if the command response is valid, false otherwise.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    private static boolean checkResponse(final StringBuilder stringBuilder) throws MPDException {
+        /** Remove the newline */
+        final int length = stringBuilder.length() - 1;
+        boolean isOK = false;
+
+        /** Check for exclusive OK */
+        if (length == 2 && MPDConnection.CMD_RESPONSE_OK
+                .contentEquals(stringBuilder.subSequence(length - 2, length))) {
+            isOK = true;
+        } else {
+            final int lastNewline = stringBuilder.lastIndexOf("\n", length - 1);
+
+            if (lastNewline == -1) {
+                /**
+                 * Nothing is better at parsing ACK than the MPDException, itself.
+                 */
+                final MPDException mpdException = new MPDException(stringBuilder.toString());
+
+                if (mpdException.isACKError()) {
+                    throw mpdException;
+                }
+            } else {
+                /** Check for OK suffix with newline. */
+                final CharSequence subLine = stringBuilder.subSequence(lastNewline + 1, length);
+                final int newLineDifference = length - lastNewline;
+
+                if (newLineDifference == 3 && subLine.equals(MPDConnection.CMD_RESPONSE_OK)) {
+                    isOK = true;
+                }
+            }
+        }
+
+        return isOK;
+    }
+
+    /**
+     * This method outputs the {@code line} parameter to {@link Log#debug(String, String)} if
+     * {@link #DEBUG} is set to true.
      *
      * @param line The {@link String} to output to the log.
      */
@@ -103,12 +145,12 @@ abstract class IOCommandProcessor implements Callable<CommandResult> {
     /**
      * This is the default class method.
      *
-     * @return A {@code CommandResult} from the processed command.
+     * @return A {@code CommandResponse} from the processed command.
      */
     @Override
-    public final CommandResult call() throws IOException, MPDException {
+    public final CommandResponse call() throws IOException, MPDException {
         String header = null;
-        CommandResult commandResult = null;
+        CommandResponse commandResponse = null;
 
         for (int resendTries = 0; resendTries < MAX_REQUEST_RETRY; resendTries++) {
             checkCancelled();
@@ -118,7 +160,7 @@ abstract class IOCommandProcessor implements Callable<CommandResult> {
                     header = innerConnect();
                 }
                 write();
-                commandResult = new CommandResult(header, read());
+                commandResponse = new CommandResponse(header, read());
                 break;
             } catch (final IOException e) {
                 if (resendTries + 1 == MAX_REQUEST_RETRY || mConnectionStatus.isCancelled()) {
@@ -131,13 +173,13 @@ abstract class IOCommandProcessor implements Callable<CommandResult> {
         }
 
         /**
-         * CommandResult should be assigned prior to this conditional.
+         * CommandResponse should be assigned prior to this conditional.
          */
-        if (commandResult == null) {
+        if (commandResponse == null) {
             throw new IllegalStateException("Command result unassigned: " + toString());
         }
 
-        return commandResult;
+        return commandResponse;
     }
 
     /**
@@ -193,35 +235,43 @@ abstract class IOCommandProcessor implements Callable<CommandResult> {
      * @throws MPDException Thrown if there was a server side error with the command that was
      *                      sent.
      */
-    private List<String> read() throws MPDException, IOException {
-        final List<String> result = new ArrayList<>();
+    private String read() throws MPDException, IOException {
         final BufferedReader in = getSocketSet().getReader();
-        boolean validResponse = false;
+        final CharBuffer charBuffer = CharBuffer.allocate(READ_BUFFER_SIZE);
+        final StringBuilder stringBuilder = new StringBuilder();
+        boolean invalidResponse = true;
 
         try {
             mConnectionStatus.setBlocked();
-            for (String line = in.readLine(); line != null; line = in.readLine()) {
-
-                if (line.startsWith(MPDConnection.CMD_RESPONSE_OK)) {
-                    validResponse = true;
-                    break;
+            while (invalidResponse) {
+                /**
+                 * In the next line we block. This block will last until more data is received,
+                 * socket timeout or the connection is lost; the former would be atypical.
+                 */
+                if (in.read(charBuffer) == -1) {
+                    throw new EOFException("Connection lost");
                 }
 
-                if (line.startsWith(CMD_RESPONSE_ACK)) {
-                    throw new MPDException(line);
+                charBuffer.flip();
+                stringBuilder.append(charBuffer);
+
+                final int length = stringBuilder.length() - 1;
+                /** All responses end with a newline. */
+                if (stringBuilder.charAt(length) == MPDCommand.MPD_CMD_NEWLINE &&
+                        checkResponse(stringBuilder)) {
+                    /** Remove the OK and newline. */
+                    stringBuilder.setLength(length - 2);
+                    invalidResponse = false;
                 }
-                result.add(line);
+
+                charBuffer.clear();
             }
         } finally {
+            /** Removing the blocking flag is paramount. */
             mConnectionStatus.setNotBlocked();
         }
 
-        if (!validResponse) {
-            // Close socket if there is no response...
-            // Something is wrong (e.g. MPD shutdown..)
-            throw new EOFException("Connection lost");
-        }
-        return result;
+        return stringBuilder.toString();
     }
 
     /**

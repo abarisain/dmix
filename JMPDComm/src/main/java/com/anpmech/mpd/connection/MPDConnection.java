@@ -219,19 +219,18 @@ public abstract class MPDConnection {
                 mConnectionStatus.unsetCancelled();
                 mSocketAddress = address;
 
-                final CommandResult commandResult = submit(Reflection.CMD_ACTION_COMMANDS).get();
+                final CommandResponse commandResponse = submit(Reflection.CMD_ACTION_COMMANDS)
+                        .get();
 
                 /**
                  * Don't worry too much about it if we didn't get a connection header. Sometimes,
                  * we'll have been told we disconnected when we had not.
                  */
-                if (commandResult.isHeaderValid()) {
-                    final List<String> response = commandResult.getResponse();
-                    Tools.parseResponse(response, Reflection.CMD_RESPONSE_COMMANDS);
+                if (commandResponse.isHeaderValid()) {
                     mAvailableCommands.clear();
-                    mAvailableCommands.addAll(response);
+                    mAvailableCommands.addAll(commandResponse.getValues());
 
-                    mMPDVersion = commandResult.getMPDVersion();
+                    mMPDVersion = commandResponse.getMPDVersion();
                 }
             } else {
                 debug("Not reconnecting, already connected with same information");
@@ -254,7 +253,7 @@ public abstract class MPDConnection {
      * @return A command processor, ready for {@link java.util.concurrent.ExecutorService}
      * submission.
      */
-    abstract Callable<CommandResult> getCommandProcessor(final String command);
+    abstract Callable<CommandResponse> getCommandProcessor(final String command);
 
     /**
      * Get default address from the {@code MPD_HOST} environment variable.
@@ -350,7 +349,7 @@ public abstract class MPDConnection {
      * @param commandQueue The CommandQueue to process.
      * @return The response to the CommandQueue.
      */
-    private MPDFuture<CommandResult> processCommand(final CommandQueue commandQueue) {
+    private MPDFuture<CommandResponse> processCommand(final CommandQueue commandQueue) {
         if (commandQueue.isEmpty()) {
             throw new IllegalStateException(NO_EMPTY_COMMAND_QUEUE);
         }
@@ -369,7 +368,7 @@ public abstract class MPDConnection {
      * @param mpdCommand The command to be processed.
      * @return The response from the command.
      */
-    private MPDFuture<CommandResult> processCommand(final MPDCommand mpdCommand) {
+    private MPDFuture<CommandResponse> processCommand(final MPDCommand mpdCommand) {
         final String commandString;
 
         if (mPassword == null) {
@@ -387,10 +386,10 @@ public abstract class MPDConnection {
      * @param command The command string to be processed.
      * @return The response to the processed command.
      */
-    private MPDFuture<CommandResult> processCommand(final String command) {
+    private MPDFuture<CommandResponse> processCommand(final String command) {
         debug("processCommand() command: " + command);
 
-        final Callable<CommandResult> callable = getCommandProcessor(command);
+        final Callable<CommandResponse> callable = getCommandProcessor(command);
 
         return MPDExecutor.submit(callable);
     }
@@ -402,7 +401,7 @@ public abstract class MPDConnection {
      * @param commandQueue The CommandQueue to process.
      * @return The response to the CommandQueue.
      */
-    private MPDFuture<CommandResult> processCommandSeparated(final CommandQueue commandQueue) {
+    private MPDFuture<CommandResponse> processCommandSeparated(final CommandQueue commandQueue) {
         if (commandQueue.isEmpty()) {
             throw new IllegalStateException(NO_EMPTY_COMMAND_QUEUE);
         }
@@ -421,9 +420,11 @@ public abstract class MPDConnection {
      * @return The result from the command sent to the server.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @deprecated Use {@link #submit(MPDCommand)}
      */
+    @Deprecated
     public List<String> send(final MPDCommand command) throws IOException, MPDException {
-        return processCommand(command).get().getResponse();
+        return processCommand(command).get().getList();
     }
 
     /**
@@ -434,10 +435,12 @@ public abstract class MPDConnection {
      * @return The result from the command sent to the server.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @deprecated Use {@link #submit(CharSequence, CharSequence...)}
      */
+    @Deprecated
     public List<String> send(final CharSequence command, final CharSequence... args)
             throws IOException, MPDException {
-        return submit(command, args).get().getResponse();
+        return submit(command, args).get().getList();
     }
 
     /**
@@ -447,9 +450,11 @@ public abstract class MPDConnection {
      * @return The results of from the media server.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @deprecated Use {@link #submit(CommandQueue)}
      */
+    @Deprecated
     public List<String> send(final CommandQueue commandQueue) throws IOException, MPDException {
-        return processCommand(commandQueue).get().getResponse();
+        return processCommand(commandQueue).get().getList();
     }
 
     /**
@@ -462,7 +467,7 @@ public abstract class MPDConnection {
      */
     public List<List<String>> sendSeparated(final CommandQueue commandQueue)
             throws IOException, MPDException {
-        final List<String> response = processCommandSeparated(commandQueue).get().getResponse();
+        final List<String> response = processCommandSeparated(commandQueue).get().getList();
 
         /** TODO: Fix to push the future down. */
         if (mPassword != null) {
@@ -504,9 +509,9 @@ public abstract class MPDConnection {
      *
      * @param command The command to be sent to the server.
      * @param args    Arguments to the command to be sent to the server.
-     * @return A {@link MPDFuture} for tracking and modification of the submission.
+     * @return A {@link MPDFuture} for tracking and response processing.
      */
-    public MPDFuture<CommandResult> submit(final CharSequence command,
+    public MPDFuture<CommandResponse> submit(final CharSequence command,
             final CharSequence... args) {
         return submit(MPDCommand.create(command, args));
     }
@@ -515,9 +520,9 @@ public abstract class MPDConnection {
      * Submits the command to the {@link MPDExecutor}.
      *
      * @param command The command to be sent to the server.
-     * @return A {@link MPDFuture} for tracking and modification of the submission.
+     * @return A {@link MPDFuture} for tracking and response processing.
      */
-    public MPDFuture<CommandResult> submit(final MPDCommand command) {
+    public MPDFuture<CommandResponse> submit(final MPDCommand command) {
         return processCommand(command);
     }
 
@@ -527,7 +532,7 @@ public abstract class MPDConnection {
      * @param commandQueue The The CommandQueue to send to the server.
      * @return A {@link MPDFuture} for tracking and response processing.
      */
-    public MPDFuture<CommandResult> submit(final CommandQueue commandQueue) {
+    public MPDFuture<CommandResponse> submit(final CommandQueue commandQueue) {
         return processCommand(commandQueue);
     }
 }

@@ -33,7 +33,7 @@ import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.MPDPlaylist;
 import com.anpmech.mpd.concurrent.MPDExecutor;
 import com.anpmech.mpd.concurrent.MPDFuture;
-import com.anpmech.mpd.connection.CommandResult;
+import com.anpmech.mpd.connection.CommandResponse;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.connection.MonoIOMPDConnection;
 import com.anpmech.mpd.event.StatusChangeListener;
@@ -42,7 +42,9 @@ import com.anpmech.mpd.exception.MPDException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CancellationException;
 
 /**
@@ -144,7 +146,7 @@ public class IdleSubsystemMonitor implements Runnable {
     /**
      * This Future tracks the status of the Idle command.
      */
-    private MPDFuture<CommandResult> mIdleTracker;
+    private MPDFuture<CommandResponse> mIdleTracker;
 
     /**
      * This Future tracks the status of this monitor.
@@ -292,13 +294,14 @@ public class IdleSubsystemMonitor implements Runnable {
                      * We block here until the idle command response returns or
                      * {@link #mIdleTracker} is cancelled by another thread.
                      */
-                    final List<String> changes = mIdleTracker.get().getResponse();
+                    final Iterator<Map.Entry<CharSequence, String>> changes =
+                            mIdleTracker.get().splitListIterator();
 
                     oldStatus = status.getImmutableStatus();
                     status.update();
 
-                    for (final String change : changes) {
-                        switch (change.substring("changed: ".length())) {
+                    while (changes.hasNext()) {
+                        switch (changes.next().getValue()) {
                             case IDLE_DATABASE:
                                 statistics.update();
                                 dbChanged = true;
