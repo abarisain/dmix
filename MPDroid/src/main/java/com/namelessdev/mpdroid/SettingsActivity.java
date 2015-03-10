@@ -111,6 +111,13 @@ public class SettingsActivity extends ActionBarActivity implements
 
     }
 
+    /**
+     * Called when a stored playlist has been modified, renamed, created or deleted.
+     */
+    @Override
+    public void storedPlaylistChanged() {
+    }
+
     @Override
     public void trackChanged(final int oldTrack) {
 

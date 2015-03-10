@@ -70,6 +70,11 @@ public interface StatusChangeListener {
     void stickerChanged();
 
     /**
+     * Called when a stored playlist has been modified, renamed, created or deleted.
+     */
+    void storedPlaylistChanged();
+
+    /**
      * Called when playing track is changed on server.
      *
      * @param oldTrack track number before event.

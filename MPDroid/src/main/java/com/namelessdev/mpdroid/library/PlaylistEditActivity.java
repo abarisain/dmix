@@ -263,6 +263,13 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
     public void stickerChanged() {
     }
 
+    /**
+     * Called when a stored playlist has been modified, renamed, created or deleted.
+     */
+    @Override
+    public void storedPlaylistChanged() {
+    }
+
     @Override
     public void trackChanged(final int oldTrack) {
         if (mIsPlayQueue) {

@@ -752,6 +752,13 @@ public final class MPDroidService extends Service implements
     }
 
     /**
+     * Called when a stored playlist has been modified, renamed, created or deleted.
+     */
+    @Override
+    public void storedPlaylistChanged() {
+    }
+
+    /**
      * This status monitor listener callback method is to inform about media server track changes.
      *
      * @param oldTrack track number before event.

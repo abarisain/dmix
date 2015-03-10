@@ -155,6 +155,7 @@ public class MPDApplication extends Application implements
                         IdleSubsystemMonitor.IDLE_PLAYER,
                         IdleSubsystemMonitor.IDLE_PLAYLIST,
                         IdleSubsystemMonitor.IDLE_STICKER,
+                        IdleSubsystemMonitor.IDLE_STORED_PLAYLIST,
                         IdleSubsystemMonitor.IDLE_UPDATE);
                 mIdleSubsystemMonitor.start();
             }

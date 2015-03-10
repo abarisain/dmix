@@ -1028,6 +1028,13 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     /**
+     * Called when a stored playlist has been modified, renamed, created or deleted.
+     */
+    @Override
+    public void storedPlaylistChanged() {
+    }
+
+    /**
      * Toggle the track progress bar. This should be called only when the track changes, for
      * position changes, startPosTimer() is sufficient.
      */

@@ -282,6 +282,7 @@ public class IdleSubsystemMonitor implements Runnable {
                 boolean dbChanged = false;
                 boolean statusChanged = false;
                 boolean stickerChanged = false;
+                boolean storedPlaylistChanged = false;
 
                 if (connectionReset) {
                     dbChanged = true;
@@ -312,6 +313,9 @@ public class IdleSubsystemMonitor implements Runnable {
                                 break;
                             case IDLE_STICKER:
                                 stickerChanged = true;
+                                break;
+                            case IDLE_STORED_PLAYLIST:
+                                storedPlaylistChanged = true;
                                 break;
                             default:
                                 statusChanged = true;
@@ -428,6 +432,17 @@ public class IdleSubsystemMonitor implements Runnable {
                                 @Override
                                 public void run() {
                                     listener.libraryStateChanged(status.isUpdating(), myDbChanged);
+                                }
+                            });
+                        }
+                    }
+
+                    if (connectionReset || storedPlaylistChanged) {
+                        for (final StatusChangeListener listener : mStatusChangeListeners) {
+                            MPDExecutor.submitCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.storedPlaylistChanged();
                                 }
                             });
                         }

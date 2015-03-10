@@ -17,6 +17,8 @@
 package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.connection.MPDConnectionListener;
+import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
@@ -63,10 +65,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BrowseFragment<T extends Item<T>> extends Fragment implements
-        OnMenuItemClickListener, AsyncExecListener, OnItemClickListener {
+        OnMenuItemClickListener, AsyncExecListener, OnItemClickListener, StatusChangeListener,
+        MPDConnectionListener {
 
     public static final int ADD = 0;
 
@@ -101,6 +105,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     final int mIrAdd;
 
     final int mIrAdded;
+
+    private final List<PlaylistFile> mStoredPlaylists = new ArrayList<>();
 
     protected List<T> mItems;
 
@@ -267,6 +273,30 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     protected abstract void asyncUpdate();
 
+    /**
+     * Called upon connection.
+     */
+    @Override
+    public void connectionConnected() {
+        storedPlaylistChanged();
+    }
+
+    /**
+     * Called when connecting.
+     */
+    @Override
+    public void connectionConnecting() {
+    }
+
+    /**
+     * Called upon disconnection.
+     *
+     * @param reason The reason given for disconnection.
+     */
+    @Override
+    public void connectionDisconnected(final String reason) {
+    }
+
     // Override if you want setEmptyView to be called on the list even if you have a header
     protected boolean forceEmptyView() {
         return false;
@@ -305,6 +335,16 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         if (mToolbar != null) {
             mToolbar.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * Called when the MPD server update database starts and stops.
+     *
+     * @param updating  true when updating, false when not updating.
+     * @param dbChanged After update, if the database has changed, this will be true else false.
+     */
+    @Override
+    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
     }
 
     @Override
@@ -358,18 +398,10 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
                         R.string.newPlaylist);
                 item.setOnMenuItemClickListener(this);
 
-                try {
-                    final List<PlaylistFile> playlists = mApp.getMPD().getPlaylists();
-
-                    if (null != playlists) {
-                        for (final PlaylistFile pl : playlists) {
-                            item = playlistMenu.add(ADD_TO_PLAYLIST, id++, (int) info.id,
-                                    pl.getName());
-                            item.setOnMenuItemClickListener(this);
-                        }
-                    }
-                } catch (final IOException | MPDException e) {
-                    Log.e(TAG, "Failed to parse playlists.", e);
+                for (final PlaylistFile pl : mStoredPlaylists) {
+                    item = playlistMenu.add(ADD_TO_PLAYLIST, id++, (int) info.id,
+                            pl.getName());
+                    item.setOnMenuItemClickListener(this);
                 }
             }
             final MenuItem gotoArtistItem = menu
@@ -461,6 +493,33 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         return false;
     }
 
+    /**
+     * Called when the Fragment is no longer resumed.  This is generally
+     * tied to {@link Activity#onPause() Activity.onPause} of the containing
+     * Activity's lifecycle.
+     */
+    @Override
+    public void onPause() {
+        mApp.removeStatusChangeListener(this);
+        mApp.getMPD().getConnectionStatus().removeListener(this);
+
+        super.onPause();
+    }
+
+    /**
+     * Called when the fragment is visible to the user and actively running.
+     * This is generally
+     * tied to {@link Activity#onResume() Activity.onResume} of the containing
+     * Activity's lifecycle.
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mApp.getMPD().getConnectionStatus().addListener(this);
+        mApp.addStatusChangeListener(this);
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -485,6 +544,22 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
             mList.setAdapter(getCustomListAdapter());
         }
         refreshFastScrollStyle();
+    }
+
+    /**
+     * Called when playlist changes on MPD server.
+     *
+     * @param oldPlaylistVersion old playlist version.
+     */
+    @Override
+    public void playlistChanged(final int oldPlaylistVersion) {
+    }
+
+    /**
+     * Called when MPD server random feature changes state.
+     */
+    @Override
+    public void randomChanged() {
     }
 
     /**
@@ -526,6 +601,13 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
             mList.setScrollBarStyle(scrollbarStyle);
             mList.setFastScrollAlwaysVisible(isAlwaysVisible);
         }
+    }
+
+    /**
+     * Called when MPD server repeat feature changes state.
+     */
+    @Override
+    public void repeatChanged() {
     }
 
     public void scrollToTop() {
@@ -599,6 +681,44 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     /**
+     * Called when MPD state changes on server.
+     *
+     * @param oldState previous state.
+     */
+    @Override
+    public void stateChanged(final int oldState) {
+    }
+
+    /**
+     * Called when any sticker of any track has been changed on server.
+     */
+    @Override
+    public void stickerChanged() {
+    }
+
+    /**
+     * Called when a stored playlist has been modified, renamed, created or deleted.
+     */
+    @Override
+    public void storedPlaylistChanged() {
+        try {
+            mStoredPlaylists.clear();
+            mStoredPlaylists.addAll(mApp.getMPD().getPlaylists());
+        } catch (final IOException | MPDException e) {
+            Log.e(TAG, "Failed to parse playlists.", e);
+        }
+    }
+
+    /**
+     * Called when playing track is changed on server.
+     *
+     * @param oldTrack track number before event.
+     */
+    @Override
+    public void trackChanged(final int oldTrack) {
+    }
+
+    /**
      * Update the view from the items list if items is set.
      */
     public void updateFromItems() {
@@ -657,5 +777,14 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         } else {
             hideToolbar();
         }
+    }
+
+    /**
+     * Called when volume changes on MPD server.
+     *
+     * @param oldVolume volume before event
+     */
+    @Override
+    public void volumeChanged(final int oldVolume) {
     }
 }
