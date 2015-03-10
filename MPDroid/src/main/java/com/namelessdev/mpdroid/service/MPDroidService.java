@@ -62,30 +62,30 @@ public final class MPDroidService extends Service implements
     /** This is the class unique Binder identifier. */
     static final int LOCAL_UID = 200;
 
-    /** Disconnects if no connection exists. */
-    private static final int DISCONNECT_ON_NO_CONNECTION = LOCAL_UID + 1;
-
     /** Request that all clients unbind due to service inactivity. */
-    public static final int REQUEST_UNBIND = LOCAL_UID + 2;
-
-    /** Immediately attempts to stopSelf(). */
-    private static final int STOP_SELF = LOCAL_UID + 3;
+    public static final int REQUEST_UNBIND = LOCAL_UID + 1;
 
     /** Update the clients with the important handler status. */
-    public static final int UPDATE_CLIENT_STATUS = LOCAL_UID + 4;
-
-    /** Sends stop() to all handlers. */
-    private static final int WIND_DOWN_HANDLERS = LOCAL_UID + 5;
+    public static final int UPDATE_CLIENT_STATUS = LOCAL_UID + 2;
 
     /** The main process connection changed. */
-    public static final int CONNECTION_INFO_CHANGED = LOCAL_UID + 6;
+    public static final int CONNECTION_INFO_CHANGED = LOCAL_UID + 3;
 
-    public static final int REFRESH_COVER = LOCAL_UID + 7;
+    public static final int REFRESH_COVER = LOCAL_UID + 4;
 
     /** The {@code MPDAsyncHelper} for this service. */
     static final MPDAsyncHelper MPD_ASYNC_HELPER = new MPDAsyncHelper(false);
 
     static final String PACKAGE_NAME = "com.namelessdev.mpdroid.service.";
+
+    /** Disconnects if no connection exists. */
+    private static final int DISCONNECT_ON_NO_CONNECTION = LOCAL_UID + 5;
+
+    /** A tag for manually signifying service ownership used by the onTaskRemoved() Intent. */
+    private static final String SERVICE_OWNERSHIP;
+
+    /** Immediately attempts to stopSelf(). */
+    private static final int STOP_SELF = LOCAL_UID + 6;
 
     private static final String TAG = "MPDroidService";
 
@@ -97,8 +97,8 @@ public final class MPDroidService extends Service implements
     /** Handled in RemoteControlReceiver, this attempts closing this service. */
     public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + ".ACTION_STOP";
 
-    /** A tag for manually signifying service ownership used by the onTaskRemoved() Intent. */
-    private static final String SERVICE_OWNERSHIP = FULLY_QUALIFIED_NAME + ".SERVICE_OWNED_BY";
+    /** Sends stop() to all handlers. */
+    private static final int WIND_DOWN_HANDLERS = LOCAL_UID + 7;
 
     /** The inner class which handles messages for this service. */
     private final MessageHandler mMessageHandler = new MessageHandler();
@@ -137,6 +137,13 @@ public final class MPDroidService extends Service implements
 
     /** If this flag is true, and stream stops, notification should shut itself down. */
     private boolean mStreamOwnsService = false;
+
+    static {
+        /**
+         * This is here to workaround a Intellij rearranging bug.
+         */
+        SERVICE_OWNERSHIP = FULLY_QUALIFIED_NAME + ".SERVICE_OWNED_BY";
+    }
 
     /**
      * A function to translate 'what' fields to literal debug name, used primarily for debugging.
@@ -719,6 +726,9 @@ public final class MPDroidService extends Service implements
         tryToGetAudioFocus();
     }
 
+    /**
+     * Called when a stored playlist has been modified, renamed, created or deleted.
+     */
     @Override
     public void stickerChanged(final MPDStatus mpdStatus) {
     }

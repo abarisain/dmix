@@ -63,6 +63,8 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
 
     private PlaylistFile mPlaylist;
 
+    private ArrayList<HashMap<String, Object>> mSongList = new ArrayList<>();
+
     private final DragSortListView.DropListener mDropListener
             = new DragSortListView.DropListener() {
         @Override
@@ -89,8 +91,6 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
             Tools.notifyUser("Updating ...");
         }
     };
-
-    private ArrayList<HashMap<String, Object>> mSongList = new ArrayList<>();
 
     @Override
     public void connectionStateChanged(final boolean connected, final boolean connectionLost) {

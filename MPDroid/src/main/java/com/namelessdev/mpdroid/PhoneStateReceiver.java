@@ -39,13 +39,13 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     /** Our app instance. */
     private static final MPDApplication APP = MPDApplication.getInstance();
 
-    private static final SharedPreferences SETTINGS = PreferenceManager
-            .getDefaultSharedPreferences(APP);
-
     private static final boolean DEBUG = false;
 
     /** A key to hold the play after phone call user configuration setting. */
     private static final String PLAY_AFTER_CALL = "playOnPhoneStateChange";
+
+    private static final SharedPreferences SETTINGS = PreferenceManager
+            .getDefaultSharedPreferences(APP);
 
     /** The class log identifier. */
     private static final String TAG = "PhoneStateReceiver";

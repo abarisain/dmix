@@ -54,7 +54,7 @@ public final class MusicBuilder {
      *
      * @param response A music listing command response.
      * @return A Music object.
-     * @see #buildMusicFromList(java.util.List)
+     * @see #buildMusicFromList(List)
      */
     static Music build(final Collection<String> response) {
         String albumName = null;
@@ -169,7 +169,7 @@ public final class MusicBuilder {
      *
      * @param response A music listing command response.
      * @return A Music object.
-     * @see #build(java.util.Collection)
+     * @see #build(Collection)
      */
     public static List<Music> buildMusicFromList(final List<String> response) {
         final Collection<int[]> ranges = Tools.getRanges(response);

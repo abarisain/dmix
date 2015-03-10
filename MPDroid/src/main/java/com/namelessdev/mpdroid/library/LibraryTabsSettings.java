@@ -38,6 +38,12 @@ import java.util.List;
 
 public class LibraryTabsSettings extends PreferenceActivity {
 
+    private final MPDApplication mApp = MPDApplication.getInstance();
+
+    private SeparatedListAdapter mAdapter;
+
+    private ArrayList<Object> mTabList;
+
     public final DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
 
         @Override
@@ -58,12 +64,6 @@ public class LibraryTabsSettings extends PreferenceActivity {
             }
         }
     };
-
-    private final MPDApplication mApp = MPDApplication.getInstance();
-
-    private SeparatedListAdapter mAdapter;
-
-    private ArrayList<Object> mTabList;
 
     private ArrayList<String> getVisibleTabs() {
         final ArrayList<String> visibleTabs = new ArrayList<>();

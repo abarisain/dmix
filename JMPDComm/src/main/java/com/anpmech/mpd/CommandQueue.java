@@ -145,8 +145,8 @@ public class CommandQueue extends AbstractList<MPDCommand> {
     /**
      * Removes all elements from this {@code CommandQueue}, leaving it empty.
      *
-     * @see java.util.List#isEmpty
-     * @see java.util.List#size
+     * @see List#isEmpty
+     * @see List#size
      */
     @Override
     public void clear() {

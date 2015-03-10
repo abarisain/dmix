@@ -26,13 +26,13 @@ public class CoverInfo extends AlbumInfo {
 
     public static final int MAX_SIZE = 0;
 
-    private int mCoverMaxSize = MAX_SIZE;
+    private Bitmap[] mBitmap = new Bitmap[0];
 
     private int mCachedCoverMaxSize = MAX_SIZE;
 
-    private Bitmap[] mBitmap = new Bitmap[0];
-
     private byte[] mCoverBytes = new byte[0];
+
+    private int mCoverMaxSize = MAX_SIZE;
 
     private ICoverRetriever mCoverRetriever;
 

@@ -109,6 +109,20 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
 
     protected String mFilter = null;
 
+    protected int mLastPlayingID = -1;
+
+    protected DragSortListView mList;
+
+    protected String mPlaylistToSave = "";
+
+    protected Integer mPopupSongID;
+
+    protected ViewGroup mRootView;
+
+    protected SearchView mSearchView;
+
+    protected ArrayList<AbstractPlaylistMusic> mSongList;
+
     protected final DragSortListView.DropListener mDropListener
             = new DragSortListView.DropListener() {
         @Override
@@ -121,14 +135,6 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             }
         }
     };
-
-    protected int mLastPlayingID = -1;
-
-    protected DragSortListView mList;
-
-    protected String mPlaylistToSave = "";
-
-    protected Integer mPopupSongID;
 
     protected final View.OnClickListener mItemMenuButtonListener = new View.OnClickListener() {
         @Override
@@ -143,12 +149,6 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             popupMenu.show();
         }
     };
-
-    protected ViewGroup mRootView;
-
-    protected SearchView mSearchView;
-
-    protected ArrayList<AbstractPlaylistMusic> mSongList;
 
     @Override
     public void connectionStateChanged(final boolean connected, final boolean connectionLost) {

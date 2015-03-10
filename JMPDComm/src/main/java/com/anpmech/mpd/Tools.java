@@ -122,14 +122,14 @@ public final class Tools {
      * Gets a beginning and an end range of sub-server responses, based on a parameter key.
      * <p/>
      * While this method functions very similarly, this list will <B>end</B> with the key, rather
-     * than begin with the key like {@link #getRanges(java.util.Collection)}.
+     * than begin with the key like {@link #getRanges(Collection)}.
      *
      * @param response The server response to parse.
      * @param key      The key to the beginning/end of a sub-list.
      * @return A two int array. The first int is either the beginning of the list, or the one
      * position beyond the found key. The second int is one position before the next key or the end
      * of the list (for {@link List#subList(int, int)} compatibility).
-     * @see #getRanges(java.util.Collection)
+     * @see #getRanges(Collection)
      */
     public static Collection<int[]> getRanges(final Collection<String> response, final String key) {
         final int responseSize = response.size();
@@ -182,7 +182,7 @@ public final class Tools {
     /**
      * Gets a beginning and an end range of sub-server responses.
      * <p/>
-     * This method, unlike {@link #getRanges(java.util.Collection, String)}, parses the response
+     * This method, unlike {@link #getRanges(Collection, String)}, parses the response
      * for the first key being repeated and will split end the range with the prior position.
      *
      * @param response The server response to parse.
@@ -190,7 +190,7 @@ public final class Tools {
      * parameter. The second number is one int beyond the end of the range
      * (for {@link List#subList(int, int)} compatibility). If no range is found, an empty list will
      * be returned.
-     * @see #getRanges(java.util.Collection, String)
+     * @see #getRanges(Collection, String)
      */
     public static Collection<int[]> getRanges(final Collection<String> response) {
         final int responseSize = response.size();
@@ -417,7 +417,7 @@ public final class Tools {
      *
      * @param integers A list of integers to convert to numbered range strings..
      * @return A collection of numbered range strings.
-     * @see #sequentialToRange(java.util.List)
+     * @see #sequentialToRange(List)
      */
     public static List<CharSequence> sequentialToRange(final int... integers) {
         final List<CharSequence> ranges = new ArrayList<>();

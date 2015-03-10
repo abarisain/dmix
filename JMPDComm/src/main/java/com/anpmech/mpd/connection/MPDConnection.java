@@ -128,7 +128,7 @@ public abstract class MPDConnection {
      *
      * @param readWriteTimeout The read write timeout for this connection.
      * @param maxConnections   Maximum number of sockets to allow running at one time.
-     * @see #connect(java.net.InetAddress, int)
+     * @see #connect(InetAddress, int)
      */
     MPDConnection(final int readWriteTimeout, final int maxConnections) {
         super();

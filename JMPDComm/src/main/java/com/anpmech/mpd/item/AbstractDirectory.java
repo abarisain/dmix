@@ -330,7 +330,7 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
      * directory.
      *
      * @param subdirectory The subdirectory from root to create.
-     * @return A {@link com.anpmech.mpd.item.Directory} made from the root and subdirectory.
+     * @return A {@link Directory} made from the root and subdirectory.
      */
     protected abstract T makeSubdirectory(final String subdirectory);
 
@@ -338,10 +338,8 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
      * Retrieves a database directory listing of {@code path} directory.
      *
      * @param connection A connection to the server.
-     * @throws java.io.IOException                    Thrown upon a communication error with the
-     *                                                server.
-     * @throws com.anpmech.mpd.exception.MPDException Thrown if an error occurs as a result of
-     *                                                command execution.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void refresh(final MPDConnection connection) throws IOException, MPDException {
         final int cacheSize = 40; /** Approximate max number of lines per file entry. */

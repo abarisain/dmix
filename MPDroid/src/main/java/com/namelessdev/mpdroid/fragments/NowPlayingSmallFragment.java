@@ -152,7 +152,7 @@ public class NowPlayingSmallFragment extends Fragment implements StatusChangeLis
                 // of both activities are defined with android:transitionName="cover"
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     ActivityOptions options = ActivityOptions
-                        .makeSceneTransitionAnimation(getActivity(), mCoverArt, "cover");
+                            .makeSceneTransitionAnimation(getActivity(), mCoverArt, "cover");
                     // start the new activity
                     getActivity().startActivity(intent, options.toBundle());
                 } else {

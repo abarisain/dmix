@@ -714,7 +714,7 @@ public class MPD {
      * @return a Collection of {@code Music}
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @see com.anpmech.mpd.item.Music
+     * @see Music
      */
     public List<Music> find(final String type, final String locatorString)
             throws IOException, MPDException {
@@ -1631,7 +1631,7 @@ public class MPD {
      * @return a Collection of {@code Music}.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @see com.anpmech.mpd.item.Music
+     * @see Music
      */
     public List<Music> search(final String type, final String locatorString)
             throws IOException, MPDException {

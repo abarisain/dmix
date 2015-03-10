@@ -161,7 +161,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * The key from the status command for the value of the last error message.
      * <p/>
      * This is one way to get retrieve an error message, though, it is better parsed from the error
-     * code given by the {@link com.anpmech.mpd.exception.MPDException}.
+     * code given by the {@link MPDException}.
      */
     private static final CharSequence RESPONSE_ERROR = "error";
 
@@ -406,9 +406,9 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * Retrieves error message.
      *
      * @return error message.
-     * @see com.anpmech.mpd.exception.MPDException#getAckCommandQueuePosition(String)
-     * @see com.anpmech.mpd.exception.MPDException#getAckErrorCode(String)
-     * @see com.anpmech.mpd.exception.MPDException#getMessage()
+     * @see MPDException#getAckCommandQueuePosition(String)
+     * @see MPDException#getAckErrorCode(String)
+     * @see MPDException#getMessage()
      */
     @Override
     public final String getError() {

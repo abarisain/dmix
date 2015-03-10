@@ -70,20 +70,20 @@ public final class StreamHandler implements
     /** Message to send to stop this handler. */
     public static final int STOP = LOCAL_UID + 3;
 
-    /** Kills (or hides) the notification if StreamHandler started it. */
-    static final int REQUEST_NOTIFICATION_STOP = LOCAL_UID + 4;
-
-    /** Keeps the notification alive, but puts it in non-streaming status. */
-    static final int STREAMING_STOP = LOCAL_UID + 5;
-
     /** Let notification know it's time to display buffering banner. */
-    static final int BUFFERING_BEGIN = LOCAL_UID + 6;
+    static final int BUFFERING_BEGIN = LOCAL_UID + 4;
 
     /** Remove the buffering banner from the notification handler. */
-    static final int BUFFERING_END = LOCAL_UID + 7;
+    static final int BUFFERING_END = LOCAL_UID + 5;
+
+    /** Kills (or hides) the notification if StreamHandler started it. */
+    static final int REQUEST_NOTIFICATION_STOP = LOCAL_UID + 6;
 
     /** Like STREAMING_STOP, but does allows streaming to continue on audio state change. */
-    static final int STREAMING_PAUSE = LOCAL_UID + 8;
+    static final int STREAMING_PAUSE = LOCAL_UID + 7;
+
+    /** Keeps the notification alive, but puts it in non-streaming status. */
+    static final int STREAMING_STOP = LOCAL_UID + 8;
 
     private static final boolean DEBUG = MPDroidService.DEBUG;
 

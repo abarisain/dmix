@@ -149,7 +149,7 @@ final class MusicList implements Iterable<Music> {
     }
 
     /**
-     * Returns an {@link java.util.Iterator} for the music list.
+     * Returns an {@link Iterator} for the music list.
      *
      * @return An {@code Iterator} instance.
      */

@@ -92,8 +92,8 @@ final class StringComparators {
      * based on their numeric values. </p> <p> This is probably the best default comparison to use.
      * </p> <p> If you know that the texts to be compared are in a certain language that differs
      * from the default locale's language, then get a collator for the desired locale ({@link
-     * java.text.Collator#getInstance(java.util.Locale)}) and pass it to {@link
-     * #compareNatural(java.text.Collator, String, String)} </p>
+     * Collator#getInstance(java.util.Locale)}) and pass it to {@link
+     * #compareNatural(Collator, String, String)} </p>
      *
      * @param s first string
      * @param t second string
@@ -313,7 +313,7 @@ final class StringComparators {
      *
      * @return <p> A string comparator that uses the current locale's order rules and handles
      * embedded numbers correctly. </p>
-     * @see #getNaturalComparator(java.text.Collator)
+     * @see #getNaturalComparator(Collator)
      */
     public static Comparator<String> getNaturalComparator() {
         final Collator collator = Collator.getInstance();
@@ -353,7 +353,7 @@ final class StringComparators {
      * and handles embedded numbers correctly. </p> <b>Do not use</b> if your app might ever run on
      * any locale that uses more than 7-bit ascii characters.
      * @see #getNaturalComparator()
-     * @see #getNaturalComparator(java.text.Collator)
+     * @see #getNaturalComparator(Collator)
      */
     public static Comparator<String> getNaturalComparatorAscii() {
         return NATURAL_COMPARATOR_ASCII;
@@ -368,7 +368,7 @@ final class StringComparators {
      * @return <p> a string comparator that does case insensitive comparisons on pure ascii strings
      * and handles embedded numbers correctly. </p>
      * @see #getNaturalComparator()
-     * @see #getNaturalComparator(java.text.Collator)
+     * @see #getNaturalComparator(Collator)
      */
     public static Comparator<String> getNaturalComparatorIgnoreCaseAscii() {
         return IGNORE_CASE_NATURAL_COMPARATOR_ASCII;

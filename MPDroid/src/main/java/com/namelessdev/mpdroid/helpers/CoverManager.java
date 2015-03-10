@@ -98,15 +98,13 @@ public final class CoverManager {
 
     private static final MPDApplication sApp = MPDApplication.getInstance();
 
-    private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(sApp);
-
     private static CoverManager sInstance = null;
 
     private final ExecutorService mCacheCoverFetchExecutor = Executors.newSingleThreadExecutor();
 
-    private final ExecutorService mCreateBitmapExecutor = mCacheCoverFetchExecutor;
-
     private final ThreadPoolExecutor mCoverFetchExecutor;
+
+    private final ExecutorService mCreateBitmapExecutor = mCacheCoverFetchExecutor;
 
     private final MultiMap<CoverInfo, CoverDownloadListener> mHelpersByCoverInfo
             = new MultiMap<>();
@@ -119,6 +117,8 @@ public final class CoverManager {
 
     private final List<CoverInfo> mRunningRequests = Collections
             .synchronizedList(new ArrayList<CoverInfo>());
+
+    private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(sApp);
 
     private boolean mActive = true;
 

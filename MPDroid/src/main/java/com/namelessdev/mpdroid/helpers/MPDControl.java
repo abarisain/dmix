@@ -45,12 +45,12 @@ public final class MPDControl {
 
     private static final MPDApplication APP = MPDApplication.getInstance();
 
-    private static final SharedPreferences SETTINGS = PreferenceManager
-            .getDefaultSharedPreferences(APP);
-
     private static final boolean DEBUG = false;
 
     private static final String ERROR_MESSAGE = "Failed to send a simple MPD command.";
+
+    private static final SharedPreferences SETTINGS = PreferenceManager
+            .getDefaultSharedPreferences(APP);
 
     private static final String TAG = "MPDControl";
 
@@ -193,63 +193,6 @@ public final class MPDControl {
             final boolean internalMPD) {
         new Thread(new Runnable() {
 
-            /**
-             * This method is called if pause during call is active with a user
-             * configuration setting requesting pause while a call is taking place.
-             */
-            private void pauseForCall() {
-                if (shouldPauseForCall()) {
-                    try {
-                        mpd.pause();
-                        SETTINGS.edit().putBoolean(PhoneStateReceiver.PAUSED_MARKER, true).commit();
-                    } catch (final IOException | MPDException e) {
-                        Log.e(TAG, ERROR_MESSAGE, e);
-                    }
-                }
-
-                if (SETTINGS.getBoolean(PhoneStateReceiver.PAUSING_MARKER, false)) {
-                    SETTINGS.edit().putBoolean(PhoneStateReceiver.PAUSING_MARKER, false).commit();
-                }
-            }
-
-            /**
-             * This method factors in several circumstances to whether
-             * or not to pause the media server for a telephony activity.
-             *
-             * @return True if the media server should be paused, false otherwise.
-             */
-            private boolean shouldPauseForCall() {
-                final TelephonyManager telephonyManager =
-                        (TelephonyManager) APP.getSystemService(Context.TELEPHONY_SERVICE);
-                final boolean isPlaying =
-                        APP.oMPDAsyncHelper.oMPD.getStatus().isState(MPDStatusMap.STATE_PLAYING);
-                boolean result = false;
-
-                /**
-                 * We need to double check the telephony state, the connection
-                 * may have taken longer than the telephony is active.
-                 */
-                if (telephonyManager.getCallState() != TelephonyManager.CALL_STATE_IDLE &&
-                        isPlaying) {
-                    if (APP.isLocalAudible()) {
-
-                        if (DEBUG) {
-                            Log.d(TAG, "App is local audible.");
-                        }
-
-                        result = true;
-                    } else {
-                        result = SETTINGS.getBoolean(PhoneStateReceiver.PAUSE_DURING_CALL, false);
-
-                        if (DEBUG) {
-                            Log.d(TAG, PhoneStateReceiver.PAUSE_DURING_CALL + ": " + result);
-                        }
-                    }
-                }
-
-                return result;
-            }
-
             private void blockForConnection() {
                 int loopIterator = 50; /** Give the connection 5 seconds, tops. */
                 final long blockTimeout = 100L;
@@ -271,6 +214,25 @@ public final class MPDControl {
                         }
                         loopIterator--;
                     }
+                }
+            }
+
+            /**
+             * This method is called if pause during call is active with a user
+             * configuration setting requesting pause while a call is taking place.
+             */
+            private void pauseForCall() {
+                if (shouldPauseForCall()) {
+                    try {
+                        mpd.pause();
+                        SETTINGS.edit().putBoolean(PhoneStateReceiver.PAUSED_MARKER, true).commit();
+                    } catch (final IOException | MPDException e) {
+                        Log.e(TAG, ERROR_MESSAGE, e);
+                    }
+                }
+
+                if (SETTINGS.getBoolean(PhoneStateReceiver.PAUSING_MARKER, false)) {
+                    SETTINGS.edit().putBoolean(PhoneStateReceiver.PAUSING_MARKER, false).commit();
                 }
             }
 
@@ -363,6 +325,44 @@ public final class MPDControl {
                         APP.removeConnectionLock(this);
                     }
                 }
+            }
+
+            /**
+             * This method factors in several circumstances to whether
+             * or not to pause the media server for a telephony activity.
+             *
+             * @return True if the media server should be paused, false otherwise.
+             */
+            private boolean shouldPauseForCall() {
+                final TelephonyManager telephonyManager =
+                        (TelephonyManager) APP.getSystemService(Context.TELEPHONY_SERVICE);
+                final boolean isPlaying =
+                        APP.oMPDAsyncHelper.oMPD.getStatus().isState(MPDStatusMap.STATE_PLAYING);
+                boolean result = false;
+
+                /**
+                 * We need to double check the telephony state, the connection
+                 * may have taken longer than the telephony is active.
+                 */
+                if (telephonyManager.getCallState() != TelephonyManager.CALL_STATE_IDLE &&
+                        isPlaying) {
+                    if (APP.isLocalAudible()) {
+
+                        if (DEBUG) {
+                            Log.d(TAG, "App is local audible.");
+                        }
+
+                        result = true;
+                    } else {
+                        result = SETTINGS.getBoolean(PhoneStateReceiver.PAUSE_DURING_CALL, false);
+
+                        if (DEBUG) {
+                            Log.d(TAG, PhoneStateReceiver.PAUSE_DURING_CALL + ": " + result);
+                        }
+                    }
+                }
+
+                return result;
             }
         }
         ).start();

@@ -86,7 +86,7 @@ class ResponseMap {
     private final Map<CharSequence, String> mResponseMap;
 
     /**
-     * This constructs the {@link java.util.concurrent.ConcurrentHashMap} backed ResponseMap.
+     * This constructs the {@link ConcurrentHashMap} backed ResponseMap.
      * <p/>
      * This map will always have a {@code loadFactor} of {@code 0.75f} and a {@code
      * concurrencyLevel} of {@code 1}, as reasonably, there will only be one writer at a time.
@@ -111,9 +111,9 @@ class ResponseMap {
     }
 
     /**
-     * This constructs a {@link java.util.Map} backed ResponseMap, this is useful for immutable or
+     * This constructs a {@link Map} backed ResponseMap, this is useful for immutable or
      * for an alternative subclass mapping. The map given <b>will</b> be modified if {@link
-     * #update(java.util.Collection)} is called.
+     * #update(Collection)} is called.
      *
      * @param map The alternate mapping to use for backend storage.
      */

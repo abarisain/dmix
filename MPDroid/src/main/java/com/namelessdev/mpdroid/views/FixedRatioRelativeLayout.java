@@ -31,11 +31,11 @@ public class FixedRatioRelativeLayout extends RelativeLayout {
 
     private static final int FIXED_HEIGHT_INT = 1;
 
-    private int mFixedSide = FIXED_HEIGHT_INT;
-
     private static final String FIXED_WIDTH = "width";
 
     private static final int FIXED_WIDTH_INT = 2;
+
+    private int mFixedSide = FIXED_HEIGHT_INT;
 
     public FixedRatioRelativeLayout(final Context context) {
         super(context);

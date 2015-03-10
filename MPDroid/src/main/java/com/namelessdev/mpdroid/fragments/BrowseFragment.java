@@ -495,8 +495,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     /**
-     * This method is used for the fastcroll visibility decision.<br/> Don't override this if you
-     * want to change the fastscroll style, override {@link #refreshFastScrollStyle(boolean)}
+     * This method is used for the fast scroll visibility decision.<br/> Don't override this if you
+     * want to change the fast scroll style, override {@link #refreshFastScrollStyle(boolean)}
      * instead.
      */
     protected void refreshFastScrollStyle() {
@@ -545,7 +545,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     /**
-     * Set wether the fragment is embedded or not. An embedded BrowseFragment will not show a
+     * Set whether the fragment is embedded or not. An embedded BrowseFragment will not show a
      * toolbar.
      */
     public void setEmbedded(boolean embedded) {

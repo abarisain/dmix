@@ -31,10 +31,10 @@
         android:layout_height="match_parent"
         android:layout_toLeftOf="@+id/track_duration"
         android:layout_toRightOf="@+id/track_number"
-        android:paddingTop="8dip"
-        android:paddingBottom="8dip"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/material_list_item_element_horizontal_padding">
+        android:paddingBottom="8dip"
+        android:paddingLeft="@dimen/material_list_item_element_horizontal_padding"
+        android:paddingTop="8dip">
 
         <TextView
             android:id="@+id/track_title"

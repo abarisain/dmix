@@ -54,14 +54,14 @@ public class ServiceBinder implements
     /** Used as an argument in a what/boolean pair message. */
     public static final int FALSE = LOCAL_UID + 4;
 
+    /** Handled by the client handler to set persistent what/bool set. */
+    public static final int SET_PERSISTENT = LOCAL_UID + 5;
+
     /** Sent to the service upon successful connection. */
-    static final int REGISTER_CLIENT = LOCAL_UID + 5;
+    static final int REGISTER_CLIENT = LOCAL_UID + 6;
 
     /** Sent to the service before unbind. */
-    static final int UNREGISTER_CLIENT = LOCAL_UID + 6;
-
-    /** Handled by the client handler to set persistent what/bool set. */
-    public static final int SET_PERSISTENT = LOCAL_UID + 7;
+    static final int UNREGISTER_CLIENT = LOCAL_UID + 7;
 
     /** Turns on debugging messages. */
     private static final boolean DEBUG = MPDroidService.DEBUG;

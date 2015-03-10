@@ -44,18 +44,18 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
 
     private static final int MAX_SIZE = 0;
 
-    private int mCoverMaxSize = MAX_SIZE;
+    private final MPDApplication mApp = MPDApplication.getInstance();
+
+    private final Collection<CoverDownloadListener> mCoverDownloadListeners;
 
     private int mCachedCoverMaxSize = MAX_SIZE;
 
-    private final MPDApplication mApp = MPDApplication.getInstance();
+    private int mCoverMaxSize = MAX_SIZE;
 
     static {
         COVER_NOT_FOUND_MESSAGE = new Message();
         COVER_NOT_FOUND_MESSAGE.what = EVENT_COVER_NOT_FOUND;
     }
-
-    private final Collection<CoverDownloadListener> mCoverDownloadListeners;
 
     public CoverAsyncHelper() {
         super();

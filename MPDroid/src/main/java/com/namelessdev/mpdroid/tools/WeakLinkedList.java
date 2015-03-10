@@ -38,10 +38,6 @@ import java.util.NoSuchElementException;
  * An Iterator or ListIterator on this list will not fail if an element
  * disappears due to being unreachable. Also while iterating no reachable element
  * will ever be skipped.
- *
- * @author Eric Dalquist <a
- *         href="mailto:edalquist@unicon.net">edalquist@unicon.net</a>
- * @version $Revision$
  */
 
 /** Let's assume the author was smart enough to check object equality. */

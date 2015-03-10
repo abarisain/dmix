@@ -42,7 +42,7 @@ import java.util.ResourceBundle;
 public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
 
     /**
-     * This {@link java.text.Collator} is used for comparison and sorting of {@code Item}s.
+     * This {@link Collator} is used for comparison and sorting of {@code Item}s.
      */
     private static final Collator COLLATOR = Collator.getInstance();
 
