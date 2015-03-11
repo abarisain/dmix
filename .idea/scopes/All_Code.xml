@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="All Code" pattern="file[JMPDCommAndroid]:*/||file[JMPDCommJava]:*/||file[MPDroid]:src/main/res//*||file[MPDroid]:src/main/java//*||file[MPDroid]:src/main//*||file[MPDroid]:src/foss/java//*||file[dmix]:settings.gradle||file[dmix]:build.gradle" />
+</component>
