@@ -214,6 +214,6 @@ public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
      * @see IdleSubsystemMonitor
      */
     public void update() throws IOException, MPDException {
-        update(mConnection.send(MPDCommand.MPD_CMD_STATISTICS));
+        update(mConnection.submit(MPDCommand.MPD_CMD_STATISTICS).get());
     }
 }

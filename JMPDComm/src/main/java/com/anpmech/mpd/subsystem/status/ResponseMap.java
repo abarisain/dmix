@@ -28,17 +28,13 @@
 package com.anpmech.mpd.subsystem.status;
 
 import com.anpmech.mpd.Log;
-import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.connection.CommandResponse;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-
-import static com.anpmech.mpd.Tools.KEY;
-import static com.anpmech.mpd.Tools.VALUE;
 
 /**
  * This is a class which serves as the base for a <A HREF="http://www.musicpd.org/doc/protocol"
@@ -123,7 +119,7 @@ class ResponseMap {
     /**
      * This constructs a {@link Map} backed ResponseMap, this is useful for immutable or
      * for an alternative subclass mapping. The map given <b>will</b> be modified if {@link
-     * #update(Collection)} is called.
+     * #update(CommandResponse)} is called.
      *
      * @param map The alternate mapping to use for backend storage.
      */
@@ -385,14 +381,10 @@ class ResponseMap {
     /**
      * Updates the map with a key/value MPD protocol response.
      *
-     * @param response The response from the server.
+     * @param commandResponse The response from the server.
      */
-    public void update(final Collection<String> response) {
-        final Map<CharSequence, String> map = new HashMap<>(response.size());
-
-        for (final String[] lines : Tools.splitResponse(response)) {
-            map.put(lines[KEY], lines[VALUE]);
-        }
+    public void update(final CommandResponse commandResponse) {
+        final Map<CharSequence, String> map = commandResponse.getKeyValueMap();
 
         /**
          * Delete entries (by key) which don't exist in the new map then replace. This avoids a

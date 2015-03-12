@@ -29,11 +29,12 @@ package com.anpmech.mpd.subsystem.status;
 
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.concurrent.MPDFuture;
+import com.anpmech.mpd.connection.CommandResponse;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -746,17 +747,19 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * @see IdleSubsystemMonitor
      */
     public void update() throws IOException, MPDException {
-        update(mConnection.send(MPDCommand.MPD_CMD_STATUS));
+        final MPDFuture<CommandResponse> future = mConnection.submit(MPDCommand.MPD_CMD_STATUS);
+
+        update(future.get());
     }
 
     /**
      * Updates the status cache from the MPD Server protocol response.
      *
-     * @param response The response from the server.
+     * @param commandResponse The response from the server.
      */
     @Override
-    public void update(final Collection<String> response) {
-        super.update(response);
+    public void update(final CommandResponse commandResponse) {
+        super.update(commandResponse);
         mUpdateTime = new Date().getTime();
     }
 }

@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd;
 
+import com.anpmech.mpd.connection.CommandResponse;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.connection.MonoIOMPDConnection;
@@ -1402,12 +1403,10 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> listArtists() throws IOException, MPDException {
-        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
-                Music.TAG_ARTIST);
+        final CommandResponse response = mConnection.submit(MPDCommand.MPD_CMD_LIST_TAG,
+                Music.TAG_ARTIST).get();
 
-        Tools.parseResponse(response, Music.RESPONSE_ARTIST);
-
-        return response;
+        return response.getValues(Music.RESPONSE_ARTIST);
     }
 
     /**
@@ -1455,14 +1454,11 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<String> listArtists(final Genre genre)
-            throws IOException, MPDException {
-        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
-                Music.TAG_ARTIST, Music.TAG_GENRE, genre.getName());
+    public List<String> listArtists(final Genre genre) throws IOException, MPDException {
+        final CommandResponse response = mConnection.submit(MPDCommand.MPD_CMD_LIST_TAG,
+                Music.TAG_ARTIST, Music.TAG_GENRE, genre.getName()).get();
 
-        Tools.parseResponse(response, Music.RESPONSE_ARTIST);
-
-        return response;
+        return response.getValues(Music.RESPONSE_ARTIST);
     }
 
     private List<List<String>> listArtistsCommand(final Iterable<Album> albums,
