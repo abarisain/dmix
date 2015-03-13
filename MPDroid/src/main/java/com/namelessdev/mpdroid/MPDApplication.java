@@ -20,6 +20,7 @@ import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
+import com.namelessdev.mpdroid.service.PebbleBroadcastTrackInfoHandler;
 import com.namelessdev.mpdroid.service.MPDroidService;
 import com.namelessdev.mpdroid.service.NotificationHandler;
 import com.namelessdev.mpdroid.service.ServiceBinder;
@@ -96,6 +97,8 @@ public class MPDApplication extends Application implements
     private SettingsHelper mSettingsHelper = null;
 
     private boolean mSettingsShown = false;
+
+    private PebbleBroadcastTrackInfoHandler mPebbleBroadcastTrackInfoHandler = null;
 
     public static MPDApplication getInstance() {
         return sInstance;
@@ -453,6 +456,8 @@ public class MPDApplication extends Application implements
         oMPDAsyncHelper.addConnectionListener(this);
 
         mDisconnectScheduler = new Timer();
+
+        mPebbleBroadcastTrackInfoHandler = new PebbleBroadcastTrackInfoHandler();
     }
 
     /**
