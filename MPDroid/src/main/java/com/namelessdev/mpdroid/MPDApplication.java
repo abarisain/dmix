@@ -20,7 +20,6 @@ import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.ConnectionListener;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
-import com.namelessdev.mpdroid.service.PebbleBroadcastTrackInfoHandler;
 import com.namelessdev.mpdroid.service.MPDroidService;
 import com.namelessdev.mpdroid.service.NotificationHandler;
 import com.namelessdev.mpdroid.service.ServiceBinder;
