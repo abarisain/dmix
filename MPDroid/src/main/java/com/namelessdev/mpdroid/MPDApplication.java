@@ -98,8 +98,6 @@ public class MPDApplication extends Application implements
 
     private boolean mSettingsShown = false;
 
-    private PebbleBroadcastTrackInfoHandler mPebbleBroadcastTrackInfoHandler = null;
-
     public static MPDApplication getInstance() {
         return sInstance;
     }
@@ -456,8 +454,6 @@ public class MPDApplication extends Application implements
         oMPDAsyncHelper.addConnectionListener(this);
 
         mDisconnectScheduler = new Timer();
-
-        mPebbleBroadcastTrackInfoHandler = new PebbleBroadcastTrackInfoHandler();
     }
 
     /**
