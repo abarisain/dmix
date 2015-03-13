@@ -189,6 +189,21 @@ public final class MPDroidService extends Service implements
     }
 
     /**
+     * A notification method for Pebble devices.
+     *
+     * @param currentTrack The currently playing track.
+     */
+    private static Intent getPebbleIntent(final Music currentTrack) {
+        final Intent intent = new Intent("com.getpebble.action.NOW_PLAYING");
+
+        intent.putExtra(Music.TAG_ARTIST, currentTrack.getArtist());
+        intent.putExtra(Music.TAG_ALBUM, currentTrack.getAlbum());
+        intent.putExtra(Music.TAG_TRACK, currentTrack.getTitle());
+
+        return intent;
+    }
+
+    /**
      * Called upon connection.
      */
     @Override
@@ -794,6 +809,7 @@ public final class MPDroidService extends Service implements
             mRemoteControlClientHandler.update(mCurrentTrack);
             mAlbumCoverHandler.update(new AlbumInfo(mCurrentTrack));
             mNotificationHandler.setNewTrack(mCurrentTrack);
+            sendBroadcast(getPebbleIntent(mCurrentTrack));
         }
     }
 
