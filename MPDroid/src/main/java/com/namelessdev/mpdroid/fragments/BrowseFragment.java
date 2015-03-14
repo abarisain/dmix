@@ -122,8 +122,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     protected Toolbar mToolbar;
 
-    private boolean mFirstUpdateDone = false;
-
     protected BrowseFragment(@StringRes final int rAdd, @StringRes final int rAdded,
             final String pContext) {
         super();
@@ -524,10 +522,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     public void onStart() {
         super.onStart();
 
-        if (!mFirstUpdateDone) {
-            mFirstUpdateDone = true;
-            updateList();
-        }
+        updateList();
     }
 
     /**
@@ -749,18 +744,20 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     public void updateList() {
-        mList.setAdapter(null);
-        mNoResultView.setVisibility(View.GONE);
-        mLoadingView.setVisibility(View.VISIBLE);
+        if (mApp.getMPD().isConnected()) {
+            mList.setAdapter(null);
+            mNoResultView.setVisibility(View.GONE);
+            mLoadingView.setVisibility(View.VISIBLE);
 
-        // Loading Artists asynchronous...
-        mApp.getAsyncHelper().addAsyncExecListener(this);
-        mJobID = mApp.getAsyncHelper().execAsync(new Runnable() {
-            @Override
-            public void run() {
-                asyncUpdate();
-            }
-        });
+            // Loading Artists asynchronous...
+            mApp.getAsyncHelper().addAsyncExecListener(this);
+            mJobID = mApp.getAsyncHelper().execAsync(new Runnable() {
+                @Override
+                public void run() {
+                    asyncUpdate();
+                }
+            });
+        }
     }
 
     protected void updateToolbarVisibility() {
