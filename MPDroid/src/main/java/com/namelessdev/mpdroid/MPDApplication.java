@@ -64,6 +64,8 @@ public class MPDApplication extends Application implements
     private final Collection<Object> mConnectionLocks =
             Collections.synchronizedCollection(new LinkedList<>());
 
+    private final Object mDisconnectLock = new Object();
+
     public UpdateTrackInfo updateTrackInfo;
 
     private ConnectionInfo mConnectionInfo;
@@ -181,8 +183,14 @@ public class MPDApplication extends Application implements
     }
 
     public final void disconnect() {
-        cancelDisconnectScheduler();
-        startDisconnectScheduler();
+        /**
+         * Synchronization is required in this block due to the possibility of a race during
+         * already starting timer while cancelling/purging.
+         */
+        synchronized (mDisconnectLock) {
+            cancelDisconnectScheduler();
+            startDisconnectScheduler();
+        }
     }
 
     public MPDAsyncHelper getAsyncHelper() {
