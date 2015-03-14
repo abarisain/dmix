@@ -277,6 +277,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     @Override
     public void connectionConnected() {
         storedPlaylistChanged();
+        updateList();
     }
 
     /**
