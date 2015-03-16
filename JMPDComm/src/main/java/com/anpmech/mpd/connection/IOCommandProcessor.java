@@ -306,7 +306,7 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
             /**
              * Finally, if the connection has been cancelled, we shouldn't reconnect.
              */
-            shouldReconnect = !mConnectionStatus.isCancelled();
+            shouldReconnect = mConnectionStatus.isCancelled();
         }
 
         return shouldReconnect;
