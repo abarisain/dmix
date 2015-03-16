@@ -303,9 +303,13 @@ public class NowPlayingFragment extends Fragment implements
 
     /**
      * Called upon connection.
+     *
+     * @param commandErrorCode If this number is non-zero, the number will correspond to a
+     *                         {@link MPDException} error code. If this number is zero, the
+     *                         connection MPD protocol commands were successful.
      */
     @Override
-    public void connectionConnected() {
+    public void connectionConnected(final int commandErrorCode) {
         forceStatusUpdate();
     }
 

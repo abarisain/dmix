@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid;
 
 import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.event.StatusChangeListener;
+import com.anpmech.mpd.exception.MPDException;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -33,9 +34,13 @@ public class SettingsActivity extends ActionBarActivity implements
 
     /**
      * Called upon connection.
+     *
+     * @param commandErrorCode If this number is non-zero, the number will correspond to a
+     *                         {@link MPDException} error code. If this number is zero, the
+     *                         connection MPD protocol commands were successful.
      */
     @Override
-    public void connectionConnected() {
+    public void connectionConnected(final int commandErrorCode) {
         mSettingsFragment.onConnectionStateChanged();
     }
 

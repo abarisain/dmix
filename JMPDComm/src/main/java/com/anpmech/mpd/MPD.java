@@ -51,6 +51,7 @@ import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -99,11 +100,8 @@ public class MPD {
      * @param server   The server address or host name to connect to.
      * @param port     The server port to connect to.
      * @param password The default password to use for this connection.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public MPD(final InetAddress server, final int port, final CharSequence password)
-            throws MPDException, IOException {
+    public MPD(final InetAddress server, final int port, final CharSequence password) {
         this();
 
         setDefaultPassword(password);
@@ -116,11 +114,10 @@ public class MPD {
      * @param server   The server address or host name to connect to.
      * @param port     The server port to connect to.
      * @param password The default password to use for this connection.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @throws UnknownHostException If the {@code server} parameter cannot be resolved to a host.
      */
     public MPD(final String server, final int port, final CharSequence password)
-            throws IOException, MPDException {
+            throws UnknownHostException {
         this(InetAddress.getByName(server), port, password);
     }
 
@@ -627,10 +624,9 @@ public class MPD {
      * <p>If there is a default password that is not included in the {@code MPD_HOST} environment
      * variable, {@link #setDefaultPassword(CharSequence)} must be called prior to this method.</p>
      *
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @throws UnknownHostException Thrown when a hostname can not be resolved.
      */
-    public synchronized void connect() throws IOException, MPDException {
+    public synchronized void connect() throws UnknownHostException {
         mConnection.connect();
         mIdleConnection.connect();
     }
@@ -642,11 +638,8 @@ public class MPD {
      *
      * @param server server address or host name
      * @param port   server port
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public final synchronized void connect(final InetAddress server, final int port)
-            throws IOException, MPDException {
+    public final synchronized void connect(final InetAddress server, final int port) {
         if (!isConnected()) {
             mConnection.connect(server, port);
             mIdleConnection.connect(server, port);
@@ -660,11 +653,9 @@ public class MPD {
      *
      * @param server server address or host name
      * @param port   server port
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @throws UnknownHostException Thrown when a hostname can not be resolved.
      */
-    public final void connect(final String server, final int port)
-            throws IOException, MPDException {
+    public final void connect(final String server, final int port) throws UnknownHostException {
         final InetAddress address = InetAddress.getByName(server);
         connect(address, port);
     }
@@ -675,11 +666,9 @@ public class MPD {
      * prior to this method.</p>
      *
      * @param server server address or host name and port (server:port)
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @throws UnknownHostException Thrown when a hostname can not be resolved.
      */
-    public final void connect(final String server) throws IOException,
-            MPDException {
+    public final void connect(final String server) throws UnknownHostException {
         int port = MPDCommand.DEFAULT_MPD_PORT;
         final String host;
         if (server.indexOf(':') == -1) {

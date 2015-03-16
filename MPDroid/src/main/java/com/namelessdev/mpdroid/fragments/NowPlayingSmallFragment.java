@@ -19,6 +19,7 @@ package com.namelessdev.mpdroid.fragments;
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.event.StatusChangeListener;
+import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
@@ -81,9 +82,13 @@ public class NowPlayingSmallFragment extends Fragment implements
 
     /**
      * Called upon connection.
+     *
+     * @param commandErrorCode If this number is non-zero, the number will correspond to a
+     *                         {@link MPDException} error code. If this number is zero, the
+     *                         connection MPD protocol commands were successful.
      */
     @Override
-    public void connectionConnected() {
+    public void connectionConnected(final int commandErrorCode) {
         if (isAdded()) {
             mApp.updateTrackInfo.refresh(true);
         }

@@ -27,10 +27,9 @@
 
 package com.anpmech.mpd.connection;
 
-import com.anpmech.mpd.exception.MPDException;
-
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * This is a safety interface includes all thread safe methods for a {@link MonoIOMPDConnection}.
@@ -46,11 +45,9 @@ public interface ThreadSafeMonoConnection {
     /**
      * This method calls standard defaults for the host/port pair and MPD password, if it exists.
      *
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown upon an error sending a simple command to the {@code
-     *                      host}/{@code port} pair with the {@code password}.
+     * @throws UnknownHostException Thrown when a hostname can not be resolved.
      */
-    void connect() throws IOException, MPDException;
+    void connect() throws UnknownHostException;
 
     /**
      * Sets up connection to host/port pair.
@@ -59,11 +56,8 @@ public interface ThreadSafeMonoConnection {
      *
      * @param host The media server host to connect to.
      * @param port The media server port to connect to.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown upon an error sending a simple command to the {@code
-     *                      host}/{@code port} pair with the {@code password}.
      */
-    void connect(final InetAddress host, final int port) throws IOException, MPDException;
+    void connect(final InetAddress host, final int port);
 
     /**
      * The method to disconnect from the current connected server.

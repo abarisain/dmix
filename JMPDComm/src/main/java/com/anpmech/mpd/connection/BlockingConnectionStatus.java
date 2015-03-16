@@ -38,6 +38,15 @@ class BlockingConnectionStatus extends MPDConnectionStatus {
     private volatile boolean mIsBlocked;
 
     /**
+     * The sole constructor.
+     *
+     * @param listener The connected {@link MPDConnection} instance.
+     */
+    BlockingConnectionStatus(final MPDConnectionListener listener) {
+        super(listener);
+    }
+
+    /**
      * This checks if the connection has been marked as blocking.
      *
      * @return True if the connection has been marked as blocking, false otherwise.

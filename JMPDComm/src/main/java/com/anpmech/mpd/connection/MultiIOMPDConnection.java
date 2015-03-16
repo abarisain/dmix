@@ -57,7 +57,7 @@ public class MultiIOMPDConnection extends MPDConnection {
      *                         This class requires disconnection timeout, so this must not equal 0.
      */
     public MultiIOMPDConnection(final int readWriteTimeout) {
-        super(readWriteTimeout, new NonBlockingConnectionStatus());
+        super(readWriteTimeout, false);
 
         /**
          * For further explanation, see the class header documentation.

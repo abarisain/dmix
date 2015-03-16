@@ -32,6 +32,15 @@ package com.anpmech.mpd.connection;
  */
 class NonBlockingConnectionStatus extends MPDConnectionStatus {
 
+    /**
+     * The sole constructor.
+     *
+     * @param listener The connected {@link MPDConnection} instance.
+     */
+    NonBlockingConnectionStatus(final MPDConnectionListener listener) {
+        super(listener);
+    }
+
     @Override
     boolean isBlocked() {
         return false;

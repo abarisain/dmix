@@ -50,7 +50,7 @@ public class MonoIOMPDConnection extends MPDConnection implements ThreadSafeMono
      * @param readWriteTimeout The {@link java.net.Socket#setSoTimeout(int)} for this connection.
      */
     public MonoIOMPDConnection(final int readWriteTimeout) {
-        super(readWriteTimeout, new BlockingConnectionStatus());
+        super(readWriteTimeout, true);
     }
 
     /**

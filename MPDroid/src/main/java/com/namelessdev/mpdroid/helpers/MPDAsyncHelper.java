@@ -69,18 +69,6 @@ public class MPDAsyncHelper implements Handler.Callback {
         }
     }
 
-    public void connect() {
-        if (mWorkerHandler == null) {
-            mWorkerHandler = mMPDAsyncWorker.startThread();
-        }
-
-        /**
-         * Because the Handler queue can be incredibly slow.
-         */
-        mWorkerHandler.sendMessageAtFrontOfQueue(
-                Message.obtain(mWorkerHandler, MPDAsyncWorker.EVENT_CONNECT));
-    }
-
     /**
      * Executes a Runnable Asynchronous. Meant to use for individual long during operations on
      * JMPDComm. Use this method only, when the code to execute is only used once in the project.

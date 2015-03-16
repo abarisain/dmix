@@ -29,6 +29,7 @@ package com.anpmech.mpd.connection;
 
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.concurrent.MPDExecutor;
+import com.anpmech.mpd.exception.MPDException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,6 +50,11 @@ public abstract class MPDConnectionStatus {
      * The class log identifier.
      */
     private static final String TAG = "ConnectionStatus";
+
+    /**
+     * This stores a priority listener to be called for the connection instance.
+     */
+    private final MPDConnectionListener mConnectionListener;
 
     /**
      * The callbacks to inform of changes.
@@ -79,6 +85,15 @@ public abstract class MPDConnectionStatus {
     private long mLastChangeTime = -1L;
 
     /**
+     * The sole constructor.
+     *
+     * @param listener The connected {@link MPDConnection} instance.
+     */
+    MPDConnectionStatus(final MPDConnectionListener listener) {
+        mConnectionListener = listener;
+    }
+
+    /**
      * This method outputs the {@code line} parameter to a {@link Log#debug(String, String)} if
      * {@link #DEBUG} is set to {@code true}.
      *
@@ -98,6 +113,65 @@ public abstract class MPDConnectionStatus {
     public void addListener(final MPDConnectionListener listener) {
         if (!mConnectionListeners.contains(listener)) {
             mConnectionListeners.add(listener);
+        }
+    }
+
+    /**
+     * This is called at the end of the connection class
+     * {@link MPDConnectionListener#connectionConnected(int)} callback.
+     *
+     * <p>This is called from the actual connection class, to prevent calling prior to something
+     * that needs to be taken care of by the connection prior to child callbacks.</p>
+     *
+     * @param commandErrorCode If this number is non-zero, this corresponds to a
+     *                         {@link MPDException} error code.
+     */
+    void connectedCallbackComplete(final int commandErrorCode) {
+        for (final MPDConnectionListener listener : mConnectionListeners) {
+            MPDExecutor.submitCallback(new Runnable() {
+                @Override
+                public void run() {
+                    listener.connectionConnected(commandErrorCode);
+                }
+            });
+        }
+    }
+
+    /**
+     * This is called at the end of the connection class
+     * {@link MPDConnectionListener#connectionConnecting()} callback.
+     *
+     * <p>This is called from the actual connection class, to prevent calling prior to something
+     * that needs to be taken care of by the connection prior to child callbacks.</p>
+     */
+    void connectingCallbackComplete() {
+        for (final MPDConnectionListener listener : mConnectionListeners) {
+            MPDExecutor.submitCallback(new Runnable() {
+                @Override
+                public void run() {
+                    listener.connectionConnecting();
+                }
+            });
+        }
+    }
+
+    /**
+     * This is called at the end of the connection class
+     * {@link MPDConnectionListener#connectionDisconnected(String)} callback.
+     *
+     * <p>This is called from the actual connection class, to prevent calling prior to something
+     * that needs to be taken care of by the connection prior to child callbacks.</p>
+     *
+     * @param reason The reason for the disconnection.
+     */
+    void disconnectedCallbackComplete(final String reason) {
+        for (final MPDConnectionListener listener : mConnectionListeners) {
+            MPDExecutor.submitCallback(new Runnable() {
+                @Override
+                public void run() {
+                    listener.connectionDisconnected(reason);
+                }
+            });
         }
     }
 
@@ -169,7 +243,6 @@ public abstract class MPDConnectionStatus {
      */
     abstract void setNotBlocked();
 
-
     /**
      * This is called when called by the disconnection timer.
      *
@@ -200,14 +273,12 @@ public abstract class MPDConnectionStatus {
                 mIsConnecting = false;
                 mLastChangeTime = System.currentTimeMillis();
 
-                for (final MPDConnectionListener listener : mConnectionListeners) {
-                    MPDExecutor.submitCallback(new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.connectionConnected();
-                        }
-                    });
-                }
+                MPDExecutor.submitCallback(new Runnable() {
+                    @Override
+                    public void run() {
+                        mConnectionListener.connectionConnected(0);
+                    }
+                });
             }
         } finally {
             mConnectionStatus.release();
@@ -229,14 +300,12 @@ public abstract class MPDConnectionStatus {
              * implied by connecting.
              */
             mConnectionStatus.tryAcquire();
-            for (final MPDConnectionListener listener : mConnectionListeners) {
-                MPDExecutor.submitCallback(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.connectionConnecting();
-                    }
-                });
-            }
+            MPDExecutor.submitCallback(new Runnable() {
+                @Override
+                public void run() {
+                    mConnectionListener.connectionConnecting();
+                }
+            });
         }
     }
 
@@ -252,14 +321,12 @@ public abstract class MPDConnectionStatus {
             mIsConnecting = false;
             mLastChangeTime = System.currentTimeMillis();
 
-            for (final MPDConnectionListener listener : mConnectionListeners) {
-                MPDExecutor.submitCallback(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.connectionDisconnected(reason);
-                    }
-                });
-            }
+            MPDExecutor.submitCallback(new Runnable() {
+                @Override
+                public void run() {
+                    mConnectionListener.connectionDisconnected(reason);
+                }
+            });
         }
     }
 
@@ -268,6 +335,7 @@ public abstract class MPDConnectionStatus {
         return "MPDConnectionStatus{" +
                 "mConnectionListeners=" + mConnectionListeners +
                 ", mConnectionStatus=" + mConnectionStatus +
+                ", mConnectionListener=" + mConnectionListener +
                 ", mIsCancelled=" + mIsCancelled +
                 ", mIsConnecting=" + mIsConnecting +
                 ", mLastChangeTime=" + mLastChangeTime +

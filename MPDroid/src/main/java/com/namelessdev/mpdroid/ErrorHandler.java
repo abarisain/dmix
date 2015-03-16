@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid;
 
 import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
+import com.anpmech.mpd.exception.MPDException;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 import android.app.Activity;
@@ -29,6 +30,8 @@ import android.content.res.Resources;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
+
+import java.net.UnknownHostException;
 
 public class ErrorHandler implements MPDConnectionListener {
 
@@ -70,7 +73,7 @@ public class ErrorHandler implements MPDConnectionListener {
         connectionStatus.addListener(this);
 
         if (connectionStatus.isConnected()) {
-            connectionConnected();
+            connectionConnected(0);
         } else {
             connectionConnecting();
         }
@@ -125,9 +128,13 @@ public class ErrorHandler implements MPDConnectionListener {
 
     /**
      * Called upon connection.
+     *
+     * @param commandErrorCode If this number is non-zero, the number will correspond to a
+     *                         {@link MPDException} error code. If this number is zero, the
+     *                         connection MPD protocol commands were successful.
      */
     @Override
-    public final void connectionConnected() {
+    public void connectionConnected(final int commandErrorCode) {
         debug("Connected");
         dismissAlertDialog();
     }
@@ -233,7 +240,11 @@ public class ErrorHandler implements MPDConnectionListener {
                     mActivity.finish();
                     break;
                 case DialogInterface.BUTTON_POSITIVE:
-                    ((MPDApplication) mActivity.getApplication()).getAsyncHelper().connect();
+                    try {
+                        ((MPDApplication) mActivity.getApplication()).connect();
+                    } catch (final UnknownHostException e) {
+                        Log.e(TAG, "Failed to connect due to unknown host.");
+                    }
                     break;
                 default:
                     break;

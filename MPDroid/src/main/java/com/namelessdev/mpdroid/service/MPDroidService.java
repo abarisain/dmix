@@ -46,7 +46,7 @@ import android.os.SystemClock;
 import android.text.format.DateUtils;
 import android.util.Log;
 
-import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -206,9 +206,13 @@ public final class MPDroidService extends Service implements
 
     /**
      * Called upon connection.
+     *
+     * @param commandErrorCode If this number is non-zero, the number will correspond to a
+     *                         {@link MPDException} error code. If this number is zero, the
+     *                         connection MPD protocol commands were successful.
      */
     @Override
-    public void connectionConnected() {
+    public void connectionConnected(final int commandErrorCode) {
         stateChanged(MPDStatusMap.STATE_UNKNOWN);
     }
 
@@ -265,8 +269,8 @@ public final class MPDroidService extends Service implements
         if (!APP.getMPD().isConnected()) {
             try {
                 APP.connect();
-            } catch (final IOException | MPDException e) {
-                Log.e(TAG, "Failed to connect service.", e);
+            } catch (final UnknownHostException e) {
+                Log.e(TAG, "Failed to connect due to unknown host.", e);
             }
         }
 

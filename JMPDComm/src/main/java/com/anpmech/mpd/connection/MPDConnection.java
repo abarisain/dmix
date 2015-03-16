@@ -28,6 +28,7 @@
 package com.anpmech.mpd.connection;
 
 import com.anpmech.mpd.CommandQueue;
+import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.concurrent.MPDExecutor;
@@ -38,7 +39,6 @@ import com.anpmech.mpd.subsystem.Reflection;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +48,7 @@ import java.util.concurrent.Callable;
 /**
  * Class representing a connection to MPD Server.
  */
-public abstract class MPDConnection {
+public abstract class MPDConnection implements MPDConnectionListener {
 
     /**
      * The command response for a successful command.
@@ -86,11 +86,6 @@ public abstract class MPDConnection {
     private static final String ENVIRONMENT_KEY_PORT = "MPD_PORT";
 
     /**
-     * The highest available IPv4 port.
-     */
-    private static final int MAX_PORT = 65535;
-
-    /**
      * Response for each successful command executed in a command list if used with {@code
      * MPD_CMD_START_BULK_OK}.
      */
@@ -107,14 +102,19 @@ public abstract class MPDConnection {
     private static final String NO_ENDPOINT_ERROR = "Connection endpoint not yet established.";
 
     /**
+     * The class log identifier.
+     */
+    private static final String TAG = "MPDConnection";
+
+    /**
      * This object tracks the status of this connection.
      */
-    final MPDConnectionStatus mConnectionStatus;
+    protected final MPDConnectionStatus mConnectionStatus;
 
     /**
      * The command communication timeout.
      */
-    final int mReadWriteTimeout;
+    protected final int mReadWriteTimeout;
 
     /**
      * A set containing all available commands, populated on connection.
@@ -124,12 +124,18 @@ public abstract class MPDConnection {
     /**
      * The lock for this connection.
      */
-    private final Object mLock = new Object();
+    private final Object mConnectionLock = new Object();
 
     /**
      * The host/port pair used to connect to the media server.
      */
-    InetSocketAddress mSocketAddress;
+    protected InetSocketAddress mSocketAddress;
+
+    /**
+     * This is a holder for a connection {@link CommandResponse} while waiting for the connected
+     * callback to occur.
+     */
+    private MPDFuture<CommandResponse> mConnectionResponse;
 
     /**
      * Current media server's major/minor/micro version.
@@ -145,14 +151,20 @@ public abstract class MPDConnection {
      * The constructor method. This method does not connect to the server.
      *
      * @param readWriteTimeout The read write timeout for this connection.
-     * @param connectionStatus The {@link MPDConnectionStatus} object relating to this connection.
+     * @param blockingIO       True if the parent instance has potential to block during IO, false
+     *                         otherwise.
      * @see #connect(InetAddress, int)
      */
-    MPDConnection(final int readWriteTimeout, final MPDConnectionStatus connectionStatus) {
+    MPDConnection(final int readWriteTimeout, final boolean blockingIO) {
         super();
 
         mReadWriteTimeout = readWriteTimeout;
-        mConnectionStatus = connectionStatus;
+
+        if (blockingIO) {
+            mConnectionStatus = new BlockingConnectionStatus(this);
+        } else {
+            mConnectionStatus = new NonBlockingConnectionStatus(this);
+        }
     }
 
     /**
@@ -184,31 +196,26 @@ public abstract class MPDConnection {
     /**
      * This method calls standard defaults for the host/port pair and MPD password, if it exists.
      *
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown upon an error sending a simple command to the {@code
-     *                      host}/{@code port} pair with the {@code password}.
+     * <p>If a main password is required, it MUST be called prior to calling this method. This call
+     * exits immediately and status will be provided at callback.</p>
+     *
+     * @throws UnknownHostException Thrown when a hostname can not be resolved.
      */
-    public void connect() throws IOException, MPDException {
+    public void connect() throws UnknownHostException {
         connect(getDefaultHost(), getDefaultPort());
     }
 
     /**
      * Sets up connection to host/port pair.
      *
-     * <p>If a main password is required, it MUST be called prior to calling this method.</p>
+     * <p>If a main password is required, it MUST be called prior to calling this method. This call
+     * exits immediately and status will be provided at callback.</p>
      *
      * @param host The media server host to connect to.
      * @param port The media server port to connect to.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown upon an error sending a simple command to the {@code
-     *                      host}/{@code port} pair with the {@code password}.
      */
-    public void connect(final InetAddress host, final int port) throws IOException, MPDException {
-        if (port < 0 || port > MAX_PORT) {
-            throw new MalformedURLException("Port must be an integer between 0 and 65535.");
-        }
-
-        synchronized (mLock) {
+    public void connect(final InetAddress host, final int port) {
+        synchronized (mConnectionLock) {
             final InetSocketAddress address = new InetSocketAddress(host, port);
             final boolean hostChanged = !address.equals(mSocketAddress);
             debug("hasHostChanged: " + hostChanged + " isCancelled: " + mConnectionStatus
@@ -218,20 +225,7 @@ public abstract class MPDConnection {
                 debug("Information changed, connecting");
                 mConnectionStatus.unsetCancelled();
                 mSocketAddress = address;
-
-                final CommandResponse commandResponse = submit(Reflection.CMD_ACTION_COMMANDS)
-                        .get();
-
-                /**
-                 * Don't worry too much about it if we didn't get a connection header. Sometimes,
-                 * we'll have been told we disconnected when we had not.
-                 */
-                if (commandResponse.isHeaderValid()) {
-                    mAvailableCommands.clear();
-                    mAvailableCommands.addAll(commandResponse.getValues());
-
-                    mMPDVersion = commandResponse.getMPDVersion();
-                }
+                mConnectionResponse = submit(Reflection.CMD_ACTION_COMMANDS);
             } else {
                 debug("Not reconnecting, already connected with same information");
             }
@@ -239,8 +233,79 @@ public abstract class MPDConnection {
     }
 
     /**
-     * This method outputs the {@code line} parameter to {@link com.anpmech.mpd.Log#debug(String,
-     * String)} if {@link #DEBUG} is set to true.
+     * Called upon connection, prior to other {@link MPDConnectionListener}s.
+     *
+     * @param zero This will always be 0.
+     */
+    @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
+    @Override
+    public void connectionConnected(final int zero) {
+        synchronized (mConnectionLock) {
+            if (mConnectionResponse != null) {
+                int commandErrorCode = 0;
+                CommandResponse commandResponse = null;
+
+                try {
+                    commandResponse = mConnectionResponse.get();
+                } catch (final MPDException e) {
+                    commandErrorCode = e.mErrorCode;
+                    Log.error(TAG, "Exception during connection.", e);
+                } catch (final IOException e) {
+                    throw new IllegalStateException("IOException thrown as result of successful" +
+                            "connection.", e);
+                }
+
+                /**
+                 * Don't worry too much about it if we didn't get a connection header. Sometimes,
+                 * we'll have been told we disconnected when we had not.
+                 */
+                if (commandResponse != null && commandResponse.isHeaderValid()) {
+                    mAvailableCommands.clear();
+                    mAvailableCommands.addAll(commandResponse.getValues());
+
+                    mMPDVersion = commandResponse.getMPDVersion();
+                }
+
+                /**
+                 * This should be the final call from this method.
+                 */
+                mConnectionStatus.connectedCallbackComplete(commandErrorCode);
+                mConnectionResponse = null;
+            }
+        }
+    }
+
+    /**
+     * Called when connecting, prior to other {@link MPDConnectionListener}s.
+     *
+     * <p>This implies that we've disconnected. This callback is intended to be transient. Status
+     * change from connected to connecting may happen, but if a connection is not established, with
+     * a connected callback, the disconnection status callback should be called.</p>
+     */
+    @Override
+    public void connectionConnecting() {
+        /**
+         * This should be the final call from this method.
+         */
+        mConnectionStatus.connectingCallbackComplete();
+    }
+
+    /**
+     * Called upon disconnection, prior to other {@link MPDConnectionListener}s.
+     *
+     * @param reason The reason given for disconnection.
+     */
+    @Override
+    public void connectionDisconnected(final String reason) {
+        /**
+         * This should be the final call from this method.
+         */
+        mConnectionStatus.disconnectedCallbackComplete(reason);
+    }
+
+    /**
+     * This method outputs the {@code line} parameter to {@link Log#debug(String, String)} if
+     * {@link #DEBUG} is set to true.
      *
      * @param line The {@link String} to output to the log.
      */

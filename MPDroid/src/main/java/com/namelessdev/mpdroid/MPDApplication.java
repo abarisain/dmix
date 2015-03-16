@@ -19,7 +19,6 @@ package com.namelessdev.mpdroid;
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.event.TrackPositionListener;
-import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
 import com.namelessdev.mpdroid.helpers.CachedMPD;
@@ -41,6 +40,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -162,7 +162,11 @@ public class MPDApplication extends Application implements
                 mIdleSubsystemMonitor.start();
             }
             if (!mMPD.isConnected()) {
-                mMPDAsyncHelper.connect();
+                try {
+                    connect();
+                } catch (final UnknownHostException e) {
+                    Log.e(TAG, "Failed to connect due to unknown host.");
+                }
             }
         }
     }
@@ -173,10 +177,9 @@ public class MPDApplication extends Application implements
      * <p>This method intentionally blocks the thread, do not use in the UI thread. Instead, use
      * {@link #addConnectionLock(Object)}.</p>
      *
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @throws UnknownHostException Thrown when a hostname can not be resolved.
      */
-    public void connect() throws IOException, MPDException {
+    public void connect() throws UnknownHostException {
         mConnectionInfo = mMPDAsyncHelper.updateConnectionSettings();
         mMPD.setDefaultPassword(mConnectionInfo.password);
         mMPD.connect(mConnectionInfo.server, mConnectionInfo.port);

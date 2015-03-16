@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.helpers;
 
-import com.anpmech.mpd.exception.MPDException;
 import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.ConnectionSettings;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -28,9 +27,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.util.Log;
-
-import java.io.IOException;
 
 /**
  * Asynchronous worker thread-class for long during operations on JMPDComm.
@@ -40,17 +36,15 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     private static final int LOCAL_UID = 500;
 
-    static final int EVENT_CONNECT = LOCAL_UID + 1;
+    static final int EVENT_CONNECTION_CONFIG = LOCAL_UID + 1;
 
-    static final int EVENT_CONNECTION_CONFIG = LOCAL_UID + 2;
+    static final int EVENT_EXEC_ASYNC = LOCAL_UID + 2;
 
-    static final int EVENT_EXEC_ASYNC = LOCAL_UID + 3;
-
-    static final int EVENT_EXEC_ASYNC_FINISHED = LOCAL_UID + 4;
+    static final int EVENT_EXEC_ASYNC_FINISHED = LOCAL_UID + 3;
 
     private static final String TAG = "MPDAsyncWorker";
 
-    private static final int UPDATE_CONNECTION_INFO = LOCAL_UID + 5;
+    private static final int UPDATE_CONNECTION_INFO = LOCAL_UID + 4;
 
     /** A handler for the MPDAsyncHelper object. */
     private final Handler mHelperHandler;
@@ -78,13 +72,6 @@ public class MPDAsyncWorker implements Handler.Callback,
         boolean result = true;
 
         switch (msg.what) {
-            case EVENT_CONNECT:
-                try {
-                    MPDApplication.getInstance().connect();
-                } catch (final MPDException | IOException e) {
-                    Log.e(TAG, "Failed to connect.", e);
-                }
-                break;
             case EVENT_EXEC_ASYNC:
                 final Runnable run = (Runnable) msg.obj;
                 run.run();

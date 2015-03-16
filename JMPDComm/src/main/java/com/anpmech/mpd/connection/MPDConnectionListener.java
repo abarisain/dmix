@@ -27,6 +27,8 @@
 
 package com.anpmech.mpd.connection;
 
+import com.anpmech.mpd.exception.MPDException;
+
 /**
  * This is an listener for connections which support MPDConnectionStatus.
  */
@@ -34,8 +36,12 @@ public interface MPDConnectionListener {
 
     /**
      * Called upon connection.
+     *
+     * @param commandErrorCode If this number is non-zero, the number will correspond to a
+     *                         {@link MPDException} error code. If this number is zero, the
+     *                         connection MPD protocol commands were successful.
      */
-    void connectionConnected();
+    void connectionConnected(final int commandErrorCode);
 
     /**
      * Called when connecting.
