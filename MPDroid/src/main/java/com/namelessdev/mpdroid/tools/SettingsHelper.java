@@ -33,6 +33,11 @@ public final class SettingsHelper {
 
     private static final int DEFAULT_STREAMING_PORT = 8000;
 
+    /**
+     * This is the code used when there is no SSID, from WifiSsid, which cannot be linked.
+     */
+    private static final String NONE = "<unknown ssid>";
+
     private static final SharedPreferences SETTINGS =
             PreferenceManager.getDefaultSharedPreferences(APP);
 
@@ -103,7 +108,7 @@ public final class SettingsHelper {
         final String ssid = info.getSSID();
         final String result;
 
-        if (ssid == null) {
+        if (ssid == null || ssid.equals(NONE)) {
             result = null;
         } else {
             result = ssid.replace("\"", "");
