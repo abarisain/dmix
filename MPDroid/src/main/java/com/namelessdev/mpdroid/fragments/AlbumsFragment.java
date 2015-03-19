@@ -128,10 +128,11 @@ public class AlbumsFragment extends BrowseFragment<Album> {
 
         try {
             mItems = mApp.getMPD().getAlbums(mArtist, sortByYear, mIsCountDisplayed);
-            Collections.sort(mItems);
 
             if (sortByYear) {
                 Collections.sort(mItems, Album.SORT_BY_DATE);
+            } else {
+                Collections.sort(mItems);
             }
 
             if (mGenre != null) { // filter albums not in genre
