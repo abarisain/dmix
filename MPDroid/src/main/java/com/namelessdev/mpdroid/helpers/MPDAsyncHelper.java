@@ -112,11 +112,10 @@ public class MPDAsyncHelper implements Handler.Callback {
         boolean result = true;
 
         try {
-            final Object[] args = (Object[]) msg.obj;
             switch (msg.what) {
                 case MPDAsyncWorker.EVENT_CONNECTION_CONFIG:
                     for (final ConnectionInfoListener listener : mConnectionInfoListeners) {
-                        listener.onConnectionConfigChange((ConnectionInfo) args[0]);
+                        listener.onConnectionConfigChange((ConnectionInfo) msg.obj);
                     }
                     break;
                 case MPDAsyncWorker.EVENT_EXEC_ASYNC_FINISHED:
