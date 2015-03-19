@@ -153,9 +153,9 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
         CommandResponse commandResponse = null;
 
         for (int resendTries = 0; resendTries < MAX_REQUEST_RETRY; resendTries++) {
-            checkCancelled();
-
             try {
+                checkCancelled();
+
                 if (shouldReconnect()) {
                     header = innerConnect();
                 }
