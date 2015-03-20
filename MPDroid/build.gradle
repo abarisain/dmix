@@ -40,7 +40,7 @@ def gitShortHash() {
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "22"
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         minSdkVersion 16
@@ -124,8 +124,8 @@ dependencies {
     compile project(':JMPDCommAndroid')
     // Libraries from maven
     compile 'asia.ivity.android:drag-sort-listview:1.0'
-    compile 'com.melnykov:floatingactionbutton:1.1.0'
-    compile 'com.jpardogo.materialtabstrip:library:1.0.6'
+    compile 'com.melnykov:floatingactionbutton:1.2.0'
+    compile 'com.jpardogo.materialtabstrip:library:1.0.9'
     closedbitsCompile 'com.crashlytics.android:crashlytics:1.+'
 }
 
