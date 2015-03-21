@@ -444,16 +444,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     @Override
-    public void onDestroy() {
-        try {
-            mApp.getAsyncHelper().removeAsyncExecListener(this);
-        } catch (final Exception e) {
-            Log.e(TAG, "Error while destroying BrowseFragment", e);
-        }
-        super.onDestroy();
-    }
-
-    @Override
     public void onDestroyView() {
         // help out the GC; imitated from ListFragment source
         mLoadingView = null;
@@ -508,6 +498,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
      */
     @Override
     public void onPause() {
+        mApp.getAsyncHelper().removeAsyncExecListener(this);
         mApp.removeStatusChangeListener(this);
         mApp.getMPD().getConnectionStatus().removeListener(this);
 
@@ -516,14 +507,14 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     /**
      * Called when the fragment is visible to the user and actively running.
-     * This is generally
-     * tied to {@link Activity#onResume() Activity.onResume} of the containing
+     * This is generally tied to {@link Activity#onResume() Activity.onResume} of the containing
      * Activity's lifecycle.
      */
     @Override
     public void onResume() {
         super.onResume();
 
+        mApp.getAsyncHelper().addAsyncExecListener(this);
         mApp.getMPD().getConnectionStatus().addListener(this);
         mApp.addStatusChangeListener(this);
     }
@@ -761,7 +752,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
             mLoadingView.setVisibility(View.VISIBLE);
 
             // Loading Artists asynchronous...
-            mApp.getAsyncHelper().addAsyncExecListener(this);
             mJobID = mApp.getAsyncHelper().execAsync(new Runnable() {
                 @Override
                 public void run() {
