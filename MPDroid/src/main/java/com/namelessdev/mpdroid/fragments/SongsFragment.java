@@ -166,7 +166,7 @@ public class SongsFragment extends BrowseFragment<Music> {
     public void asyncUpdate() {
         try {
             if (getActivity() != null) {
-                mItems = mApp.getMPD().getSongs(mAlbum);
+                replaceItems(mApp.getMPD().getSongs(mAlbum));
                 Collections.sort(mItems);
             }
         } catch (final IOException | MPDException e) {
@@ -181,23 +181,20 @@ public class SongsFragment extends BrowseFragment<Music> {
 
     @Override
     protected ListAdapter getCustomListAdapter() {
-        if (mItems != null) {
-            boolean differentArtists = false;
-            String lastArtist = null;
-            for (final Music item : mItems) {
-                if (lastArtist == null) {
-                    lastArtist = item.getArtistName();
-                    continue;
-                }
-                if (!lastArtist.equalsIgnoreCase(item.getAlbumArtistOrArtist())) {
-                    differentArtists = true;
-                    break;
-                }
+        boolean differentArtists = false;
+        String lastArtist = null;
+        for (final Music item : mItems) {
+            if (lastArtist == null) {
+                lastArtist = item.getArtistName();
+                continue;
             }
-            return new ArrayAdapter<>(getActivity(), new SongDataBinder<Music>(differentArtists),
-                    mItems);
+            if (!lastArtist.equalsIgnoreCase(item.getAlbumArtistOrArtist())) {
+                differentArtists = true;
+                break;
+            }
         }
-        return super.getCustomListAdapter();
+        return new ArrayAdapter<>(getActivity(), new SongDataBinder<Music>(differentArtists),
+                mItems);
     }
 
     private AlbumInfo getFixedAlbumInfo() {
@@ -553,7 +550,7 @@ public class SongsFragment extends BrowseFragment<Music> {
     @Override
     public void updateFromItems() {
         super.updateFromItems();
-        if (mItems != null && mHeaderArtist != null && mHeaderInfo != null) {
+        if (!mItems.isEmpty() && mHeaderArtist != null && mHeaderInfo != null) {
             final AlbumInfo fixedAlbumInfo;
             fixedAlbumInfo = getFixedAlbumInfo();
             final String artist = fixedAlbumInfo.getArtistName();
@@ -583,7 +580,6 @@ public class SongsFragment extends BrowseFragment<Music> {
             }
             mFirstRefresh = false;
         }
-
     }
 
     private void updateNowPlayingSmallFragment(final AlbumInfo albumInfo) {

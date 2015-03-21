@@ -127,7 +127,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         final boolean sortByYear = settings.getBoolean(ALBUM_YEAR_SORT_KEY, false);
 
         try {
-            mItems = mApp.getMPD().getAlbums(mArtist, sortByYear, mIsCountDisplayed);
+            replaceItems(mApp.getMPD().getAlbums(mArtist, sortByYear, mIsCountDisplayed));
 
             if (sortByYear) {
                 Collections.sort(mItems, Album.SORT_BY_DATE);
@@ -173,16 +173,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
 
     @Override
     protected ListAdapter getCustomListAdapter() {
-        final ListAdapter listAdapter;
-
-        if (mItems != null) {
-            listAdapter =
-                    new ArrayIndexerAdapter<>(getActivity(), new AlbumDataBinder<Album>(), mItems);
-        } else {
-            listAdapter = super.getCustomListAdapter();
-        }
-
-        return listAdapter;
+        return new ArrayIndexerAdapter<>(getActivity(), new AlbumDataBinder<Album>(), mItems);
     }
 
     @Override

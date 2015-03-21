@@ -147,7 +147,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
                                 mStreams.add(new Stream(url, name, mStreams.size()));
                             }
                             Collections.sort(mStreams);
-                            mItems = mStreams;
+                            replaceItems(mStreams);
                             if (streamUrlToAdd == null) {
                                 updateList();
                             } else {
@@ -262,7 +262,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
             }
         }
         Collections.sort(mStreams);
-        mItems = mStreams;
+        replaceItems(mStreams);
     }
 
     @Override

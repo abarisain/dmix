@@ -77,7 +77,7 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
             if (getActivity() == null) {
                 return;
             }
-            mItems = mApp.getMPD().getPlaylistSongs(mPlaylist);
+            replaceItems(mApp.getMPD().getPlaylistSongs(mPlaylist));
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }
@@ -85,16 +85,7 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
 
     @Override
     protected ListAdapter getCustomListAdapter() {
-        final ListAdapter listAdapter;
-
-        if (mItems == null) {
-            listAdapter = super.getCustomListAdapter();
-        } else {
-            listAdapter = new ArrayAdapter<>(getActivity(), new StoredPlaylistDataBinder<Music>(),
-                    mItems);
-        }
-
-        return listAdapter;
+        return new ArrayAdapter<>(getActivity(), new StoredPlaylistDataBinder<Music>(), mItems);
     }
 
     @Override

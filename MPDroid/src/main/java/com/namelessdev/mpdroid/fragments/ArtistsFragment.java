@@ -81,24 +81,24 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
                     LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
                     if (mGenre != null) {
-                        mItems = mApp.getMPD().getArtists(mGenre, true);
+                        replaceItems(mApp.getMPD().getArtists(mGenre, true));
                     } else {
-                        mItems = mApp.getMPD().getArtists(true);
+                        replaceItems(mApp.getMPD().getArtists(true));
                     }
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
                     if (mGenre != null) {
-                        mItems = mApp.getMPD().getArtists(mGenre, false);
+                        replaceItems(mApp.getMPD().getArtists(mGenre, false));
                     } else {
-                        mItems = mApp.getMPD().getArtists(false);
+                        replaceItems(mApp.getMPD().getArtists(false));
                     }
                     break;
                 case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
                 default:
                     if (mGenre != null) {
-                        mItems = mApp.getMPD().getArtists(mGenre);
+                        replaceItems(mApp.getMPD().getArtists(mGenre));
                     } else {
-                        mItems = mApp.getMPD().getArtists();
+                        replaceItems(mApp.getMPD().getArtists());
                     }
                     break;
             }

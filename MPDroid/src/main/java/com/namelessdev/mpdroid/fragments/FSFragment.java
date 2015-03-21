@@ -122,7 +122,7 @@ public class FSFragment extends BrowseFragment {
         if (!TextUtils.isEmpty(mDirectory)) {
             newItems.addAll(playlistFiles);
         }
-        mItems = newItems;
+        replaceItems(newItems);
     }
 
     // Disable the indexer for FSFragment

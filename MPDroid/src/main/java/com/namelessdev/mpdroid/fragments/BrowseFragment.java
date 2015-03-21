@@ -36,6 +36,7 @@ import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.ui.ToolbarHelper;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -67,6 +68,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public abstract class BrowseFragment<T extends Item<T>> extends Fragment implements
@@ -101,15 +103,15 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     protected final MPDApplication mApp = MPDApplication.getInstance();
 
+    protected final List<T> mItems = new ArrayList<>();
+
     final String mContext;
 
     final int mIrAdd;
 
     final int mIrAdded;
 
-    private final List<PlaylistFile> mStoredPlaylists = new ArrayList<>();
-
-    protected List<T> mItems;
+    private final Collection<PlaylistFile> mStoredPlaylists = new ArrayList<>();
 
     protected int mJobID = -1;
 
@@ -606,6 +608,13 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     public void repeatChanged() {
     }
 
+    protected void replaceItems(final Collection<T> items) {
+        synchronized (mItems) {
+            mItems.clear();
+            mItems.addAll(items);
+        }
+    }
+
     public void scrollToTop() {
         try {
             mList.setSelection(-1);
@@ -719,30 +728,22 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
      * Update the view from the items list if items is set.
      */
     public void updateFromItems() {
-        if (getView() == null) {
-            // The view has been destroyed, bail.
-            return;
-        }
-
-        if (mItems != null) {
+        if (getView() != null) {
             mList.setAdapter(getCustomListAdapter());
-        }
-        try {
-            if (forceEmptyView()
-                    || mList instanceof ListView
-                    && ((ListView) mList).getHeaderViewsCount() == 0) {
-                mList.setEmptyView(mNoResultView);
-            } else {
-                if (mItems == null || mItems.isEmpty()) {
+            try {
+                if (forceEmptyView() || mList instanceof ListView
+                        && ((ListView) mList).getHeaderViewsCount() == 0) {
+                    mList.setEmptyView(mNoResultView);
+                } else if (mItems.isEmpty()) {
                     mNoResultView.setVisibility(View.VISIBLE);
                 }
+            } catch (final Exception e) {
+                Log.e(TAG, "Exception.", e);
             }
-        } catch (final Exception e) {
-            Log.e(TAG, "Exception.", e);
-        }
 
-        mLoadingView.setVisibility(View.GONE);
-        refreshFastScrollStyle();
+            mLoadingView.setVisibility(View.GONE);
+            refreshFastScrollStyle();
+        }
     }
 
     public void updateList() {

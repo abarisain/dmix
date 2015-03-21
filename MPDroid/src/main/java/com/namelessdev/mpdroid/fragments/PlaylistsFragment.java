@@ -72,7 +72,7 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
     @Override
     protected void asyncUpdate() {
         try {
-            mItems = mApp.getMPD().getPlaylists();
+            replaceItems(mApp.getMPD().getPlaylists());
             Collections.sort(mItems);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
