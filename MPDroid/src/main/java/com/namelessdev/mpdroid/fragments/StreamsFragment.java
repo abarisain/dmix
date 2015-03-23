@@ -262,21 +262,22 @@ public class StreamsFragment extends BrowseFragment<Stream> {
 
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
-        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        final int infoId = (int) ((AdapterContextMenuInfo) item.getMenuInfo()).id;
+        boolean clicked = true;
+
         switch (item.getItemId()) {
             case EDIT:
-                addEdit((int) info.id, null);
+                addEdit(infoId, null);
                 break;
             case DELETE:
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.deleteStream);
                 builder.setMessage(
                         getResources().getString(R.string.deleteStreamPrompt,
-                                mItems.get((int) info.id).getName()));
+                                mItems.get(infoId).getName()));
 
                 final OnClickListener oDialogClickListener
-                        = new DeleteDialogClickListener(
-                        (int) info.id);
+                        = new DeleteDialogClickListener(infoId);
                 builder.setNegativeButton(android.R.string.no, oDialogClickListener);
                 builder.setPositiveButton(R.string.deleteStream, oDialogClickListener);
                 try {
@@ -286,9 +287,9 @@ public class StreamsFragment extends BrowseFragment<Stream> {
                 }
                 break;
             default:
-                return super.onMenuItemClick(item);
+                clicked = super.onMenuItemClick(item);
         }
-        return false;
+        return clicked;
     }
 
     @Override
