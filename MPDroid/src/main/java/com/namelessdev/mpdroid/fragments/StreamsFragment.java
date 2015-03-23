@@ -293,13 +293,19 @@ public class StreamsFragment extends BrowseFragment<Stream> {
 
     @Override
     protected boolean onToolbarMenuItemClick(final MenuItem item) {
+        final boolean clicked;
+
         switch (item.getItemId()) {
             case R.id.add:
                 addEdit();
-                return true;
+                clicked = true;
+                break;
             default:
-                return super.onToolbarMenuItemClick(item);
+                clicked = super.onToolbarMenuItemClick(item);
+                break;
         }
+
+        return clicked;
     }
 
     class DeleteDialogClickListener implements OnClickListener {
