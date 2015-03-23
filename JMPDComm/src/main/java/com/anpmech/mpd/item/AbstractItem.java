@@ -39,7 +39,7 @@ import java.util.ResourceBundle;
  *
  * @param <T> The Item type.
  */
-public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
+abstract class AbstractItem<T extends AbstractItem<T>> implements Comparable<T> {
 
     /**
      * This {@link Collator} is used for comparison and sorting of {@code Item}s.
@@ -61,7 +61,7 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
         RESOURCE = ResourceBundle.getBundle(UNKNOWN_METADATA);
     }
 
-    Item() {
+    AbstractItem() {
         super();
     }
 
@@ -74,7 +74,7 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
      * @param list1 The first list to merge, the list which will be merged into.
      * @param list2 The second list to merge, do not reuse this list after calling this method.
      */
-    public static <T extends Item<T>> void merge(final List<T> list1, final List<T> list2) {
+    public static <T extends AbstractItem<T>> void merge(final List<T> list1, final List<T> list2) {
         Collections.sort(list1);
         Collections.sort(list2);
 
@@ -83,13 +83,13 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
         ListIterator<T> iterator1 = list1.listIterator(position);
 
         while (iterator2.hasNext()) {
-            final Item<T> item2 = iterator2.next();
+            final T item2 = iterator2.next();
 
             if (position != iterator1.previousIndex()) {
                 iterator1 = list1.listIterator(position);
             }
             while (iterator1.hasNext()) {
-                final Item<T> item1 = iterator1.next();
+                final T item1 = iterator1.next();
 
                 if (item1.isUnknown()) {
                     iterator1.remove();
@@ -108,15 +108,19 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
     }
 
     /**
-     * Defines a natural order to this object and another.
+     * Compares this object to the specified object to determine their relative
+     * order.
      *
-     * @param another The other object to compare this to.
-     * @return A negative integer if this instance is less than {@code another}; A positive integer
-     * if this instance is greater than {@code another}; 0 if this instance has the same order as
+     * @param another the object to compare to this instance.
+     * @return a negative integer if this instance is less than {@code another};
+     * a positive integer if this instance is greater than
+     * {@code another}; 0 if this instance has the same order as
      * {@code another}.
+     * @throws ClassCastException if {@code another} cannot be converted into something
+     *                            comparable to {@code this} instance.
      */
     @Override
-    public int compareTo(final Item<T> another) {
+    public int compareTo(final T another) {
         final int comparisonResult;
         final String sorted = sortName();
         final String anotherSorted = another.sortName();
@@ -169,7 +173,7 @@ public abstract class Item<T extends Item<T>> implements Comparable<Item<T>> {
      * @param otherItem The other item to check the name against.
      * @return True if both names are not null and one name is equal to the other.
      */
-    public boolean isNameSame(final Item<T> otherItem) {
+    public boolean isNameSame(final AbstractItem<T> otherItem) {
         boolean nameExists = false;
         final String name = getName();
 

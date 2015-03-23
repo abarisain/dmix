@@ -27,6 +27,10 @@
 
 package com.anpmech.mpd.item;
 
+import android.os.Bundle;
+import android.os.Parcel;
+
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -38,8 +42,42 @@ public class Directory extends AbstractDirectory<Directory> {
 
     public static final String EXTRA = TAG;
 
+    private static final String DIRECTORY_FILENAME_KEY = "DIRECTORY_FILENAME";
+
+    private static final String DIRECTORY_MAP_KEY = "DIRECTORY_ENTRIES";
+
+    private static final String DIRECTORY_NAME_KEY = "DIRECTORY_NAME";
+
+    private static final String FILE_MAP_KEY = "FILE_ENTRIES";
+
+    private static final String PARENT_FILENAME_KEY = "PARENT_FILENAME";
+
+    private static final String PLAYLIST_MAP_KEY = "PLAYLIST_ENTRIES";
+
     /** The root directory object. */
     private static final Directory ROOT = new Directory(null, null);
+
+    public static final Creator<Directory> CREATOR = new Creator<Directory>() {
+        @Override
+        public Directory createFromParcel(final Parcel source) {
+            final Bundle bundle = source.readBundle();
+
+            return new Directory(
+                    /** TODO: This might be wrong. */
+                    ROOT.getDirectory(bundle.getString(PARENT_FILENAME_KEY)),
+                    bundle.getString(DIRECTORY_FILENAME_KEY),
+                    bundle.getString(DIRECTORY_NAME_KEY),
+                    (Map<String, Directory>) bundle.getSerializable(DIRECTORY_MAP_KEY),
+                    (Map<String, Music>) bundle.getSerializable(FILE_MAP_KEY),
+                    (Map<String, PlaylistFile>) bundle.getSerializable(PLAYLIST_MAP_KEY)
+            );
+        }
+
+        @Override
+        public Directory[] newArray(final int size) {
+            return new Directory[size];
+        }
+    };
 
     /**
      * Creates a new directory.
@@ -84,7 +122,7 @@ public class Directory extends AbstractDirectory<Directory> {
      *
      * @param subdirectory The subdirectory path of the root to create a {@code Directory} for.
      * @return the last component of the path created.
-     * @throws java.lang.IllegalArgumentException If {@code subdirectory} starts or ends with '/'
+     * @throws IllegalArgumentException If {@code subdirectory} starts or ends with '/'
      * @see #getRoot()
      * @see #refresh(com.anpmech.mpd.connection.MPDConnection)
      */
@@ -157,5 +195,19 @@ public class Directory extends AbstractDirectory<Directory> {
     @Override
     protected Directory makeSubdirectory(final String subdirectory) {
         return ROOT.makeChildDirectory(subdirectory);
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        final Bundle bundle = new Bundle();
+
+        bundle.putString(PARENT_FILENAME_KEY, mParent.getFilename());
+        bundle.putString(DIRECTORY_FILENAME_KEY, mFilename);
+        bundle.putString(DIRECTORY_NAME_KEY, mName);
+        bundle.putSerializable(DIRECTORY_MAP_KEY, (Serializable) mDirectoryEntries);
+        bundle.putSerializable(FILE_MAP_KEY, (Serializable) mFileEntries);
+        bundle.putSerializable(PLAYLIST_MAP_KEY, (Serializable) mPlaylistEntries);
+
+        dest.writeBundle(bundle);
     }
 }

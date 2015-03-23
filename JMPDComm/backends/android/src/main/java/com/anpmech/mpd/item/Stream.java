@@ -27,6 +27,8 @@
 
 package com.anpmech.mpd.item;
 
+import android.os.Parcel;
+
 /**
  * This is the Android backend {@code Stream} item.
  *
@@ -34,9 +36,28 @@ package com.anpmech.mpd.item;
  */
 public class Stream extends AbstractStream<Stream> {
 
+    public static final Creator<Stream> CREATOR = new Creator<Stream>() {
+        @Override
+        public Stream createFromParcel(final Parcel source) {
+            return new Stream(source.readString(), source.readString(), source.readInt());
+        }
+
+        @Override
+        public Stream[] newArray(final int size) {
+            return new Stream[size];
+        }
+    };
+
     public static final String EXTRA = AbstractStream.TAG;
 
     public Stream(final String name, final String url, final int pos) {
         super(name, url, pos);
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeString(mName);
+        dest.writeString(mUrl);
+        dest.writeInt(mPos);
     }
 }

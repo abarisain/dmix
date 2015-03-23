@@ -28,14 +28,13 @@
 package com.anpmech.mpd.item;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 /**
  * This is the Android backend {@code Album} item.
  *
  * @see AbstractAlbum
  */
-public class Album extends AbstractAlbum<Album> implements Parcelable {
+public class Album extends AbstractAlbum<Album> {
 
     public static final Creator<Album> CREATOR = new Creator<Album>() {
         @Override
@@ -64,11 +63,6 @@ public class Album extends AbstractAlbum<Album> implements Parcelable {
                 in.readLong(), /** duration */
                 in.readLong(), /** year */
                 in.readString()); /** path */
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     @Override

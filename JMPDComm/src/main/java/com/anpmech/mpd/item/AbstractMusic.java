@@ -406,6 +406,19 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     /**
      * Defines a natural order to this object and another.
      *
+     * @param another The other object to compare this to.
+     * @return A negative integer if this instance is less than {@code another}; A positive integer
+     * if this instance is greater than {@code another}; 0 if this instance has the same order as
+     * {@code another}.
+     */
+    @Override
+    public int compareTo(final Music another) {
+        return compareTo(another, true);
+    }
+
+    /**
+     * Defines a natural order to this object and another.
+     *
      * @param another         The other object to compare this to.
      * @param withTrackNumber If true, compare tracks by Disc and Track number first
      * @return A negative integer if this instance is less than {@code another}; A positive integer
@@ -446,19 +459,6 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
         }
 
         return compareResult;
-    }
-
-    /**
-     * Defines a natural order to this object and another.
-     *
-     * @param another The other object to compare this to.
-     * @return A negative integer if this instance is less than {@code another}; A positive integer
-     * if this instance is greater than {@code another}; 0 if this instance has the same order as
-     * {@code another}.
-     */
-    @Override
-    public int compareTo(final Item<Music> another) {
-        return compareTo(another, true);
     }
 
     /**

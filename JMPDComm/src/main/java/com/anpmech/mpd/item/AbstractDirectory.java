@@ -67,14 +67,14 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
     /** The filename of this directory. */
     protected final String mFilename;
 
+    /** The name to display for this directory, typically the filename. */
+    protected final String mName;
+
     /** The parent directory object relative to this object. */
     protected final T mParent;
 
     /** A map of playlist file entries from the current directory on the media server. */
     protected final Map<String, PlaylistFile> mPlaylistEntries;
-
-    /** The name to display for this directory, typically the filename. */
-    private final String mName;
 
     /**
      * Creates a new directory.

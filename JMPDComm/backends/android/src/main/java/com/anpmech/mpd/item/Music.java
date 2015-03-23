@@ -31,14 +31,13 @@ import android.annotation.TargetApi;
 import android.media.MediaMetadata;
 import android.os.Build;
 import android.os.Parcel;
-import android.os.Parcelable;
 
 /**
  * This is the Android backend {@code Music} item.
  *
  * @see AbstractMusic
  */
-public class Music extends AbstractMusic<Music> implements Parcelable {
+public class Music extends AbstractMusic<Music> {
 
     public static final Creator<Music> CREATOR = new Creator<Music>() {
         @Override
@@ -78,11 +77,6 @@ public class Music extends AbstractMusic<Music> implements Parcelable {
         super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(),
                 in.readInt(), in.readString(), in.readString(), in.readString(), in.readInt(),
                 in.readInt(), in.readLong(), in.readString(), in.readInt(), in.readInt());
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     /**

@@ -37,11 +37,11 @@ abstract class AbstractStream<T extends Stream> extends Item<Stream> {
 
     protected static final String TAG = "Stream";
 
-    private final String mName;
+    protected final String mName;
 
-    private final String mUrl;
+    protected final String mUrl;
 
-    private int mPos;
+    protected int mPos;
 
     AbstractStream(final String name, final String url, final int pos) {
         super();

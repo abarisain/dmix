@@ -28,14 +28,13 @@
 package com.anpmech.mpd.item;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 /**
  * This is the Android backend {@code Genre} item.
  *
  * @see AbstractGenre
  */
-public class Genre extends AbstractGenre<Genre> implements Parcelable {
+public class Genre extends AbstractGenre<Genre> {
 
     public static final Creator<Genre> CREATOR = new Creator<Genre>() {
         @Override
@@ -61,11 +60,6 @@ public class Genre extends AbstractGenre<Genre> implements Parcelable {
 
     protected Genre(final Parcel in) {
         super(in.readString()); /** name */
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     @Override

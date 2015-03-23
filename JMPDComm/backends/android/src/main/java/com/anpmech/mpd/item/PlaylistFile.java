@@ -28,14 +28,13 @@
 package com.anpmech.mpd.item;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 /**
  * This is the Android backend {@code PlaylistFile} item.
  *
  * @see AbstractPlaylistFile
  */
-public class PlaylistFile extends AbstractPlaylistFile<PlaylistFile> implements Parcelable {
+public class PlaylistFile extends AbstractPlaylistFile<PlaylistFile> {
 
     public static final Creator<PlaylistFile> CREATOR = new Creator<PlaylistFile>() {
         @Override
@@ -57,11 +56,6 @@ public class PlaylistFile extends AbstractPlaylistFile<PlaylistFile> implements 
 
     public PlaylistFile(final String path) {
         super(path);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     @Override

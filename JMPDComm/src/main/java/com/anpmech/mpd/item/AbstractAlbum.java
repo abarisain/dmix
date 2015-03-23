@@ -44,8 +44,8 @@ abstract class AbstractAlbum<T extends Album> extends Item<Album> {
     /**
      * This {@code Comparator} adds support for sorting by date to the default {@code comparator}.
      */
-    public static final Comparator<AbstractAlbum<Album>> SORT_BY_DATE =
-            new Comparator<AbstractAlbum<Album>>() {
+    public static final Comparator<Album> SORT_BY_DATE =
+            new Comparator<Album>() {
                 /**
                  * Compares the two specified objects to determine their relative ordering. The
                  * ordering implied by the return value of this method for all possible pairs of
@@ -67,7 +67,7 @@ abstract class AbstractAlbum<T extends Album> extends Item<Album> {
                  * @throws ClassCastException if objects are not of the correct type.
                  */
                 @Override
-                public int compare(final AbstractAlbum<Album> lhs, final AbstractAlbum<Album> rhs) {
+                public int compare(final Album lhs, final Album rhs) {
                     int compare = 0;
                     final int leftDate = formattedDate(lhs.mDate);
                     final int rightDate = formattedDate(rhs.mDate);
@@ -241,12 +241,9 @@ abstract class AbstractAlbum<T extends Album> extends Item<Album> {
     }
 
     @Override
-    public boolean isNameSame(final Item<Album> otherItem) {
-        final boolean result;
-
+    public boolean isNameSame(final AbstractItem<Album> otherItem) {
         final AbstractAlbum<Album> a = (AbstractAlbum<Album>) otherItem;
-        result = mName.equals(a.mName) && mArtist.isNameSame(a.mArtist);
 
-        return result;
+        return mName.equals(a.mName) && mArtist.isNameSame(a.mArtist);
     }
 }

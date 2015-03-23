@@ -27,51 +27,17 @@
 
 package com.anpmech.mpd.item;
 
-import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
- * This is the Android backend {@code Artist} item.
+ * This is the Android backend Item abstraction.
  *
- * @see AbstractArtist
+ * @param <T> The Item type.
  */
-public class Artist extends AbstractArtist<Artist> {
-
-    public static final Creator<Artist> CREATOR =
-            new Creator<Artist>() {
-
-                @Override
-                public Artist createFromParcel(final Parcel source) {
-                    return new Artist(source);
-                }
-
-                @Override
-                public Artist[] newArray(final int size) {
-                    return new Artist[size];
-                }
-            };
-
-    public static final String EXTRA = AbstractArtist.TAG;
-
-    public Artist(final Artist artist) {
-        super(artist);
-    }
-
-    public Artist(final String name) {
-        super(name);
-    }
-
-    protected Artist(final String name, final String sort) {
-        super(name, sort);
-    }
-
-    protected Artist(final Parcel in) {
-        super(in.readString(), /** name */
-                in.readString()); /** sort */
-    }
+public abstract class Item<T extends Item<T>> extends AbstractItem<T> implements Parcelable {
 
     @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(getName());
-        dest.writeString(sortText());
+    public int describeContents() {
+        return 0;
     }
 }
