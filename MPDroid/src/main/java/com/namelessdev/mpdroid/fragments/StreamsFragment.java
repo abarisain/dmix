@@ -92,8 +92,8 @@ public class StreamsFragment extends BrowseFragment<Stream> {
         final View view = factory.inflate(R.layout.stream_dialog, null);
         final EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
         final EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
-        final int index = idx;
-        if (index >= 0 && index < mStreams.size()) {
+
+        if (idx >= 0 && idx < mStreams.size()) {
             final Stream stream = mStreams.get(idx);
             if (null != nameEdit) {
                 nameEdit.setText(stream.getName());
@@ -115,7 +115,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
                         final String url = null == urlEdit ? null
                                 : urlEdit.getText().toString().trim();
                         if (null != name && !name.isEmpty() && null != url && !url.isEmpty()) {
-                            if (index >= 0 && index < mStreams.size()) {
+                            if (idx >= 0 && idx < mStreams.size()) {
                                 final int removedPos = mStreams.get(idx).getPos();
                                 try {
                                     mApp.getMPD().editSavedStream(url, name, removedPos);
