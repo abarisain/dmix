@@ -21,7 +21,6 @@ import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.item.Stream;
-import com.melnykov.fab.FloatingActionButton;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
