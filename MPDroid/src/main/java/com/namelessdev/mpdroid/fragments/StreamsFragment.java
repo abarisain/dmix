@@ -26,9 +26,6 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -48,12 +45,11 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 
 public class StreamsFragment extends BrowseFragment<Stream> {
 
@@ -61,13 +57,9 @@ public class StreamsFragment extends BrowseFragment<Stream> {
 
     public static final int EDIT = 101;
 
-    private static final String FILE_NAME = "streams.xml";
-
-    private static final String SERVER_FILE_NAME = "streams.xml.gz";
-
     private static final String TAG = "StreamsFragment";
 
-    ArrayList<Stream> mStreams = new ArrayList<>();
+    private final List<Stream> mStreams = new ArrayList<>();
 
     public StreamsFragment() {
         super(R.string.addStream, R.string.streamAdded, null);
@@ -179,90 +171,35 @@ public class StreamsFragment extends BrowseFragment<Stream> {
 
     @Override
     protected void asyncUpdate() {
-        loadStreams();
+        mStreams.clear();
+
+        /** Many users have playlist support disabled, no need for an exception. */
+        if (mApp.getMPD().isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS)) {
+            try {
+                final ListIterator<Music> iterator = mApp.getMPD().getSavedStreams().listIterator();
+
+                while (iterator.hasNext()) {
+                    final Music stream = iterator.next();
+
+                    mStreams.add(
+                            new Stream(stream.getName(), stream.getFullPath(),
+                                    iterator.nextIndex()));
+                }
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Failed to retrieve saved streams.", e);
+            }
+        } else {
+            Log.w(TAG, "Streams fragment can't load streams, playlist support not enabled.");
+        }
+
+        Collections.sort(mStreams);
+        replaceItems(mStreams);
     }
 
     @Override
     @StringRes
     public int getLoadingText() {
         return R.string.loadingStreams;
-    }
-
-    private List<Stream> loadOldStreams() {
-        List<Stream> oldStreams = Collections.emptyList();
-
-        try {
-            final InputStream in = mApp.openFileInput(FILE_NAME);
-            final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            final XmlPullParser xpp = factory.newPullParser();
-
-            xpp.setInput(in, "UTF-8");
-            int eventType = xpp.getEventType();
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG) {
-                    if ("stream".equals(xpp.getName())) {
-                        if (oldStreams.isEmpty()) {
-                            oldStreams = new ArrayList<>();
-                        }
-
-                        oldStreams.add(new Stream(xpp.getAttributeValue("", "name"), xpp
-                                .getAttributeValue("", "url"), -1));
-                    }
-                }
-                eventType = xpp.next();
-            }
-            in.close();
-            // Now remove file - all streams will be added to MPD...
-            mApp.deleteFile(FILE_NAME);
-        } catch (final FileNotFoundException ignored) {
-        } catch (final Exception e) {
-            Log.e(TAG, "Error while loading streams", e);
-        }
-        return oldStreams;
-    }
-
-    private void loadStreams() {
-        mStreams = new ArrayList<>();
-
-        // Load streams stored in MPD Streams playlist...
-        List<Music> mpdStreams = Collections.emptyList();
-        int iterator = 0;
-
-        /** Many users have playlist support disabled, no need for an exception. */
-        if (mApp.getMPD().isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS)) {
-            try {
-                mpdStreams = mApp.getMPD().getSavedStreams();
-            } catch (final IOException | MPDException e) {
-                Log.e(TAG, "Failed to retrieve saved streams.", e);
-            }
-        } else {
-            Log.w(TAG, "Streams fragment can't load streams, playlist support not enabled.");
-            mpdStreams = Collections.emptyList();
-        }
-
-        for (final Music stream : mpdStreams) {
-            mStreams.add(new Stream(stream.getName(), stream.getFullPath(), iterator));
-            iterator++;
-        }
-
-        // Load any OLD MPDroid streams, and also save these to MPD...
-        final List<Stream> oldStreams = loadOldStreams();
-        if (null != oldStreams) {
-            for (final Stream stream : mStreams) {
-                if (!mStreams.contains(stream)) {
-                    try {
-                        mApp.getMPD().saveStream(stream.getUrl(), stream.getName());
-                    } catch (final IOException | MPDException e) {
-                        Log.e(TAG, "Failed to save a stream.", e);
-                    }
-
-                    stream.setPos(mStreams.size());
-                    mStreams.add(stream);
-                }
-            }
-        }
-        Collections.sort(mStreams);
-        replaceItems(mStreams);
     }
 
     @Override
@@ -285,12 +222,10 @@ public class StreamsFragment extends BrowseFragment<Stream> {
         super.onCreateContextMenu(menu, v, menuInfo);
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         if (info.id >= 0 && info.id < mStreams.size()) {
-            final Stream stream = mStreams.get((int) info.id);
-            final MenuItem editItem = menu.add(Menu.NONE, EDIT, 0,
-                    R.string.editStream);
+            final MenuItem editItem = menu.add(Menu.NONE, EDIT, 0, R.string.editStream);
             editItem.setOnMenuItemClickListener(this);
-            final MenuItem addAndReplaceItem = menu.add(Menu.NONE, DELETE, 0,
-                    R.string.deleteStream);
+            final MenuItem addAndReplaceItem =
+                    menu.add(Menu.NONE, DELETE, 0, R.string.deleteStream);
             addAndReplaceItem.setOnMenuItemClickListener(this);
         }
     }
