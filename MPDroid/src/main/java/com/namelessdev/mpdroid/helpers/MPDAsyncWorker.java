@@ -107,42 +107,38 @@ public class MPDAsyncWorker implements Handler.Callback,
      * <p/>
      * <p>This callback will be run on your main thread.
      *
-     * @param sharedPreferences The {@link android.content.SharedPreferences} that received the
-     *                          change.
+     * @param sharedPreferences The {@link SharedPreferences} that received the change.
      * @param key               The key of the preference that was changed, added, or
      */
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences,
             final String key) {
-        String modKey = key;
-
         final String currentSSID = SettingsHelper.getCurrentSSID();
-        if (key.startsWith(currentSSID)) {
-            modKey = key.substring(currentSSID.length());
-        }
 
-        switch (modKey) {
-            case ConnectionSettings.KEY_HOSTNAME:
-            case ConnectionSettings.KEY_HOSTNAME_STREAMING:
-            case ConnectionSettings.KEY_PASSWORD:
-            case ConnectionSettings.KEY_PERSISTENT_NOTIFICATION:
-            case ConnectionSettings.KEY_PORT:
-            case ConnectionSettings.KEY_PORT_STREAMING:
-            case ConnectionSettings.KEY_SUFFIX_STREAMING:
-                mHelperHandler.sendEmptyMessage(UPDATE_CONNECTION_INFO);
-                break;
-            case MPDApplication.USE_LOCAL_ALBUM_CACHE_KEY:
-                final boolean useAlbumCache = sharedPreferences.getBoolean(key, false);
+        if (key != null && key.startsWith(currentSSID)) {
+            switch (key.substring(currentSSID.length())) {
+                case ConnectionSettings.KEY_HOSTNAME:
+                case ConnectionSettings.KEY_HOSTNAME_STREAMING:
+                case ConnectionSettings.KEY_PASSWORD:
+                case ConnectionSettings.KEY_PERSISTENT_NOTIFICATION:
+                case ConnectionSettings.KEY_PORT:
+                case ConnectionSettings.KEY_PORT_STREAMING:
+                case ConnectionSettings.KEY_SUFFIX_STREAMING:
+                    mHelperHandler.sendEmptyMessage(UPDATE_CONNECTION_INFO);
+                    break;
+                case MPDApplication.USE_LOCAL_ALBUM_CACHE_KEY:
+                    final boolean useAlbumCache = sharedPreferences.getBoolean(key, false);
 
-                mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_SET_USE_CACHE, useAlbumCache);
-                break;
-            case GracenoteCover.CUSTOM_CLIENT_ID_KEY:
-                final SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.remove(GracenoteCover.USER_ID);
-                editor.commit();
-                break;
-            default:
-                break;
+                    mHelperHandler.obtainMessage(MPDAsyncHelper.EVENT_SET_USE_CACHE, useAlbumCache);
+                    break;
+                case GracenoteCover.CUSTOM_CLIENT_ID_KEY:
+                    final SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.remove(GracenoteCover.USER_ID);
+                    editor.commit();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
