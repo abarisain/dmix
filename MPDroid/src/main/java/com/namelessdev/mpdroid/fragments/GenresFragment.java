@@ -72,6 +72,11 @@ public class GenresFragment extends BrowseFragment<Genre> {
     }
 
     @Override
+    protected Artist getArtist(final Genre item) {
+        return null;
+    }
+
+    @Override
     @StringRes
     public int getLoadingText() {
         return R.string.loadingGenres;

@@ -172,6 +172,11 @@ public class AlbumsFragment extends BrowseFragment<Album> {
     }
 
     @Override
+    protected Artist getArtist(final Album item) {
+        return item.getArtist();
+    }
+
+    @Override
     protected ListAdapter getCustomListAdapter() {
         return new ArrayIndexerAdapter<>(getActivity(), new AlbumDataBinder<Album>(), mItems);
     }
@@ -238,7 +243,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
-        final Album album = (Album) mItems.get(position);
+        final Album album = mItems.get(position);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             final TransitionInflater inflater = TransitionInflater.from(getActivity());

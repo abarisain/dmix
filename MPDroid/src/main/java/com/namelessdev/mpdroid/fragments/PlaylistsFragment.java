@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
@@ -77,6 +78,11 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }
+    }
+
+    @Override
+    protected Artist getArtist(final PlaylistFile item) {
+        return null;
     }
 
     @Override

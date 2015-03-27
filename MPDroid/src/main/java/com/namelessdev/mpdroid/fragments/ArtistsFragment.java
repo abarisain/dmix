@@ -109,6 +109,11 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
     }
 
     @Override
+    protected Artist getArtist(final Artist item) {
+        return item;
+    }
+
+    @Override
     @StringRes
     public int getLoadingText() {
         return R.string.loadingArtists;

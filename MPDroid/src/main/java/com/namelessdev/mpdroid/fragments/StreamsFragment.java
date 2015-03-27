@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.item.Stream;
@@ -193,6 +194,11 @@ public class StreamsFragment extends BrowseFragment<Stream> {
 
         Collections.sort(mStreams);
         replaceItems(mStreams);
+    }
+
+    @Override
+    protected Artist getArtist(final Stream item) {
+        return null;
     }
 
     @Override

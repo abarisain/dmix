@@ -20,10 +20,8 @@ import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.exception.MPDException;
-import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Item;
-import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
@@ -304,6 +302,14 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         return false;
     }
 
+    /**
+     * Retrieves the Artist for the applicable type.
+     *
+     * @param item The item to get the Artist for.
+     * @return The Artist for the item.
+     */
+    protected abstract Artist getArtist(final T item);
+
     protected ListAdapter getCustomListAdapter() {
         return new ArrayIndexerAdapter<>(getActivity(), R.layout.simple_list_item_1, mItems);
     }
@@ -365,10 +371,11 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     public void onCreateContextMenu(final ContextMenu menu, final View v,
             final ContextMenu.ContextMenuInfo menuInfo) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-
         final int index = (int) info.id;
+        final T item = mItems.get(index);
+
         if (index >= 0 && mItems.size() > index) {
-            menu.setHeaderTitle(mItems.get((int) info.id).toString());
+            menu.setHeaderTitle(item.toString());
             // If in simple mode, show "Play" (add, replace & play), "Add to queue" and "Add to playlist"
             if (mApp.isInSimpleMode()) {
                 final MenuItem playItem = menu.add(ADD_REPLACE_PLAY,
@@ -396,20 +403,21 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
                 int id = 0;
                 final SubMenu playlistMenu = menu.addSubMenu(R.string.addToPlaylist);
-                MenuItem item = playlistMenu.add(ADD_TO_PLAYLIST, id++, (int) info.id,
+                MenuItem menuItem = playlistMenu.add(ADD_TO_PLAYLIST, id++, index,
                         R.string.newPlaylist);
-                item.setOnMenuItemClickListener(this);
+                menuItem.setOnMenuItemClickListener(this);
 
                 for (final PlaylistFile pl : mStoredPlaylists) {
-                    item = playlistMenu.add(ADD_TO_PLAYLIST, id++, (int) info.id,
-                            pl.getName());
-                    item.setOnMenuItemClickListener(this);
+                    menuItem = playlistMenu.add(ADD_TO_PLAYLIST, id++, index, pl.getName());
+                    menuItem.setOnMenuItemClickListener(this);
                 }
             }
-            final MenuItem gotoArtistItem = menu
-                    .add(GOTO_ARTIST, GOTO_ARTIST, 0, R.string.goToArtist);
-            gotoArtistItem.setOnMenuItemClickListener(this);
 
+            if (getArtist(item) != null) {
+                final MenuItem gotoArtistItem =
+                        menu.add(GOTO_ARTIST, GOTO_ARTIST, 0, R.string.goToArtist);
+                gotoArtistItem.setOnMenuItemClickListener(this);
+            }
         }
     }
 
@@ -468,17 +476,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
                 break;
             case GOTO_ARTIST:
                 final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-                final Object selectedItem = mItems.get((int) info.id);
                 final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
-                Artist artist = null;
-
-                if (selectedItem instanceof Album) {
-                    artist = ((Album) selectedItem).getArtist();
-                } else if (selectedItem instanceof Artist) {
-                    artist = (Artist) selectedItem;
-                } else if (selectedItem instanceof Music) {
-                    artist = new Artist(((Music) selectedItem).getAlbumArtistOrArtist());
-                }
+                final Artist artist = getArtist(mItems.get((int) info.id));
 
                 if (artist != null) {
                     intent.putExtra(Artist.EXTRA, artist);

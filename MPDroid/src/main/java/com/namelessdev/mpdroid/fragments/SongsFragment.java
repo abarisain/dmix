@@ -180,6 +180,11 @@ public class SongsFragment extends BrowseFragment<Music> {
     }
 
     @Override
+    protected Artist getArtist(final Music item) {
+        return new Artist(item.getAlbumArtistOrArtist());
+    }
+
+    @Override
     protected ListAdapter getCustomListAdapter() {
         boolean differentArtists = false;
         String lastArtist = null;
@@ -270,17 +275,17 @@ public class SongsFragment extends BrowseFragment<Music> {
         return this;
     }
 
-    public SongsFragment init(final Album al, final Bitmap bm, final String transitionName) {
-        mCoverThumbnailBitmap = bm;
-        mViewTransitionName = transitionName;
-        return init(al);
-    }
-
     /*@Override
     public void onAttach(final Activity activity) {
         super.onAttach(activity);
         ((MPDroidActivities.MPDroidActivity)activity).getSupportActionBar().hide();
     }*/
+
+    public SongsFragment init(final Album al, final Bitmap bm, final String transitionName) {
+        mCoverThumbnailBitmap = bm;
+        mViewTransitionName = transitionName;
+        return init(al);
+    }
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {

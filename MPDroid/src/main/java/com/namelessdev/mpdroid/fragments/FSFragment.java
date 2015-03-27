@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.FilesystemTreeEntry;
 import com.anpmech.mpd.item.Item;
@@ -123,6 +124,11 @@ public class FSFragment extends BrowseFragment {
             newItems.addAll(playlistFiles);
         }
         replaceItems(newItems);
+    }
+
+    @Override
+    protected Artist getArtist(final Item item) {
+        return null;
     }
 
     // Disable the indexer for FSFragment
