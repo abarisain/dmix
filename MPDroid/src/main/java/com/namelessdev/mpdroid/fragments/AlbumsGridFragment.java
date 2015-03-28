@@ -81,20 +81,4 @@ public class AlbumsGridFragment extends AlbumsFragment {
 
         mIsCountDisplayed = false;
     }
-
-    /**
-     * This is required because setting the fast scroll prior to KitKat was important because of a
-     * bug. This bug has since been corrected, but the opposite order is now required or the fast
-     * scroll will not show.
-     *
-     * @param shouldShowFastScroll If the fast scroll should be shown or not
-     */
-    @Override
-    protected void refreshFastScrollStyle(final boolean shouldShowFastScroll) {
-        if (shouldShowFastScroll) {
-            refreshFastScrollStyle(View.SCROLLBARS_INSIDE_INSET, true);
-        } else {
-            refreshFastScrollStyle(View.SCROLLBARS_OUTSIDE_OVERLAY, false);
-        }
-    }
 }
