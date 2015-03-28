@@ -270,14 +270,6 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         boolean result = false;
 
         switch (item.getGroupId()) {
-            case GOTO_ARTIST:
-                final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-                final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
-                final Album album = mItems.get((int) info.id);
-
-                intent.putExtra(Artist.EXTRA, album.getArtist());
-                startActivityForResult(intent, -1);
-                break;
             case POPUP_COVER_BLACKLIST:
                 cleanupCover(item, true);
                 break;
