@@ -102,8 +102,6 @@ public class SongsFragment extends BrowseFragment<Music> {
 
     Toolbar mHeaderToolbar;
 
-    PopupMenu mPopupMenu;
-
     View mTracksInfoContainer;
 
     String mViewTransitionName;
@@ -375,15 +373,16 @@ public class SongsFragment extends BrowseFragment<Music> {
         //((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
         ((ListView) mList).addHeaderView(headerView, null, false);
 
-        mPopupMenu = new PopupMenu(getActivity(), mAlbumMenu);
-        mPopupMenu.getMenu().add(Menu.NONE, ADD, Menu.NONE, R.string.addAlbum);
-        mPopupMenu.getMenu().add(Menu.NONE, ADD_REPLACE, Menu.NONE, R.string.addAndReplace);
-        mPopupMenu.getMenu()
-                .add(Menu.NONE, ADD_REPLACE_PLAY, Menu.NONE, R.string.addAndReplacePlay);
-        mPopupMenu.getMenu().add(Menu.NONE, ADD_PLAY, Menu.NONE, R.string.addAndPlay);
-        mPopupMenu.getMenu().add(Menu.NONE, GOTO_ARTIST, Menu.NONE, R.string.goToArtist);
+        final PopupMenu popupMenu = new PopupMenu(getActivity(), mAlbumMenu);
+        final Menu menu = popupMenu.getMenu();
 
-        mPopupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+        menu.add(Menu.NONE, ADD, Menu.NONE, R.string.addAlbum);
+        menu.add(Menu.NONE, ADD_REPLACE, Menu.NONE, R.string.addAndReplace);
+        menu.add(Menu.NONE, ADD_REPLACE_PLAY, Menu.NONE, R.string.addAndReplacePlay);
+        menu.add(Menu.NONE, ADD_PLAY, Menu.NONE, R.string.addAndPlay);
+        menu.add(Menu.NONE, GOTO_ARTIST, Menu.NONE, R.string.goToArtist);
+
+        popupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 
             @Override
             public boolean onMenuItemClick(final MenuItem item) {
@@ -425,11 +424,11 @@ public class SongsFragment extends BrowseFragment<Music> {
             }
         });
 
-        mAlbumMenu.setOnTouchListener(PopupMenuCompat.getDragToOpenListener(mPopupMenu));
+        mAlbumMenu.setOnTouchListener(PopupMenuCompat.getDragToOpenListener(popupMenu));
         mAlbumMenu.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
-                mPopupMenu.show();
+                popupMenu.show();
             }
         });
 
