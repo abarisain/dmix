@@ -78,7 +78,7 @@ public class SongsFragment extends BrowseFragment<Music> {
 
     private static final String TAG = "SongsFragment";
 
-    Album mAlbum = null;
+    Album mAlbum;
 
     ImageButton mAlbumMenu;
 
@@ -136,26 +136,27 @@ public class SongsFragment extends BrowseFragment<Music> {
         }
     }
 
-    private void applyPaletteWithBitmapAsync(Bitmap b) {
-        Palette.generateAsync(b, new Palette.PaletteAsyncListener() {
+    private void applyPaletteWithBitmapAsync(final Bitmap bitmap) {
+        Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
             @Override
             public void onGenerated(final Palette palette) {
                 try {
-                    Palette.Swatch vibrantColor = palette.getDarkVibrantSwatch();
-                    Palette.Swatch mutedColor = palette.getVibrantSwatch();
+                    final Palette.Swatch vibrantColor = palette.getDarkVibrantSwatch();
+                    final Palette.Swatch mutedColor = palette.getVibrantSwatch();
+
                     if (mTracksInfoContainer != null && vibrantColor != null && !isDetached()) {
                         mTracksInfoContainer.setBackgroundColor(vibrantColor.getRgb());
                         mHeaderAlbum.setTextColor(vibrantColor.getBodyTextColor());
                         mHeaderArtist.setTextColor(vibrantColor.getBodyTextColor());
                         mHeaderInfo.setTextColor(vibrantColor.getBodyTextColor());
                     }
+
                     if (mutedColor != null && mAlbumMenu instanceof FloatingActionButton) {
                         ((FloatingActionButton) mAlbumMenu).setColorNormal(mutedColor.getRgb());
                     }
                 } catch (final NullPointerException | IllegalStateException e) {
                     Log.e(TAG, "Error while applying generated album art palette colors", e);
                 }
-
             }
         });
     }
@@ -209,6 +210,7 @@ public class SongsFragment extends BrowseFragment<Music> {
                 albumInfo = new AlbumInfo(item);
                 continue;
             }
+
             final String a = albumInfo.getArtistName();
             if (a != null && !a.equalsIgnoreCase(item.getAlbumArtistOrArtist())) {
                 differentArtists = true;
@@ -217,17 +219,22 @@ public class SongsFragment extends BrowseFragment<Music> {
         }
 
         if (differentArtists || albumInfo == null) {
-            return new AlbumInfo(getString(R.string.variousArtists), mAlbum.getName());
+            albumInfo = new AlbumInfo(getString(R.string.variousArtists), mAlbum.getName());
         }
         return albumInfo;
     }
 
     private CharSequence getHeaderInfoString() {
         final int count = mItems.size();
-        return getString(count > 1 ? R.string.tracksInfoHeaderPlural
-                        : R.string.tracksInfoHeader, count,
-                getTotalTimeForTrackList()
-        );
+        final int header;
+
+        if (count > 1) {
+            header = R.string.tracksInfoHeaderPlural;
+        } else {
+            header = R.string.tracksInfoHeader;
+        }
+
+        return getString(header, count, getTotalTimeForTrackList());
     }
 
     @Override
@@ -262,6 +269,7 @@ public class SongsFragment extends BrowseFragment<Music> {
         return com.anpmech.mpd.Tools.timeToString(totalTime);
     }
 
+    @Override
     protected void hideToolbar() {
         if (mHeaderToolbar != null) {
             mHeaderToolbar.setVisibility(View.GONE);
@@ -272,12 +280,6 @@ public class SongsFragment extends BrowseFragment<Music> {
         mAlbum = al;
         return this;
     }
-
-    /*@Override
-    public void onAttach(final Activity activity) {
-        super.onAttach(activity);
-        ((MPDroidActivities.MPDroidActivity)activity).getSupportActionBar().hide();
-    }*/
 
     public SongsFragment init(final Album al, final Bitmap bm, final String transitionName) {
         mCoverThumbnailBitmap = bm;
@@ -315,22 +317,10 @@ public class SongsFragment extends BrowseFragment<Music> {
         final View headerView = inflater.inflate(R.layout.song_header, null, false);
         mCoverArt = (ImageView) view.findViewById(R.id.albumCover);
         if (mCoverArt != null) {
-            mTracksInfoContainer = view.findViewById(R.id.tracks_info_container);
-            mHeaderArtist = (TextView) view.findViewById(R.id.tracks_artist);
-            mHeaderAlbum = (TextView) view.findViewById(R.id.tracks_album);
-            mHeaderInfo = (TextView) view.findViewById(R.id.tracks_info);
-            mHeaderToolbar = (Toolbar) view.findViewById(R.id.toolbar);
-            mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-            mAlbumMenu = (ImageButton) view.findViewById(R.id.album_menu);
+            populateViews(view);
         } else {
-            mTracksInfoContainer = headerView.findViewById(R.id.tracks_info_container);
-            mHeaderArtist = (TextView) headerView.findViewById(R.id.tracks_artist);
-            mHeaderAlbum = (TextView) headerView.findViewById(R.id.tracks_album);
-            mHeaderInfo = (TextView) headerView.findViewById(R.id.tracks_info);
-            mHeaderToolbar = (Toolbar) headerView.findViewById(R.id.toolbar);
+            populateViews(headerView);
             mCoverArt = (ImageView) headerView.findViewById(R.id.albumCover);
-            mCoverArtProgress = (ProgressBar) headerView.findViewById(R.id.albumCoverProgress);
-            mAlbumMenu = (ImageButton) headerView.findViewById(R.id.album_menu);
         }
 
         ViewCompat.setTransitionName(mCoverArt, mViewTransitionName);
@@ -349,9 +339,9 @@ public class SongsFragment extends BrowseFragment<Music> {
             @Override
             public void onCoverDownloaded(final CoverInfo cover) {
                 super.onCoverDownloaded(cover);
-                final Drawable d = mCoverArt.getDrawable();
-                if (d instanceof BitmapDrawable) {
-                    applyPaletteWithBitmapAsync(((BitmapDrawable) d).getBitmap());
+                final Drawable drawable = mCoverArt.getDrawable();
+                if (drawable instanceof BitmapDrawable) {
+                    applyPaletteWithBitmapAsync(((BitmapDrawable) drawable).getBitmap());
                 }
             }
         };
@@ -532,12 +522,23 @@ public class SongsFragment extends BrowseFragment<Music> {
         super.onSaveInstanceState(outState);
     }
 
+    private void populateViews(final View view) {
+        mTracksInfoContainer = view.findViewById(R.id.tracks_info_container);
+        mHeaderArtist = (TextView) view.findViewById(R.id.tracks_artist);
+        mHeaderAlbum = (TextView) view.findViewById(R.id.tracks_album);
+        mHeaderInfo = (TextView) view.findViewById(R.id.tracks_info);
+        mHeaderToolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
+        mAlbumMenu = (ImageButton) view.findViewById(R.id.album_menu);
+    }
+
     @Override
     protected void refreshFastScrollStyle(final boolean shouldShowFastScroll) {
         // No fast scroll for that view
         refreshFastScrollStyle(View.SCROLLBARS_INSIDE_OVERLAY, false);
     }
 
+    @Override
     protected void showToolbar() {
         if (mHeaderToolbar != null) {
             mHeaderToolbar.setVisibility(View.VISIBLE);
@@ -575,7 +576,7 @@ public class SongsFragment extends BrowseFragment<Music> {
                                 mCoverHelper.downloadCover(fixedAlbumInfo, true);
                             }
                         }
-                    }, 500);
+                    }, 500L);
                 } else {
                     mCoverHelper.downloadCover(fixedAlbumInfo, true);
                 }

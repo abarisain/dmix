@@ -86,6 +86,6 @@
             android:src="@drawable/ic_fab_add"
             fab:fab_colorNormal="@color/fab_color"
             fab:fab_colorPressed="@color/fab_color_pressed"
-            fab:fab_colorRipple="@color/fab_color_ripple"/>
+            fab:fab_colorRipple="@color/fab_color_ripple" />
     </FrameLayout>
 </LinearLayout>

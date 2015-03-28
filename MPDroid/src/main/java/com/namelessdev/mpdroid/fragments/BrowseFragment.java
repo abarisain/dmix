@@ -431,7 +431,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     /**
      * Override that method if you want BrowseFragment to inflate another layout
      */
-    protected @LayoutRes int getLayoutResId()
+    @LayoutRes
+    protected int getLayoutResId()
     {
         return R.layout.browse;
     }
