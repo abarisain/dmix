@@ -46,6 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A monitoring class representing the <A HREF="http://www.musicpd.org/doc/protocol/command_reference.html#command_idle"
@@ -122,6 +123,11 @@ public class IdleSubsystemMonitor implements Runnable {
      * The general error message.
      */
     private static final String GENERAL_ERROR = "Exception caught while looping.";
+
+    /**
+     * This is the length of time (in milliseconds) between failure retries of critical commands.
+     */
+    private static final long PENALIZATION_TIMEOUT = TimeUnit.SECONDS.toMillis(10L);
 
     /**
      * The class log identifier.
@@ -278,23 +284,23 @@ public class IdleSubsystemMonitor implements Runnable {
                 }
             }
 
-            try {
-                boolean dbChanged = false;
-                boolean statusChanged = false;
-                boolean stickerChanged = false;
-                boolean storedPlaylistChanged = false;
+            boolean dbChanged = false;
+            boolean statusChanged = false;
+            boolean stickerChanged = false;
+            boolean storedPlaylistChanged = false;
 
-                if (connectionReset) {
-                    dbChanged = true;
-                    statusChanged = true;
-                } else {
-                    mIdleTracker = connection.submit(MPDCommand.MPD_CMD_IDLE,
-                            mSupportedSubsystems);
+            if (connectionReset) {
+                dbChanged = true;
+                statusChanged = true;
+            } else {
+                mIdleTracker = connection.submit(MPDCommand.MPD_CMD_IDLE,
+                        mSupportedSubsystems);
 
-                    /**
-                     * We block here until the idle command response returns or
-                     * {@link #mIdleTracker} is cancelled by another thread.
-                     */
+                /**
+                 * We block here until the idle command response returns or
+                 * {@link #mIdleTracker} is cancelled by another thread.
+                 */
+                try {
                     final Iterator<Map.Entry<CharSequence, String>> changes =
                             mIdleTracker.get().splitListIterator();
 
@@ -326,8 +332,22 @@ public class IdleSubsystemMonitor implements Runnable {
                             break;
                         }
                     }
+                } catch (final IOException | MPDException e) {
+                    Log.error(TAG, GENERAL_ERROR, e);
+                    synchronized (this) {
+                        try {
+                            Log.error(TAG, "Sleeping for " +
+                                    TimeUnit.MILLISECONDS.toSeconds(PENALIZATION_TIMEOUT) +
+                                    " seconds due to error.");
+                            wait(PENALIZATION_TIMEOUT);
+                        } catch (final InterruptedException ignored) {
+                        }
+                    }
+                    continue;
                 }
+            }
 
+            try {
                 if (statusChanged) {
                     // playlist
                     final int oldPlaylistVersion = oldStatus.getPlaylistVersion();
