@@ -7,9 +7,8 @@
         <option name="SELECTED_TEST_ARTIFACT" value="_android_test_" />
         <option name="ASSEMBLE_TASK_NAME" value="assembleFossDebug" />
         <option name="COMPILE_JAVA_TASK_NAME" value="compileFossDebugSources" />
-        <option name="SOURCE_GEN_TASK_NAME" value="generateFossDebugSources" />
         <option name="ASSEMBLE_TEST_TASK_NAME" value="assembleFossDebugTest" />
-        <option name="COMPILE_JAVA_TEST_TASK_NAME" value="compileFossDebugTestSources" />
+        <option name="SOURCE_GEN_TASK_NAME" value="generateFossDebugSources" />
         <option name="TEST_SOURCE_GEN_TASK_NAME" value="generateFossDebugTestSources" />
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
         <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
@@ -121,3 +120,4 @@
     <orderEntry type="module" module-name="JMPDCommAndroid" exported="" />
   </component>
 </module>
+

@@ -1,7 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="JMPDCommJava:Javadoc" type="GradleRunConfiguration" factoryName="Gradle">
     <ExternalSystemSettings>
-      <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$/JMPDComm/backends/java" />
       <option name="externalSystemIdString" value="GRADLE" />
       <option name="scriptParameters" value="" />
