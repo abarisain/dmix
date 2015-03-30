@@ -20,6 +20,7 @@ import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.Stream;
+import com.namelessdev.mpdroid.ErrorHandler;
 import com.namelessdev.mpdroid.MPDroidActivities;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
@@ -53,6 +54,8 @@ import android.widget.TextView;
 
 public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity implements
         ILibraryFragmentActivity, OnBackStackChangedListener {
+
+    private ErrorHandler mErrorHandler;
 
     private TextView mTitleView;
 
@@ -200,14 +203,30 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        boolean result = false;
+        final boolean result;
 
         if (item.getItemId() == android.R.id.home) {
             finish();
             result = true;
+        } else {
+            result = super.onOptionsItemSelected(item);
         }
 
         return result;
+    }
+
+    @Override
+    protected void onPause() {
+        mErrorHandler.stop();
+
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mErrorHandler = new ErrorHandler(this);
     }
 
     @Override
