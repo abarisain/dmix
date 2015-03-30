@@ -21,6 +21,7 @@ import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.item.Stream;
+import com.melnykov.fab.FloatingActionButton;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -301,9 +302,23 @@ public class StreamsFragment extends BrowseFragment<Stream> {
     }
 
     @Override
+    protected int getLayoutResId() {
+        return R.layout.streams_list;
+    }
+
+    @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
+        final View v = super.onCreateView(inflater, container, savedInstanceState);
+
+        v.findViewById(R.id.streamAddButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                addEdit();
+            }
+        });
+
+        return v;
     }
 
     @Override

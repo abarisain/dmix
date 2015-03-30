@@ -41,6 +41,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -417,10 +418,18 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     }
 
+    /**
+     * Override that method if you want BrowseFragment to inflate another layout
+     */
+    protected @LayoutRes int getLayoutResId()
+    {
+        return R.layout.browse;
+    }
+
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.browse, container, false);
+        final View view = inflater.inflate(getLayoutResId(), container, false);
         mList = (AbsListView) view.findViewById(R.id.list);
         registerForContextMenu(mList);
         mList.setOnItemClickListener(this);
