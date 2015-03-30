@@ -286,4 +286,6 @@
     <string name="mediaPlayerErrorTimedOut">L\'opération n\'a pas réussi à temps.</string>
     <string name="mediaPlayerErrorUnsupported">Le serveur audio ne gère pas le flux codec.</string>
     <!-- End MediaPlayer Error Strings -->
+
+    <string name="refresh">Rafraîchir</string>
 </resources>

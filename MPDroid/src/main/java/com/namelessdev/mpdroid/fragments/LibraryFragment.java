@@ -105,6 +105,7 @@ public class LibraryFragment extends Fragment {
         toolbar.inflateMenu(R.menu.mpd_main_menu);
         ToolbarHelper.addStandardMenuItemClickListener(this, toolbar, null);
         ToolbarHelper.addSearchView(getActivity(), toolbar);
+        ToolbarHelper.addRefresh(toolbar);
 
         return view;
     }

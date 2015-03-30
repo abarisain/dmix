@@ -47,6 +47,10 @@ public class ToolbarHelper {
         manuallySetupSearchView(activity, searchView);
     }
 
+    public static void addRefresh(Toolbar toolbar) {
+        toolbar.inflateMenu(R.menu.mpd_refreshmenu);
+    }
+
     public static void addStandardMenuItemClickListener(final Fragment fragment, Toolbar toolbar,
             final Toolbar.OnMenuItemClickListener chainedListener) {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {

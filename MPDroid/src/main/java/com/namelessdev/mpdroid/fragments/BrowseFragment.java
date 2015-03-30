@@ -662,6 +662,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
         ToolbarHelper.showBackButton(this, mToolbar);
         ToolbarHelper.addSearchView(getActivity(), mToolbar);
+        ToolbarHelper.addRefresh(mToolbar);
         ToolbarHelper.addStandardMenuItemClickListener(this, mToolbar,
                 new Toolbar.OnMenuItemClickListener() {
                     @Override
