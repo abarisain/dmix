@@ -24,9 +24,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_marginLeft="10dip"
-        android:layout_marginRight="10dip"
-        android:layout_marginTop="4dip"
+
+        android:background="?attr/colorPrimary"
         android:layout_weight="1">
 
         <ImageView
@@ -51,12 +50,13 @@
         android:id="@+id/songInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dip"
-        android:background="@drawable/holo_transparent_button"
+        android:background="@drawable/nowplaying_songinfo_background"
+        android:foreground="?android:attr/selectableItemBackground"
         android:clickable="true"
-        android:paddingBottom="2dip"
-        android:paddingLeft="10dip"
-        android:paddingRight="10dip">
+        android:paddingBottom="16dip"
+        android:paddingLeft="16dip"
+        android:paddingTop="16dip"
+        android:paddingRight="16dip">
 
         <TextView
             android:id="@+id/songName"
@@ -64,11 +64,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:ellipsize="marquee"
-            android:fontFamily="sans-serif-light"
-            android:gravity="center_horizontal"
             android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?attr/nowPlayingPrimaryTextColor"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/nowplaying_songinfo_body1_text_color"
             android:textSize="15sp" />
 
         <TextView
@@ -77,17 +75,15 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/songName"
-            android:layout_marginTop="1dip"
-            android:fontFamily="sans-serif-light"
-            android:gravity="center_horizontal" />
+            android:layout_marginTop="4dip"
+            android:textColor="@color/nowplaying_songinfo_body2_text_color"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
         <LinearLayout
             android:id="@+id/albumLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/artistName"
-            android:layout_centerHorizontal="true"
-            android:gravity="center_horizontal"
             android:orientation="horizontal">
 
             <TextView
@@ -95,9 +91,9 @@
                 style="@style/InfoSubText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dip"
-                android:fontFamily="sans-serif-light"
-                android:gravity="center_horizontal"
+                android:layout_marginTop="4dip"
+                android:textColor="@color/nowplaying_songinfo_body2_text_color"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:maxLines="1" />
 
             <TextView
@@ -105,8 +101,9 @@
                 style="@style/InfoSubText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dip"
-                android:fontFamily="sans-serif-light"
+                android:layout_marginTop="4dip"
+                android:textColor="@color/nowplaying_songinfo_body2_text_color"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:maxLines="1" />
         </LinearLayout>
 
@@ -116,9 +113,9 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/albumLayout"
-            android:layout_marginTop="1dip"
-            android:fontFamily="sans-serif-light"
-            android:gravity="center_horizontal" />
+            android:layout_marginTop="4dip"
+            android:textColor="@color/nowplaying_songinfo_body2_text_color"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
         <RatingBar
             android:id="@+id/songRating"

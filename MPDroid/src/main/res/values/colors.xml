@@ -35,6 +35,8 @@
     <color name="fab_color_pressed">#0277bd</color>
     <color name="fab_color_ripple">#025e9d</color>
     <color name="accent_blue">#4fc3f7</color>
+    <color name="nowplaying_songinfo_body1_text_color">@android:color/white</color>
+    <color name="nowplaying_songinfo_body2_text_color">#beffffff</color>
     <color name="nowplaying_slider_background_color">#ff1a1a1a</color>
     <color name="nowplaying_slider_background_color_light">#ffffffff</color>
     <color name="list_item_secondary_text_color">#8affffff</color>
