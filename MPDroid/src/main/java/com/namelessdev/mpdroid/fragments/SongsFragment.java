@@ -330,6 +330,10 @@ public class SongsFragment extends BrowseFragment<Music> {
             mCoverThumbnailBitmap = null;
         }
 
+        if (mHeaderToolbar == null) {
+            mHeaderToolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        }
+
         if (mHeaderToolbar != null) {
             ToolbarHelper.addSearchView(getActivity(), mHeaderToolbar);
             ToolbarHelper.showBackButton(this, mHeaderToolbar);

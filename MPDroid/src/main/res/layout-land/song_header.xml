@@ -14,10 +14,95 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="false"
+    android:focusable="false"
+    tools:ignore="InconsistentLayout">
 
-    <include layout="@layout/list_separator" />
+  <FrameLayout
+      android:id="@+id/albumCoverFrame"
+      android:layout_marginTop="36dp"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content">
 
-</FrameLayout>
+    <ImageView
+        android:id="@+id/albumCover"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:contentDescription="@string/albumCover"
+        android:scaleType="fitCenter"
+        android:src="?attr/noCoverArtIcon" />
+
+    <ProgressBar
+        android:id="@+id/albumCoverProgress"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="invisible" />
+  </FrameLayout>
+
+  <RelativeLayout
+      android:id="@+id/tracks_info_container"
+      android:layout_width="match_parent"
+      android:layout_height="128dp"
+      android:layout_marginTop="36dp"
+      android:layout_toRightOf="@+id/albumCoverFrame"
+      android:paddingBottom="10dp"
+      android:paddingLeft="@dimen/material_list_item_element_horizontal_padding"
+      android:paddingTop="10dp">
+
+    <TextView
+        android:id="@+id/tracks_album"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        tools:text="Album Name" />
+
+    <TextView
+        android:id="@+id/tracks_artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tracks_album"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        tools:text="Artist Name" />
+
+    <TextView
+        android:id="@+id/tracks_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tracks_artist"
+        android:layout_marginTop="8dp"
+        android:alpha="60"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textSize="12sp"
+        tools:text="Artist" />
+  </RelativeLayout>
+
+  <com.melnykov.fab.FloatingActionButton
+      android:id="@+id/album_menu"
+      android:layout_width="64dp"
+      android:layout_height="64dp"
+      android:layout_alignParentRight="true"
+      android:layout_marginRight="32dp"
+      android:layout_marginBottom="20dp"
+      android:src="@drawable/ic_media_play"
+      fab:fab_colorNormal="@color/fab_color"
+      fab:fab_colorPressed="@color/fab_color_pressed"
+      fab:fab_colorRipple="@color/fab_color_ripple" />
+</RelativeLayout>
