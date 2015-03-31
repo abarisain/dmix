@@ -39,6 +39,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -77,7 +78,15 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     private static final String PLAY_SERVICES_ACTION_SEARCH
             = "com.google.android.gms.actions.SEARCH_ACTION";
 
+    private static final int RESULT_ALBUM = 1;
+
+    private static final int RESULT_ARTIST = 0;
+
+    private static final int RESULT_MUSIC = 2;
+
     private static final String TAG = "SearchActivity";
+
+    private static final String UNKNOWN_ITEM_ERROR = "Unknown item.";
 
     private final ArrayList<Album> mAlbumResults;
 
@@ -359,17 +368,17 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 
         switch (mPager.getCurrentItem()) {
-            case 0:
-                final Artist artist = mArtistResults.get((int) info.id);
-                menu.setHeaderTitle(artist.toString());
-                setContextForObject(artist);
-                break;
-            case 1:
+            case RESULT_ALBUM:
                 final Album album = mAlbumResults.get((int) info.id);
                 menu.setHeaderTitle(album.toString());
                 setContextForObject(album);
                 break;
-            case 2:
+            case RESULT_ARTIST:
+                final Artist artist = mArtistResults.get((int) info.id);
+                menu.setHeaderTitle(artist.toString());
+                setContextForObject(artist);
+                break;
+            case RESULT_MUSIC:
                 final Music music = mSongResults.get((int) info.id);
                 final MenuItem gotoAlbumItem = menu
                         .add(Menu.NONE, GOTO_ALBUM, 0, R.string.goToAlbum);
@@ -378,7 +387,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 setContextForObject(music);
                 break;
             default:
-                break;
+                throw new UnsupportedOperationException(UNKNOWN_ITEM_ERROR);
         }
 
         final MenuItem addItem = menu.add(Menu.NONE, ADD, 0, getString(mAddString));
@@ -399,8 +408,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.mpd_searchmenu, menu);
         ToolbarHelper.manuallySetupSearchView(this,
-                (android.support.v7.widget.SearchView) menu.findItem(R.id.menu_search)
-                        .getActionView());
+                (SearchView) menu.findItem(R.id.menu_search).getActionView());
         return true;
     }
 
@@ -432,16 +440,17 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         final List<? extends Item<?>> targetArray;
         switch (mPager.getCurrentItem()) {
-            case 1:
+            case RESULT_ALBUM:
                 targetArray = mAlbumResults;
                 break;
-            case 2:
-                targetArray = mSongResults;
-                break;
-            case 0:
-            default:
+            case RESULT_ARTIST:
                 targetArray = mArtistResults;
                 break;
+            case RESULT_MUSIC:
+                targetArray = mSongResults;
+                break;
+            default:
+                throw new UnsupportedOperationException(UNKNOWN_ITEM_ERROR);
         }
         final Object selectedItem = targetArray.get((int) info.id);
         if (item.getItemId() == GOTO_ALBUM) {
@@ -600,16 +609,17 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
             final View v;
             switch (position) {
-                case 1:
+                case RESULT_ALBUM:
                     v = mListAlbumsFrame;
                     break;
-                case 2:
-                    v = mListSongsFrame;
-                    break;
-                case 0:
-                default:
+                case RESULT_ARTIST:
                     v = mListArtistsFrame;
                     break;
+                case RESULT_MUSIC:
+                    v = mListSongsFrame;
+                    break;
+                default:
+                    throw new UnsupportedOperationException(UNKNOWN_ITEM_ERROR);
             }
             if (v.getParent() == null) {
                 mPager.addView(v);
