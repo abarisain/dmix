@@ -66,8 +66,7 @@
             android:ellipsize="marquee"
             android:singleLine="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@color/nowplaying_songinfo_body1_text_color"
-            android:textSize="15sp" />
+            android:textColor="@color/nowplaying_songinfo_body1_text_color" />
 
         <TextView
             android:id="@+id/artistName"
