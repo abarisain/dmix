@@ -68,13 +68,13 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
 
     private final MPDroidService mServiceContext;
 
-    private Music mCurrentTrack = null;
+    private Music mCurrentTrack;
 
     private boolean mIsActive;
 
-    private boolean mIsForeground = false;
+    private boolean mIsForeground;
 
-    private boolean mIsMediaPlayerBuffering = false;
+    private boolean mIsMediaPlayerBuffering;
 
     NotificationHandler(final MPDroidService serviceContext) {
         super();
@@ -94,7 +94,6 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
             buildExpandedNotification();
         }
 
-        mCurrentTrack = new Music();
         mIsActive = true;
     }
 

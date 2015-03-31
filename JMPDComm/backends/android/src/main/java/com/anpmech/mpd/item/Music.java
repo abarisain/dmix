@@ -51,10 +51,6 @@ public class Music extends AbstractMusic<Music> {
         }
     };
 
-    public Music() {
-        super();
-    }
-
     protected Music(final Music music) {
         super(music);
     }

@@ -292,29 +292,6 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
                 }
             };
 
-    /**
-     * The empty constructor for this item. Used for cases where null checks aren't possible.
-     */
-    AbstractMusic() {
-        this(null, /** AlbumName */
-                null, /** AlbumArtistName */
-                null, /** ArtistName */
-                null, /** ComposerName */
-                -1L, /** Date */
-                UNDEFINED_INT, /** Disc */
-                null, /** FullPath */
-                null, /** GenreName */
-                null, /** Name */
-                UNDEFINED_INT, /** SongID */
-                UNDEFINED_INT, /** SongPos */
-                -1L, /** Time */
-                null, /** Title */
-                UNDEFINED_INT, /** TotalTracks*/
-                UNDEFINED_INT /** Track */
-        );
-
-    }
-
     AbstractMusic(final T music) {
         this(music.mAlbumName, music.mAlbumArtistName, music.mArtistName, music.mComposerName,
                 music.mDate, music.mDisc, music.mFullPath, music.mGenreName, music.mName,
