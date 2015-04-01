@@ -29,8 +29,8 @@ package com.anpmech.mpd.subsystem.status;
 
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
-import com.anpmech.mpd.concurrent.MPDFuture;
-import com.anpmech.mpd.connection.CommandResponse;
+import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.concurrent.ResponseFuture;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 
@@ -748,7 +748,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * @see IdleSubsystemMonitor
      */
     public void update() throws IOException, MPDException {
-        final MPDFuture<CommandResponse> future = mConnection.submit(MPDCommand.MPD_CMD_STATUS);
+        final ResponseFuture future = mConnection.submit(MPDCommand.MPD_CMD_STATUS);
 
         update(future.get());
     }

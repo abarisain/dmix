@@ -29,6 +29,7 @@ package com.anpmech.mpd.connection;
 
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.exception.MPDException;
 
 import java.io.BufferedReader;
@@ -41,9 +42,9 @@ import java.util.concurrent.Callable;
 /**
  * This is the foundation for a {@link Callable} class which sends one {@link MPDCommand} or
  * {@link com.anpmech.mpd.CommandQueue} string over a blocking connection, returning a
- * {@link CommandResponse}.
+ * {@link CommandResult}.
  */
-abstract class IOCommandProcessor implements Callable<CommandResponse> {
+abstract class IOCommandProcessor implements Callable<CommandResult> {
 
     /**
      * The debug tracker flag.
@@ -76,6 +77,11 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
     private final MPDConnectionStatus mConnectionStatus;
 
     /**
+     * The index of responses that will be excluded from a split response.
+     */
+    private final int[] mExcludeResponses;
+
+    /**
      * The connection header given only during a new connection.
      */
     private String mHeader;
@@ -85,12 +91,16 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
      *
      * @param connectionStatus The status tracker for this connection.
      * @param commandString    The command string to be processed.
+     * @param excludeResponses This is used to manually exclude responses from split
+     *                         {@link CommandResponse} inclusion.
      */
-    IOCommandProcessor(final MPDConnectionStatus connectionStatus, final String commandString) {
+    IOCommandProcessor(final MPDConnectionStatus connectionStatus, final String commandString,
+            final int[] excludeResponses) {
         super();
 
         mConnectionStatus = connectionStatus;
         mCommandString = commandString;
+        mExcludeResponses = excludeResponses;
     }
 
     /**
@@ -168,8 +178,8 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
      * @return A {@code CommandResponse} from the processed command.
      */
     @Override
-    public final CommandResponse call() throws IOException, MPDException {
-        CommandResponse commandResponse = null;
+    public final CommandResult call() throws IOException, MPDException {
+        CommandResult commandResult = null;
 
         for (int resendTries = 0; resendTries < MAX_REQUEST_RETRY; resendTries++) {
             try {
@@ -177,7 +187,7 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
 
                 final IOSocketSet socketSet = popSocketSet();
                 write(socketSet);
-                commandResponse = new CommandResponse(mHeader, read(socketSet));
+                commandResult = new CommandResult(mHeader, read(socketSet), mExcludeResponses);
                 pushSocketSet(socketSet);
                 break;
             } catch (final IOException e) {
@@ -193,11 +203,11 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
         /**
          * CommandResponse should be assigned prior to this conditional.
          */
-        if (commandResponse == null) {
+        if (commandResult == null) {
             throw new IllegalStateException("Command result unassigned: " + toString());
         }
 
-        return commandResponse;
+        return commandResult;
     }
 
     /**
@@ -313,6 +323,7 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
              */
             shouldReconnect = true;
         } else if (mConnectionStatus.isConnecting() || mConnectionStatus.isBlocked()) {
+
             /**
              * If we're connecting or the connection is blocked, interrupt through reconnection.
              * Arbitrarily interrupting a blocked connection is probably not the best thing to do,

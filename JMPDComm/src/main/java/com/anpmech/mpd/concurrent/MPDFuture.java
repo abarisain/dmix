@@ -27,38 +27,48 @@
 
 package com.anpmech.mpd.concurrent;
 
+import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.exception.MPDException;
 
 import java.io.IOException;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * This class is a simple wrapper around Future&lt;V&gt; to modify the exceptions for the get()
- * methods.
- *
- * @param <V> The result type returned by this FutureTask's {@code get} methods.
+ * This class returns a {@link CommandResult} in the future.
  */
-public class MPDFuture<V> {
+public class MPDFuture {
 
     /**
      * The message given when a connection has been lost.
      */
-    private static final String LOST_CONNECTION = "Lost connection.";
+    protected static final String LOST_CONNECTION = "Lost connection.";
 
     /**
      * The future to be wrapped.
      */
-    private final Future<V> mFuture;
+    protected final Future<?> mFuture;
+
+    /**
+     * This constructor is used for subclassing this class.
+     *
+     * @param future The future to be subclassed.
+     */
+    MPDFuture(final MPDFuture future) {
+        super();
+
+        mFuture = future.mFuture;
+    }
 
     /**
      * Creates a {@code FutureTask} that will, upon running, execute the given {@code Callable}.
      *
      * @param future The future to wrap.
      */
-    public MPDFuture(final Future<V> future) {
+    MPDFuture(final Future<?> future) {
         super();
 
         mFuture = future;
@@ -72,7 +82,8 @@ public class MPDFuture<V> {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    private static void throwException(final Throwable throwable) throws IOException, MPDException {
+    protected static void throwException(final Throwable throwable)
+            throws IOException, MPDException {
         if (throwable instanceof MPDException) {
             throw new MPDException(throwable);
         } else {
@@ -106,18 +117,16 @@ public class MPDFuture<V> {
     /**
      * Waits if necessary for the computation to complete, and then retrieves its result.
      *
-     * @return the computed result
-     * @throws java.util.concurrent.CancellationException if the computation was cancelled
-     * @throws IOException                                Thrown upon a communication error with
-     *                                                    the server.
-     * @throws MPDException                               Thrown if an error occurs as a result of
-     *                                                    command execution.
+     * @return The computed result.
+     * @throws CancellationException If the computation was cancelled.
+     * @throws IOException           Thrown upon a communication error with the server.
+     * @throws MPDException          Thrown if an error occurs as a result of command execution.
      */
-    public V get() throws IOException, MPDException {
-        V result = null;
+    protected CommandResult get() throws IOException, MPDException {
+        CommandResult result = null;
 
         try {
-            result = mFuture.get();
+            result = (CommandResult) mFuture.get();
         } catch (final ExecutionException | InterruptedException e) {
             throwException(e.getCause());
         }
@@ -133,24 +142,22 @@ public class MPDFuture<V> {
     }
 
     /**
-     * Waits if necessary for at most the given time for the computation
-     * to complete, and then retrieves its result, if available.
+     * Waits if necessary for the computation to complete, and then retrieves its result.
      *
-     * @param timeout the maximum time to wait
-     * @param unit    the time unit of the timeout argument
-     * @return the computed result
-     * @throws java.util.concurrent.CancellationException if the computation was cancelled
-     * @throws IOException                                Thrown upon a communication error with
-     *                                                    the server.
-     * @throws MPDException                               Thrown if an error occurs as a result of
-     *                                                    command execution.
-     * @throws TimeoutException                           if the wait timed out
+     * @param timeout The maximum time to wait.
+     * @param unit    The time unit of the timeout argument.
+     * @return The computed result.
+     * @throws CancellationException If the computation was cancelled.
+     * @throws IOException           Thrown upon a communication error with the server.
+     * @throws MPDException          Thrown if an error occurs as a result of command execution.
+     * @throws TimeoutException      If the wait timed out.
      */
-    public V get(final long timeout, final TimeUnit unit)
+    protected CommandResult get(final long timeout, final TimeUnit unit)
             throws IOException, MPDException, TimeoutException {
-        V result = null;
+        CommandResult result = null;
+
         try {
-            result = mFuture.get(timeout, unit);
+            result = (CommandResult) mFuture.get(timeout, unit);
         } catch (final ExecutionException | InterruptedException e) {
             throwException(e.getCause());
         }
@@ -166,9 +173,43 @@ public class MPDFuture<V> {
     }
 
     /**
-     * Returns {@code true} if this task was cancelled before it completed normally.
+     * Waits if necessary for the computation to complete, allowing an Exception to be thrown,
+     * if applicable.
      *
-     * @return {@code true} if this task was cancelled before it completed
+     * <p>This is identical to {@link #get()}, without the return. <b>For a more in depth
+     * response, a subclass of this Future should be used.</b></p>
+     *
+     * @throws CancellationException If the computation was cancelled.
+     * @throws IOException           Thrown upon a communication error with the server.
+     * @throws MPDException          Thrown if an error occurs as a result of command execution.
+     */
+    public final void getExceptions() throws IOException, MPDException {
+        get();
+    }
+
+    /**
+     * Waits if necessary for the computation to complete, up to the timeout, allowing an
+     * Exception to be thrown, if applicable.
+     *
+     * <p>This is identical to {@link #get(long, TimeUnit)}, without the return. <b>For a more in
+     * depth response, a subclass of this Future should be used.</b></p>
+     *
+     * @param timeout The maximum time to wait.
+     * @param unit    The time unit of the timeout argument.
+     * @throws CancellationException If the computation was cancelled.
+     * @throws IOException           Thrown upon a communication error with the server.
+     * @throws MPDException          Thrown if an error occurs as a result of command execution.
+     * @throws TimeoutException      If the wait timed out.
+     */
+    public final void getExceptions(final long timeout, final TimeUnit unit)
+            throws IOException, MPDException, TimeoutException {
+        get(timeout, unit);
+    }
+
+    /**
+     * Returns {@code true} If this task was cancelled before it completed normally.
+     *
+     * @return {@code true} If this task was cancelled before it completed.
      */
     public boolean isCancelled() {
         return mFuture.isCancelled();
@@ -180,10 +221,17 @@ public class MPDFuture<V> {
      * <p>Completion may be due to normal termination, an exception, or cancellation -- in all of
      * these cases, this method will return {@code true}.</p>
      *
-     * @return {@code true} if this task completed
+     * @return {@code true} If this task has completed.
      */
     public boolean isDone() {
         return mFuture.isDone();
+    }
+
+    @Override
+    public String toString() {
+        return "MPDFuture{" +
+                "mFuture=" + mFuture +
+                '}';
     }
 }
 

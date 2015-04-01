@@ -27,6 +27,8 @@
 
 package com.anpmech.mpd.concurrent;
 
+import com.anpmech.mpd.connection.CommandResult;
+
 import android.os.Handler;
 import android.os.Looper;
 
@@ -43,8 +45,8 @@ import java.util.concurrent.RejectedExecutionException;
 public final class MPDExecutor {
 
     /**
-     * The executor to use to execute {@link java.lang.Runnable} and
-     * {@link java.util.concurrent.Callable} classes off the main thread.
+     * The executor to use to execute {@link Runnable} and {@link Callable} classes off the main
+     * thread.
      */
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
@@ -85,8 +87,8 @@ public final class MPDExecutor {
      * @throws RejectedExecutionException If the task cannot be scheduled for execution.
      * @throws NullPointerException       If the task is null.
      */
-    public static <T> MPDFuture<T> submit(final Callable<T> task) {
-        return new MPDFuture<>(EXECUTOR.submit(task));
+    public static <T extends CommandResult> MPDFuture submit(final Callable<T> task) {
+        return new MPDFuture(EXECUTOR.submit(task));
     }
 
     /**
@@ -98,8 +100,8 @@ public final class MPDExecutor {
      * @throws RejectedExecutionException if the task cannot be scheduled for execution
      * @throws NullPointerException       if the task is null
      */
-    public static MPDFuture<?> submit(final Runnable task) {
-        return new MPDFuture<>(EXECUTOR.submit(task));
+    public static MPDFuture submit(final Runnable task) {
+        return new MPDFuture(EXECUTOR.submit(task));
     }
 
     /**

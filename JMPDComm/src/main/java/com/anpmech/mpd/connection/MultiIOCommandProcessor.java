@@ -27,6 +27,10 @@
 
 package com.anpmech.mpd.connection;
 
+import com.anpmech.mpd.CommandQueue;
+import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.commandresponse.CommandResponse;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -37,8 +41,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * This class sends one {@link com.anpmech.mpd.MPDCommand} or {@link com.anpmech.mpd.CommandQueue}
- * string over multiple possible connection resources, then processes and returns the result.
+ * This class sends one {@link MPDCommand} or {@link CommandQueue} string over multiple possible
+ * connection resources, then processes and returns the result.
  *
  * <p>This class was designed with thread safety in mind.</p>
  */
@@ -76,11 +80,13 @@ class MultiIOCommandProcessor extends IOCommandProcessor {
      * @param connectionStatus The status tracker for this connection.
      * @param commandString    The command string to be processed.
      * @param readWriteTimeout The {@link Socket#setSoTimeout(int)} for this connection.
+     * @param excludeResponses This is used to manually exclude responses from split
+     *                         {@link CommandResponse} inclusion.
      */
     MultiIOCommandProcessor(final SocketAddress socketAddress,
             final MPDConnectionStatus connectionStatus, final String commandString,
-            final int readWriteTimeout) {
-        super(connectionStatus, commandString);
+            final int readWriteTimeout, final int[] excludeResponses) {
+        super(connectionStatus, commandString, excludeResponses);
 
         mSocketAddress = socketAddress;
         mReadWriteTimeout = readWriteTimeout;

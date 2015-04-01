@@ -27,6 +27,8 @@
 
 package com.anpmech.mpd.connection;
 
+import com.anpmech.mpd.commandresponse.CommandResponse;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.Callable;
@@ -68,12 +70,15 @@ public class MultiIOMPDConnection extends MPDConnection {
     /**
      * Initiates and returns a mono socket command processor.
      *
-     * @param command The command to send to the mono socket command processor.
+     * @param command          The command to send to the mono socket command processor.
+     * @param excludeResponses This is used to manually exclude responses from split
+     *                         {@link CommandResponse} inclusion.
      * @return A mono socket command processor.
      */
     @Override
-    Callable<CommandResponse> getCommandProcessor(final String command) {
+    Callable<CommandResult> getCommandProcessor(final String command,
+            final int[] excludeResponses) {
         return new MultiIOCommandProcessor(mSocketAddress, mConnectionStatus, command,
-                mReadWriteTimeout);
+                mReadWriteTimeout, excludeResponses);
     }
 }

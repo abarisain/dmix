@@ -27,6 +27,8 @@
 
 package com.anpmech.mpd.connection;
 
+import com.anpmech.mpd.commandresponse.CommandResponse;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -72,11 +74,13 @@ class MonoIOCommandProcessor extends IOCommandProcessor {
      * @param connectionStatus The status tracker for this connection.
      * @param commandString    The command string to be processed.
      * @param readWriteTimeout The {@link Socket#setSoTimeout(int)} for this connection.
+     * @param excludeResponses This is used to manually exclude responses from split
+     *                         {@link CommandResponse} inclusion.
      */
     MonoIOCommandProcessor(final SocketAddress socketAddress,
             final MPDConnectionStatus connectionStatus, final String commandString,
-            final int readWriteTimeout) {
-        super(connectionStatus, commandString);
+            final int readWriteTimeout, final int[] excludeResponses) {
+        super(connectionStatus, commandString, excludeResponses);
 
         mReadWriteTimeout = readWriteTimeout;
         mSocketAddress = socketAddress;

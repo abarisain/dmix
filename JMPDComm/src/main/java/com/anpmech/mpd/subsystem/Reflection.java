@@ -185,7 +185,7 @@ public class Reflection {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    private Collection<String> getList(final String command, final String element)
+    private Collection<String> getList(final CharSequence command, final String element)
             throws IOException, MPDException {
         final List<String> response = mConnection.send(command);
 

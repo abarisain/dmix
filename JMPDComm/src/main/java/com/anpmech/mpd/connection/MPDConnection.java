@@ -30,9 +30,12 @@ package com.anpmech.mpd.connection;
 import com.anpmech.mpd.CommandQueue;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
-import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.commandresponse.SplitCommandResponse;
 import com.anpmech.mpd.concurrent.MPDExecutor;
 import com.anpmech.mpd.concurrent.MPDFuture;
+import com.anpmech.mpd.concurrent.ResponseFuture;
+import com.anpmech.mpd.concurrent.SplitResponseFuture;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.Reflection;
 
@@ -50,6 +53,12 @@ import java.util.concurrent.ExecutorService;
  * Class representing a connection to MPD Server.
  */
 public abstract class MPDConnection implements MPDConnectionListener {
+
+    /**
+     * Response for each successful command executed in a command list if used with {@code
+     * MPD_CMD_START_BULK_OK}.
+     */
+    public static final String MPD_CMD_BULK_SEP = "list_OK";
 
     /**
      * The command response for a successful command.
@@ -85,12 +94,6 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * The default environment variable for port address storage.
      */
     private static final String ENVIRONMENT_KEY_PORT = "MPD_PORT";
-
-    /**
-     * Response for each successful command executed in a command list if used with {@code
-     * MPD_CMD_START_BULK_OK}.
-     */
-    private static final String MPD_CMD_BULK_SEP = "list_OK";
 
     /**
      * The error message given when attempting to send a empty command queue.
@@ -136,7 +139,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * This is a holder for a connection {@link CommandResponse} while waiting for the connected
      * callback to occur.
      */
-    private MPDFuture<CommandResponse> mConnectionResponse;
+    private ResponseFuture mConnectionResponse;
 
     /**
      * Current media server's major/minor/micro version.
@@ -317,10 +320,13 @@ public abstract class MPDConnection implements MPDConnectionListener {
     /**
      * This method retrieves a CommandProcessor for the particular extending class.
      *
-     * @param command The command line to be processed.
+     * @param command          The command line to be processed.
+     * @param excludeResponses This is used to manually exclude responses from split
+     *                         {@link CommandResponse} inclusion.
      * @return A command processor, ready for {@link ExecutorService} submission.
      */
-    abstract Callable<CommandResponse> getCommandProcessor(final String command);
+    abstract Callable<CommandResult> getCommandProcessor(final String command,
+            final int[] excludeResponses);
 
     /**
      * Get default address from the {@code MPD_HOST} environment variable.
@@ -418,7 +424,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @param commandQueue The CommandQueue to process.
      * @return The response to the CommandQueue.
      */
-    private MPDFuture<CommandResponse> processCommand(final CommandQueue commandQueue) {
+    private MPDFuture processCommand(final CommandQueue commandQueue) {
         if (commandQueue.isEmpty()) {
             throw new IllegalStateException(NO_EMPTY_COMMAND_QUEUE);
         }
@@ -437,7 +443,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @param mpdCommand The command to be processed.
      * @return The response from the command.
      */
-    private MPDFuture<CommandResponse> processCommand(final MPDCommand mpdCommand) {
+    private MPDFuture processCommand(final MPDCommand mpdCommand) {
         final String commandString;
 
         if (mPassword == null) {
@@ -449,16 +455,22 @@ public abstract class MPDConnection implements MPDConnectionListener {
         return processCommand(commandString);
     }
 
+    private MPDFuture processCommand(final String command) {
+        return processCommand(command, null);
+    }
+
     /**
      * Processes the command by setting up the command processor executor.
      *
-     * @param command The command string to be processed.
+     * @param command          The command string to be processed.
+     * @param excludeResponses This is used to manually exclude responses from split
+     *                         {@link CommandResponse} inclusion.
      * @return The response to the processed command.
      */
-    private MPDFuture<CommandResponse> processCommand(final String command) {
+    private MPDFuture processCommand(final String command, final int[] excludeResponses) {
         debug("processCommand() command: " + command);
 
-        final Callable<CommandResponse> callable = getCommandProcessor(command);
+        final Callable<CommandResult> callable = getCommandProcessor(command, excludeResponses);
 
         return MPDExecutor.submit(callable);
     }
@@ -470,16 +482,20 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @param commandQueue The CommandQueue to process.
      * @return The response to the CommandQueue.
      */
-    private MPDFuture<CommandResponse> processCommandSeparated(final CommandQueue commandQueue) {
+    private MPDFuture processCommandSeparated(final CommandQueue commandQueue) {
         if (commandQueue.isEmpty()) {
             throw new IllegalStateException(NO_EMPTY_COMMAND_QUEUE);
         }
 
-        if (mPassword != null) {
+        final int[] excludeResponses;
+        if (mPassword == null) {
+            excludeResponses = null;
+        } else {
             commandQueue.add(0, mPassword);
+            excludeResponses = new int[]{0};
         }
 
-        return processCommand(commandQueue.toStringSeparated());
+        return processCommand(commandQueue.toStringSeparated(), excludeResponses);
     }
 
     /**
@@ -493,7 +509,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      */
     @Deprecated
     public List<String> send(final MPDCommand command) throws IOException, MPDException {
-        return processCommand(command).get().getList();
+        return submit(command).get().getList();
     }
 
     /**
@@ -523,7 +539,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      */
     @Deprecated
     public List<String> send(final CommandQueue commandQueue) throws IOException, MPDException {
-        return processCommand(commandQueue).get().getList();
+        return submit(commandQueue).get().getList();
     }
 
     /**
@@ -533,31 +549,18 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @return The results of from the media server.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @deprecated Use {@link #submitSeparated(CommandQueue)}
      */
+    @Deprecated
     public List<List<String>> sendSeparated(final CommandQueue commandQueue)
             throws IOException, MPDException {
-        final List<String> response = processCommandSeparated(commandQueue).get().getList();
+        final List<List<String>> lists = new ArrayList<>();
 
-        /** TODO: Fix to push the future down. */
-        if (mPassword != null) {
-            /** Remove the password response. */
-            response.remove(0);
+        for (final CommandResponse response : submitSeparated(commandQueue).get()) {
+            lists.add(response.getList());
         }
 
-        final Collection<int[]> ranges = Tools.getRanges(response, MPD_CMD_BULK_SEP);
-        final List<List<String>> result = new ArrayList<>(ranges.size());
-
-        for (final int[] range : ranges) {
-            if (commandQueue.size() == 1) {
-                /** If the CommandQueue has a size of 1, it was sent as a command. */
-                result.add(response);
-            } else {
-                /** Remove the bulk separator from the subList. */
-                result.add(response.subList(range[0], range[1] - 1));
-            }
-        }
-
-        return result;
+        return lists;
     }
 
     /**
@@ -580,8 +583,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @param args    Arguments to the command to be sent to the server.
      * @return A {@link MPDFuture} for tracking and response processing.
      */
-    public MPDFuture<CommandResponse> submit(final CharSequence command,
-            final CharSequence... args) {
+    public ResponseFuture submit(final CharSequence command, final CharSequence... args) {
         return submit(MPDCommand.create(command, args));
     }
 
@@ -591,8 +593,8 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @param command The command to be sent to the server.
      * @return A {@link MPDFuture} for tracking and response processing.
      */
-    public MPDFuture<CommandResponse> submit(final MPDCommand command) {
-        return processCommand(command);
+    public ResponseFuture submit(final MPDCommand command) {
+        return new ResponseFuture(processCommand(command));
     }
 
     /**
@@ -601,7 +603,18 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @param commandQueue The The CommandQueue to send to the server.
      * @return A {@link MPDFuture} for tracking and response processing.
      */
-    public MPDFuture<CommandResponse> submit(final CommandQueue commandQueue) {
-        return processCommand(commandQueue);
+    public ResponseFuture submit(final CommandQueue commandQueue) {
+        return new ResponseFuture(processCommand(commandQueue));
+    }
+
+    /**
+     * Submit a CommandQueue, retrieving the result for each command in a separate
+     * {@link CommandResponse}.
+     *
+     * @param commandQueue The CommandQueue to send.
+     * @return A {@link SplitResponseFuture}, which will return a {@link SplitCommandResponse}.
+     */
+    public SplitResponseFuture submitSeparated(final CommandQueue commandQueue) {
+        return new SplitResponseFuture(processCommandSeparated(commandQueue));
     }
 }

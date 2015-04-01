@@ -25,11 +25,13 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.anpmech.mpd.connection;
+package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.connection.CommandResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,14 +39,13 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
 
 /**
  * This class stores and processes the result for a MPD command response.
  *
  * <p>This class is immutable, thus, thread-safe.</p>
  */
-public class CommandResponse implements Iterable<String> {
+public class CommandResponse extends CommandResult implements Iterable<String> {
 
     /**
      * The class log identifier.
@@ -52,51 +53,25 @@ public class CommandResponse implements Iterable<String> {
     private static final String TAG = "CommandResponse";
 
     /**
-     * The MPD protocol command response.
-     */
-    protected final String mResponse;
-
-    /**
-     * The result of the connection initiation.
-     */
-    private final String mConnectionResult;
-
-    /**
-     * This is a mutable hint for list size.
-     */
-    protected int mListSize = 16;
-
-    /**
-     * The sole constructor.
+     * This constructor builds this class from the MPD protocol result.
      *
      * @param connectionResult The result of the connection initiation.
      * @param response         The MPD protocol command response.
+     * @param excludeResponses This is used to manually exclude responses from split
+     *                         CommandResponse inclusion. Unused for this class.
      */
-    protected CommandResponse(final String connectionResult, final String response) {
-        super();
-
-        mConnectionResult = connectionResult;
-        mResponse = response;
+    protected CommandResponse(final String connectionResult, final String response,
+            final int[] excludeResponses) {
+        super(connectionResult, response, null);
     }
 
     /**
-     * Converts a Iterator&lt;&gt; to a List&lt;&gt; of the same type if the entry key matches the
-     * {@code key} parameter.
+     * This constructor is used for subclassing.
      *
-     * @param collection The collection to add the entries from the Iterator to.
-     * @param iterator   The iterator with entries to add to the collection.
-     * @param <T>        The type of the Iterator entry.
-     * @return True if the list was modified, false otherwise.
+     * @param result The CommandResult to subclass.
      */
-    private static <T> boolean addAll(final Collection<T> collection,
-            final Iterator<? extends T> iterator) {
-        final int hash = collection.hashCode();
-
-        while (iterator.hasNext()) {
-            collection.add(iterator.next());
-        }
-
-        return hash != collection.hashCode();
+    public CommandResponse(final CommandResult result) {
+        super(result);
     }
 
     /**
@@ -148,18 +123,12 @@ public class CommandResponse implements Iterable<String> {
     }
 
     /**
-     * Returns the first string response from the media server after connection. This method is
-     * mainly for debugging.
+     * This method creates a key value map from this response.
      *
-     * @return A string representation of the connection result.
-     * @see #getMPDVersion() Use of this method is preferred.
+     * @return A {@code Map<Key, Value>}.
      */
-    public String getConnectionResult() {
-        return mConnectionResult;
-    }
-
-    public Map<CharSequence, String> getKeyValueMap() {
-        final Map<CharSequence, String> map = new HashMap<>(mListSize);
+    public Map<String, String> getKeyValueMap() {
+        final Map<String, String> map = new HashMap<>(mListSize);
         putAll(map, splitListIterator());
 
         return map;
@@ -179,28 +148,6 @@ public class CommandResponse implements Iterable<String> {
     }
 
     /**
-     * Processes the {@code CommandResponse} connection response to store the current media server
-     * MPD protocol version.
-     *
-     * @return Returns the MPD version retained from the connection result.
-     */
-    public int[] getMPDVersion() {
-        final int subHeaderLength = (MPDConnection.CMD_RESPONSE_OK + " MPD ").length();
-        final String formatResponse = mConnectionResult.substring(subHeaderLength);
-
-        final StringTokenizer stringTokenizer = new StringTokenizer(formatResponse, ".");
-        final int[] version = new int[stringTokenizer.countTokens()];
-        int i = 0;
-
-        while (stringTokenizer.hasMoreElements()) {
-            version[i] = Integer.parseInt(stringTokenizer.nextToken());
-            i++;
-        }
-
-        return version;
-    }
-
-    /**
      * This method returns a list of key:value pairs.
      *
      * <p>An error will be produced if this is called on a non-key/value MPD server response.</p>
@@ -208,8 +155,8 @@ public class CommandResponse implements Iterable<String> {
      * @return A list of key:value pairs.
      * @see #splitListIterator()
      */
-    public List<Map.Entry<CharSequence, String>> getSplitList() {
-        final List<Map.Entry<CharSequence, String>> list = new ArrayList<>(mListSize);
+    public List<Map.Entry<String, String>> getSplitList() {
+        final List<Map.Entry<String, String>> list = new ArrayList<>(mListSize);
         addAll(list, splitListIterator());
 
         return list;
@@ -234,20 +181,11 @@ public class CommandResponse implements Iterable<String> {
      * @param key The key to find matching values for.
      * @return A list of values with keys matching the {@code key} parameter.
      */
-    public List<String> getValues(final CharSequence key) {
+    public List<String> getValues(final String key) {
         final List<String> values = new ArrayList<>(mListSize);
         addAllMatching(values, splitListIterator(), key);
 
         return values;
-    }
-
-    /**
-     * This checks the connection response for validity.
-     *
-     * @return True if the connection header exists, false otherwise.
-     */
-    public boolean isHeaderValid() {
-        return mConnectionResult != null;
     }
 
     /**
@@ -267,7 +205,7 @@ public class CommandResponse implements Iterable<String> {
      * @see #getList()
      */
     public ListIterator<String> listIterator() {
-        return new ResponseIterator(mResponse, 0);
+        return new ResponseIterator(mResult, 0);
     }
 
     /**
@@ -278,7 +216,8 @@ public class CommandResponse implements Iterable<String> {
      * @return A iterator to return response, line by line, starting at the end.
      */
     public ListIterator<String> reverseListIterator() {
-        return new ResponseIterator(mResponse, mResponse.length());
+        return new ResponseIterator(mResult,
+                mResult.lastIndexOf(MPDCommand.MPD_CMD_NEWLINE) - 1);
     }
 
     /**
@@ -288,8 +227,9 @@ public class CommandResponse implements Iterable<String> {
      *
      * @return A iterator to return key/value pairs.
      */
-    public ListIterator<Map.Entry<CharSequence, String>> reverseSplitListIterator() {
-        return new ResponseSplitIterator(mResponse, mResponse.length());
+    public ListIterator<Map.Entry<String, String>> reverseSplitListIterator() {
+        return new ResponseSplitIterator(mResult,
+                mResult.lastIndexOf(MPDCommand.MPD_CMD_NEWLINE));
     }
 
     /**
@@ -298,8 +238,8 @@ public class CommandResponse implements Iterable<String> {
      * @return A iterator to return key/value pairs.
      * @see #getSplitList()
      */
-    public ListIterator<Map.Entry<CharSequence, String>> splitListIterator() {
-        return new ResponseSplitIterator(mResponse, 0);
+    public ListIterator<Map.Entry<String, String>> splitListIterator() {
+        return new ResponseSplitIterator(mResult, 0);
     }
 
     /**
@@ -310,199 +250,24 @@ public class CommandResponse implements Iterable<String> {
     @Override
     public String toString() {
         return "CommandResponse{" +
-                "mConnectionResult='" + mConnectionResult + '\'' +
-                ", mResponse='" + mResponse + '\'' +
+                "mResult='" + mResult + '\'' +
+                ", mConnectionResult='" + mConnectionResult + '\'' +
                 ", mListSize=" + mListSize +
+                ", mExcludeResponses=" + Arrays.toString(mExcludeResponses) +
                 '}';
     }
 
     /**
-     * This class is used to create Iterators to iterate over a MPD command response.
-     *
-     * @param <T> The type of the Iterator.
+     * This class instantiates an {@link Iterator} to iterate over the MPD command response.
      */
-    protected abstract static class AbstractResponseIterator<T> implements ListIterator<T> {
-
-        /**
-         * The error given if no more elements remain for this iterator instance.
-         */
-        private static final String NO_MORE_ELEMENTS_REMAIN = "No more elements remain.";
-
-        /**
-         * The error given if trying an operation which this iterator doesn't support.
-         */
-        private static final String UNSUPPORTED = "Operation unsupported by this iterator.";
-
-        /**
-         * The MPD protocol command response.
-         */
-        private final String mResponse;
-
-        /**
-         * The current position of this iterator relative to the response.
-         */
-        private int mPosition;
-
-        /**
-         * Sole constructor.
-         *
-         * @param response The MPD protocol command response.
-         * @param position The position relative to the response to initiate the {@link #mPosition}
-         *                 to.
-         */
-        protected AbstractResponseIterator(final String response, final int position) {
-            super();
-
-            mResponse = response;
-            mPosition = position;
-        }
-
-        /**
-         * The add operation is invalid for this iterator.
-         *
-         * @param object The object to insert.
-         */
-        @Override
-        public void add(final T object) {
-            throw new UnsupportedOperationException(UNSUPPORTED);
-        }
-
-        /**
-         * Checks for next element, if not throws an exception.
-         */
-        protected void checkNext() {
-            if (!hasNext()) {
-                throw new NoSuchElementException(NO_MORE_ELEMENTS_REMAIN);
-            }
-        }
-
-        /**
-         * Checks for previous element, if not throws an exception.
-         */
-        protected void checkPrevious() {
-            if (!hasPrevious()) {
-                throw new NoSuchElementException(NO_MORE_ELEMENTS_REMAIN);
-            }
-        }
-
-        /**
-         * Returns the next MPD response line.
-         *
-         * @return The next MPD response line.
-         */
-        protected String getNextLine() {
-            return mResponse.substring(mPosition, nextIndex());
-        }
-
-        /**
-         * Returns the previous MPD response line.
-         *
-         * @return The previous MPD response line.
-         */
-        protected String getPreviousLine() {
-            return mResponse.substring(previousIndex(), mPosition);
-        }
-
-        /**
-         * Returns whether there are more elements to iterate.
-         *
-         * @return {@code true} If there are more elements, {@code false} otherwise.
-         * @see #next
-         */
-        @Override
-        public boolean hasNext() {
-            return nextIndex() != -1;
-        }
-
-        /**
-         * Returns whether there are previous elements to iterate.
-         *
-         * @return {@code true} If there are previous elements, {@code false} otherwise.
-         * @see #previous
-         */
-        @Override
-        public boolean hasPrevious() {
-            return previousIndex() != -1;
-
-        }
-
-        /**
-         * Returns the index of the next object in the iteration.
-         *
-         * @return The index of the next object, or the size of the list if the iterator is at the
-         * end.
-         * @see #next
-         */
-        @Override
-        public int nextIndex() {
-            return mResponse.indexOf(MPDCommand.MPD_CMD_NEWLINE, mPosition);
-        }
-
-        /**
-         * Returns the index of the previous object in the iteration.
-         *
-         * @return The index of the previous object, or -1 if the iterator is at the beginning.
-         * @see #previous
-         */
-        @Override
-        public int previousIndex() {
-            return mResponse.lastIndexOf(MPDCommand.MPD_CMD_NEWLINE, mPosition);
-        }
-
-        /**
-         * This object is immutable and it's contents cannot be removed, this method is not
-         * supported.
-         */
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException(UNSUPPORTED);
-        }
-
-        /**
-         * This object is immutable and it's contents cannot be set, this method is not
-         * supported.
-         *
-         * @param object The object to set.
-         */
-        @Override
-        public void set(final T object) {
-            throw new UnsupportedOperationException(UNSUPPORTED);
-        }
-
-        /**
-         * This changes the position assignment to the next newline.
-         */
-        protected void setPositionNext() {
-            mPosition = nextIndex() + 1;
-        }
-
-        /**
-         * This changes the position assignment to the previous newline.
-         */
-        protected void setPositionPrevious() {
-            mPosition = previousIndex() + 1;
-        }
-
-        @Override
-        public String toString() {
-            return "AbstractResponseIterator{" +
-                    "mResponse='" + mResponse + '\'' +
-                    ", mPosition=" + mPosition +
-                    '}';
-        }
-    }
-
-    /**
-     * This class instantiates a iterator to iterate over the MPD command response.
-     */
-    private static class ResponseIterator extends AbstractResponseIterator<String> {
+    private static class ResponseIterator extends AbstractResultIterator<String> {
 
         /**
          * Sole constructor.
          *
          * @param response The MPD protocol command response.
          * @param position The position relative to the response to initiate the
-         *                 {@link CommandResponse.AbstractResponseIterator#mPosition} to.
+         *                 {@link CommandResult.AbstractResultIterator#mPosition} to.
          */
         ResponseIterator(final String response, final int position) {
             super(response, position);
@@ -544,17 +309,18 @@ public class CommandResponse implements Iterable<String> {
     }
 
     /**
-     * This class instantiates a iterator to iterate over a key:value MPD command response.
+     * This class instantiates an {@link Iterator} to iterate over a key:value MPD command
+     * response.
      */
     private static class ResponseSplitIterator
-            extends AbstractResponseIterator<Map.Entry<CharSequence, String>> {
+            extends AbstractResultIterator<Map.Entry<String, String>> {
 
         /**
          * Sole constructor.
          *
          * @param response The MPD protocol command response.
          * @param position The position relative to the response to initiate the
-         *                 {@link CommandResponse.AbstractResponseIterator#mPosition} to.
+         *                 {@link AbstractResultIterator#mPosition} to.
          */
         ResponseSplitIterator(final String response, final int position) {
             super(response, position);
@@ -568,10 +334,10 @@ public class CommandResponse implements Iterable<String> {
          * @see #hasNext
          */
         @Override
-        public Map.Entry<CharSequence, String> next() {
+        public Map.Entry<String, String> next() {
             checkNext();
 
-            final Map.Entry<CharSequence, String> entry = new SimplerImmutableEntry(getNextLine());
+            final Map.Entry<String, String> entry = new SimplerImmutableEntry(getNextLine());
 
             setPositionNext();
 
@@ -586,11 +352,9 @@ public class CommandResponse implements Iterable<String> {
          * @see #hasPrevious
          */
         @Override
-        public Map.Entry<CharSequence, String> previous() {
+        public Map.Entry<String, String> previous() {
             checkPrevious();
-
-            final Map.Entry<CharSequence, String> entry =
-                    new SimplerImmutableEntry(getPreviousLine());
+            final Map.Entry<String, String> entry = new SimplerImmutableEntry(getPreviousLine());
             setPositionPrevious();
 
             return entry;
@@ -598,9 +362,9 @@ public class CommandResponse implements Iterable<String> {
     }
 
     /**
-     * This creates a simple map entry for our key/value entries.
+     * This creates a simple map entry for key:value entries.
      */
-    static final class SimplerImmutableEntry implements Map.Entry<CharSequence, String> {
+    public static final class SimplerImmutableEntry implements Map.Entry<String, String> {
 
         /**
          * The MPD protocol [KEY]:[VALUE] delimiter.
@@ -636,13 +400,22 @@ public class CommandResponse implements Iterable<String> {
         }
 
         /**
+         * This method returns the entry in it's entirety.
+         *
+         * @return The full entry.
+         */
+        public String getEntry() {
+            return mEntry;
+        }
+
+        /**
          * The MPD response key for this entry.
          *
          * @return The key for this entry.
          */
         @Override
-        public CharSequence getKey() {
-            return mEntry.subSequence(0, mDelimiter);
+        public String getKey() {
+            return mEntry.substring(0, mDelimiter);
         }
 
         /**

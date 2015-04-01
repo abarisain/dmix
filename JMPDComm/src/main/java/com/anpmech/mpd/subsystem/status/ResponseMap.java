@@ -28,7 +28,7 @@
 package com.anpmech.mpd.subsystem.status;
 
 import com.anpmech.mpd.Log;
-import com.anpmech.mpd.connection.CommandResponse;
+import com.anpmech.mpd.commandresponse.CommandResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -385,7 +385,7 @@ class ResponseMap {
      * @param commandResponse The response from the server.
      */
     public void update(final CommandResponse commandResponse) {
-        final Map<CharSequence, String> map = commandResponse.getKeyValueMap();
+        final Map<String, String> map = commandResponse.getKeyValueMap();
 
         /**
          * Delete entries (by key) which don't exist in the new map then replace. This avoids a

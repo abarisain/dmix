@@ -27,6 +27,8 @@
 
 package com.anpmech.mpd.concurrent;
 
+import com.anpmech.mpd.connection.CommandResult;
+
 import java.security.PrivilegedAction;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -72,8 +74,8 @@ public final class MPDExecutor {
      * @throws RejectedExecutionException If the task cannot be scheduled for execution.
      * @throws NullPointerException       If the task is null.
      */
-    public static <T> MPDFuture<T> submit(final Callable<T> task) {
-        return new MPDFuture<>(EXECUTOR.submit(task));
+    public static <T extends CommandResult> MPDFuture submit(final Callable<T> task) {
+        return new MPDFuture(EXECUTOR.submit(task));
     }
 
     /**
@@ -85,8 +87,8 @@ public final class MPDExecutor {
      * @throws RejectedExecutionException if the task cannot be scheduled for execution
      * @throws NullPointerException       if the task is null
      */
-    public static MPDFuture<?> submit(final Runnable task) {
-        return new MPDFuture<>(EXECUTOR.submit(task));
+    public static MPDFuture submit(final Runnable task) {
+        return new MPDFuture(EXECUTOR.submit(task));
     }
 
     /**

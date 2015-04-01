@@ -27,7 +27,7 @@
 
 package com.anpmech.mpd;
 
-import com.anpmech.mpd.connection.CommandResponse;
+import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.connection.MonoIOMPDConnection;

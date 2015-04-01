@@ -33,7 +33,7 @@ import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.MPDPlaylist;
 import com.anpmech.mpd.concurrent.MPDExecutor;
 import com.anpmech.mpd.concurrent.MPDFuture;
-import com.anpmech.mpd.connection.CommandResponse;
+import com.anpmech.mpd.concurrent.ResponseFuture;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.connection.MonoIOMPDConnection;
 import com.anpmech.mpd.event.StatusChangeListener;
@@ -152,12 +152,12 @@ public class IdleSubsystemMonitor implements Runnable {
     /**
      * This Future tracks the status of the Idle command.
      */
-    private MPDFuture<CommandResponse> mIdleTracker;
+    private ResponseFuture mIdleTracker;
 
     /**
      * This Future tracks the status of this monitor.
      */
-    private MPDFuture<?> mMonitorTracker;
+    private MPDFuture mMonitorTracker;
 
     /**
      * This is the loop terminator.
@@ -301,7 +301,7 @@ public class IdleSubsystemMonitor implements Runnable {
                  * {@link #mIdleTracker} is cancelled by another thread.
                  */
                 try {
-                    final Iterator<Map.Entry<CharSequence, String>> changes =
+                    final Iterator<Map.Entry<String, String>> changes =
                             mIdleTracker.get().splitListIterator();
 
                     oldStatus = status.getImmutableStatus();
