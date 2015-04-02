@@ -75,7 +75,8 @@ public class MonoIOMPDConnection extends MPDConnection implements ThreadSafeMono
     @Override
     public void disconnect() throws IOException {
         debug("Disconnecting by method call");
-        cancel();
+        super.disconnect();
+
         MonoIOCommandProcessor.disconnect(mSocketAddress);
     }
 

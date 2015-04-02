@@ -27,8 +27,6 @@
 
 package com.anpmech.mpd.connection;
 
-import com.anpmech.mpd.Log;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -85,44 +83,52 @@ class MonoIOCommandProcessor extends IOCommandProcessor {
     }
 
     /**
-     * This is a method to directly disconnects, closes and removes the SocketSet from the map.
-     *
-     * @param socketAddress The current SocketAddress.
+     * Iterates through the {@link #SOCKET_MAP}, disconnecting and closing all IOSocketSets.
      */
-    static void disconnect(final SocketAddress socketAddress) {
-        final IOSocketSet socketSet = SOCKET_MAP.remove(socketAddress);
-
-        if (socketSet != null) {
-            try {
-                socketSet.close();
-            } catch (final IOException e) {
-                Log.warning(TAG, IOSocketSet.ERROR_FAILED_TO_CLOSE, e);
-            }
+    public static void disconnect() {
+        for (final IOSocketSet socketSet : SOCKET_MAP.values()) {
+            disconnect(socketSet);
         }
     }
 
     /**
-     * This returns the SocketSet associated with this connection.
+     * This method disconnects and closes a IOSocket associated with the {@link SocketAddress}
+     * parameter.
      *
-     * @return A SocketSet associated with this connection.
-     * @see #resetSocketSet()
+     * @param socketAddress The SocketAddress to close the connection to.
      */
-    @Override
-    IOSocketSet getSocketSet() {
-        return SOCKET_MAP.get(mSocketAddress);
+    public static void disconnect(final SocketAddress socketAddress) {
+        disconnect(SOCKET_MAP.get(socketAddress));
     }
 
     /**
-     * This method disconnects, closes, removes the old SocketSet, then sets a new SocketSet.
+     * Pops off the stack or creates a new {@link IOSocketSet} then validates and connects if
+     * necessary.
      *
-     * @see #getSocketSet()
+     * @return A connected and validated IOSocketSet.
+     * @throws IOException Thrown if there was a problem reading from from the media server.
      */
     @Override
-    void resetSocketSet() throws IOException {
-        debug("Resetting socket");
-        disconnect(mSocketAddress);
+    IOSocketSet popSocketSet() throws IOException {
+        IOSocketSet socketSet = SOCKET_MAP.get(mSocketAddress);
 
-        SOCKET_MAP.put(mSocketAddress, new IOSocketSet(mSocketAddress, mReadWriteTimeout));
+        if (shouldReconnect(socketSet)) {
+            disconnect(socketSet);
+            socketSet = new IOSocketSet(mSocketAddress, mReadWriteTimeout);
+            innerConnect(socketSet);
+        }
+
+        return socketSet;
+    }
+
+    /**
+     * Pushes a {@link IOSocketSet} back onto the stack for possible later use, if still valid.
+     *
+     * @param socketSet A connected and validated IOSocketSet.
+     */
+    @Override
+    void pushSocketSet(final IOSocketSet socketSet) {
+        SOCKET_MAP.put(mSocketAddress, socketSet);
     }
 
     @Override

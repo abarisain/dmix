@@ -691,7 +691,7 @@ public class MPD {
      */
     public synchronized void disconnect() throws IOException {
         mIdleConnection.disconnect();
-        mConnection.cancel();
+        mConnection.disconnect();
     }
 
     public void editSavedStream(final String url, final String name, final Integer pos)

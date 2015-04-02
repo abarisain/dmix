@@ -76,6 +76,11 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
     private final MPDConnectionStatus mConnectionStatus;
 
     /**
+     * The connection header given only during a new connection.
+     */
+    private String mHeader;
+
+    /**
      * The constructor for this CommandProcessor.
      *
      * @param connectionStatus The status tracker for this connection.
@@ -143,24 +148,37 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
     }
 
     /**
+     * Common code used to disconnect a IOSocketSet.
+     *
+     * @param socketSet The IOSocketSet to disconnect and close.
+     */
+    protected static void disconnect(final IOSocketSet socketSet) {
+        if (socketSet != null) {
+            try {
+                socketSet.close();
+            } catch (final IOException e) {
+                Log.warning(TAG, IOSocketSet.ERROR_FAILED_TO_CLOSE, e);
+            }
+        }
+    }
+
+    /**
      * This is the default class method.
      *
      * @return A {@code CommandResponse} from the processed command.
      */
     @Override
     public final CommandResponse call() throws IOException, MPDException {
-        String header = null;
         CommandResponse commandResponse = null;
 
         for (int resendTries = 0; resendTries < MAX_REQUEST_RETRY; resendTries++) {
             try {
                 checkCancelled();
 
-                if (shouldReconnect()) {
-                    header = innerConnect();
-                }
-                write();
-                commandResponse = new CommandResponse(header, read());
+                final IOSocketSet socketSet = popSocketSet();
+                write(socketSet);
+                commandResponse = new CommandResponse(mHeader, read(socketSet));
+                pushSocketSet(socketSet);
                 break;
             } catch (final IOException e) {
                 if (resendTries + 1 == MAX_REQUEST_RETRY || mConnectionStatus.isCancelled()) {
@@ -194,49 +212,54 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
     }
 
     /**
-     * This returns a socket for the current abstraction.
-     *
-     * @return A IOSocketSet for this connection address.
-     * @see #resetSocketSet()
-     */
-    abstract IOSocketSet getSocketSet();
-
-    /**
      * This is the low level media server connection method.
      *
-     * @return The initial response from the connection.
+     * @param socketSet The socket set to retrieve the connection header for.
      * @throws IOException Thrown upon a communication error with the server.
      */
-    private String innerConnect() throws IOException {
-        // Always release existing socket if any before creating a new one
-        resetSocketSet();
-        final String line = getSocketSet().getReader().readLine();
+    protected void innerConnect(final IOSocketSet socketSet) throws IOException {
+        mHeader = socketSet.getReader().readLine();
 
-        if (line == null) {
+        if (mHeader == null) {
             throw new IOException("No response from server.");
         }
 
         /** Protocol says OK will begin the session, otherwise assume IO error. */
-        if (!line.startsWith(MPDConnection.CMD_RESPONSE_OK)) {
-            throw new IOException("Bogus response from server: " + line);
+        if (!mHeader.startsWith(MPDConnection.CMD_RESPONSE_OK)) {
+            throw new IOException("Bogus response from server: " + mHeader);
         }
 
         checkCancelled();
         mConnectionStatus.statusChangeConnected();
-
-        return line;
     }
+
+    /**
+     * Pops off the stack or creates a new {@link IOSocketSet} then validates and connects if
+     * necessary.
+     *
+     * @return A connected and validated IOSocketSet.
+     * @throws IOException Thrown if there was a problem reading from from the media server.
+     */
+    abstract IOSocketSet popSocketSet() throws IOException;
+
+    /**
+     * Pushes a {@link IOSocketSet} back onto the stack for possible later use, if still valid.
+     *
+     * @param socketSet A connected and validated IOSocketSet.
+     */
+    abstract void pushSocketSet(final IOSocketSet socketSet);
 
     /**
      * Read the server response after a {@code write()} to the server.
      *
+     * @param socketSet The socket set used to read the server response.
      * @return A String list of responses.
      * @throws IOException  Thrown if there was a problem reading from from the media server.
      * @throws MPDException Thrown if there was a server side error with the command that was
      *                      sent.
      */
-    private String read() throws MPDException, IOException {
-        final BufferedReader in = getSocketSet().getReader();
+    private String read(final IOSocketSet socketSet) throws MPDException, IOException {
+        final BufferedReader in = socketSet.getReader();
         final CharBuffer charBuffer = CharBuffer.allocate(READ_BUFFER_SIZE);
         final StringBuilder stringBuilder = new StringBuilder();
         boolean invalidResponse = true;
@@ -275,21 +298,14 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
     }
 
     /**
-     * This method should close and remove the old socket, and set a new socket.
-     *
-     * @throws IOException If there was an IO error when connecting this socket set.
-     * @see #getSocketSet()
-     */
-    abstract void resetSocketSet() throws IOException;
-
-    /**
      * Returns whether it is necessary to reconnect.
      *
+     * @param socketSet The socket set to use for checking whether this instance needs to
+     *                  reconnect.
      * @return True if a reconnection is required, false otherwise.
      */
-    private boolean shouldReconnect() {
+    protected boolean shouldReconnect(final IOSocketSet socketSet) {
         final boolean shouldReconnect;
-        final IOSocketSet socketSet = getSocketSet();
 
         if (socketSet == null || !socketSet.isValid()) {
             /**
@@ -323,17 +339,17 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
         return "IOCommandProcessor{" +
                 "mCommandString='" + mCommandString + '\'' +
                 ", mConnectionStatus=" + mConnectionStatus +
-                ", getSocketSet{" + getSocketSet() + " }," +
                 '}';
     }
 
     /**
      * Sends the command to the server.
      *
+     * @param socketSet The socket set used to send the command to the server.
      * @throws IOException Thrown upon error transferring command to media server.
      */
-    private void write() throws IOException {
-        final OutputStreamWriter writer = getSocketSet().getWriter();
+    private void write(final IOSocketSet socketSet) throws IOException {
+        final OutputStreamWriter writer = socketSet.getWriter();
 
         try {
             mConnectionStatus.setBlocked();

@@ -27,13 +27,14 @@
 
 package com.anpmech.mpd.connection;
 
-import com.anpmech.mpd.Log;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * This class sends one {@link com.anpmech.mpd.MPDCommand} or {@link com.anpmech.mpd.CommandQueue}
@@ -50,7 +51,8 @@ class MultiIOCommandProcessor extends IOCommandProcessor {
      * <p>This map should not need to be synchronized. ThreadLocal is thread safe, and is
      * generated during construction.</p>
      */
-    private static final Map<SocketAddress, ThreadLocal<IOSocketSet>> SOCKET_MAP = new HashMap<>();
+    private static final Map<SocketAddress, Queue<IOSocketSet>> SOCKET_MAP
+            = new ConcurrentHashMap<>();
 
     /**
      * The class log identifier.
@@ -84,41 +86,87 @@ class MultiIOCommandProcessor extends IOCommandProcessor {
         mReadWriteTimeout = readWriteTimeout;
 
         if (!SOCKET_MAP.containsKey(mSocketAddress)) {
-            SOCKET_MAP.put(mSocketAddress, new ThreadLocal<IOSocketSet>());
+            SOCKET_MAP.put(mSocketAddress, new ConcurrentLinkedQueue<IOSocketSet>());
         }
     }
 
     /**
-     * This returns a socket.
+     * This method iterates through a {@code Collection}, disconnecting and closing all
+     * {@code IOSocketSet}s.
      *
-     * @return A socket corresponding to the {@link SocketAddress} for this connection.
-     * @see #resetSocketSet()
+     * @param queue The collection to iterate over.
      */
-    @Override
-    IOSocketSet getSocketSet() {
-        return SOCKET_MAP.get(mSocketAddress).get();
+    private static void disconnect(final Collection<IOSocketSet> queue) {
+        for (final IOSocketSet socketSet : queue) {
+            disconnect(socketSet);
+        }
+        queue.clear();
     }
 
     /**
-     * This method disconnects, closes, removes the old socket, then sets a new socket.
+     * This method disconnects and closes a IOSocket associated with the {@link SocketAddress}
+     * parameter.
      *
-     * @see #getSocketSet()
+     * @param socketAddress The SocketAddress to close the connection to.
+     */
+    public static void disconnect(final SocketAddress socketAddress) {
+        disconnect(SOCKET_MAP.get(socketAddress).poll());
+    }
+
+    /**
+     * Iterates through the {@link #SOCKET_MAP}, disconnecting and closing all {@code
+     * IOSocketSet}s.
+     */
+    public static void disconnect() {
+        for (final Queue<IOSocketSet> queue : SOCKET_MAP.values()) {
+            disconnect(queue);
+        }
+        SOCKET_MAP.clear();
+    }
+
+    /**
+     * Pops off the stack or creates a new {@link IOSocketSet} then validates and connects if
+     * necessary.
+     *
+     * @return A connected and validated IOSocketSet.
+     * @throws IOException Thrown if there was a problem reading from from the media server.
      */
     @Override
-    void resetSocketSet() throws IOException {
-        final ThreadLocal<IOSocketSet> threadLocal = SOCKET_MAP.get(mSocketAddress);
-        final IOSocketSet socketSet = threadLocal.get();
-        threadLocal.remove();
+    IOSocketSet popSocketSet() throws IOException {
+        IOSocketSet socketSet = null;
 
-        if (socketSet != null) {
-            try {
-                socketSet.close();
-            } catch (final IOException e) {
-                Log.warning(TAG, IOSocketSet.ERROR_FAILED_TO_CLOSE, e);
+        do {
+            if (socketSet == null) {
+                socketSet = SOCKET_MAP.get(mSocketAddress).poll();
+            } else {
+                /** shouldReconnect() is true */
+                disconnect(socketSet);
+                socketSet = SOCKET_MAP.get(mSocketAddress).poll();
+                if (socketSet != null) {
+                    innerConnect(socketSet);
+                }
             }
-        }
 
-        threadLocal.set(new IOSocketSet(mSocketAddress, mReadWriteTimeout));
+            /**
+             * No more left in the Queue, time to create a new one!
+             */
+            if (socketSet == null) {
+                socketSet = new IOSocketSet(mSocketAddress, mReadWriteTimeout);
+                innerConnect(socketSet);
+            }
+        } while (shouldReconnect(socketSet));
+
+        return socketSet;
+    }
+
+    /**
+     * Pushes a {@link IOSocketSet} back onto the stack for possible later use, if still valid.
+     *
+     * @param socketSet A connected and validated IOSocketSet.
+     */
+    @Override
+    void pushSocketSet(final IOSocketSet socketSet) {
+        SOCKET_MAP.get(mSocketAddress).add(socketSet);
     }
 
     @Override

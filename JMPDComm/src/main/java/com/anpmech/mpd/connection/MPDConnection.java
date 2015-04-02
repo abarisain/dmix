@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Class representing a connection to MPD Server.
@@ -186,14 +187,6 @@ public abstract class MPDConnection implements MPDConnectionListener {
     }
 
     /**
-     * The method is used to disallow any further command sending until next {@link #connect()}
-     * call.
-     */
-    public void cancel() {
-        mConnectionStatus.statusChangeCancelled();
-    }
-
-    /**
      * This method calls standard defaults for the host/port pair and MPD password, if it exists.
      *
      * <p>If a main password is required, it MUST be called prior to calling this method. This call
@@ -312,11 +305,20 @@ public abstract class MPDConnection implements MPDConnectionListener {
     abstract void debug(final String line);
 
     /**
+     * The method disconnects and disallows any further connections until next {@link #connect()}
+     * call.
+     *
+     * @throws IOException Thrown upon an error when disconnecting from the server.
+     */
+    public void disconnect() throws IOException {
+        mConnectionStatus.statusChangeCancelled();
+    }
+
+    /**
      * This method retrieves a CommandProcessor for the particular extending class.
      *
      * @param command The command line to be processed.
-     * @return A command processor, ready for {@link java.util.concurrent.ExecutorService}
-     * submission.
+     * @return A command processor, ready for {@link ExecutorService} submission.
      */
     abstract Callable<CommandResponse> getCommandProcessor(final String command);
 

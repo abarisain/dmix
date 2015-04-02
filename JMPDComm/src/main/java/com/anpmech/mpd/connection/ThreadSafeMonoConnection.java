@@ -37,12 +37,6 @@ import java.net.UnknownHostException;
 public interface ThreadSafeMonoConnection {
 
     /**
-     * The method is used to disallow any further command sending until next {@link #connect()}
-     * call.
-     */
-    void cancel();
-
-    /**
      * This method calls standard defaults for the host/port pair and MPD password, if it exists.
      *
      * @throws UnknownHostException Thrown when a hostname can not be resolved.
