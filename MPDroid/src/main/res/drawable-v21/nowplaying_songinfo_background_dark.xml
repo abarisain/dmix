@@ -14,16 +14,23 @@
   ~ limitations under the License.
   -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorPrimaryDark">
 
-    <item android:state_pressed="true">
-        <color android:color="@color/statusbar_background_blue" />
-    </item>
-    <item android:state_enabled="true" android:state_focused="true">
-        <color android:color="@color/statusbar_background_blue" />
-    </item>
     <item>
-        <color android:color="@color/actionbar_background_blue" />
+        <selector>
+            <item android:state_selected="true">
+                <color android:color="?attr/colorPrimaryDark" />
+            </item>
+
+            <item android:state_activated="true">
+                <color android:color="?attr/colorPrimaryDark" />
+            </item>
+
+            <item>
+                <color android:color="?attr/colorPrimary" />
+            </item>
+        </selector>
     </item>
 
-</selector>
+</ripple>

@@ -60,7 +60,7 @@
             android:layout_alignParentTop="true"
             android:layout_gravity="center"
             android:layout_toRightOf="@id/coverLayout"
-            android:background="@drawable/nowplaying_songinfo_background"
+            android:background="?attr/nowPlayingSongInfoBackground"
             android:clickable="true"
             android:gravity="center"
             android:paddingBottom="16dip"

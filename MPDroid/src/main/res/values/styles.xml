@@ -70,6 +70,7 @@
         <item name="android:colorBackground">@color/nowplaying_background</item>
         <item name="listItemSecondaryTextColor">@color/list_item_secondary_text_color</item>
         <item name="toolbarPopupTheme">@style/ThemeOverlay.AppCompat</item>
+        <item name="nowPlayingSongInfoBackground">@drawable/nowplaying_songinfo_background_dark</item>
     </style>
 
     <style name="AppTheme.Light" parent="@style/AppThemeBase.Light">
@@ -108,6 +109,7 @@
         <item name="overflowButton">@android:style/Widget.Holo.Light.ActionButton.Overflow</item>
         <item name="listItemSecondaryTextColor">@color/list_item_secondary_text_color_light</item>
         <item name="toolbarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="nowPlayingSongInfoBackground">@drawable/nowplaying_songinfo_background</item>
     </style>
 
     <style name="AppTheme.Settings" parent="@style/AppTheme.Light" />

@@ -45,6 +45,7 @@
         <attr name="overflowButton" format="reference" />
         <attr name="listItemSecondaryTextColor" format="color" />
         <attr name="toolbarPopupTheme" format="reference" />
+        <attr name="nowPlayingSongInfoBackground" format="reference" />
     </declare-styleable>
 
 </resources>
