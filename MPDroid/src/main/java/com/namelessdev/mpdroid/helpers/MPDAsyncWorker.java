@@ -115,7 +115,7 @@ public class MPDAsyncWorker implements Handler.Callback,
             final String key) {
         final String currentSSID = SettingsHelper.getCurrentSSID();
 
-        if (key != null && key.startsWith(currentSSID)) {
+        if (key != null && currentSSID != null && key.startsWith(currentSSID)) {
             switch (key.substring(currentSSID.length())) {
                 case ConnectionSettings.KEY_HOSTNAME:
                 case ConnectionSettings.KEY_HOSTNAME_STREAMING:
