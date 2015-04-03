@@ -202,6 +202,11 @@ public class StreamsFragment extends BrowseFragment<Stream> {
     }
 
     @Override
+    protected int getLayoutResId() {
+        return R.layout.streams_list;
+    }
+
+    @Override
     @StringRes
     public int getLoadingText() {
         return R.string.loadingStreams;
@@ -239,11 +244,6 @@ public class StreamsFragment extends BrowseFragment<Stream> {
     protected void onCreateToolbarMenu() {
         super.onCreateToolbarMenu();
         mToolbar.inflateMenu(R.menu.mpd_streamsmenu);
-    }
-
-    @Override
-    protected int getLayoutResId() {
-        return R.layout.streams_list;
     }
 
     @Override

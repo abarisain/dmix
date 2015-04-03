@@ -70,7 +70,8 @@
         <item name="android:colorBackground">@color/nowplaying_background</item>
         <item name="listItemSecondaryTextColor">@color/list_item_secondary_text_color</item>
         <item name="toolbarPopupTheme">@style/ThemeOverlay.AppCompat</item>
-        <item name="nowPlayingSongInfoBackground">@drawable/nowplaying_songinfo_background_dark</item>
+        <item name="nowPlayingSongInfoBackground">@drawable/nowplaying_songinfo_background_dark
+        </item>
     </style>
 
     <style name="AppTheme.Light" parent="@style/AppThemeBase.Light">

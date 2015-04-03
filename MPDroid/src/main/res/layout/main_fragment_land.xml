@@ -65,8 +65,8 @@
             android:gravity="center"
             android:paddingBottom="16dip"
             android:paddingLeft="16dip"
-            android:paddingTop="16dip"
-            android:paddingRight="16dip">
+            android:paddingRight="16dip"
+            android:paddingTop="16dip">
 
             <TextView
                 android:id="@+id/songName"
@@ -75,8 +75,8 @@
                 android:layout_alignParentTop="true"
                 android:ellipsize="marquee"
                 android:singleLine="true"
-                android:textColor="@color/nowplaying_songinfo_body1_text_color"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="@color/nowplaying_songinfo_body1_text_color" />
 
             <TextView
                 android:id="@+id/artistName"
@@ -85,8 +85,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/songName"
                 android:layout_marginTop="4dip"
-                android:textColor="@color/nowplaying_songinfo_body2_text_color"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="@color/nowplaying_songinfo_body2_text_color" />
 
             <LinearLayout
                 android:id="@+id/albumLayout"
@@ -102,9 +102,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dip"
-                    android:textColor="@color/nowplaying_songinfo_body2_text_color"
+                    android:maxLines="1"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:maxLines="1" />
+                    android:textColor="@color/nowplaying_songinfo_body2_text_color" />
 
                 <TextView
                     android:id="@+id/yearName"
@@ -112,9 +112,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dip"
-                    android:textColor="@color/nowplaying_songinfo_body2_text_color"
+                    android:maxLines="1"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:maxLines="1" />
+                    android:textColor="@color/nowplaying_songinfo_body2_text_color" />
             </LinearLayout>
 
             <TextView
@@ -124,8 +124,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/albumLayout"
                 android:layout_marginTop="4dip"
-                android:textColor="@color/nowplaying_songinfo_body2_text_color"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="@color/nowplaying_songinfo_body2_text_color" />
 
             <RatingBar
                 android:id="@+id/songRating"

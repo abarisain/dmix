@@ -22,7 +22,7 @@
     <View
         android:layout_width="fill_parent"
         android:layout_height="140dip"
-        android:background="?attr/colorPrimary"/>
+        android:background="?attr/colorPrimary" />
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -33,11 +33,12 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <include layout="@layout/browse"
+    <include
+        layout="@layout/browse"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_marginTop="40dip"
         android:layout_marginLeft="40dip"
-        android:layout_marginRight="40dip"/>
+        android:layout_marginRight="40dip"
+        android:layout_marginTop="40dip" />
 
 </FrameLayout>

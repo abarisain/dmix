@@ -16,8 +16,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/material_list_item_height_big"
-    android:orientation="horizontal"
-    android:background="?attr/cardBackground">
+    android:background="?attr/cardBackground"
+    android:orientation="horizontal">
 
     <TextView
         android:id="@+id/track_number"

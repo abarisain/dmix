@@ -39,16 +39,16 @@ public class ToolbarHelper {
     private ToolbarHelper() {
     }
 
+    public static void addRefresh(Toolbar toolbar) {
+        toolbar.inflateMenu(R.menu.mpd_refreshmenu);
+    }
+
     public static void addSearchView(Activity activity, Toolbar toolbar) {
         toolbar.inflateMenu(R.menu.mpd_searchmenu);
         // Don't catch everything, we'd rather have a crash than an unusuable search field
         SearchView searchView = (SearchView) toolbar.getMenu().findItem(R.id.menu_search)
                 .getActionView();
         manuallySetupSearchView(activity, searchView);
-    }
-
-    public static void addRefresh(Toolbar toolbar) {
-        toolbar.inflateMenu(R.menu.mpd_refreshmenu);
     }
 
     public static void addStandardMenuItemClickListener(final Fragment fragment, Toolbar toolbar,

@@ -314,6 +314,14 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         return new ArrayIndexerAdapter<>(getActivity(), R.layout.simple_list_item_1, mItems);
     }
 
+    /**
+     * Override that method if you want BrowseFragment to inflate another layout
+     */
+    @LayoutRes
+    protected int getLayoutResId() {
+        return R.layout.browse;
+    }
+
     /*
      * Override this to display a custom loading text
      */
@@ -426,15 +434,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
      */
     protected void onCreateToolbarMenu() {
 
-    }
-
-    /**
-     * Override that method if you want BrowseFragment to inflate another layout
-     */
-    @LayoutRes
-    protected int getLayoutResId()
-    {
-        return R.layout.browse;
     }
 
     @Override
