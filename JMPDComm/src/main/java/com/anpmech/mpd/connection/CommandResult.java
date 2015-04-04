@@ -192,6 +192,16 @@ public class CommandResult {
         protected int mPosition;
 
         /**
+         * This is the cache for {@link #nextIndex()}, Integer.MIN_VALUE if invalid.
+         */
+        private int mNextIndexCache = Integer.MIN_VALUE;
+
+        /**
+         * This is the cache for {@link #previousIndex()}, Integer.MIN_VALUE if invalid.
+         */
+        private int mPreviousIndexCache = Integer.MIN_VALUE;
+
+        /**
          * Sole constructor.
          *
          * @param result   The MPD protocol command result.
@@ -282,6 +292,14 @@ public class CommandResult {
         }
 
         /**
+         * This method resets the index cache.
+         */
+        private void invalidateCache() {
+            mNextIndexCache = Integer.MIN_VALUE;
+            mPreviousIndexCache = Integer.MIN_VALUE;
+        }
+
+        /**
          * Returns the index of the next object in the iteration.
          *
          * @return The index of the next object, or the size of the list if the iterator is at the
@@ -290,7 +308,17 @@ public class CommandResult {
          */
         @Override
         public int nextIndex() {
-            return mResult.indexOf(MPDCommand.MPD_CMD_NEWLINE, mPosition);
+            final int index;
+
+            if (mNextIndexCache == Integer.MIN_VALUE) {
+                index = mResult.indexOf(MPDCommand.MPD_CMD_NEWLINE, mPosition);
+
+                mNextIndexCache = index;
+            } else {
+                index = mNextIndexCache;
+            }
+
+            return index;
         }
 
         /**
@@ -301,11 +329,19 @@ public class CommandResult {
          */
         @Override
         public int previousIndex() {
-            /** - 1 to discard the newline. */
-            int index = mResult.lastIndexOf(MPDCommand.MPD_CMD_NEWLINE, mPosition - 1);
+            int index;
 
-            if (index == -1 && mPosition != 0) {
-                index = 0;
+            if (mPreviousIndexCache == Integer.MIN_VALUE) {
+                /** - 1 to discard the newline. */
+                index = mResult.lastIndexOf(MPDCommand.MPD_CMD_NEWLINE, mPosition - 1);
+
+                if (index == -1 && mPosition != 0) {
+                    index = 0;
+                }
+
+                mPreviousIndexCache = index;
+            } else {
+                index = mPreviousIndexCache;
             }
 
             return index;
@@ -336,6 +372,7 @@ public class CommandResult {
          */
         protected void setPositionNext() {
             mPosition = nextIndex() + 1;
+            invalidateCache();
         }
 
         /**
@@ -343,6 +380,7 @@ public class CommandResult {
          */
         protected void setPositionPrevious() {
             mPosition = previousIndex();
+            invalidateCache();
         }
 
         @Override
@@ -350,6 +388,8 @@ public class CommandResult {
             return "AbstractResultIterator{" +
                     "mResult='" + mResult + '\'' +
                     ", mPosition=" + mPosition +
+                    ", mNextIndexCache=" + mNextIndexCache +
+                    ", mPreviousIndexCache=" + mPreviousIndexCache +
                     '}';
         }
     }
