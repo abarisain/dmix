@@ -29,6 +29,7 @@ package com.anpmech.mpd.item;
 
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.concurrent.ResponseFuture;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 
@@ -38,12 +39,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeSet;
-
-import static com.anpmech.mpd.Tools.KEY;
-import static com.anpmech.mpd.Tools.VALUE;
 
 /**
  * A class representing a MPD protocol directory.
@@ -343,8 +341,10 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
      */
     public void refresh(final MPDConnection connection) throws IOException, MPDException {
         final int cacheSize = 40; /** Approximate max number of lines per file entry. */
-        final List<String> response =
-                connection.send(MPDCommand.MPD_CMD_LSDIR, getFullPath());
+        final ResponseFuture future =
+                connection.submit(MPDCommand.MPD_CMD_LSDIR, getFullPath());
+        final ListIterator<Map.Entry<String, String>> iterator =
+                future.get().reverseSplitListIterator();
         final Collection<String> lineCache = new ArrayList<>(cacheSize);
 
         final Map<String, T> directoryEntries = new HashMap<>(mDirectoryEntries.size());
@@ -352,15 +352,14 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
         final Map<String, PlaylistFile> playlistEntries = new HashMap<>(mPlaylistEntries.size());
 
         // Read the response backwards so it is easier to parse
-        for (int i = response.size() - 1; i >= 0; i--) {
+        while (iterator.hasPrevious()) {
 
             // If we hit anything we know is an item, consume the line cache
-            final String line = response.get(i);
-            final String[] pair = Tools.splitResponse(line);
+            final Map.Entry<String, String> entry = iterator.previous();
 
-            switch (pair[KEY]) {
+            switch (entry.getKey()) {
                 case "directory":
-                    final T dir = makeSubdirectory(pair[VALUE]);
+                    final T dir = makeSubdirectory(entry.getValue());
 
                     directoryEntries.put(dir.mFilename, dir);
                     lineCache.clear();
@@ -369,7 +368,7 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
                     // Music requires this line to be cached too.
                     // It could be done every time but it would be a waste to add and
                     // clear immediately when we're parsing a playlist or a directory
-                    lineCache.add(line);
+                    lineCache.add(entry.toString());
 
                     final Music music = MusicBuilder.build(lineCache);
                     fileEntries.put(music.getFullPath(), music);
@@ -377,7 +376,7 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
                     lineCache.clear();
                     break;
                 case "playlist":
-                    final PlaylistFile playlistFile = new PlaylistFile(pair[VALUE]);
+                    final PlaylistFile playlistFile = new PlaylistFile(entry.getValue());
 
                     playlistEntries.put(playlistFile.getName(), playlistFile);
 
@@ -385,7 +384,7 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
                     break;
                 default:
                     // We're in something unsupported or in an item description, cache the lines
-                    lineCache.add(line);
+                    lineCache.add(entry.toString());
                     break;
             }
         }
