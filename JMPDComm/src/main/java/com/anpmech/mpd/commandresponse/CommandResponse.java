@@ -402,15 +402,6 @@ public class CommandResponse extends CommandResult implements Iterable<String> {
         }
 
         /**
-         * This method returns the entry in it's entirety.
-         *
-         * @return The full entry.
-         */
-        public String getEntry() {
-            return mEntry;
-        }
-
-        /**
          * The MPD response key for this entry.
          *
          * @return The key for this entry.
@@ -438,12 +429,14 @@ public class CommandResponse extends CommandResult implements Iterable<String> {
             throw new UnsupportedOperationException("Setting a value not supported.");
         }
 
+        /**
+         * This returns the entire entry.
+         *
+         * @return The entire (unsplit) entry.
+         */
         @Override
         public String toString() {
-            return "SimplerImmutableEntry{" +
-                    "mEntry='" + mEntry + '\'' +
-                    ", mDelimiter=" + mDelimiter +
-                    '}';
+            return mEntry;
         }
     }
 }
