@@ -354,7 +354,9 @@ public class CommandResponse extends CommandResult implements Iterable<String> {
         @Override
         public Map.Entry<String, String> previous() {
             checkPrevious();
+
             final Map.Entry<String, String> entry = new SimplerImmutableEntry(getPreviousLine());
+
             setPositionPrevious();
 
             return entry;

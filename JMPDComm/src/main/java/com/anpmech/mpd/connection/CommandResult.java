@@ -248,7 +248,14 @@ public class CommandResult {
          * @return The previous MPD result line.
          */
         protected String getPreviousLine() {
-            return mResult.substring(previousIndex(), mPosition);
+            int index = previousIndex();
+
+            /** + 1 to discard the newline. */
+            if (index != 0) {
+                index += 1;
+            }
+
+            return mResult.substring(index, mPosition);
         }
 
         /**
@@ -294,7 +301,14 @@ public class CommandResult {
          */
         @Override
         public int previousIndex() {
-            return mResult.lastIndexOf(MPDCommand.MPD_CMD_NEWLINE, mPosition);
+            /** - 1 to discard the newline. */
+            int index = mResult.lastIndexOf(MPDCommand.MPD_CMD_NEWLINE, mPosition - 1);
+
+            if (index == -1 && mPosition != 0) {
+                index = 0;
+            }
+
+            return index;
         }
 
         /**
