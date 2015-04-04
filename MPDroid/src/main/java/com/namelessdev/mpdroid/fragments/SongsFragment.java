@@ -419,10 +419,27 @@ public class SongsFragment extends BrowseFragment<Music> {
         });
 
         mAlbumMenu.setOnTouchListener(PopupMenuCompat.getDragToOpenListener(popupMenu));
+        mAlbumMenu.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(final View v) {
+                popupMenu.show();
+                return true;
+            }
+        });
         mAlbumMenu.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
-                popupMenu.show();
+                mApp.getAsyncHelper().execAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            mApp.getMPD().add(mAlbum, false, true);
+                        } catch (final IOException | MPDException e) {
+                            Log.e(TAG, "Failed to add album.", e);
+                        }
+                        Tools.notifyUser(R.string.albumAdded, mAlbum);
+                    }
+                });
             }
         });
 
