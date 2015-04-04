@@ -1213,12 +1213,10 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> listAlbumArtists() throws IOException, MPDException {
-        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
-                Music.TAG_ALBUM_ARTIST);
+        final CommandResponse response = mConnection.submit(MPDCommand.MPD_CMD_LIST_TAG,
+                Music.TAG_ALBUM_ARTIST).get();
 
-        Tools.parseResponse(response, Music.RESPONSE_ALBUM_ARTIST);
-
-        return response;
+        return response.getValues(Music.RESPONSE_ALBUM_ARTIST);
     }
 
     /**
@@ -1231,19 +1229,16 @@ public class MPD {
      */
     public List<String> listAlbumArtists(final Genre genre)
             throws IOException, MPDException {
-        final List<String> response = mConnection.send(
+        final CommandResponse response = mConnection.submit(
                 MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM_ARTIST,
-                Music.TAG_GENRE, genre.getName());
+                Music.TAG_GENRE, genre.getName()).get();
 
-        Tools.parseResponse(response, Music.RESPONSE_ALBUM_ARTIST);
-
-        return response;
+        return response.getValues(Music.RESPONSE_ALBUM_ARTIST);
     }
 
     public List<List<String>> listAlbumArtists(final List<Album> albums)
             throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue(albums.size());
-        final List<List<String>> responses;
 
         for (final Album album : albums) {
             final Artist artist = album.getArtist();
@@ -1260,17 +1255,14 @@ public class MPD {
                     Music.TAG_ALBUM, album.getName());
         }
 
-        responses = mConnection.sendSeparated(commandQueue);
-        if (responses.size() == albums.size()) {
-            final ListIterator<List<String>> iterator = responses.listIterator();
+        List<List<String>> responses = new ArrayList<>();
+        for (final CommandResponse response : mConnection.submitSeparated(commandQueue).get()) {
+            responses.add(response.getValues(Music.RESPONSE_ALBUM_ARTIST));
+        }
 
-            while (iterator.hasNext()) {
-                final List<String> response = iterator.next();
-                Tools.parseResponse(response, Music.RESPONSE_ALBUM_ARTIST);
-                iterator.set(response);
-            }
-        } else {
+        if (responses.size() != albums.size()) {
             Log.warning(TAG, "Response and album size differ when listing album artists.");
+            responses = Collections.emptyList();
         }
 
         return responses;
@@ -1306,11 +1298,9 @@ public class MPD {
             command = listAlbumsCommand(artist.getName(), useAlbumArtist);
         }
 
-        final List<String> response = mConnection.send(command);
+        final CommandResponse response = mConnection.submit(command).get();
 
-        Tools.parseResponse(response, Music.RESPONSE_ALBUM);
-
-        return response;
+        return response.getValues(Music.RESPONSE_ALBUM);
     }
 
     /**
@@ -1517,12 +1507,10 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public List<String> listGenres() throws IOException, MPDException {
-        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LIST_TAG,
-                Music.TAG_GENRE);
+        final CommandResponse response = mConnection.submit(MPDCommand.MPD_CMD_LIST_TAG,
+                Music.TAG_GENRE).get();
 
-        Tools.parseResponse(response, Music.RESPONSE_GENRE);
-
-        return response;
+        return response.getValues(Music.RESPONSE_GENRE);
     }
 
     @SuppressWarnings("TypeMayBeWeakened")

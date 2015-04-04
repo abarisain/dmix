@@ -323,35 +323,6 @@ public final class Tools {
     }
 
     /**
-     * Parse a media server response for specific key values and discard the key.
-     *
-     * @param response The media server response.
-     * @param keys     The entry type in the response to add to the list.
-     */
-    public static void parseResponse(final List<String> response, final String... keys) {
-        String[] lines;
-
-        if (keys.length > 1) {
-            Arrays.sort(keys);
-        }
-
-        for (final ListIterator<String> iterator = response.listIterator(); iterator.hasNext(); ) {
-            lines = splitResponse(iterator.next());
-
-            if (keys.length == 1 && keys[0].equals(lines[KEY]) ||
-                    Arrays.binarySearch(keys, lines[KEY]) >= 0) {
-                iterator.set(lines[VALUE]);
-            } else {
-                iterator.remove();
-            }
-        }
-
-        if (response instanceof ArrayList) {
-            ((ArrayList<String>) response).trimToSize();
-        }
-    }
-
-    /**
      * This method converts a list of integers into a list of MPD protocol command argument ranges.
      * This can be a win when there are numbers in sequence which can be converted into numbered
      * ranges and sent in fewer commands. The disadvantage to this is that order has to be

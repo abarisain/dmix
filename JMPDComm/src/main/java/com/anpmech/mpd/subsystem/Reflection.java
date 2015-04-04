@@ -28,13 +28,12 @@
 package com.anpmech.mpd.subsystem;
 
 import com.anpmech.mpd.MPDCommand;
-import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * A class to manage the <A HREF="http://www.musicpd.org/doc/protocol/reflection_commands.html">reflection</A>
@@ -187,11 +186,9 @@ public class Reflection {
      */
     private Collection<String> getList(final CharSequence command, final String element)
             throws IOException, MPDException {
-        final List<String> response = mConnection.send(command);
+        final CommandResponse response = mConnection.submit(command).get();
 
-        Tools.parseResponse(response, element);
-
-        return response;
+        return response.getValues(element);
     }
 
     /**
