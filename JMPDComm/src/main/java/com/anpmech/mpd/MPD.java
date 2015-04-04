@@ -419,8 +419,7 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void add(final PlaylistFile databasePlaylist, final boolean replace,
-            final boolean play)
-            throws IOException, MPDException {
+            final boolean play) throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
 
         commandQueue.add(MPDPlaylist.loadCommand(databasePlaylist.getName()));
@@ -487,6 +486,24 @@ public class MPD {
                 }
             }
         }
+    }
+
+    /**
+     * Adds all songs in the database to the queue. Optionally, clears the queue prior to the
+     * addition. Optionally, play the added songs afterward.
+     *
+     * @param replace      If true, replaces the entire playlist queue with the added files.
+     * @param playAfterAdd If true, starts playing once added.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void addAll(final boolean replace, final boolean playAfterAdd)
+            throws IOException, MPDException {
+        final CommandQueue commandQueue = new CommandQueue();
+
+        commandQueue.add(MPDPlaylist.MPD_CMD_PLAYLIST_ADD, "/");
+
+        add(commandQueue, replace, playAfterAdd);
     }
 
     /** TODO: This needs to be an add(Stream, ...) method. */
