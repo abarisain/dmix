@@ -44,7 +44,7 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
 
     private static final boolean DEBUG = MPDroidService.DEBUG;
 
-    private static final String TAG = "RemoteControlClientService";
+    private static final String TAG = "RemoteControlClient";
 
     private final AudioManager mAudioManager;
 
