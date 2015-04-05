@@ -225,8 +225,11 @@ public class FSFragment extends BrowseFragment {
             });
         } else {
             final String dir = ((FilesystemTreeEntry) mItems.toArray()[position]).getFullPath();
-            ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                    new FSFragment().init(dir), "filesystem");
+            final ILibraryFragmentActivity activity = (ILibraryFragmentActivity) getActivity();
+
+            if (activity != null) {
+                activity.pushLibraryFragment(new FSFragment().init(dir), "filesystem");
+            }
         }
 
     }
