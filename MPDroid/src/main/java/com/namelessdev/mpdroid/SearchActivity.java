@@ -438,55 +438,67 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        final List<? extends Item<?>> targetArray;
-        switch (mPager.getCurrentItem()) {
-            case RESULT_ALBUM:
-                targetArray = mAlbumResults;
-                break;
-            case RESULT_ARTIST:
-                targetArray = mArtistResults;
-                break;
-            case RESULT_MUSIC:
-                targetArray = mSongResults;
-                break;
-            default:
-                throw new UnsupportedOperationException(UNKNOWN_ITEM_ERROR);
-        }
-        final Object selectedItem = targetArray.get((int) info.id);
-        if (item.getItemId() == GOTO_ALBUM) {
-            if (selectedItem instanceof Music) {
-                final Music music = (Music) selectedItem;
-                final Intent intent = new Intent(this, SimpleLibraryActivity.class);
-                final Parcelable artist = new Artist(music.getAlbumArtistOrArtist());
-                intent.putExtra(Artist.EXTRA, artist);
-                intent.putExtra(Album.EXTRA, music.getAlbum());
-                startActivityForResult(intent, -1);
-            }
+        final View itemFocus = (View) info.targetView.getParent();
+        final View currentFocus = getCurrentFocus();
+        final boolean isConsumed;
+
+        if (itemFocus == null || currentFocus == null || !itemFocus.equals(currentFocus)) {
+            isConsumed = false;
+            Log.w(TAG, "Ignoring menu item press due to view change.");
         } else {
-            mApp.getAsyncHelper().execAsync(new Runnable() {
-                @Override
-                public void run() {
-                    boolean replace = false;
-                    boolean play = false;
-                    switch (item.getItemId()) {
-                        case ADD_REPLACE_PLAY:
-                            replace = true;
-                            play = true;
-                            break;
-                        case ADD_REPLACE:
-                            replace = true;
-                            break;
-                        case ADD_PLAY:
-                            play = true;
-                            break;
-                        default:
-                            break;
-                    }
-                    add(selectedItem, replace, play);
+            isConsumed = true;
+            final List<? extends Item<?>> targetArray;
+
+            switch (mPager.getCurrentItem()) {
+                case RESULT_ALBUM:
+                    targetArray = mAlbumResults;
+                    break;
+                case RESULT_ARTIST:
+                    targetArray = mArtistResults;
+                    break;
+                case RESULT_MUSIC:
+                    targetArray = mSongResults;
+                    break;
+                default:
+                    throw new UnsupportedOperationException(UNKNOWN_ITEM_ERROR);
+            }
+            final Object selectedItem = targetArray.get((int) info.id);
+            if (item.getItemId() == GOTO_ALBUM) {
+                if (selectedItem instanceof Music) {
+                    final Music music = (Music) selectedItem;
+                    final Intent intent = new Intent(this, SimpleLibraryActivity.class);
+                    final Parcelable artist = new Artist(music.getAlbumArtistOrArtist());
+                    intent.putExtra(Artist.EXTRA, artist);
+                    intent.putExtra(Album.EXTRA, music.getAlbum());
+                    startActivityForResult(intent, -1);
                 }
-            });
+            } else {
+                mApp.getAsyncHelper().execAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean replace = false;
+                        boolean play = false;
+                        switch (item.getItemId()) {
+                            case ADD_REPLACE_PLAY:
+                                replace = true;
+                                play = true;
+                                break;
+                            case ADD_REPLACE:
+                                replace = true;
+                                break;
+                            case ADD_PLAY:
+                                play = true;
+                                break;
+                            default:
+                                break;
+                        }
+                        add(selectedItem, replace, play);
+                    }
+                });
+            }
         }
-        return false;
+
+        return isConsumed;
     }
 
     @Override
