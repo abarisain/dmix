@@ -22,25 +22,25 @@
         android:id="@+id/line1"
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_marginLeft="8dip"
-        android:layout_marginRight="8dip"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
         android:layout_weight="1"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLines="1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
         android:id="@+id/line2"
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_marginLeft="8dip"
-        android:layout_marginRight="8dip"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
         android:layout_weight="1"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLines="1"
         android:paddingBottom="5dip"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
 </LinearLayout>
