@@ -27,7 +27,8 @@
         android:id="@+id/albumCoverFrame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp">
+        android:layout_marginTop="36dp"
+        android:background="?attr/cardBackground">
 
         <ImageView
             android:id="@+id/albumCover"
@@ -54,7 +55,8 @@
         android:layout_toRightOf="@+id/albumCoverFrame"
         android:paddingBottom="10dp"
         android:paddingLeft="@dimen/material_list_item_element_horizontal_padding"
-        android:paddingTop="10dp">
+        android:paddingTop="10dp"
+        android:background="?attr/cardBackground">
 
         <TextView
             android:id="@+id/tracks_album"
@@ -98,6 +100,7 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_alignParentRight="true"
+        android:layout_marginTop="4dp"
         android:layout_marginBottom="20dp"
         android:layout_marginRight="32dp"
         android:src="@drawable/ic_media_play"
