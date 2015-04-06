@@ -169,9 +169,9 @@ public class MPDApplication extends Application implements
 
     /**
      * This method manually connects the global MPD instance using default connection information.
-     * <p/>
-     * This method intentionally blocks the thread, do not use in the UI thread. Instead, use
-     * {@link #addConnectionLock(Object)}.
+     *
+     * <p>This method intentionally blocks the thread, do not use in the UI thread. Instead, use
+     * {@link #addConnectionLock(Object)}.</p>
      *
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
@@ -297,7 +297,11 @@ public class MPDApplication extends Application implements
     }
 
     /**
-     * Checks the MPDroid scheduling service and the persistent override to
+     * Checks the MPDroid scheduling service and the persistent override to query the current
+     * status of notification persistence.
+     *
+     * @return {@code true} if the notification has been set as persistent, {@code false}
+     * otherwise.
      */
     public final boolean isNotificationPersistent() {
         final boolean result;

@@ -60,6 +60,8 @@ interface Response {
      *
      * @param timeout The time to wait for a valid object.
      * @param unit    The time unit of the {@code timeout} argument.
+     * @return {@code true} if a the {@code Response} was valid by the time of return, false
+     * otherwise.
      * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
      */
     boolean waitForValidity(final long timeout, final TimeUnit unit) throws InterruptedException;

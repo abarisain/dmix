@@ -614,9 +614,9 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
 
     /**
      * This returns a representation of the source of the media, relative to the media server.
-     * <p/>
-     * This can be a filename, a URL, etc. If this item's filename is a URL, the URI fragment is
-     * removed.
+     *
+     * <p>This can be a filename, a URL, etc. If this item's filename is a URL, the URI fragment is
+     * removed.</p>
      *
      * @return The filename of this item without a URI fragment.
      * @see #getURIFragment()

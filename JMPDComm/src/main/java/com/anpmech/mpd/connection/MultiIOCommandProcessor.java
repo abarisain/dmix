@@ -38,17 +38,17 @@ import java.util.Map;
 /**
  * This class sends one {@link com.anpmech.mpd.MPDCommand} or {@link com.anpmech.mpd.CommandQueue}
  * string over multiple possible connection resources, then processes and returns the result.
- * <p/>
- * This class was designed with thread safety in mind.
+ *
+ * <p>This class was designed with thread safety in mind.</p>
  */
 class MultiIOCommandProcessor extends IOCommandProcessor {
 
     /**
      * The ThreadLocal pool for the corresponding SocketAddress from which to pull the Socket
      * for the current CommandProcessor thread.
-     * <p/>
-     * This map should not need to be synchronized. ThreadLocal is thread safe, and is generated
-     * during construction.
+     *
+     * <p>This map should not need to be synchronized. ThreadLocal is thread safe, and is
+     * generated during construction.</p>
      */
     private static final Map<SocketAddress, ThreadLocal<IOSocketSet>> SOCKET_MAP = new HashMap<>();
 

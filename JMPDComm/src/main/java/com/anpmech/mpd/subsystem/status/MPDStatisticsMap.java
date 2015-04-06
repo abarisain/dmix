@@ -48,10 +48,10 @@ public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
 
     /**
      * The default number of statistic response entries.
-     * <p/>
-     * The statistics command responds with 7 entries as of standard MPD implementation 0.19.
+     *
+     * <p>The statistics command responds with 7 entries as of standard MPD implementation 0.19.
      * Unlike the status command, the statistics entry response count is much less likely to
-     * fluctuate.
+     * fluctuate.</p>
      */
     private static final int DEFAULT_ENTRY_COUNT = 7;
 
@@ -105,6 +105,8 @@ public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
 
     /**
      * This constructor initializes the backend storage for the stat response.
+     *
+     * @param connection The connection to the statistics updated.
      */
     public MPDStatisticsMap(final MPDConnection connection) {
         super(DEFAULT_ENTRY_COUNT);

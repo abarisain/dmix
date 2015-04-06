@@ -40,11 +40,11 @@ import java.util.concurrent.TimeUnit;
  * This is a class which serves as the base for a <A HREF="http://www.musicpd.org/doc/protocol"
  * target="_top">MPD protocol</A> key/value based responses with useful tools for processing and
  * error handling.
- * <p/>
- * This class is designed with thread-safety in mind. If the class generated map is used, as long
- * as there is only one map writer at a time, there should be no concurrency issues. If there is
- * going to be more than one writer at a time, external locking, or a the alternative constructor
- * will be required.
+ *
+ * <p>This class is designed with thread-safety in mind. If the class generated map is used, as
+ * long as there is only one map writer at a time, there should be no concurrency issues. If there
+ * is going to be more than one writer at a time, external locking, or a the alternative
+ * constructor will be required.</p>
  */
 class ResponseMap {
 
@@ -80,9 +80,9 @@ class ResponseMap {
 
     /**
      * This Semaphore allows blocking to wait for the map's initial update.
-     * <p/>
-     * This Semaphore is constructed with a lack of permits, denoting no map validity until set
-     * otherwise.
+     *
+     * <p>This Semaphore is constructed with a lack of permits, denoting no map validity until set
+     * otherwise.</p>
      */
     private final Semaphore mMapValidity = new Semaphore(0);
 
@@ -93,9 +93,9 @@ class ResponseMap {
 
     /**
      * This constructs the {@link ConcurrentHashMap} backed ResponseMap.
-     * <p/>
-     * This map will always have a {@code loadFactor} of {@code 0.75f} and a {@code
-     * concurrencyLevel} of {@code 1}, as reasonably, there will only be one writer at a time.
+     *
+     * <p>This map will always have a {@code loadFactor} of {@code 0.75f} and a {@code
+     * concurrencyLevel} of {@code 1}, as reasonably, there will only be one writer at a time.</p>
      *
      * @param defaultEntryCount The initial capacity. The implementation performs internal sizing
      *                          to accommodate this many elements.
@@ -368,8 +368,8 @@ class ResponseMap {
 
     /**
      * Simply returns the map from the media server response for the command.
-     * <p/>
-     * Subclasses should override this method and include it's own line of values.
+     *
+     * <p>Subclasses should override this method and include it's own line of values.</p>
      *
      * @return The map from the media server response for the command.
      */
@@ -416,6 +416,8 @@ class ResponseMap {
      *
      * @param timeout The time to wait for a valid object.
      * @param unit    The time unit of the {@code timeout} argument.
+     * @return {@code true} if a the {@code ResponseMap} was valid by the time of return, false
+     * otherwise.
      * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
      */
     public boolean waitForValidity(final long timeout, final TimeUnit unit)

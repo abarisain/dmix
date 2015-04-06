@@ -65,9 +65,9 @@ public class Music extends AbstractMusic<Music> {
 
     /**
      * Protected constructor, used by the Android framework when reconstructing the object from a
-     * {@link android.os.Parcel}<br />
+     * {@link Parcel}.
      *
-     * @param in The {@link android.os.Parcel} that contains our object
+     * @param in The {@link Parcel} that contains our object
      */
     protected Music(final Parcel in) {
         super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(),

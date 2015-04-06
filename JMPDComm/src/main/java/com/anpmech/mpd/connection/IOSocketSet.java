@@ -38,9 +38,9 @@ import java.net.SocketAddress;
 
 /**
  * A set of fields associated with the socket address with which it is constructed.
- * <p/>
- * This class is not thread safe and use should be restricted to one thread per instance or with a
- * {@link ThreadLocal} resource.
+ *
+ * <p>This class is not thread safe and use should be restricted to one thread per instance or with
+ * a {@link ThreadLocal} resource.</p>
  */
 class IOSocketSet {
 
@@ -126,8 +126,9 @@ class IOSocketSet {
 
     /**
      * Gets the current connected status of the Socket object.
-     * <p/>
-     * This is <b>not</b> a replacement for connection status, and is more of a low level status.
+     *
+     * <p>This is <b>not</b> a replacement for connection status, and is more of a low level
+     * status.</p>
      *
      * @return Returns the socket constructed for the server address.
      * @see Socket

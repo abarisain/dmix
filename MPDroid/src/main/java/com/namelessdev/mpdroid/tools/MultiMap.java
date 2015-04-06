@@ -109,9 +109,9 @@ public class MultiMap<K, V> implements Serializable {
 
     /**
      * Construct a new map, that contains a unique String key for each value.
-     * <p/>
-     * Current algorithm will construct unique key by appending a unique position number to key's
-     * toString() value
+     *
+     * <p>Current algorithm will construct unique key by appending a unique position number to
+     * key's toString() value.</p>
      *
      * @return a {@link Map}
      */

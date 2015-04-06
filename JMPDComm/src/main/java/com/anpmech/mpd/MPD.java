@@ -94,10 +94,11 @@ public class MPD {
     }
 
     /**
-     * Constructs a new MPD server controller.
+     * Constructs a new MPD server controller, with a connection in the construction.
      *
-     * @param server server address or host name
-     * @param port   server port
+     * @param server   The server address or host name to connect to.
+     * @param port     The server port to connect to.
+     * @param password The default password to use for this connection.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
@@ -110,10 +111,11 @@ public class MPD {
     }
 
     /**
-     * Constructs a new MPD server controller.
+     * Constructs a new MPD server controller, with a connection in the construction.
      *
-     * @param server server address or host name
-     * @param port   server port
+     * @param server   The server address or host name to connect to.
+     * @param port     The server port to connect to.
+     * @param password The default password to use for this connection.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
@@ -506,13 +508,21 @@ public class MPD {
         add(commandQueue, replace, playAfterAdd);
     }
 
-    /** TODO: This needs to be an add(Stream, ...) method. */
-    public void addStream(final String stream, final boolean replace, final boolean play)
+    /**
+     * Adds a stream to the current queue.
+     *
+     * @param stream       The stream to add to the queue.
+     * @param replace      If true, replaces the entire playlist queue with the added files.
+     * @param playAfterAdd If true, starts playing once added.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void addStream(final String stream, final boolean replace, final boolean playAfterAdd)
             throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue();
         commandQueue.add(MPDPlaylist.addCommand(stream));
 
-        add(commandQueue, replace, play);
+        add(commandQueue, replace, playAfterAdd);
     }
 
     @SuppressWarnings("TypeMayBeWeakened")
@@ -614,9 +624,8 @@ public class MPD {
 
     /**
      * Connects to the default MPD server.
-     * <p/>
-     * If there is a default password that is not included in the {@code MPD_HOST} environment
-     * variable, {@link #setDefaultPassword(CharSequence)} must be called prior to this method.
+     * <p>If there is a default password that is not included in the {@code MPD_HOST} environment
+     * variable, {@link #setDefaultPassword(CharSequence)} must be called prior to this method.</p>
      *
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
@@ -628,9 +637,8 @@ public class MPD {
 
     /**
      * Connects to a MPD server.
-     * <p/>
-     * If there is a default password, {@link #setDefaultPassword(CharSequence)} must be called
-     * prior to this method.
+     * <p>If there is a default password, {@link #setDefaultPassword(CharSequence)} must be called
+     * prior to this method.</p>
      *
      * @param server server address or host name
      * @param port   server port
@@ -647,9 +655,8 @@ public class MPD {
 
     /**
      * Connects to a MPD server.
-     * <p/>
-     * If there is a default password, {@link #setDefaultPassword(CharSequence)} must be called
-     * prior to this method.
+     * <p>If there is a default password, {@link #setDefaultPassword(CharSequence)} must be called
+     * prior to this method.</p>
      *
      * @param server server address or host name
      * @param port   server port
@@ -664,9 +671,8 @@ public class MPD {
 
     /**
      * Connects to a MPD server.
-     * <p/>
-     * If there is a default password, {@link #setDefaultPassword(CharSequence)} must be called
-     * prior to this method.
+     * <p>If there is a default password, {@link #setDefaultPassword(CharSequence)} must be called
+     * prior to this method.</p>
      *
      * @param server server address or host name and port (server:port)
      * @throws IOException  Thrown upon a communication error with the server.
@@ -1063,8 +1069,9 @@ public class MPD {
     }
 
     /**
-     * Returns a list of all available playlists
+     * Returns a list of all available playlist files.
      *
+     * @return Returns a list of all available playlist files.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
@@ -1226,6 +1233,7 @@ public class MPD {
     /**
      * List all album artist names from database.
      *
+     * @param genre The genre to list all album artists from.
      * @return album artist names from database.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
@@ -1429,6 +1437,9 @@ public class MPD {
     /**
      * List all album artist or artist names of all given albums from database.
      *
+     * @param albums         The albums to list the artists from.
+     * @param useAlbumArtist True to list the album artists from each album given in the {@code
+     *                       albums} parameter, false to list the artist.
      * @return list of array of artist names for each album.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
@@ -1467,7 +1478,8 @@ public class MPD {
     /**
      * List all artist names from database.
      *
-     * @return artist names from database.
+     * @param genre The genre to list artists from.
+     * @return Artist names from database.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
@@ -1582,6 +1594,7 @@ public class MPD {
     /**
      * Tells server to refresh database.
      *
+     * @param folder The folder to use as the root for the database refresh.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */

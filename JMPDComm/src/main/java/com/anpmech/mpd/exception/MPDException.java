@@ -235,9 +235,9 @@ public class MPDException extends Exception {
      * {@code start} parameter is null, the string will match the first character of the
      * {@code message}, if the {@code end} parameter is null, the string will match to the length
      * of the String.
-     * <p/>
-     * This method is not intended to be an all-purpose string parser, and shouldn't be used for
-     * anything beyond simple line parsing.
+     *
+     * <p>This method is not intended to be an all-purpose string parser, and shouldn't be used
+     * for anything beyond simple line parsing.</p>
      *
      * @param message Message to parse.
      * @param start   The first character to begin parsing.

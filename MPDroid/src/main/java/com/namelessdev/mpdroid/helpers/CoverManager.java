@@ -346,7 +346,9 @@ public final class CoverManager {
     }
 
     /**
-     * Checks if device connected or connecting to wifi network
+     * Checks if device connected or connecting to wifi network.
+     *
+     * @return True if this device is connected or connecting to a WIFI network, false otherwise.
      */
     static boolean isWifi() {
         final ConnectivityManager conMan = (ConnectivityManager) sApp

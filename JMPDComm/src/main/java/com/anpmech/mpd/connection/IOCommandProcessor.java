@@ -277,6 +277,7 @@ abstract class IOCommandProcessor implements Callable<CommandResponse> {
     /**
      * This method should close and remove the old socket, and set a new socket.
      *
+     * @throws IOException If there was an IO error when connecting this socket set.
      * @see #getSocketSet()
      */
     abstract void resetSocketSet() throws IOException;

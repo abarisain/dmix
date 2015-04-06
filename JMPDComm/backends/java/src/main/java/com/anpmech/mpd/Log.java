@@ -41,8 +41,8 @@ public final class Log {
 
     /**
      * Sends a debug message to the user.
-     * <p/>
-     * This maps to a {@link Level#FINE} logger message.
+     *
+     * <p>This maps to a {@link Level#FINE} logger message.</p>
      *
      * @param tag     Used to identify the source of a log message. It usually identifies the class
      *                or activity where the log call occurs.
@@ -56,8 +56,8 @@ public final class Log {
 
     /**
      * Sends a debug message to the user and log the exception.
-     * <p/>
-     * This maps to a {@link Level#FINE} logger message.
+     *
+     * <p>This maps to a {@link Level#FINE} logger message.</p>
      *
      * @param tag     Used to identify the source of a log message. It usually identifies the class
      *                or activity where the log call occurs.
@@ -72,8 +72,8 @@ public final class Log {
 
     /**
      * Sends an error message to the user.
-     * <p/>
-     * This maps to a {@link Level#SEVERE} logger message.
+     *
+     * <p>This maps to a {@link Level#SEVERE} logger message.</p>
      *
      * @param tag     Used to identify the source of a log message. It usually identifies the class
      *                or activity where the log call occurs.
@@ -87,8 +87,8 @@ public final class Log {
 
     /**
      * Sends an error message to the user and log the exception.
-     * <p/>
-     * This maps to a {@link Level#SEVERE} logger message.
+     *
+     * <p>This maps to a {@link Level#SEVERE} logger message.</p>
      *
      * @param tag     Used to identify the source of a log message. It usually identifies the class
      *                or activity where the log call occurs.
@@ -130,8 +130,8 @@ public final class Log {
 
     /**
      * Sends a verbose message to the user.
-     * <p/>
-     * This maps to a {@link Level#FINER} logger message.
+     *
+     * <p>This maps to a {@link Level#FINER} logger message.</p>
      *
      * @param tag     Used to identify the source of a log message.  It usually identifies
      *                the class or activity where the log call occurs.
@@ -145,8 +145,8 @@ public final class Log {
 
     /**
      * Send a verbose log message and log the exception.
-     * <p/>
-     * This maps to a {@link Level#FINER} logger message.
+     *
+     * <p>This maps to a {@link Level#FINER} logger message.</p>
      *
      * @param tag     Used to identify the source of a log message.  It usually identifies
      *                the class or activity where the log call occurs.

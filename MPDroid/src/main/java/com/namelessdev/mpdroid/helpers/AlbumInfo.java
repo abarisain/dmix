@@ -33,9 +33,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
- * This class is used to store basic information about an album, including
- * <p/>
- * This class should be thread-safe and was designed for extension.
+ * This class is used to store basic information about an album.
+ *
+ * <p>This class should be thread-safe and was designed for extension.</p>
  */
 public class AlbumInfo {
 
@@ -374,13 +374,14 @@ public class AlbumInfo {
     }
 
     /**
-     * Returns an integer hash code for this object. By contract, any two
-     * objects for which {@link #equals} returns {@code true} must return
-     * the same hash code value. This means that subclasses of {@code Object}
-     * usually override both methods or neither method.
-     * <p/>
+     * Returns an integer hash code for this object.
+     *
+     * <p>By contract, any two objects for which {@link #equals} returns {@code true} must return
+     * the same hash code value. This means that subclasses of {@code Object} usually override
+     * both methods or neither method.</p>
+     *
      * <p>Note that hash values must not change over time unless information used in equals
-     * comparisons also changes.
+     * comparisons also changes.</p>
      *
      * @return this object's hash code.
      * @see #equals

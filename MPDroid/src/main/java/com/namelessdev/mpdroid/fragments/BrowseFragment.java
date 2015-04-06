@@ -315,7 +315,9 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     /**
-     * Override that method if you want BrowseFragment to inflate another layout
+     * Override that method if you want BrowseFragment to inflate another layout.
+     *
+     * @return The layout resource ID.
      */
     @LayoutRes
     protected int getLayoutResId() {
@@ -331,7 +333,9 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     /**
-     * Should return the minimum number of songs in the queue before the fastscroll thumb is shown
+     * Should return the minimum number of songs in the queue before the fastscroll thumb is shown.
+     *
+     * @return The minimum items count before fast scrolling can begin.
      */
     protected int getMinimumItemsCountBeforeFastscroll() {
         return MIN_ITEMS_BEFORE_FASTSCROLL;
@@ -528,7 +532,10 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     /**
-     * Override this to add actions on toolbar menu item click
+     * Override this to add actions on toolbar menu item click.
+     *
+     * @param item Information about the menu item which was clicked.
+     * @return True if acted upon, false otherwise.
      */
     protected boolean onToolbarMenuItemClick(final MenuItem item) {
         return false;
@@ -560,9 +567,10 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     /**
-     * This method is used for the fast scroll visibility decision.<br/> Don't override this if you
-     * want to change the fast scroll style, override {@link #refreshFastScrollStyle(boolean)}
-     * instead.
+     * This method is used for the fast scroll visibility decision.
+     *
+     * <p>Don't override this if you want to change the fast scroll style, override
+     * {@link #refreshFastScrollStyle(boolean)} instead.</p>
      */
     protected void refreshFastScrollStyle() {
         refreshFastScrollStyle(mItems != null
@@ -626,6 +634,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     /**
      * Set whether the fragment is embedded or not. An embedded BrowseFragment will not show a
      * toolbar.
+     *
+     * @param embedded True to embed, false otherwise.
      */
     public void setEmbedded(boolean embedded) {
         Bundle arguments = getArguments();
@@ -643,6 +653,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     /**
      * Set the view transition name in case it's used with a ListView
+     *
+     * @param name The name for this view transition.
      */
     public void setViewTransitionName(String name) {
         Bundle arguments = getArguments();
@@ -650,8 +662,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         if (arguments == null) {
             arguments = new Bundle();
         }
-
-        //arguments.putBoolean(ARGUMENT_EMBEDDED, embedded);
 
         setArguments(arguments);
     }

@@ -94,7 +94,6 @@ public class ConnectionInfo implements Parcelable {
         streamingServerInfoChanged = false;
     }
 
-    /** The private constructor, constructed by the Build inner class. */
     private ConnectionInfo(final String pServer, final int pPort, final String pPassword,
             final String pStreamServer, final int pStreamPort, final String pStreamSuffix,
             final boolean pIsNotificationPersistent, final boolean pWasNotificationPersistent,

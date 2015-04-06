@@ -275,7 +275,11 @@ public final class StreamHandler implements
         mHandler.sendEmptyMessageDelayed(PREPARE_ASYNC, asyncIdle); /** Go to onPrepared() */
     }
 
-    /** Get the current server streaming URL. */
+    /**
+     * Retrieves the currently configured streaming server URL.
+     *
+     * @return The currently configured streaming server URL.
+     */
     private String getStreamSource() {
         return "http://" + mConnectionInfo.streamServer + ':'
                 + mConnectionInfo.streamPort + '/' + mConnectionInfo.streamSuffix;
@@ -558,6 +562,7 @@ public final class StreamHandler implements
      * Reports the contents of an error string to the user via a Log and Toast.
      *
      * @param userOutput The error to show the user.
+     * @param e          The exception. Null is acceptable.
      */
     private void showErrorToUser(final String userOutput, final Exception e) {
         if (e == null) {
@@ -658,6 +663,8 @@ public final class StreamHandler implements
     /**
      * windDownResources occurs after a delay or during stopSelf() to clean up resources and give
      * up focus to the phone and sound.
+     *
+     * @param action The action to send while winding down the resources for this class.
      */
     private void windDownResources(final int action) {
         if (DEBUG) {

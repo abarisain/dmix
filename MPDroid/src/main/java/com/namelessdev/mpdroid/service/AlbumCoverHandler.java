@@ -87,6 +87,7 @@ class AlbumCoverHandler implements CoverDownloadListener {
     /**
      * This method retrieves a path to an album cover bitmap from the cache.
      *
+     * @param albumInfo The {@link AlbumInfo} to use to retrieve the cover art path.
      * @return String A path to a cached album cover bitmap.
      */
     private static String retrieveCoverArtPath(final AlbumInfo albumInfo) {
@@ -204,6 +205,8 @@ class AlbumCoverHandler implements CoverDownloadListener {
     /**
      * This method updates the service covers if the current cover path is different than currently
      * playing, if cache is enabled.
+     *
+     * @param albumInfo The {@link AlbumInfo} to update from the cache.
      */
     private void updateAlbumCoverWithCached(final AlbumInfo albumInfo) {
         if (DEBUG) {

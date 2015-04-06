@@ -192,6 +192,7 @@ public final class MPDroidService extends Service implements
      * A notification method for Pebble devices.
      *
      * @param currentTrack The currently playing track.
+     * @return The Intent used to send the Pebble intent.
      */
     private static Intent getPebbleIntent(final Music currentTrack) {
         final Intent intent = new Intent("com.getpebble.action.NOW_PLAYING");
@@ -318,12 +319,20 @@ public final class MPDroidService extends Service implements
         }
     }
 
-    /** Is the notification persistent when taking override into account? */
+    /**
+     * This method returns whether the notification should be persistent.
+     *
+     * @return True if the notification should be persistent, false otherwise.
+     */
     private boolean isNotificationPersistent() {
         return !mIsPersistentOverridden && mConnectionInfo.isNotificationPersistent;
     }
 
-    /** Checks for both service and notification persistence. */
+    /**
+     * This method checks whether this service is busy and should stay active.
+     *
+     * @return True if the service is active, false otherwise.
+     */
     private boolean isServiceBusy() {
         return mIsNotificationStarted || mIsStreamStarted || isNotificationPersistent();
     }
@@ -420,7 +429,10 @@ public final class MPDroidService extends Service implements
      * @param intent  The incoming intent used to start the service or containing expected action.
      * @param flags   Additional data about this start request.
      * @param startId A unique integer representing this specific request to start.
-     * @return @see #stopSelfResult(int)
+     * @return The return value indicates what semantics the system should use for the service's
+     * current started state.  It may be one of the constants associated with the
+     * {@link #START_CONTINUATION_MASK} bits.
+     * @see #stopSelfResult(int)
      */
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
@@ -822,7 +834,11 @@ public final class MPDroidService extends Service implements
     public void volumeChanged(final int oldVolume) {
     }
 
-    /** Handles all resource winding down after handlers have completed their work. */
+    /**
+     * Handles all resource winding down after handlers have completed their work.
+     *
+     * @param stopSelf Whether to stop this service after winding down the handler.
+     */
     private void windDownHandlers(final boolean stopSelf) {
         if (DEBUG) {
             Log.d(TAG, "windDownHandlers()");
@@ -982,7 +998,11 @@ public final class MPDroidService extends Service implements
             }
         }
 
-        /** Handles the messages received for the outer Service class. */
+        /**
+         * Handles the messages received for the outer Service class.
+         *
+         * @param msg The message to handle.
+         */
         private void handleServiceMessages(final Message msg) {
             final int what = msg.what;
             Log.d(TAG, "Message received: " + getHandlerValue(what));
@@ -1101,15 +1121,15 @@ public final class MPDroidService extends Service implements
 
         /**
          * This processes the incoming (and likely changed) {@code ConnectionSettings} object.
-         * <p/>
-         * This method is necessary as the {@code MPDAsyncHelper}, which produces the {@code
+         *
+         * <p>This method is necessary as the {@code MPDAsyncHelper}, which produces the {@code
          * ConnectionSettings} object, only changes in the remote process upon connection settings
          * change. It is then parceled, bundled and sent as a message here then processed back into
          * a {@code ConnectionSettings} object. It is then sent to our {@code MPDAsyncHelper}
-         * instance.
-         * <p/>
-         * Once sent to this process instance {@code MPDAsyncHelper}, this will then call the
-         * ConnectionInfoListener callback which calls the onConnectionConfigChange().
+         * instance.</p>
+         *
+         * <p>Once sent to this process instance {@code MPDAsyncHelper}, this will then call the
+         * ConnectionInfoListener callback which calls the onConnectionConfigChange().</p>
          *
          * @param bundle The incoming {@code ConnectionInfo} bundle.
          */

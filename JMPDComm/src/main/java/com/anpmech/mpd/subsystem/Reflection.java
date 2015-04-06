@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.subsystem;
 
+import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
@@ -44,9 +45,10 @@ public class Reflection {
 
     /**
      * Command text required to generate a command to retrieve a list of permitted commands.
-     * <p/>
-     * <B>Protocol command syntax:</B><BR> {@code commands}
-     * <p/>
+     *
+     * <BR><BR><B>Protocol command syntax:</B><BR>
+     * {@code commands}<BR>
+     *
      * <BR><B>Sample protocol output:</B><BR> {@code commands}<BR> {@code command: add}<BR> ...
      * (removed for clarity)<BR> {@code OK}<BR>
      */
@@ -54,17 +56,17 @@ public class Reflection {
 
     /**
      * Command text required to generate a command to retrieve server configuration options.
-     * <p/>
-     * <B>This is currently not functional for this library due to lack of socket connection
-     * functionality.</B>
+     *
+     * <p><B>This is currently not functional for this library due to lack of socket connection
+     * functionality.</B></p>
      */
     public static final String CMD_ACTION_CONFIG = "config";
 
     /**
      * Command text required to generate a command to receive a list of supported decoders.
-     * <p/>
-     * <B>Protocol command syntax:</B> {@code decoders}
-     * <p/>
+     *
+     * <BR><BR><B>Protocol command syntax:</B><BR> {@code decoders}<BR>
+     *
      * <BR><B>Sample protocol output:</B><BR> {@code decoders}<BR> {@code plugin: mad}<BR> {@code
      * suffix: mp3}<BR> {@code suffix: mp2}<BR> {@code mime_type: audio/mpeg}<BR> {@code OK}
      */
@@ -72,9 +74,9 @@ public class Reflection {
 
     /**
      * Command text required to generate a command to receive a list of non-permitted commands.
-     * <p/>
-     * <B>Protocol command syntax:</B><BR> {@code notcommands}
-     * <p/>
+     *
+     * <BR><BR><B>Protocol command syntax:</B><BR> {@code notcommands}<BR>
+     *
      * <BR><B>Sample protocol output:</B><BR> {@code notcommands}<BR> {@code command: config}<BR>
      * {@code command: kill}<BR> {@code OK}<BR>
      */
@@ -83,17 +85,18 @@ public class Reflection {
     /**
      * Command text required to generate a command to receive a list of available metadata for
      * {@code Music} objects.
-     * <p/>
-     * <B>Protocol command syntax:</B> {@code tagtypes} {@code tagtypes}<BR> {@code tagtype:
-     * Artist}<BR> {@code tagtype: ArtistSort}<BR> ... (removed for clarity)<BR> {@code OK}<BR>
+     *
+     * <BR><BR><B>Protocol command syntax:</B><BR> {@code tagtypes} {@code tagtypes}
+     * <BR>{@code tagtype: Artist}<BR> {@code tagtype: ArtistSort}<BR> ... (removed for clarity)
+     * <BR> {@code OK}<BR>
      */
     public static final String CMD_ACTION_TAG_TYPES = "tagtypes";
 
     /**
      * Command text required to generate a command to receive a list of URL handlers.
-     * <p/>
-     * <B>Protocol command syntax:</B><BR> {@code urlhandlers}
-     * <p/>
+     *
+     * <BR><BR><B>Protocol command syntax:</B><BR> {@code urlhandlers}<BR>
+     *
      * <BR><B>Sample protocol output:</B><BR> {@code urlhandlers}<BR> {@code handler: file}<BR>
      * {@code handler: http}<BR> {@code handler: https}<BR> {@code handler: local}<BR> {@code
      * OK}<BR>
@@ -155,7 +158,7 @@ public class Reflection {
      * media server.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @see com.anpmech.mpd.MPDCommand#MPD_CMD_PASSWORD For modifying available commands.
+     * @see MPDCommand#MPD_CMD_PASSWORD For modifying available commands.
      */
     public Collection<String> getCommands() throws IOException, MPDException {
         return getList(CMD_ACTION_COMMANDS, CMD_RESPONSE_COMMANDS);
@@ -205,15 +208,15 @@ public class Reflection {
 
     /**
      * Returns a collection of commands explicitly not permitted for use.
-     * <p/>
-     * Retrieves and returns a collection of commands explicitly not permitted to use on the
-     * current media server with the current permissions.
+     *
+     * <p>Retrieves and returns a collection of commands explicitly not permitted to use on the
+     * current media server with the current permissions.</p>
      *
      * @return A collection of commands explicitly not permitted for use on the currently connected
-     * se
+     * server.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @see com.anpmech.mpd.MPDCommand#MPD_CMD_PASSWORD For modifying available commands.
+     * @see MPDCommand#MPD_CMD_PASSWORD
      */
     public Collection<String> getNotCommands() throws IOException, MPDException {
         return getList(CMD_ACTION_NOT_COMMANDS, CMD_RESPONSE_COMMANDS);

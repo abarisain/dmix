@@ -67,12 +67,13 @@ abstract class AbstractItem<T extends AbstractItem<T>> implements Comparable<T> 
 
     /**
      * This method merges two Item type lists.
-     * <p/>
-     * This method removes unknown items and items not of the same name, then adds the remainder to
-     * {@code list1}.
+     *
+     * <p>This method removes unknown items and items not of the same name, then adds the remainder
+     * to {@code list1}.</p>
      *
      * @param list1 The first list to merge, the list which will be merged into.
      * @param list2 The second list to merge, do not reuse this list after calling this method.
+     * @param <T>   Anything that extends an AbstractItem.
      */
     public static <T extends AbstractItem<T>> void merge(final List<T> list1, final List<T> list2) {
         Collections.sort(list1);

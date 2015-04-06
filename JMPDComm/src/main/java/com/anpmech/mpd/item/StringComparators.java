@@ -77,8 +77,9 @@ final class StringComparators {
      * <p> Compares two strings using the given collator and comparing contained numbers based on
      * their numeric values. </p>
      *
-     * @param s first string
-     * @param t second string
+     * @param collator The collator used to compare the strings.
+     * @param s        The first string to compare.
+     * @param t        The second string to compare.
      * @return zero iff {@code s} and {@code t} are equal, a value less than zero iff {@code s}
      * lexicographically precedes {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
@@ -95,8 +96,8 @@ final class StringComparators {
      * Collator#getInstance(java.util.Locale)}) and pass it to {@link
      * #compareNatural(Collator, String, String)} </p>
      *
-     * @param s first string
-     * @param t second string
+     * @param s The first string to compare.
+     * @param t The second string to compare.
      * @return zero iff {@code s} and {@code t} are equal, a value less than zero iff {@code s}
      * lexicographically precedes {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
@@ -106,8 +107,8 @@ final class StringComparators {
     }
 
     /**
-     * @param s             first string
-     * @param t             second string
+     * @param s             The first string to compare.
+     * @param t             The second string to compare.
      * @param caseSensitive treat characters differing in case only as equal - will be ignored if a
      *                      collator is given
      * @param collator      used to compare subwords that aren't numbers - if null, characters will
@@ -284,6 +285,8 @@ final class StringComparators {
      * the numeric values off any contained numbers. </p> <p> (This will probably make sense only
      * for strings containing 7-bit ascii characters only.) </p>
      *
+     * @param s The first string to compare.
+     * @param t The second string to compare.
      * @return zero iff {@code s} and {@code t} are equal, a value less than zero iff {@code s}
      * lexicographically precedes {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}
@@ -297,6 +300,8 @@ final class StringComparators {
      * for non-digit characters and the numeric values of any contained numbers. </p> <p> (This
      * will probably make sense only for strings containing 7-bit ascii characters only.) </p>
      *
+     * @param s The first string to compare.
+     * @param t The second string to compare.
      * @return zero iff {@code s} and {@code t} are equal, a value less than zero iff {@code s}
      * lexicographically precedes {@code t} and a value larger than zero iff {@code s}
      * lexicographically follows {@code t}

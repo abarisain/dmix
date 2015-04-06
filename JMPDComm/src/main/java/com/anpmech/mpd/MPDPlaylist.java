@@ -86,7 +86,9 @@ public class MPDPlaylist {
     private int mLastPlaylistVersion = -1;
 
     /**
-     * Creates a new playlist.
+     * The sole constructor.
+     *
+     * @param mpdConnection The connection to use to retrieve playlist queue information.
      */
     MPDPlaylist(final MPDConnection mpdConnection) {
         super();
@@ -202,6 +204,7 @@ public class MPDPlaylist {
      * This replaces the entire {@code MusicList} with a full playlist response from the media
      * server.
      *
+     * @return A {@code Collection} of all items in the playlist queue.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */

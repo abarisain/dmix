@@ -100,6 +100,7 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
     /**
      * This builds a new collapsed notification.
      *
+     * @param context The context required to build the Notification.
      * @return Returns a notification builder object.
      */
     private static NotificationCompat.Builder

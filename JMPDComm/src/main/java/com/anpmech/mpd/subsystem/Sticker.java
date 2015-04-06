@@ -65,9 +65,9 @@ public class Sticker {
 
     /**
      * Command text required to generate a command to retrieve a sticker.
-     * <p/>
-     * <B>Protocol command syntax:</B><BR> {@code sticker get {TYPE} {URI} {NAME}}.
-     * <p/>
+     * <BR>
+     * <BR><B>Protocol command syntax:</B><BR> {@code sticker get {TYPE} {URI} {NAME}}
+     * <BR>
      * <BR><B>Sample protocol output:</B><BR> {@code sticker get song track.wav key}<BR> {@code
      * sticker: key=value}<BR> {@code OK}
      */
@@ -75,39 +75,39 @@ public class Sticker {
 
     /**
      * Command text required to generate a command to set a sticker.
-     * <p/>
-     * <B>Protocol command syntax:</B> {@code sticker set {TYPE} {URI} {NAME} {VALUE}}.
-     * <p/>
-     * <B>Sample protocol output:</B><BR> {@code sticker set song track.wav key value}<BR> {@code
-     * OK}
+     * <BR>
+     * <BR><B>Protocol command syntax:</B><BR> {@code sticker set {TYPE} {URI} {NAME} {VALUE}}
+     * <BR>
+     * <BR><B>Sample protocol output:</B><BR> {@code sticker set song track.wav key value}<BR>
+     * {@code OK}
      */
     private static final String CMD_ACTION_SET = CMD_STICKER + ' ' + "set";
 
     /**
      * Command text required to generate a command to delete a sticker.
-     * <p/>
-     * <B>Protocol command syntax:</B> {@code sticker delete {TYPE} {URI} [NAME]}.
-     * <p/>
-     * <B>Sample protocol output:</B><BR> {@code sticker delete song track.wav}<BR> {@code OK}<BR>
+     * <BR>
+     * <BR><B>Protocol command syntax:</B><BR> {@code sticker delete {TYPE} {URI} [NAME]}
+     * <BR>
+     * <BR><B>Sample protocol output:</B><BR> {@code sticker delete song track.wav}<BR> {@code OK}
      */
     private static final String CMD_ACTION_DELETE = CMD_STICKER + ' ' + "delete";
 
     /**
      * Command text required to generate a command to list stickers in a track.
-     * <p/>
-     * <B>Protocol command syntax:</B> {@code sticker list {TYPE} {URI}}.
-     * <p/>
-     * <B>Sample protocol output:</B><BR> {@code sticker list song track.wav}<BR> {@code sticker:
-     * key=value}<BR> {@code OK}
+     * <BR>
+     * <BR><B>Protocol command syntax:</B><BR> {@code sticker list {TYPE} {URI}}
+     * <BR>
+     * <BR><B>Sample protocol output:</B><BR> {@code sticker list song track.wav}<BR>
+     * {@code sticker:key=value}<BR> {@code OK}
      */
     private static final String CMD_ACTION_LIST = CMD_STICKER + ' ' + "list";
 
     /**
      * Command text required to generate a command to find stickers, recursively.
-     * <p/>
-     * <B>Protocol command syntax:</B> {@code sticker find {TYPE} {URI} {NAME}}.
-     * <p/>
-     * <B>Sample protocol output:</B><BR> {@code sticker find song /dir key}<BR> {@code file:
+     * <BR>
+     * <B>Protocol command syntax:</B><BR> {@code sticker find {TYPE} {URI} {NAME}}
+     * <BR>
+     * <BR><B>Sample protocol output:</B><BR> {@code sticker find song /dir key}<BR> {@code file:
      * track.wav}<BR> {@code sticker: key=value}<BR> {@code OK}
      */
     private static final String CMD_ACTION_FIND = CMD_STICKER + ' ' + "find";
@@ -136,7 +136,7 @@ public class Sticker {
     private final MPDConnection mConnection;
 
     /**
-     * The constructor to get a sticker manager.
+     * The sole constructor.
      *
      * @param connection The connection to use to query the media server for sticker handling.
      */
@@ -323,6 +323,7 @@ public class Sticker {
     /**
      * Retrieves rating of a entry.
      *
+     * @param entry The entry to get the rating for.
      * @return rating of entry.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.

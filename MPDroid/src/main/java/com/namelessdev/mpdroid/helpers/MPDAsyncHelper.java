@@ -147,8 +147,8 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     /**
      * Updates the connection settings.
-     * <p/>
-     * If the connection settings have changed, the results will call back as well.
+     *
+     * <p>If the connection settings have changed, the results will call back as well.</p>
      *
      * @return The updated connection settings.
      */

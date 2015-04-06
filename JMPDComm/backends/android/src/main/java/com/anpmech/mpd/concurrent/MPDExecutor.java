@@ -30,9 +30,11 @@ package com.anpmech.mpd.concurrent;
 import android.os.Handler;
 import android.os.Looper;
 
+import java.security.PrivilegedAction;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * This class provides one executor to use for this library, and a helper method to submit a
@@ -69,20 +71,19 @@ public final class MPDExecutor {
      * Submits a value-returning task for execution and returns a Future representing the pending
      * results of the task. The Future's <tt>get</tt> method will return the task's result upon
      * successful completion.
-     * <p/>
-     * <p/>
-     * If you would like to immediately block waiting for a task, you can use constructions of the
-     * form <tt>result = exec.submit(aCallable).get();</tt>
-     * <p/>
+     *
+     * <p>If you would like to immediately block waiting for a task, you can use constructions of
+     * the form <tt>result = exec.submit(aCallable).get();</tt></p>
+     *
      * <p> Note: The {@link Executors} class includes a set of methods that can convert some other
-     * common closure-like objects, for example, {@link java.security.PrivilegedAction} to
-     * {@link Callable} form so they can be submitted.
+     * common closure-like objects, for example, {@link PrivilegedAction} to {@link Callable} form
+     * so they can be submitted.</p>
      *
      * @param task the task to submit
+     * @param <T>  The type used in the parameter will be the type returned.
      * @return a Future representing pending completion of the task
-     * @throws java.util.concurrent.RejectedExecutionException if the task cannot be scheduled for
-     *                                                         execution
-     * @throws NullPointerException                            if the task is null
+     * @throws RejectedExecutionException If the task cannot be scheduled for execution.
+     * @throws NullPointerException       If the task is null.
      */
     public static <T> MPDFuture<T> submit(final Callable<T> task) {
         return new MPDFuture<>(EXECUTOR.submit(task));
@@ -93,9 +94,9 @@ public final class MPDExecutor {
      * Future's <tt>get</tt> method will return <tt>null</tt> upon <em>successful</em> completion.
      *
      * @param task the task to submit
-     * @throws java.util.concurrent.RejectedExecutionException if the task cannot be scheduled for
-     *                                                         execution
-     * @throws NullPointerException                            if the task is null
+     * @return A MPDFuture without a get() payload.
+     * @throws RejectedExecutionException if the task cannot be scheduled for execution
+     * @throws NullPointerException       if the task is null
      */
     public static MPDFuture<?> submit(final Runnable task) {
         return new MPDFuture<>(EXECUTOR.submit(task));
@@ -105,6 +106,9 @@ public final class MPDExecutor {
      * Submits a runnable with a callback as the contents.
      *
      * @param runnable A runnable with a callback as the content.
+     * @return Returns true if the Runnable was successfully placed in to the message queue.
+     * Returns false on failure, usually because the looper processing the message queue is
+     * exiting.
      */
     public static boolean submitCallback(final Runnable runnable) {
         return MAIN_LOOP.post(runnable);

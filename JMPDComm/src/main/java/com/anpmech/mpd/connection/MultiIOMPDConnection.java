@@ -32,18 +32,18 @@ import java.util.concurrent.Callable;
 
 /**
  * Class representing multiple blocking IO connections to the server.
- * <p/>
- * This class has a few limitations due to the {@link ThreadLocal} design:
+ *
+ * <p>This class has a few limitations due to the {@link ThreadLocal} design:</p>
  * <ul>
  * <li>Connection status cannot be depended on, connection status for one thread may not be the
  * same as another, so, connection status for this class is private.</li>
  * <li>This class cannot manually disconnect. Due to this, a {@link Socket} timeout is required
  * during construction of this class.</li>
  * </ul>
- * <p/>
- * Due to these limitations, this class is not recommended to be used alone for connection.
- * <p/>
- * This class was designed with thread safety in mind.
+ *
+ * <p>Due to these limitations, this class is not recommended to be used alone for connection.</p>
+ *
+ * <p>This class was designed with thread safety in mind.</p>
  */
 public class MultiIOMPDConnection extends MPDConnection {
 

@@ -41,8 +41,8 @@ import java.util.StringTokenizer;
 
 /**
  * This class stores and processes the result for a MPD command response.
- * <p/>
- * This class is immutable, thus, thread-safe.
+ *
+ * <p>This class is immutable, thus, thread-safe.</p>
  */
 public class CommandResponse implements Iterable<String> {
 
@@ -80,8 +80,8 @@ public class CommandResponse implements Iterable<String> {
     }
 
     /**
-     * Converts a Iterator<> to a List<> of the same type if the entry key matches the {@code key}
-     * parameter.
+     * Converts a Iterator&lt;&gt; to a List&lt;&gt; of the same type if the entry key matches the
+     * {@code key} parameter.
      *
      * @param collection The collection to add the entries from the Iterator to.
      * @param iterator   The iterator with entries to add to the collection.
@@ -100,11 +100,11 @@ public class CommandResponse implements Iterable<String> {
     }
 
     /**
-     * Converts a Iterator<Map.Entry<T, S>> to a List<String> of values where the {@code key}
-     * parameter matches the Map Entry.
+     * Converts a Iterator&lt;Map.Entry&lt;T, S&gt;&gt; to a List&lt;String&gt; of values where
+     * the {@code key} parameter matches the Map Entry.
      *
      * @param list     The list to add the matching entries to.
-     * @param iterator The iterator with Map.Entry<T, S> entries.
+     * @param iterator The iterator with Map.Entry&lt;T, S&gt; entries.
      * @param key      The key to match. If {@code null}, all will match.
      * @param <T>      The first Map.Entry type.
      * @param <S>      The second Map.Entry type.
@@ -126,10 +126,10 @@ public class CommandResponse implements Iterable<String> {
     }
 
     /**
-     * Converts a Iterator<Map.Entry<T, S>> to a Map<Map.Entry<T, S>>.
+     * Converts a Iterator&lt;Map.Entry&lt;T, S&gt;&gt; to a Map&lt;Map.Entry&lt;T, S&gt;&gt;.
      *
      * @param map      The map to add the entries from the iterator to.
-     * @param iterator The iterator with Map.Entry<T, S> entries.
+     * @param iterator The iterator with Map.Entry&lt;T, S&gt; entries.
      * @param <T>      The first Map.Entry type.
      * @param <S>      The second Map.Entry type.
      * @return True if the list was modified, false otherwise.
@@ -202,8 +202,8 @@ public class CommandResponse implements Iterable<String> {
 
     /**
      * This method returns a list of key:value pairs.
-     * <p/>
-     * An error will be produced if this is called on a non-key/value MPD server response.
+     *
+     * <p>An error will be produced if this is called on a non-key/value MPD server response.</p>
      *
      * @return A list of key:value pairs.
      * @see #splitListIterator()
@@ -217,8 +217,9 @@ public class CommandResponse implements Iterable<String> {
 
     /**
      * This method returns a list of values from a key:value pair MPD protocol response.
-     * <p/>
-     * Care should be taken to only call this method with a key:value pair MPD protocol response.
+     *
+     * <p>Care should be taken to only call this method with a key:value pair MPD protocol
+     * response.</p>
      *
      * @return A list of values from a key:value pair MPD protocol response.
      */
@@ -271,8 +272,8 @@ public class CommandResponse implements Iterable<String> {
 
     /**
      * This method returns a iterator, starting at the end of the response.
-     * <p/>
-     * The expectation of this iterator is to use previous() and previousIndex().
+     *
+     * <p>The expectation of this iterator is to use previous() and previousIndex().</p>
      *
      * @return A iterator to return response, line by line, starting at the end.
      */
@@ -282,8 +283,8 @@ public class CommandResponse implements Iterable<String> {
 
     /**
      * This method returns a iterator of key:value pairs, starting at the end of the list.
-     * <p/>
-     * The expectation of this iterator is to use previous() and previousIndex().
+     *
+     * <p>The expectation of this iterator is to use previous() and previousIndex().</p>
      *
      * @return A iterator to return key/value pairs.
      */
@@ -619,7 +620,7 @@ public class CommandResponse implements Iterable<String> {
         /**
          * Sole constructor.
          *
-         * @param entry The line to make a Map.Entry<CharSequence, String>.
+         * @param entry The line to make a Map.Entry&lt;CharSequence, String&gt;.
          */
         private SimplerImmutableEntry(final String entry) {
             super();

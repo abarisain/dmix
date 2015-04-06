@@ -34,8 +34,8 @@ import java.util.concurrent.Callable;
 
 /**
  * Class representing a connection to MPD Server.
- * <p/>
- * An instance of this class should only be accessed by one thread at a time.
+ *
+ * <p>An instance of this class should only be accessed by one thread at a time.</p>
  */
 public class MonoIOMPDConnection extends MPDConnection implements ThreadSafeMonoConnection {
 

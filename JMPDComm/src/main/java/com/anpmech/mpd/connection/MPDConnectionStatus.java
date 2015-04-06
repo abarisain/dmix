@@ -57,9 +57,9 @@ public abstract class MPDConnectionStatus {
 
     /**
      * The connection status binary semaphore.
-     * <p/>
-     * This Semaphore starts off with no available permits, denoting a lack of connection until set
-     * otherwise.
+     *
+     * <p>This Semaphore starts off with no available permits, denoting a lack of connection until
+     * set otherwise.</p>
      */
     private final Semaphore mConnectionStatus = new Semaphore(0);
 
@@ -172,6 +172,8 @@ public abstract class MPDConnectionStatus {
 
     /**
      * This is called when called by the disconnection timer.
+     *
+     * @param reason The reason for the connection cancellation.
      */
     void statusChangeCancelled(final String reason) {
         mIsCancelled = true;
@@ -241,6 +243,7 @@ public abstract class MPDConnectionStatus {
     /**
      * Changes the status of the connection to disconnected.
      *
+     * @param reason The reason for the disconnection.
      * @see #statusChangeConnected()
      */
     void statusChangeDisconnected(final String reason) {

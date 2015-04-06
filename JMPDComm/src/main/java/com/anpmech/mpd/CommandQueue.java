@@ -36,8 +36,7 @@ import java.util.List;
 /**
  * A class to generate a <A HREF="http://www.musicpd.org/doc/protocol/command_lists.html">MPD
  * command list</A>.
- * <p/>
- * This class was not designed for thread safety.
+ * <p>This class was not designed for thread safety.</p>
  */
 public class CommandQueue extends AbstractList<MPDCommand> {
 
@@ -157,6 +156,7 @@ public class CommandQueue extends AbstractList<MPDCommand> {
      * Add a command to a command to the {@code CommandQueue}.
      *
      * @param command Command to add to the queue.
+     * @param args    The optional arguments to the command.
      */
     public void add(final CharSequence command, final CharSequence... args) {
         add(MPDCommand.create(command, args));
@@ -166,6 +166,8 @@ public class CommandQueue extends AbstractList<MPDCommand> {
      * Add a command queue to the end of this command queue.
      *
      * @param commandQueue The command queue to add to this one.
+     * @return {@code true} if this {@code List} is modified, {@code false} otherwise
+     * (i.e. if the passed collection was empty).
      */
     public boolean addAll(final CommandQueue commandQueue) {
         mCommandQueueStringLength += commandQueue.mCommandQueueStringLength;
@@ -178,6 +180,8 @@ public class CommandQueue extends AbstractList<MPDCommand> {
      *
      * @param location     The position of this command queue to add the new command queue.
      * @param commandQueue The command queue to add to this one.
+     * @return {@code true} if this {@code List} is modified, {@code false} otherwise
+     * (i.e. if the passed collection was empty).
      */
     public boolean addAll(final int location, final CommandQueue commandQueue) {
         mCommandQueueStringLength += commandQueue.mCommandQueueStringLength;

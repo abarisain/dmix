@@ -102,10 +102,10 @@ public class MPDAsyncWorker implements Handler.Callback,
     }
 
     /**
-     * Called when a shared preference is changed, added, or removed. This may be called even if a
-     * preference is set to its existing value.
-     * <p/>
-     * <p>This callback will be run on your main thread.
+     * Called when a shared preference is changed, added, or removed.
+     *
+     * <p>This may be called even if a preference is set to its existing value. This callback will
+     * be run the program's main thread.</p>
      *
      * @param sharedPreferences The {@link SharedPreferences} that received the change.
      * @param key               The key of the preference that was changed, added, or

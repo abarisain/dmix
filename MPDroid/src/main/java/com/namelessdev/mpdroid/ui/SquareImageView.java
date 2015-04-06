@@ -5,9 +5,7 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 
 /**
- * Thanks to StackOverflow
- * <p/>
- * http://stackoverflow.com/a/15264039/425050
+ * Thanks to <A HREF=http://stackoverflow.com/a/15264039/425050>StackOverflow</A>.
  */
 
 public class SquareImageView extends ImageView {

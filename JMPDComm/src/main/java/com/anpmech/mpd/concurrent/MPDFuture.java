@@ -36,7 +36,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * This class is a simple wrapper around Future<V> to modify the exceptions for the get() methods.
+ * This class is a simple wrapper around Future&lt;V&gt; to modify the exceptions for the get()
+ * methods.
  *
  * @param <V> The result type returned by this FutureTask's {@code get} methods.
  */
@@ -80,23 +81,23 @@ public class MPDFuture<V> {
     }
 
     /**
-     * Attempts to cancel execution of this task.  This attempt will fail if the task has already
-     * completed, has already been cancelled, or could not be cancelled for some other reason. If
-     * successful, and this task has not started when {@code cancel} is called, this task should
-     * never run.  If the task has already started, then the {@code mayInterruptIfRunning}
-     * parameter determines whether the thread executing this task should be interrupted in an
-     * attempt to stop the task.
-     * <p/>
+     * Attempts to cancel execution of this task.
+     *
+     * <p>This attempt will fail if the task has already completed, has already been cancelled, or
+     * could not be cancelled for some other reason. If successful, and this task has not started
+     * when {@code cancel} is called, this task should never run.  If the task has already started,
+     * then the {@code mayInterruptIfRunning} parameter determines whether the thread executing
+     * this task should be interrupted in an attempt to stop the task.</p>
+     *
      * <p>After this method returns, subsequent calls to {@link #isDone} will always return
-     * {@code true}.  Subsequent calls to {@link #isCancelled} will always return {@code true} if
-     * this method returned {@code true}.
+     * {@code true}.  Subsequent calls to {@link #isCancelled} will always return {@code true}
+     * if this method returned {@code true}.</p>
      *
      * @param mayInterruptIfRunning {@code true} if the thread executing this task should be
      *                              interrupted; otherwise, in-progress tasks are allowed to
      *                              complete
      * @return {@code false} if the task could not be cancelled, typically because it has already
-     * completed normally;
-     * {@code true} otherwise
+     * completed normally; {@code true} otherwise.
      */
     public boolean cancel(final boolean mayInterruptIfRunning) {
         return mFuture.cancel(mayInterruptIfRunning);
@@ -175,9 +176,9 @@ public class MPDFuture<V> {
 
     /**
      * Returns {@code true} if this task completed.
-     * <p/>
-     * Completion may be due to normal termination, an exception, or cancellation -- in all of
-     * these cases, this method will return {@code true}.
+     *
+     * <p>Completion may be due to normal termination, an exception, or cancellation -- in all of
+     * these cases, this method will return {@code true}.</p>
      *
      * @return {@code true} if this task completed
      */

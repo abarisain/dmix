@@ -194,8 +194,8 @@ public abstract class MPDConnection {
 
     /**
      * Sets up connection to host/port pair.
-     * <p/>
-     * If a main password is required, it MUST be called prior to calling this method.
+     *
+     * <p>If a main password is required, it MUST be called prior to calling this method.</p>
      *
      * @param host The media server host to connect to.
      * @param port The media server port to connect to.
@@ -306,6 +306,8 @@ public abstract class MPDConnection {
 
     /**
      * The current MPD protocol version.
+     *
+     * @return The given MPD protocol as an integer array.
      */
     public int[] getMPDVersion() {
         return mMPDVersion.clone();

@@ -503,8 +503,9 @@ public class IdleSubsystemMonitor implements Runnable {
 
     /**
      * Stops the IdleStatusMonitor, if running, then starts.
-     * <p/>
-     * This method does not stop a running IdleSubsystemMonitor, so stop first, if applicable.
+     *
+     * <p>This method does not stop a running IdleSubsystemMonitor, so stop first, if
+     * applicable.</p>
      */
     public void start() {
         mStop = false;

@@ -120,9 +120,9 @@ public final class Tools {
 
     /**
      * Gets a beginning and an end range of sub-server responses, based on a parameter key.
-     * <p/>
-     * While this method functions very similarly, this list will <B>end</B> with the key, rather
-     * than begin with the key like {@link #getRanges(Collection)}.
+     *
+     * <p>While this method functions very similarly, this list will <B>end</B> with the key,
+     * rather than begin with the key like {@link #getRanges(Collection)}.</p>
      *
      * @param response The server response to parse.
      * @param key      The key to the beginning/end of a sub-list.
@@ -181,14 +181,14 @@ public final class Tools {
 
     /**
      * Gets a beginning and an end range of sub-server responses.
-     * <p/>
-     * This method, unlike {@link #getRanges(Collection, String)}, parses the response
-     * for the first key being repeated and will split end the range with the prior position.
+     *
+     * <p>This method, unlike {@link #getRanges(Collection, String)}, parses the response
+     * for the first key being repeated and will split end the range with the prior position.</p>
      *
      * @param response The server response to parse.
      * @return A two int array. The first int is the beginning range which matched the key
-     * parameter. The second number is one int beyond the end of the range
-     * (for {@link List#subList(int, int)} compatibility). If no range is found, an empty list will
+     * parameter. The second number is one int beyond the end of the range (for
+     * {@link List#subList(int, int)} compatibility). If no range is found, an empty list will
      * be returned.
      * @see #getRanges(Collection, String)
      */

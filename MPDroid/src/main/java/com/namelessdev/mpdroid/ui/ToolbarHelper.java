@@ -108,26 +108,22 @@ public class ToolbarHelper {
 
     /**
      * Make the toolbar show a "back" button. Use this when you have the toolbar inside a fragment.
+     *
+     * @param fragment The fragment to get the current {@link Activity} from.
+     * @param toolbar  The toolbar to show the back button on.
      */
-    public static void showBackButton(final Fragment fragment, Toolbar toolbar) {
-        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Activity a = fragment.getActivity();
-                if (a != null) {
-                    a.onBackPressed();
-                }
-            }
-        });
+    public static void showBackButton(final Fragment fragment, final Toolbar toolbar) {
+        showBackButton(fragment.getActivity(), toolbar);
     }
 
     /**
      * Make the toolbar show a "back" button. Use this when you have the toolbar inside an
      * activity.
+     *
+     * @param activity The activity used to set the back button action.
+     * @param toolbar  The toolbar to show the back button on.
      */
-    @SuppressWarnings("unused")
-    public static void showBackButton(final Activity activity, Toolbar toolbar) {
+    public static void showBackButton(final Activity activity, final Toolbar toolbar) {
         toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
