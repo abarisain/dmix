@@ -19,6 +19,7 @@ package com.namelessdev.mpdroid.helpers;
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.PhoneStateReceiver;
@@ -166,6 +167,25 @@ public final class MPDControl {
         new Thread(new Runnable() {
 
             /**
+             * This method retrieves the status object, then blocks waiting for validity prior
+             * to returning.
+             *
+             * @return The valid status object.
+             * @throws InterruptedException If this thread is interrupted.
+             * @throws IOException Thrown if the {@code MPDStatus} object could not be validated
+             * within 10 seconds.
+             */
+            private MPDStatus getStatus() throws InterruptedException, IOException {
+                final MPDStatus status = MPD.getStatus();
+
+                if (!status.waitForValidity(10L, TimeUnit.SECONDS)) {
+                    throw new IOException("Failed to get validity for the status.");
+                }
+
+                return status;
+            }
+
+            /**
              * This method is called if pause during call is active with a user
              * configuration setting requesting pause while a call is taking place.
              */
@@ -188,19 +208,15 @@ public final class MPDControl {
             public void run() {
                 APP.addConnectionLock(this);
 
-                try {
-                    MPD.getConnectionStatus().waitForConnection(10L, TimeUnit.SECONDS);
-                } catch (final InterruptedException e) {
-                    Log.e(TAG, "Interrupted by other thread.", e);
-                }
-
                 /**
                  * The main switch for running the command.
                  */
                 try {
+                    MPD.getConnectionStatus().waitForConnection(10L, TimeUnit.SECONDS);
+
                     switch (userCommand) {
                         case ACTION_CONSUME:
-                            MPD.setConsume(!MPD.getStatus().isConsume());
+                            MPD.setConsume(!getStatus().isConsume());
                             break;
                         case ACTION_MUTE:
                             MPD.setVolume(0);
@@ -209,7 +225,7 @@ public final class MPDControl {
                             MPD.next();
                             break;
                         case ACTION_PAUSE:
-                            if (!MPD.getStatus().isState(MPDStatusMap.STATE_PAUSED)) {
+                            if (!getStatus().isState(MPDStatusMap.STATE_PAUSED)) {
                                 MPD.pause();
                             }
                             break;
@@ -224,7 +240,7 @@ public final class MPDControl {
                             break;
                         case ACTION_RATING_SET:
                             if (l != INVALID_LONG) {
-                                final int songPos = MPD.getStatus().getSongPos();
+                                final int songPos = getStatus().getSongPos();
                                 final Music music = MPD.getPlaylist().getByIndex(songPos);
                                 MPD.getStickerManager().setRating(music, (int) l);
                             }
@@ -240,20 +256,20 @@ public final class MPDControl {
                             MPD.stop();
                             break;
                         case ACTION_SINGLE:
-                            MPD.setSingle(!MPD.getStatus().isSingle());
+                            MPD.setSingle(!getStatus().isSingle());
                             break;
                         case ACTION_TOGGLE_PLAYBACK:
-                            if (MPD.getStatus().isState(MPDStatusMap.STATE_PLAYING)) {
+                            if (getStatus().isState(MPDStatusMap.STATE_PLAYING)) {
                                 MPD.pause();
                             } else {
                                 MPD.play();
                             }
                             break;
                         case ACTION_TOGGLE_RANDOM:
-                            MPD.setRandom(!MPD.getStatus().isRandom());
+                            MPD.setRandom(!getStatus().isRandom());
                             break;
                         case ACTION_TOGGLE_REPEAT:
-                            MPD.setRepeat(!MPD.getStatus().isRepeat());
+                            MPD.setRepeat(!getStatus().isRepeat());
                             break;
                         case ACTION_VOLUME_SET:
                             if (l != INVALID_LONG) {
@@ -271,6 +287,8 @@ public final class MPDControl {
                     }
                 } catch (final IOException | MPDException e) {
                     Log.w(TAG, ERROR_MESSAGE, e);
+                } catch (final InterruptedException e) {
+                    Log.w(TAG, "Failed due to thread interruption.", e);
                 } finally {
                     APP.removeConnectionLock(this);
                 }
