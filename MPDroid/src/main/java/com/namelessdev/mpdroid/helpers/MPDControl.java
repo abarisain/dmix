@@ -22,14 +22,9 @@ import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.PhoneStateReceiver;
 import com.namelessdev.mpdroid.R;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -41,20 +36,11 @@ import java.util.concurrent.TimeUnit;
 public final class MPDControl {
 
     /** If these are sent to the run() class, the volume will not change. */
-    public static final int INVALID_INT = -5;
+    public static final int INVALID_INT = Integer.MIN_VALUE;
 
-    public static final long INVALID_LONG = -5L;
+    public static final long INVALID_LONG = Long.MIN_VALUE;
 
     private static final MPDApplication APP = MPDApplication.getInstance();
-
-    private static final boolean DEBUG = false;
-
-    private static final String ERROR_MESSAGE = "Failed to send a simple MPD command.";
-
-    private static final MPD MPD = APP.getMPD();
-
-    private static final SharedPreferences SETTINGS = PreferenceManager
-            .getDefaultSharedPreferences(APP);
 
     private static final String TAG = "MPDControl";
 
@@ -95,9 +81,6 @@ public final class MPDControl {
     public static final String ACTION_VOLUME_STEP_UP = FULLY_QUALIFIED_NAME + "VOLUME_STEP_UP";
 
     public static final String ACTION_RATING_SET = FULLY_QUALIFIED_NAME + "SET_RATING";
-
-    public static final String ACTION_PAUSE_FOR_CALL = FULLY_QUALIFIED_NAME
-            + "ACTION_PAUSE_FOR_CALL";
 
     private static final int VOLUME_STEP = 5;
 
@@ -167,16 +150,16 @@ public final class MPDControl {
         new Thread(new Runnable() {
 
             /**
-             * This method retrieves the status object, then blocks waiting for validity prior
-             * to returning.
+             * This method retrieves the {@link MPDStatus} object, then blocks waiting for validity
+             * prior to returning.
              *
-             * @return The valid status object.
+             * @return The validated {@code MPDStatus} object.
              * @throws InterruptedException If this thread is interrupted.
              * @throws IOException Thrown if the {@code MPDStatus} object could not be validated
              * within 10 seconds.
              */
-            private MPDStatus getStatus() throws InterruptedException, IOException {
-                final MPDStatus status = MPD.getStatus();
+            private MPDStatus getStatus(final MPD mpd) throws InterruptedException, IOException {
+                final MPDStatus status = mpd.getStatus();
 
                 if (!status.waitForValidity(10L, TimeUnit.SECONDS)) {
                     throw new IOException("Failed to get validity for the status.");
@@ -185,64 +168,43 @@ public final class MPDControl {
                 return status;
             }
 
-            /**
-             * This method is called if pause during call is active with a user
-             * configuration setting requesting pause while a call is taking place.
-             */
-            private void pauseForCall() {
-                if (shouldPauseForCall()) {
-                    try {
-                        MPD.pause();
-                        SETTINGS.edit().putBoolean(PhoneStateReceiver.PAUSED_MARKER, true).commit();
-                    } catch (final IOException | MPDException e) {
-                        Log.e(TAG, ERROR_MESSAGE, e);
-                    }
-                }
-
-                if (SETTINGS.getBoolean(PhoneStateReceiver.PAUSING_MARKER, false)) {
-                    SETTINGS.edit().putBoolean(PhoneStateReceiver.PAUSING_MARKER, false).commit();
-                }
-            }
-
             @Override
             public void run() {
                 APP.addConnectionLock(this);
+                final MPD mpd = APP.getMPD();
 
                 /**
                  * The main switch for running the command.
                  */
                 try {
-                    MPD.getConnectionStatus().waitForConnection(10L, TimeUnit.SECONDS);
+                    mpd.getConnectionStatus().waitForConnection(10L, TimeUnit.SECONDS);
 
                     switch (userCommand) {
                         case ACTION_CONSUME:
-                            MPD.setConsume(!getStatus().isConsume());
+                            mpd.setConsume(!getStatus(mpd).isConsume());
                             break;
                         case ACTION_MUTE:
-                            MPD.setVolume(0);
+                            mpd.setVolume(0);
                             break;
                         case ACTION_NEXT:
-                            MPD.next();
+                            mpd.next();
                             break;
                         case ACTION_PAUSE:
-                            if (!getStatus().isState(MPDStatusMap.STATE_PAUSED)) {
-                                MPD.pause();
+                            if (!getStatus(mpd).isState(MPDStatusMap.STATE_PAUSED)) {
+                                mpd.pause();
                             }
                             break;
-                        case ACTION_PAUSE_FOR_CALL:
-                            pauseForCall();
-                            break;
                         case ACTION_PLAY:
-                            MPD.play();
+                            mpd.play();
                             break;
                         case ACTION_PREVIOUS:
-                            MPD.previous();
+                            mpd.previous();
                             break;
                         case ACTION_RATING_SET:
                             if (l != INVALID_LONG) {
-                                final int songPos = getStatus().getSongPos();
-                                final Music music = MPD.getPlaylist().getByIndex(songPos);
-                                MPD.getStickerManager().setRating(music, (int) l);
+                                final int songPos = getStatus(mpd).getSongPos();
+                                final Music music = mpd.getPlaylist().getByIndex(songPos);
+                                mpd.getStickerManager().setRating(music, (int) l);
                             }
                             break;
                         case ACTION_SEEK:
@@ -250,86 +212,48 @@ public final class MPDControl {
                             if (li == INVALID_LONG) {
                                 li = 0L;
                             }
-                            MPD.seek(li);
+                            mpd.seek(li);
                             break;
                         case ACTION_STOP:
-                            MPD.stop();
+                            mpd.stop();
                             break;
                         case ACTION_SINGLE:
-                            MPD.setSingle(!getStatus().isSingle());
+                            mpd.setSingle(!getStatus(mpd).isSingle());
                             break;
                         case ACTION_TOGGLE_PLAYBACK:
-                            if (getStatus().isState(MPDStatusMap.STATE_PLAYING)) {
-                                MPD.pause();
+                            if (getStatus(mpd).isState(MPDStatusMap.STATE_PLAYING)) {
+                                mpd.pause();
                             } else {
-                                MPD.play();
+                                mpd.play();
                             }
                             break;
                         case ACTION_TOGGLE_RANDOM:
-                            MPD.setRandom(!getStatus().isRandom());
+                            mpd.setRandom(!getStatus(mpd).isRandom());
                             break;
                         case ACTION_TOGGLE_REPEAT:
-                            MPD.setRepeat(!getStatus().isRepeat());
+                            mpd.setRepeat(!getStatus(mpd).isRepeat());
                             break;
                         case ACTION_VOLUME_SET:
                             if (l != INVALID_LONG) {
-                                MPD.setVolume((int) l);
+                                mpd.setVolume((int) l);
                             }
                             break;
                         case ACTION_VOLUME_STEP_DOWN:
-                            MPD.adjustVolume(-VOLUME_STEP);
+                            mpd.adjustVolume(-VOLUME_STEP);
                             break;
                         case ACTION_VOLUME_STEP_UP:
-                            MPD.adjustVolume(VOLUME_STEP);
+                            mpd.adjustVolume(VOLUME_STEP);
                             break;
                         default:
                             break;
                     }
                 } catch (final IOException | MPDException e) {
-                    Log.w(TAG, ERROR_MESSAGE, e);
+                    Log.w(TAG, "Failed to send a simple MPD command.", e);
                 } catch (final InterruptedException e) {
                     Log.w(TAG, "Failed due to thread interruption.", e);
                 } finally {
                     APP.removeConnectionLock(this);
                 }
-            }
-
-            /**
-             * This method factors in several circumstances to whether
-             * or not to pause the media server for a telephony activity.
-             *
-             * @return True if the media server should be paused, false otherwise.
-             */
-            private boolean shouldPauseForCall() {
-                final TelephonyManager telephonyManager =
-                        (TelephonyManager) APP.getSystemService(Context.TELEPHONY_SERVICE);
-                final boolean isPlaying = APP.getMPD().getStatus()
-                        .isState(MPDStatusMap.STATE_PLAYING);
-                boolean result = false;
-
-                /**
-                 * We need to double check the telephony state, the connection
-                 * may have taken longer than the telephony is active.
-                 */
-                if (telephonyManager.getCallState() != TelephonyManager.CALL_STATE_IDLE &&
-                        isPlaying) {
-                    if (APP.isLocalAudible()) {
-
-                        if (DEBUG) {
-                            Log.d(TAG, "App is local audible.");
-                        }
-
-                        result = true;
-                    } else {
-                        result = SETTINGS.getBoolean(PhoneStateReceiver.PAUSE_DURING_CALL, false);
-
-                        if (DEBUG) {
-                            Log.d(TAG, PhoneStateReceiver.PAUSE_DURING_CALL + ": " + result);
-                        }
-                    }
-                }
-
-                return result;
             }
         }
         ).start();
