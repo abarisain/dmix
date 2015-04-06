@@ -53,10 +53,10 @@
         android:layout_height="128dp"
         android:layout_marginTop="36dp"
         android:layout_toRightOf="@+id/albumCoverFrame"
+        android:background="?attr/cardBackground"
         android:paddingBottom="10dp"
         android:paddingLeft="@dimen/material_list_item_element_horizontal_padding"
-        android:paddingTop="10dp"
-        android:background="?attr/cardBackground">
+        android:paddingTop="10dp">
 
         <TextView
             android:id="@+id/tracks_album"
@@ -100,9 +100,9 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="4dp"
         android:layout_marginBottom="20dp"
         android:layout_marginRight="32dp"
+        android:layout_marginTop="4dp"
         android:src="@drawable/ic_media_play"
         fab:fab_colorNormal="@color/fab_color"
         fab:fab_colorPressed="@color/fab_color_pressed"
