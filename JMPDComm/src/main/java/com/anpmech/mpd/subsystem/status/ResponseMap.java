@@ -235,13 +235,6 @@ class ResponseMap {
     }
 
     /**
-     * Clears the backend storage map.
-     */
-    public void clear() {
-        mResponseMap.clear();
-    }
-
-    /**
      * Returns a copy of the backend storage for this class.
      *
      * @return A copy of the backend storage for this class.
@@ -267,6 +260,14 @@ class ResponseMap {
         }
 
         return value;
+    }
+
+    /**
+     * Invalidate this {@code ResponseMap}.
+     */
+    public void invalidate() {
+        mResponseMap.clear();
+        mMapValidity.tryAcquire();
     }
 
     /**
