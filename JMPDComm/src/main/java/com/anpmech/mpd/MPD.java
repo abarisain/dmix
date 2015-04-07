@@ -45,6 +45,7 @@ import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.MusicBuilder;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.item.Stream;
+import com.anpmech.mpd.subsystem.Playback;
 import com.anpmech.mpd.subsystem.Sticker;
 import com.anpmech.mpd.subsystem.status.MPDStatisticsMap;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
@@ -77,6 +78,8 @@ public class MPD {
 
     private final ThreadSafeMonoConnection mIdleConnection;
 
+    private final Playback mPlayback;
+
     private final MPDStatisticsMap mStatistics;
 
     private final MPDStatusMap mStatus;
@@ -92,6 +95,7 @@ public class MPD {
         mPlaylist = new MPDPlaylist(mConnection);
         mStatistics = new MPDStatisticsMap(mConnection);
         mStatus = new MPDStatusMap(mConnection);
+        mPlayback = new Playback(mStatus, mConnection);
     }
 
     /**
@@ -185,14 +189,6 @@ public class MPD {
 
         return MPDCommand.create(MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM,
                 MPDCommand.MPD_CMD_GROUP, artistTag);
-    }
-
-    private static MPDCommand nextCommand() {
-        return MPDCommand.create(MPDCommand.MPD_CMD_NEXT);
-    }
-
-    private static MPDCommand skipToPositionCommand(final int position) {
-        return MPDCommand.create(MPDCommand.MPD_CMD_PLAY, Integer.toString(position));
     }
 
     /**
@@ -370,12 +366,12 @@ public class MPD {
 
         if (replace) {
             if (isPlaying) {
-                commandQueue.add(nextCommand());
+                commandQueue.add(Playback.CMD_ACTION_NEXT);
             } else if (playAfterAdd) {
-                commandQueue.add(skipToPositionCommand(playPos));
+                commandQueue.add(Playback.CMD_ACTION_PLAY, Integer.toString(playPos));
             }
         } else if (playAfterAdd) {
-            commandQueue.add(skipToPositionCommand(playPos));
+            commandQueue.add(Playback.CMD_ACTION_PLAY, Integer.toString(playPos));
         }
 
         /** Finally, clean up the last playing song. */
@@ -592,21 +588,6 @@ public class MPD {
     public void addToPlaylist(final PlaylistFile playlist, final Music music)
             throws IOException, MPDException {
         addToPlaylist(playlist, Collections.singletonList(music));
-    }
-
-    /**
-     * Increases or decreases volume by {@code modifier} amount.
-     *
-     * @param modifier volume adjustment
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void adjustVolume(final int modifier) throws IOException, MPDException {
-        // calculate final volume (clip value with [0, 100])
-        int vol = mStatus.getVolume() + modifier;
-        vol = Math.max(MPDStatusMap.VOLUME_MIN, Math.min(MPDStatusMap.VOLUME_MAX, vol));
-
-        mConnection.send(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
     }
 
     /**
@@ -1039,6 +1020,15 @@ public class MPD {
         final List<String> response = mConnection.send(MPDCommand.MPD_CMD_OUTPUTS);
 
         return MPDOutput.buildOutputsFromList(response);
+    }
+
+    /**
+     * This returns the local copy of the Playback object.
+     *
+     * @return A local copy of the Playback object.
+     */
+    public Playback getPlayback() {
+        return mPlayback;
     }
 
     /**
@@ -1521,46 +1511,6 @@ public class MPD {
     }
 
     /**
-     * Jumps to next playlist track.
-     *
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void next() throws IOException, MPDException {
-        mConnection.send(nextCommand());
-    }
-
-    /**
-     * Pauses/Resumes music playing.
-     *
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void pause() throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_PAUSE);
-    }
-
-    /**
-     * Starts playing music.
-     *
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void play() throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_PLAY);
-    }
-
-    /**
-     * Plays previous playlist music.
-     *
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void previous() throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_PREV);
-    }
-
-    /**
      * Tells server to refresh database.
      *
      * @throws IOException  Thrown upon a communication error with the server.
@@ -1648,67 +1598,6 @@ public class MPD {
     }
 
     /**
-     * Seeks current music to the position.
-     *
-     * @param position song position in seconds
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void seek(final long position) throws IOException, MPDException {
-        seekById(mStatus.getSongId(), position);
-    }
-
-    /**
-     * Seeks music to the position.
-     *
-     * @param songId   music id in playlist.
-     * @param position song position in seconds.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void seekById(final int songId, final long position) throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_SEEK_ID, Integer.toString(songId),
-                Long.toString(position));
-    }
-
-    /**
-     * Seeks music to the position.
-     *
-     * @param index    music position in playlist.
-     * @param position song position in seconds.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void seekByIndex(final int index, final long position) throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_SEEK, Integer.toString(index),
-                Long.toString(position));
-    }
-
-    /**
-     * Enabled or disable consuming.
-     *
-     * @param consume if true song consuming will be enabled, if false song consuming will be
-     *                disabled.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void setConsume(final boolean consume) throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_CONSUME, MPDCommand.booleanValue(consume));
-    }
-
-    /**
-     * Sets cross-fade.
-     *
-     * @param time cross-fade time in seconds. 0 to disable cross-fade.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void setCrossFade(final int time) throws IOException, MPDException {
-        mConnection
-                .send(MPDCommand.MPD_CMD_CROSSFADE, Integer.toString(Math.max(0, time)));
-    }
-
-    /**
      * This sets the default password for the MPD server.
      *
      * @param password The default password for this MPD server.
@@ -1719,52 +1608,6 @@ public class MPD {
     }
 
     /**
-     * Enabled or disable random.
-     *
-     * @param random if true random will be enabled, if false random will be disabled.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void setRandom(final boolean random) throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_RANDOM, MPDCommand.booleanValue(random));
-    }
-
-    /**
-     * Enabled or disable repeating.
-     *
-     * @param repeat if true repeating will be enabled, if false repeating will be disabled.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void setRepeat(final boolean repeat) throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_REPEAT, MPDCommand.booleanValue(repeat));
-    }
-
-    /**
-     * Enabled or disable single mode.
-     *
-     * @param single if true single mode will be enabled, if false single mode will be disabled.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void setSingle(final boolean single) throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_SINGLE, MPDCommand.booleanValue(single));
-    }
-
-    /**
-     * Sets volume to {@code volume}.
-     *
-     * @param volume new volume value, must be in 0-100 range.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void setVolume(final int volume) throws IOException, MPDException {
-        final int vol = Math.max(MPDStatusMap.VOLUME_MIN,
-                Math.min(MPDStatusMap.VOLUME_MAX, volume));
-        mConnection.send(MPDCommand.MPD_CMD_SET_VOLUME, Integer.toString(vol));
-    }
-
-    /**
      * Kills server.
      *
      * @throws IOException  Thrown upon a communication error with the server.
@@ -1772,38 +1615,5 @@ public class MPD {
      */
     public void shutdown() throws IOException, MPDException {
         mConnection.send(MPDCommand.MPD_CMD_KILL);
-    }
-
-    /**
-     * Skip to song with specified {@code id}.
-     *
-     * @param id song id.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void skipToId(final int id) throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_PLAY_ID, Integer.toString(id));
-    }
-
-    /**
-     * Jumps to track {@code position} from playlist.
-     *
-     * @param position track number.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @see #skipToId(int)
-     */
-    public void skipToPosition(final int position) throws IOException, MPDException {
-        mConnection.send(skipToPositionCommand(position));
-    }
-
-    /**
-     * Stops music playing.
-     *
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void stop() throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_STOP);
     }
 }

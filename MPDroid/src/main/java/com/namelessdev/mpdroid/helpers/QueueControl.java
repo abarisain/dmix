@@ -19,6 +19,7 @@ package com.namelessdev.mpdroid.helpers;
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDPlaylist;
 import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Music;
 import com.namelessdev.mpdroid.MPDApplication;
 
 import android.util.Log;
@@ -123,6 +124,21 @@ public final class QueueControl {
         run(command, i, INVALID_INT);
     }
 
+    public static void run(final int command, final Music track) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (command == SKIP_TO_ID) {
+                    try {
+                        MPD.getPlayback().play(track).getExceptions();
+                    } catch (final IOException | MPDException e) {
+                        Log.e(TAG, "Failed to add track to play.", e);
+                    }
+                }
+            }
+        }).start();
+    }
+
     /**
      * A method to send simple playlist controls which requires no result processing.
      *
@@ -169,9 +185,6 @@ public final class QueueControl {
                             break;
                         case REMOVE_BY_ID:
                             PLAYLIST.removeById(i);
-                            break;
-                        case SKIP_TO_ID:
-                            MPD.skipToId(i);
                             break;
                         default:
                             break;

@@ -39,13 +39,7 @@ public class MPDCommand {
 
     public static final String MPD_CMD_CLEARERROR = "clearerror";
 
-    public static final String MPD_CMD_CLOSE = "close";
-
-    public static final String MPD_CMD_CONSUME = "consume";
-
     public static final String MPD_CMD_COUNT = "count";
-
-    public static final String MPD_CMD_CROSSFADE = "crossfade";
 
     public static final String MPD_CMD_FIND = "find";
 
@@ -70,8 +64,6 @@ public class MPDCommand {
 
     public static final char MPD_CMD_NEWLINE = '\n';
 
-    public static final CharSequence MPD_CMD_NEXT = "next";
-
     public static final String MPD_CMD_OUTPUTDISABLE = "disableoutput";
 
     public static final String MPD_CMD_OUTPUTENABLE = "enableoutput";
@@ -79,12 +71,6 @@ public class MPDCommand {
     public static final String MPD_CMD_OUTPUTS = "outputs";
 
     public static final String MPD_CMD_PASSWORD = "password";
-
-    public static final String MPD_CMD_PAUSE = "pause";
-
-    public static final String MPD_CMD_PING = "ping";
-
-    public static final String MPD_CMD_PLAY = "play";
 
     public static final CharSequence MPD_CMD_PLAYLIST_ADD = "playlistadd";
 
@@ -94,38 +80,18 @@ public class MPDCommand {
 
     public static final CharSequence MPD_CMD_PLAYLIST_MOVE = "playlistmove";
 
-    public static final String MPD_CMD_PLAY_ID = "playid";
-
-    public static final CharSequence MPD_CMD_PREV = "previous";
-
-    public static final String MPD_CMD_RANDOM = "random";
-
     public static final String MPD_CMD_REFRESH = "update";
-
-    public static final String MPD_CMD_REPEAT = "repeat";
 
     public static final String MPD_CMD_SEARCH = "search";
 
     /** Added in MPD protocol 0.17.0. */
     public static final String MPD_CMD_SEARCH_ADD_PLAYLIST = "searchaddpl";
 
-    public static final String MPD_CMD_SEEK = "seek";
-
-    public static final String MPD_CMD_SEEK_ID = "seekid";
-
-    public static final String MPD_CMD_SET_VOLUME = "setvol";
-
-    public static final String MPD_CMD_SINGLE = "single";
-
     public static final String MPD_CMD_STATISTICS = "stats";
 
     public static final String MPD_CMD_STATUS = "status";
 
-    public static final String MPD_CMD_STOP = "stop";
-
     public static final String MPD_SEARCH_FILENAME = "filename";
-
-    private static final int[] EMPTY_INT_ARRAY = new int[0];
 
     /** The class log identifier. */
     private static final String TAG = "MPDCommand";

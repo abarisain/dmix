@@ -298,7 +298,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                 APP.addConnectionLock(this);
 
                 if (shouldPauseForCall()) {
-                    APP.getMPD().pause();
+                    APP.getMPD().getPlayback().pause().getExceptions();
                     setMarker(PAUSED_MARKER);
                 }
             } catch (final IOException | MPDException e) {

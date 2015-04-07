@@ -17,17 +17,14 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.anpmech.mpd.MPD;
-import com.anpmech.mpd.exception.MPDException;
-import com.anpmech.mpd.item.Music;
-import com.anpmech.mpd.subsystem.status.MPDStatus;
-import com.anpmech.mpd.subsystem.status.MPDStatusMap;
+import com.anpmech.mpd.concurrent.MPDFuture;
+import com.anpmech.mpd.subsystem.Playback;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 
 import android.support.annotation.IdRes;
-import android.util.Log;
 
-import java.io.IOException;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -79,8 +76,6 @@ public final class MPDControl {
     public static final String ACTION_VOLUME_STEP_DOWN = FULLY_QUALIFIED_NAME + "VOLUME_STEP_DOWN";
 
     public static final String ACTION_VOLUME_STEP_UP = FULLY_QUALIFIED_NAME + "VOLUME_STEP_UP";
-
-    public static final String ACTION_RATING_SET = FULLY_QUALIFIED_NAME + "SET_RATING";
 
     private static final int VOLUME_STEP = 5;
 
@@ -146,116 +141,94 @@ public final class MPDControl {
      * @param userCommand The command to be run.
      * @param l           A long primitive argument for the {@code userCommand}.
      */
-    public static void run(final String userCommand, final long l) {
-        new Thread(new Runnable() {
+    public static MPDFuture run(final String userCommand, final long l) {
+        final Playback playback = APP.getMPD().getPlayback();
+        MPDFuture future = null;
 
-            /**
-             * This method retrieves the {@link MPDStatus} object, then blocks waiting for validity
-             * prior to returning.
-             *
-             * @return The validated {@code MPDStatus} object.
-             * @throws InterruptedException If this thread is interrupted.
-             * @throws IOException Thrown if the {@code MPDStatus} object could not be validated
-             * within 10 seconds.
-             */
-            private MPDStatus getStatus(final MPD mpd) throws InterruptedException, IOException {
-                final MPDStatus status = mpd.getStatus();
-
-                if (!status.waitForValidity(10L, TimeUnit.SECONDS)) {
-                    throw new IOException("Failed to get validity for the status.");
+        switch (userCommand) {
+            case ACTION_CONSUME:
+                future = playback.consume();
+                break;
+            case ACTION_MUTE:
+                future = playback.setVolume(0);
+                break;
+            case ACTION_NEXT:
+                future = playback.next();
+                break;
+            case ACTION_PAUSE:
+                future = playback.pause();
+                break;
+            case ACTION_PLAY:
+                future = playback.play();
+                break;
+            case ACTION_PREVIOUS:
+                future = playback.previous();
+                break;
+            case ACTION_SEEK:
+                long li = l;
+                if (li == INVALID_LONG) {
+                    li = 0L;
                 }
-
-                return status;
-            }
-
-            @Override
-            public void run() {
-                APP.addConnectionLock(this);
-                final MPD mpd = APP.getMPD();
-
-                /**
-                 * The main switch for running the command.
-                 */
-                try {
-                    mpd.getConnectionStatus().waitForConnection(10L, TimeUnit.SECONDS);
-
-                    switch (userCommand) {
-                        case ACTION_CONSUME:
-                            mpd.setConsume(!getStatus(mpd).isConsume());
-                            break;
-                        case ACTION_MUTE:
-                            mpd.setVolume(0);
-                            break;
-                        case ACTION_NEXT:
-                            mpd.next();
-                            break;
-                        case ACTION_PAUSE:
-                            if (!getStatus(mpd).isState(MPDStatusMap.STATE_PAUSED)) {
-                                mpd.pause();
-                            }
-                            break;
-                        case ACTION_PLAY:
-                            mpd.play();
-                            break;
-                        case ACTION_PREVIOUS:
-                            mpd.previous();
-                            break;
-                        case ACTION_RATING_SET:
-                            if (l != INVALID_LONG) {
-                                final int songPos = getStatus(mpd).getSongPos();
-                                final Music music = mpd.getPlaylist().getByIndex(songPos);
-                                mpd.getStickerManager().setRating(music, (int) l);
-                            }
-                            break;
-                        case ACTION_SEEK:
-                            long li = l;
-                            if (li == INVALID_LONG) {
-                                li = 0L;
-                            }
-                            mpd.seek(li);
-                            break;
-                        case ACTION_STOP:
-                            mpd.stop();
-                            break;
-                        case ACTION_SINGLE:
-                            mpd.setSingle(!getStatus(mpd).isSingle());
-                            break;
-                        case ACTION_TOGGLE_PLAYBACK:
-                            if (getStatus(mpd).isState(MPDStatusMap.STATE_PLAYING)) {
-                                mpd.pause();
-                            } else {
-                                mpd.play();
-                            }
-                            break;
-                        case ACTION_TOGGLE_RANDOM:
-                            mpd.setRandom(!getStatus(mpd).isRandom());
-                            break;
-                        case ACTION_TOGGLE_REPEAT:
-                            mpd.setRepeat(!getStatus(mpd).isRepeat());
-                            break;
-                        case ACTION_VOLUME_SET:
-                            if (l != INVALID_LONG) {
-                                mpd.setVolume((int) l);
-                            }
-                            break;
-                        case ACTION_VOLUME_STEP_DOWN:
-                            mpd.adjustVolume(-VOLUME_STEP);
-                            break;
-                        case ACTION_VOLUME_STEP_UP:
-                            mpd.adjustVolume(VOLUME_STEP);
-                            break;
-                        default:
-                            break;
-                    }
-                } catch (final IOException | MPDException e) {
-                    Log.w(TAG, "Failed to send a simple MPD command.", e);
-                } catch (final InterruptedException e) {
-                    Log.w(TAG, "Failed due to thread interruption.", e);
-                } finally {
-                    APP.removeConnectionLock(this);
+                future = playback.seek(li);
+                break;
+            case ACTION_STOP:
+                future = playback.stop();
+                break;
+            case ACTION_SINGLE:
+                future = playback.single();
+                break;
+            case ACTION_TOGGLE_PLAYBACK:
+                future = playback.togglePlayback();
+                break;
+            case ACTION_TOGGLE_RANDOM:
+                future = playback.random();
+                break;
+            case ACTION_TOGGLE_REPEAT:
+                future = playback.repeat();
+                break;
+            case ACTION_VOLUME_SET:
+                if (l != INVALID_LONG) {
+                    future = playback.setVolume((int) l);
                 }
+                break;
+            case ACTION_VOLUME_STEP_DOWN:
+                future = playback.stepVolume(-VOLUME_STEP);
+                break;
+            case ACTION_VOLUME_STEP_UP:
+                future = playback.stepVolume(VOLUME_STEP);
+                break;
+            default:
+                future = null;
+                break;
+        }
+
+        return future;
+    }
+
+    /**
+     * This method sets up the connection.
+     *
+     * <p>This should be used, as required, prior to run().</p>
+     *
+     * @return A token to use with {@link MPDApplication#removeConnectionLock(Object)}.
+     */
+    public static Object setupConnection() {
+        final MPD mpd = APP.getMPD();
+        final Object lockToken;
+
+        if (mpd.getStatus().isValid()) {
+            lockToken = new Object();
+        } else {
+            lockToken = Integer.valueOf(new Random().nextInt());
+
+            APP.addConnectionLock(lockToken);
+            try {
+                mpd.getConnectionStatus().waitForConnection(5L, TimeUnit.SECONDS);
+                mpd.getStatus().waitForValidity(5L, TimeUnit.SECONDS);
+            } catch (final InterruptedException ignored) {
             }
         }
-        ).start();
+
+        return lockToken;
     }
 }

@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid;
 
+import com.anpmech.mpd.MPD;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.service.MPDroidService;
 import com.namelessdev.mpdroid.service.NotificationHandler;
@@ -38,11 +39,20 @@ import android.view.KeyEvent;
  */
 public class RemoteControlReceiver extends BroadcastReceiver {
 
+    /**
+     * The application context.
+     */
+    private static final MPDApplication APP = MPDApplication.getInstance();
+
+    /**
+     * The debug flag. If true, debug outputs to the logcat.
+     */
     private static final boolean DEBUG = false;
 
+    /**
+     * The class log identifier.
+     */
     private static final String TAG = "RemoteControlReceiver";
-
-    private static final MPDApplication sApp = MPDApplication.getInstance();
 
     private static boolean isMediaButton(final Intent intent, final String action) {
         final KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
@@ -55,28 +65,28 @@ public class RemoteControlReceiver extends BroadcastReceiver {
             switch (eventKeyCode) {
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                    MPDControl.run(MPDControl.ACTION_TOGGLE_PLAYBACK);
+                    run(MPDControl.ACTION_TOGGLE_PLAYBACK);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
-                    MPDControl.run(MPDControl.ACTION_NEXT);
+                    run(MPDControl.ACTION_NEXT);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                    MPDControl.run(MPDControl.ACTION_PAUSE);
+                    run(MPDControl.ACTION_PAUSE);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PLAY:
-                    MPDControl.run(MPDControl.ACTION_PLAY);
+                    run(MPDControl.ACTION_PLAY);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                    MPDControl.run(MPDControl.ACTION_PREVIOUS);
+                    run(MPDControl.ACTION_PREVIOUS);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_STOP:
-                    MPDControl.run(MPDControl.ACTION_STOP);
+                    run(MPDControl.ACTION_STOP);
                     break;
                 case KeyEvent.KEYCODE_VOLUME_UP:
-                    MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
+                    run(MPDControl.ACTION_VOLUME_STEP_UP);
                     break;
                 case KeyEvent.KEYCODE_VOLUME_DOWN:
-                    MPDControl.run(MPDControl.ACTION_VOLUME_STEP_DOWN);
+                    run(MPDControl.ACTION_VOLUME_STEP_DOWN);
                     break;
                 default:
                     isHandled = false;
@@ -87,6 +97,28 @@ public class RemoteControlReceiver extends BroadcastReceiver {
         }
 
         return isHandled;
+    }
+
+    /**
+     * This method sets up the connection prior to running, only if necessary.
+     *
+     * @param command The {@link MPDControl} command to send.
+     */
+    private static void run(final String command) {
+        final MPD mpd = APP.getMPD();
+        Object token = null;
+
+        try {
+            if (!mpd.getStatus().isValid()) {
+                token = MPDControl.setupConnection();
+            }
+
+            MPDControl.run(command);
+        } finally {
+            if (token != null) {
+                APP.removeConnectionLock(token);
+            }
+        }
     }
 
     @Override
@@ -102,25 +134,25 @@ public class RemoteControlReceiver extends BroadcastReceiver {
             switch (action) {
                 case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
                     if (Tools.isServerLocalhost()) {
-                        MPDControl.run(MPDControl.ACTION_PAUSE);
+                        run(MPDControl.ACTION_PAUSE);
                     } else {
                         redirectIntentToService(false, intent);
                     }
                     break;
                 case Intent.ACTION_BOOT_COMPLETED:
-                    if (sApp.isNotificationPersistent()) {
+                    if (APP.isNotificationPersistent()) {
                         redirectIntentToService(true, intent);
                     }
                     break;
                 case MPDroidService.ACTION_STOP:
-                    sApp.setPersistentOverride(true);
+                    APP.setPersistentOverride(true);
                     /** Fall Through */
                 case NotificationHandler.ACTION_START:
                 case StreamHandler.ACTION_START:
                     redirectIntentToService(true, intent);
                     break;
                 default:
-                    MPDControl.run(action);
+                    run(action);
                     break;
             }
         }
@@ -134,18 +166,17 @@ public class RemoteControlReceiver extends BroadcastReceiver {
      *
      * @param forceService Force the action, even if the service isn't active.
      * @param intent       The incoming intent through {@code onReceive()}.
-     * @see android.content.BroadcastReceiver#onReceive(android.content.Context,
-     * android.content.Intent)
+     * @see BroadcastReceiver#onReceive(Context, Intent)
      */
     private void redirectIntentToService(final boolean forceService, final Intent intent) {
-        intent.setClass(sApp, MPDroidService.class);
-        final IBinder iBinder = peekService(sApp, intent);
+        intent.setClass(APP, MPDroidService.class);
+        final IBinder iBinder = peekService(APP, intent);
         if (forceService || iBinder != null && iBinder.isBinderAlive()) {
             if (DEBUG) {
                 Log.d(TAG, "Redirecting action " + intent.getAction() + " to the service.");
             }
 
-            sApp.startService(intent);
+            APP.startService(intent);
         }
     }
 }

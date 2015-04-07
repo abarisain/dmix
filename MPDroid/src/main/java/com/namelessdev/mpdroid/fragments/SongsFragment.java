@@ -519,7 +519,7 @@ public class SongsFragment extends BrowseFragment<Music> {
                         if (mList instanceof ListView) {
                             positionCorrection = ((ListView) mList).getHeaderViewsCount();
                         }
-                        mApp.getMPD().seekByIndex(position - positionCorrection, 0L);
+                        mApp.getMPD().getPlayback().seek(position - positionCorrection, 0L);
                     } catch (final IOException | MPDException e) {
                         Log.e(TAG, "Failed to seek by index.", e);
                     }

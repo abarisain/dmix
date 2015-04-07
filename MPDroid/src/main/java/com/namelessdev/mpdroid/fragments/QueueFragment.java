@@ -330,7 +330,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
     public void onListItemClick(final ListView l, final View v, final int position, final long id) {
         super.onListItemClick(l, v, position, id);
 
-        final int song = ((Music) l.getAdapter().getItem(position)).getSongId();
+        final Music song = (Music) l.getAdapter().getItem(position);
 
         QueueControl.run(QueueControl.SKIP_TO_ID, song);
     }
