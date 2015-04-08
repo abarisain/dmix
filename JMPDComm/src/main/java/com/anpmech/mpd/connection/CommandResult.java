@@ -37,7 +37,7 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 /**
- * This is the core of the Response classes.
+ * This is the core of the {@link CommandResponse} classes.
  *
  * <p>This class is subclassed to process any MPD protocol server responses. This class is
  * immutable, thus, thread-safe.</p>

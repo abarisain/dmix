@@ -44,9 +44,13 @@ import java.util.Map;
 import java.util.TreeSet;
 
 /**
- * A class representing a MPD protocol directory.
+ * This class is the generic base for the Directory items, abstracted for backend.
  *
- * @author Felipe Gustavo de Almeida
+ * <p>This item is returned from methods of the
+ * <A HREF="http://www.musicpd.org/doc/protocol/database.html">database</A>
+ * subsystem of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>.</p>
+ *
+ * @param <T> The Directory type.
  */
 abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
         implements FilesystemTreeEntry {

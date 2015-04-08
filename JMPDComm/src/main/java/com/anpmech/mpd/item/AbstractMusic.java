@@ -33,10 +33,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 /**
- * Class representing a generic track entry in playlist, abstracted for backend. This item is
- * returned from methods of the <A HREF="http://www.musicpd.org/doc/protocol/database.html">database</A>
- * subsystem of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>.
+ * Class representing a generic track entry in playlist, abstracted for backend.
  *
+ * <p>This item is returned from methods of the
+ * <A HREF="http://www.musicpd.org/doc/protocol/database.html">database</A>
+ * subsystem of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>.</p>
+ *
+ * @param <T> The Music type.
  * @author Felipe Gustavo de Almeida
  */
 abstract class AbstractMusic<T extends Music> extends Item<Music> implements FilesystemTreeEntry {

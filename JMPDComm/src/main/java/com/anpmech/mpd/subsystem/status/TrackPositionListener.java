@@ -28,7 +28,8 @@
 package com.anpmech.mpd.subsystem.status;
 
 /**
- * Represents a change in current playing track position on MPD server.
+ * This interface is used in conjunction with the {@link IdleSubsystemMonitor} to listen for track
+ * position (seeking) changes.
  */
 public interface TrackPositionListener {
 

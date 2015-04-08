@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 /**
- * Class representing a connection to MPD Server.
+ * Class representing a single connection to MPD Server.
  *
  * <p>An instance of this class should only be accessed by one thread at a time.</p>
  */

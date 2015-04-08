@@ -43,7 +43,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * MPD Playlist controller.
+ * The frontend for {@link MusicList} and MPD protocol
+ * <A HREF="http://www.musicpd.org/doc/protocol/queue.html">playlist queue controller</A>.
  */
 public class MPDPlaylist {
 

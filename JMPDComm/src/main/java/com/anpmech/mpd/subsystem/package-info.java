@@ -25,37 +25,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.anpmech.mpd.connection;
-
-import com.anpmech.mpd.exception.MPDException;
-
 /**
- * This is an listener for connections which support {@link MPDConnectionStatus}.
+ * This package contains classes which assist with various MPD protocol subsystems.
  */
-public interface MPDConnectionListener {
-
-    /**
-     * Called upon connection.
-     *
-     * @param commandErrorCode If this number is non-zero, the number will correspond to a
-     *                         {@link MPDException} error code. If this number is zero, the
-     *                         connection MPD protocol commands were successful.
-     */
-    void connectionConnected(final int commandErrorCode);
-
-    /**
-     * Called when connecting.
-     *
-     * <p>This implies that we've disconnected. This callback is intended to be transient. Status
-     * change from connected to connecting may happen, but if a connection is not established, with
-     * a connected callback, the disconnection status callback should be called.</p>
-     */
-    void connectionConnecting();
-
-    /**
-     * Called upon disconnection.
-     *
-     * @param reason The reason given for disconnection.
-     */
-    void connectionDisconnected(final String reason);
-}
+package com.anpmech.mpd.subsystem;

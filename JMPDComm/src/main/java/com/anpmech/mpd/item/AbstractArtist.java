@@ -32,7 +32,11 @@ import com.anpmech.mpd.Tools;
 import java.util.Arrays;
 import java.util.Locale;
 
-/** This class is the generic base for the Artist items, abstracted for backend. */
+/**
+ * This class is the generic base for the Artist items, abstracted for backend.
+ *
+ * @param <T> The Artist type.
+ */
 abstract class AbstractArtist<T extends Artist> extends Item<Artist> {
 
     protected static final String TAG = AbstractMusic.RESPONSE_ARTIST;

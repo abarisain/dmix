@@ -26,7 +26,7 @@
  */
 
 /**
- * A package containing classes for handling command to MPD protocol server connection and response
- * processing.
+ * This package containing classes for handling command to MPD protocol server connection and
+ * response processing.
  */
 package com.anpmech.mpd.connection;

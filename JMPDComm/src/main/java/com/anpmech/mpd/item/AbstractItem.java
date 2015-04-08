@@ -35,7 +35,8 @@ import java.util.ListIterator;
 import java.util.ResourceBundle;
 
 /**
- * This is a generic representation of a Item "object" from the MPD protocol.
+ * This class is the generic base for all Item Objects, a Object representation from the MPD
+ * protocol, abstracted for backend.
  *
  * @param <T> The Item type.
  */

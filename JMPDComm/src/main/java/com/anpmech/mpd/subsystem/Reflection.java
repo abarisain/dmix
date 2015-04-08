@@ -36,9 +36,10 @@ import java.io.IOException;
 import java.util.Collection;
 
 /**
- * A class to manage the <A HREF="http://www.musicpd.org/doc/protocol/reflection_commands.html">reflection</A>
- * subsystem of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>. This will query
- * various capabilities and configuration for the currently connected media server.
+ * This class manages the <A HREF="http://www.musicpd.org/doc/protocol/reflection_commands.html">
+ * reflection</A> subsystem of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>.
+ * This will query various capabilities and configuration for the currently connected media
+ * server.
  */
 public class Reflection {
 

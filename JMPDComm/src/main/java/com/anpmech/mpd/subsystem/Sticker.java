@@ -48,7 +48,7 @@ import static com.anpmech.mpd.Tools.KEY;
 import static com.anpmech.mpd.Tools.VALUE;
 
 /**
- * A class to manage the <A HREF="http://www.musicpd.org/doc/protocol/stickers.html">sticker</A>
+ * This class manages the <A HREF="http://www.musicpd.org/doc/protocol/stickers.html">sticker</A>
  * subsystem of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>. This will query
  * the sticker database on the connected media server.
  */

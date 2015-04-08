@@ -28,7 +28,9 @@
 package com.anpmech.mpd.subsystem.status;
 
 /**
- * Implement this to get idle subsystem status updates.
+ * This interface is used in conjunction with the {@link IdleSubsystemMonitor} to listen to
+ * <A HREF="http://www.musicpd.org/doc/protocol/command_reference.html#command_idle">Idle
+ * subsystem</A> changes.
  */
 public interface StatusChangeListener {
 

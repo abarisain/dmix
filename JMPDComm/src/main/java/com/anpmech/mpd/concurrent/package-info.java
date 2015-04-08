@@ -26,6 +26,6 @@
  */
 
 /**
- * Utility classes commonly useful in concurrent programming.
+ * This package contains classes useful for connection and future concurrency.
  */
 package com.anpmech.mpd.concurrent;

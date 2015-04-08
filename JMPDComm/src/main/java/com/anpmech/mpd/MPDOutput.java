@@ -36,8 +36,9 @@ import java.util.List;
 import static com.anpmech.mpd.Tools.KEY;
 import static com.anpmech.mpd.Tools.VALUE;
 
-/*
- * Class representing one configured output
+/**
+ * This class represents one <A HREF="http://www.musicpd.org/doc/protocol/output_commands.html">
+ * audio output</A> from the <A HREF="http://www.musicpd.org/doc/protocol/">MPD Protocol</A>.
  */
 public class MPDOutput {
 

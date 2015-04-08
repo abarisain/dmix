@@ -33,6 +33,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 
+/**
+ * This class is the generic base for the Stream items, abstracted for backend.
+ *
+ * @param <T> The Stream type.
+ */
 abstract class AbstractStream<T extends Stream> extends Item<Stream> {
 
     protected static final String TAG = "Stream";

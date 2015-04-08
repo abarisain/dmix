@@ -26,7 +26,7 @@
  */
 
 /**
- * A package with classes used to manage the
+ * This package contains classes used to manage the
  * <A HREF="http://www.musicpd.org/doc/protocol/command_reference.html#status_commands"
  * target="_top">status</A> subsystem of the <A HREF="http://www.musicpd.org/doc/protocol"
  * target="_top">MPD protocol</A>.

@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
- * This class stores and processes the result for a MPD command response.
+ * This class can be used to process a {@link CommandResult}.
  *
  * <p>This class is immutable, thus, thread-safe.</p>
  */

@@ -35,10 +35,10 @@ import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 
 /**
- * This class manages
+ * This class manages the
  * <A HREF="http://www.musicpd.org/doc/protocol/playback_commands.html">playback</A> and
  * <A HREF="http://www.musicpd.org/doc/protocol/playback_option_commands.html">playback
- * options</A>.
+ * options</A> of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>.
  */
 public class Playback {
 

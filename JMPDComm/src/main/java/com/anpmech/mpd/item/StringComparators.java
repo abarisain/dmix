@@ -37,7 +37,7 @@ import java.text.Collator;
 import java.util.Comparator;
 
 /**
- * Utility class for common String operations
+ * Utility class for common String operations.
  */
 final class StringComparators {
 

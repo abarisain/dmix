@@ -40,8 +40,9 @@ import java.util.List;
  */
 
 /**
- * These lists store the internal structure store of the playlist. All modifications are
- * synchronized, iterating over the list will still require manual locking.
+ * These lists store the internal structure store for a cached
+ * <A HREF="http://www.musicpd.org/doc/protocol/queue.html">playlist queue</A>. All modifications
+ * are synchronized, iterating over the list will still require manual locking.
  */
 final class MusicList implements Iterable<Music> {
 

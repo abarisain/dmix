@@ -37,6 +37,9 @@ import java.util.List;
 import static com.anpmech.mpd.Tools.KEY;
 import static com.anpmech.mpd.Tools.VALUE;
 
+/**
+ * This is the builder for {@code Music} objects.
+ */
 public final class MusicBuilder {
 
     /**

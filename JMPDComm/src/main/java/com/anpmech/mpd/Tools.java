@@ -37,6 +37,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Common utilities used for processing the MPD protocol and processing.
+ */
 public final class Tools {
 
     /**

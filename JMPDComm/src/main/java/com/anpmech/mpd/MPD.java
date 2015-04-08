@@ -64,7 +64,8 @@ import static com.anpmech.mpd.Tools.KEY;
 import static com.anpmech.mpd.Tools.VALUE;
 
 /**
- * MPD Server controller.
+ * This is a class containing instantiations of commonly used objects and uses for convenience of
+ * a MPD client.
  */
 public class MPD {
 

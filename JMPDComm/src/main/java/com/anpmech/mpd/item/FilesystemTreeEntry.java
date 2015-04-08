@@ -27,7 +27,16 @@
 
 package com.anpmech.mpd.item;
 
+/**
+ * This Interface represents the full path of a {@link Directory}, {@link Music} or
+ * {@link PlaylistFile} item.
+ */
 public interface FilesystemTreeEntry {
 
+    /**
+     * The full path as given by the MPD protocol.
+     *
+     * @return The full path for this entry.
+     */
     String getFullPath();
 }
