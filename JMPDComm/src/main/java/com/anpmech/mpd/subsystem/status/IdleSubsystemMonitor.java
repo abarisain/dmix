@@ -36,8 +36,6 @@ import com.anpmech.mpd.concurrent.MPDFuture;
 import com.anpmech.mpd.concurrent.ResponseFuture;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.connection.MonoIOMPDConnection;
-import com.anpmech.mpd.event.StatusChangeListener;
-import com.anpmech.mpd.event.TrackPositionListener;
 import com.anpmech.mpd.exception.MPDException;
 
 import java.io.IOException;

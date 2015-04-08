@@ -16,7 +16,7 @@
 
 package com.namelessdev.mpdroid.service;
 
-import com.anpmech.mpd.event.TrackPositionListener;
+import com.anpmech.mpd.subsystem.status.TrackPositionListener;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 

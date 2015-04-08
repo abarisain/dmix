@@ -18,13 +18,13 @@ package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.connection.MPDConnectionListener;
-import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
+import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;

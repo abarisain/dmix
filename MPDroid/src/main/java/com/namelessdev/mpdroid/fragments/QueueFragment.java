@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDPlaylist;
-import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
@@ -26,6 +25,7 @@ import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;

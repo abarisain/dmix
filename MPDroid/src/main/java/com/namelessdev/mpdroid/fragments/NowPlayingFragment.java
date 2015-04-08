@@ -18,8 +18,6 @@ package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.connection.MPDConnectionListener;
-import com.anpmech.mpd.event.StatusChangeListener;
-import com.anpmech.mpd.event.TrackPositionListener;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
@@ -28,6 +26,8 @@ import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.Stream;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
+import com.anpmech.mpd.subsystem.status.StatusChangeListener;
+import com.anpmech.mpd.subsystem.status.TrackPositionListener;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;

@@ -17,9 +17,9 @@
 package com.namelessdev.mpdroid;
 
 import com.anpmech.mpd.MPD;
-import com.anpmech.mpd.event.StatusChangeListener;
-import com.anpmech.mpd.event.TrackPositionListener;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
+import com.anpmech.mpd.subsystem.status.StatusChangeListener;
+import com.anpmech.mpd.subsystem.status.TrackPositionListener;
 import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
 import com.namelessdev.mpdroid.helpers.CachedMPD;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;

@@ -25,7 +25,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.anpmech.mpd.event;
+package com.anpmech.mpd.subsystem.status;
 
 /**
  * Implement this to get idle subsystem status updates.

@@ -17,12 +17,12 @@
 package com.namelessdev.mpdroid.service;
 
 import com.anpmech.mpd.connection.MPDConnectionListener;
-import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
+import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.RemoteControlReceiver;

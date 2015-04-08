@@ -17,8 +17,8 @@
 package com.namelessdev.mpdroid;
 
 import com.anpmech.mpd.connection.MPDConnectionListener;
-import com.anpmech.mpd.event.StatusChangeListener;
 import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
