@@ -87,10 +87,6 @@ public class MPDCommand {
     /** Added in MPD protocol 0.17.0. */
     public static final String MPD_CMD_SEARCH_ADD_PLAYLIST = "searchaddpl";
 
-    public static final String MPD_CMD_STATISTICS = "stats";
-
-    public static final String MPD_CMD_STATUS = "status";
-
     public static final String MPD_SEARCH_FILENAME = "filename";
 
     /** The class log identifier. */

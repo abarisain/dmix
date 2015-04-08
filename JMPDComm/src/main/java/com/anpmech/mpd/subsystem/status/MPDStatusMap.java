@@ -28,7 +28,6 @@
 package com.anpmech.mpd.subsystem.status;
 
 import com.anpmech.mpd.Log;
-import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.concurrent.ResponseFuture;
 import com.anpmech.mpd.connection.MPDConnection;
@@ -109,6 +108,11 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * The MPD protocol response to volume if there is no available mixer.
      */
     public static final int VOLUME_UNAVAILABLE = -1;
+
+    /**
+     * Command text required to generate a command to retrieve the status information for this map.
+     */
+    private static final CharSequence CMD_ACTION_STATUS = "status";
 
     /**
      * The default number of MPDStatus entries.
@@ -748,7 +752,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * @see IdleSubsystemMonitor
      */
     public void update() throws IOException, MPDException {
-        final ResponseFuture future = mConnection.submit(MPDCommand.MPD_CMD_STATUS);
+        final ResponseFuture future = mConnection.submit(CMD_ACTION_STATUS);
 
         update(future.get());
     }

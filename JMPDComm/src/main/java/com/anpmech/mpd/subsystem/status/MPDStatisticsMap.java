@@ -27,7 +27,6 @@
 
 package com.anpmech.mpd.subsystem.status;
 
-import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 
@@ -45,6 +44,11 @@ public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
      * This is the value given if there was no long in the map with the given key.
      */
     public static final long DEFAULT_LONG = ResponseMap.LONG_DEFAULT;
+
+    /**
+     * Command text required to generate a command to retrieve the statistics for this map.
+     */
+    private static final CharSequence CMD_ACTION_STATISTICS = "stats";
 
     /**
      * The default number of statistic response entries.
@@ -216,6 +220,6 @@ public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
      * @see IdleSubsystemMonitor
      */
     public void update() throws IOException, MPDException {
-        update(mConnection.submit(MPDCommand.MPD_CMD_STATISTICS).get());
+        update(mConnection.submit(CMD_ACTION_STATISTICS).get());
     }
 }
