@@ -322,4 +322,5 @@
     <string name="gpThanksOkButton">Awesome !</string>
 
     <string name="refresh">Refresh</string>
+    <string name="launchingLocalhostMPD">MPD is installed on localhost and not running, launching.</string>
 </resources>
