@@ -51,13 +51,13 @@ public class ErrorHandler implements MPDConnectionListener {
 
     private static final String TAG = "ErrorHandler";
 
+    private static AlertDialog sAlertDialog;
+
     private final Activity mActivity;
 
     private final MPDApplication mApp;
 
     private final Resources mResources;
-
-    private AlertDialog mAlertDialog;
 
     public ErrorHandler(final Activity activity) {
         super();
@@ -68,7 +68,9 @@ public class ErrorHandler implements MPDConnectionListener {
         /**
          * Initialize this as non-null; big problems can happen if this is ever null.
          */
-        mAlertDialog = new AlertDialog.Builder(activity).create();
+        if (sAlertDialog == null) {
+            sAlertDialog = new AlertDialog.Builder(activity).create();
+        }
         mApp = (MPDApplication) mActivity.getApplication();
 
         if (SettingsHelper.getConnectionSettings(null) == null) {
@@ -160,11 +162,11 @@ public class ErrorHandler implements MPDConnectionListener {
         dismissAlertDialog();
 
         // show connecting to server dialog, only on the main thread.
-        mAlertDialog = new ProgressDialog(mActivity);
-        mAlertDialog.setTitle(R.string.connecting);
-        mAlertDialog.setMessage(mResources.getString(R.string.connectingToServer));
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+        sAlertDialog = new ProgressDialog(mActivity);
+        sAlertDialog.setTitle(R.string.connecting);
+        sAlertDialog.setMessage(mResources.getString(R.string.connectingToServer));
+        sAlertDialog.setCancelable(false);
+        sAlertDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
             @Override
             public boolean onKey(final DialogInterface dialog, final int keyCode,
                     final KeyEvent event) {
@@ -174,7 +176,7 @@ public class ErrorHandler implements MPDConnectionListener {
         });
 
         try {
-            mAlertDialog.show();
+            sAlertDialog.show();
         } catch (final WindowManager.BadTokenException ignored) {
             // Can't display it. Don't care.
         }
@@ -190,7 +192,7 @@ public class ErrorHandler implements MPDConnectionListener {
     @Override
     public final void connectionDisconnected(final String reason) {
         debug("connectionDisconnected()");
-        if (mAlertDialog instanceof ProgressDialog) {
+        if (sAlertDialog instanceof ProgressDialog) {
 
             // dismiss possible dialog
             debug("Dismissing in connectionDisconnected");
@@ -199,10 +201,10 @@ public class ErrorHandler implements MPDConnectionListener {
             try {
                 // are we in the settings activity?
                 if (mActivity.getClass().equals(SettingsActivity.class)) {
-                    mAlertDialog = buildConnectionFailedSettings(reason).show();
+                    sAlertDialog = buildConnectionFailedSettings(reason).show();
                 } else {
                     debug("Showing alert dialog.");
-                    mAlertDialog = buildConnectionFailedMessage(reason).show();
+                    sAlertDialog = buildConnectionFailedMessage(reason).show();
                 }
             } catch (final RuntimeException e) {
                 /**
@@ -218,7 +220,7 @@ public class ErrorHandler implements MPDConnectionListener {
     private void dismissAlertDialog() {
         debug("Dismissing alert dialog");
         try {
-            mAlertDialog.dismiss();
+            sAlertDialog.dismiss();
         } catch (final IllegalArgumentException | IllegalStateException e) {
             Log.e(TAG, "General error while dismissing alert dialog", e);
         }
