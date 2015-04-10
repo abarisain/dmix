@@ -650,22 +650,13 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         }
     }
 
-    public void scrollToTop() {
-        try {
-            mList.setSelection(-1);
-        } catch (final Exception e) {
-            // What if the list is empty or some other bug ? I don't want any
-            // crashes because of that
-        }
-    }
-
     /**
      * Set whether the fragment is embedded or not. An embedded BrowseFragment will not show a
      * toolbar.
      *
      * @param embedded True to embed, false otherwise.
      */
-    public void setEmbedded(boolean embedded) {
+    public void setEmbedded(final boolean embedded) {
         Bundle arguments = getArguments();
 
         if (arguments == null) {
@@ -679,23 +670,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         updateToolbarVisibility();
     }
 
-    /**
-     * Set the view transition name in case it's used with a ListView
-     *
-     * @param name The name for this view transition.
-     */
-    public void setViewTransitionName(String name) {
-        Bundle arguments = getArguments();
-
-        if (arguments == null) {
-            arguments = new Bundle();
-        }
-
-        setArguments(arguments);
-    }
-
-    protected void setupStandardToolbar(View rootview) {
-        mToolbar = (Toolbar) rootview.findViewById(R.id.toolbar);
+    protected void setupStandardToolbar(final View rootView) {
+        mToolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
 
         ToolbarHelper.showBackButton(this, mToolbar);
         ToolbarHelper.addSearchView(getActivity(), mToolbar);
@@ -767,15 +743,11 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     public void updateFromItems() {
         if (getView() != null) {
             mList.setAdapter(getCustomListAdapter());
-            try {
-                if (forceEmptyView() || mList instanceof ListView
-                        && ((ListView) mList).getHeaderViewsCount() == 0) {
-                    mList.setEmptyView(mNoResultView);
-                } else if (mItems.isEmpty()) {
-                    mNoResultView.setVisibility(View.VISIBLE);
-                }
-            } catch (final Exception e) {
-                Log.e(TAG, "Exception.", e);
+            if (forceEmptyView() || mList instanceof ListView
+                    && ((ListView) mList).getHeaderViewsCount() == 0) {
+                mList.setEmptyView(mNoResultView);
+            } else if (mItems.isEmpty()) {
+                mNoResultView.setVisibility(View.VISIBLE);
             }
 
             mLoadingView.setVisibility(View.GONE);
