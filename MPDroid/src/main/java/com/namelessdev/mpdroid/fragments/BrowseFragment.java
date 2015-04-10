@@ -470,10 +470,9 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
              * This needs to be here due to the fragment lifecycle.
              */
             mApp.getAsyncHelper().removeAsyncExecListener(this);
-        } catch (final Exception e) {
-            Log.e(TAG, "Error while destroying BrowseFragment", e);
+        } finally {
+            super.onDestroy();
         }
-        super.onDestroy();
     }
 
     @Override
