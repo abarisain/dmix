@@ -208,7 +208,17 @@ public abstract class MPDConnectionStatus {
      * @return True if this connection is connected, false otherwise.
      */
     public boolean isConnected() {
-        return mConnectionStatus.availablePermits() == 1;
+        boolean isConnected = false;
+
+        try {
+            isConnected = mConnectionStatus.tryAcquire();
+        } finally {
+            if (isConnected) {
+                mConnectionStatus.release();
+            }
+        }
+
+        return isConnected;
     }
 
     /**
