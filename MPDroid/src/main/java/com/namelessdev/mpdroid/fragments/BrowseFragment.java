@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.exception.MPDException;
@@ -123,7 +124,10 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     protected Toolbar mToolbar;
 
-    private boolean mFirstUpdateDone = false;
+    /**
+     * This field corresponds to the last DB update time.
+     */
+    private long mLastDBUpdate;
 
     protected BrowseFragment(@StringRes final int rAdd, @StringRes final int rAdded,
             final String pContext) {
@@ -275,6 +279,19 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     protected abstract void asyncUpdate();
 
     /**
+     * This method checks the database for change, and updates the list accordingly.
+     */
+    public void checkDatabase() {
+        final MPD mpd = mApp.getMPD();
+        final long updateTime = mpd.getStatistics().getDBUpdateTime().getTime();
+
+        if (updateTime != mLastDBUpdate && mpd.isConnected()) {
+            updateList();
+            mLastDBUpdate = updateTime;
+        }
+    }
+
+    /**
      * Called upon connection.
      *
      * @param commandErrorCode If this number is non-zero, the number will correspond to a
@@ -284,7 +301,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     @Override
     public void connectionConnected(final int commandErrorCode) {
         storedPlaylistChanged();
-        updateList();
+        checkDatabase();
     }
 
     /**
@@ -539,16 +556,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
         mApp.getMPD().getConnectionStatus().addListener(this);
         mApp.addStatusChangeListener(this);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        if (!mFirstUpdateDone && mApp.getMPD().isConnected()) {
-            mFirstUpdateDone = true;
-            updateList();
-        }
+        checkDatabase();
     }
 
     /**
