@@ -20,6 +20,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,6 +34,16 @@ import android.widget.Toast;
 import java.util.Collection;
 
 public final class Tools {
+
+    /**
+     * This is a no operation listener for the DialogInterface.OnClickListener().
+     */
+    public static final DialogInterface.OnClickListener NOOP_CLICK_LISTENER =
+            new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(final DialogInterface dialog, final int which) {
+                }
+            };
 
     private static final MPDApplication APP = MPDApplication.getInstance();
 

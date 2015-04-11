@@ -243,14 +243,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
                                     }
                                 }
                             })
-                    .setNegativeButton(android.R.string.cancel,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(final DialogInterface dialog,
-                                        final int which) {
-                                    // Do nothing.
-                                }
-                            }).show();
+                    .setNegativeButton(android.R.string.cancel, Tools.NOOP_CLICK_LISTENER)
+                    .show();
         } else {
             add(mItems.get(id), new PlaylistFile(item.getTitle().toString()));
         }

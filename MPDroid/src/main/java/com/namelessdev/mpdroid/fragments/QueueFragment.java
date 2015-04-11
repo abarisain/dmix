@@ -446,16 +446,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                                         }
                                     }
                             )
-                    .setNegativeButton
-                            (android.R.string.cancel,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(final DialogInterface dialog,
-                                                final int which) {
-                                            // Do nothing.
-                                        }
-                                    }
-                            )
+                    .setNegativeButton(android.R.string.cancel, Tools.NOOP_CLICK_LISTENER)
                     .create().show();
         } else {
             result = false;
@@ -568,16 +559,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                                         }
                                     }
                             )
-                    .setNegativeButton
-                            (android.R.string.cancel,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(final DialogInterface dialog,
-                                                final int which) {
-                                            // Do nothing.
-                                        }
-                                    }
-                            )
+                    .setNegativeButton(android.R.string.cancel, Tools.NOOP_CLICK_LISTENER)
                     .create().show();
         } else if (!name.isEmpty()) {
             // actually save:

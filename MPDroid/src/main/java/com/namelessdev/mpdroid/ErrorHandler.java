@@ -130,11 +130,7 @@ public class ErrorHandler implements MPDConnectionListener {
 
         builder.setCancelable(false);
         builder.setMessage(mResources.getString(R.string.connectionFailedMessageSetting, message));
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(final DialogInterface dialog, final int which) {
-            }
-        });
+        builder.setPositiveButton(R.string.ok, Tools.NOOP_CLICK_LISTENER);
         return builder;
     }
 
@@ -331,7 +327,7 @@ public class ErrorHandler implements MPDConnectionListener {
                     try {
                         ((MPDApplication) mActivity.getApplication()).connect();
                     } catch (final UnknownHostException e) {
-                        Log.e(TAG, "Failed to connect due to unknown host.");
+                        Log.e(TAG, "Failed to connect due to unknown host.", e);
                     }
                     break;
                 default:

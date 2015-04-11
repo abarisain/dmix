@@ -21,6 +21,7 @@ import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.status.MPDStatistics;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -193,12 +194,7 @@ public class SettingsFragment extends PreferenceFragment {
                             mCacheUsage2.setSummary("0.00B");
                         }
                     })
-                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(final DialogInterface dialog, final int which) {
-                            // do nothing
-                        }
-                    })
+                    .setNegativeButton(R.string.cancel, Tools.NOOP_CLICK_LISTENER)
                     .show();
             return true;
 
