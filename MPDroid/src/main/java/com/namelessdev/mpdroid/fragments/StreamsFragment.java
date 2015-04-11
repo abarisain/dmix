@@ -32,6 +32,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -43,6 +44,7 @@ import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -109,13 +111,32 @@ public class StreamsFragment extends BrowseFragment<Stream> {
                 .setTitle(idx < 0 ? R.string.addStream : R.string.editStream)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok, new OnClickListener() {
+
+                    /**
+                     * Checks the TextView for a getText string, if it exists, trims and returns
+                     * it.
+                     *
+                     * @param textView The TextView to check for a getText() string.
+                     * @return A trimmed getText string.
+                     */
+                    private String getText(final TextView textView) {
+                        final String result;
+
+                        if (textView == null) {
+                            result = null;
+                        } else {
+                            result = textView.getText().toString().trim();
+                        }
+
+                        return result;
+                    }
+
                     @Override
                     public void onClick(final DialogInterface dialog, final int which) {
-                        final String name = null == nameEdit ? null : nameEdit.getText().toString()
-                                .trim();
-                        final String url = null == urlEdit ? null
-                                : urlEdit.getText().toString().trim();
-                        if (null != name && !name.isEmpty() && null != url && !url.isEmpty()) {
+                        final String name = getText(nameEdit);
+                        final String url = getText(urlEdit);
+
+                        if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(url)) {
                             if (idx >= 0 && idx < mStreams.size()) {
                                 final int removedPos = mStreams.get(idx).getPos();
                                 try {
@@ -181,9 +202,8 @@ public class StreamsFragment extends BrowseFragment<Stream> {
                 while (iterator.hasNext()) {
                     final Music stream = iterator.next();
 
-                    mStreams.add(
-                            new Stream(stream.getName(), stream.getFullPath(),
-                                    iterator.nextIndex()));
+                    mStreams.add(new Stream(stream.getName(), stream.getFullPath(),
+                            iterator.nextIndex()));
                 }
             } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to retrieve saved streams.", e);
