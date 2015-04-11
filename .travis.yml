@@ -1,26 +1,21 @@
 language: android
+jdk: oraclejdk8
 
 android:
   components:
-    # Uncomment the lines below if you want to use the latest revision of Android SDK Tools.
-    # - platform-tools
-    # - tools
-
-    # The BuildTools version used by your project.
     - build-tools-22.0.1
+    - doc-22
 
-    # The SDK version used to compile your project.
     - android-22
 
     # Additional components
-    # - extra-google-google_play_services
-    # - extra-google-m2repository
     - extra-android-m2repository
-    # - addon-google_apis-google-21
+    - extra-android-support
 
 # This project doesn't support checkConnected, which is
 #  the default script label for the Android plugin.
 script:
     ## Build the standard MPDroid distribution and check to
     ### make sure the plain Java build didn't break.
-    ./gradlew assembleFossDebug JMPDCommJava:Build
+
+    ./gradlew assembleFossDebug JMPDCommAndroid:debugJavadoc JMPDCommJava:Build JMPDCommJava:javadoc
