@@ -47,7 +47,7 @@ import java.io.IOException;
  * state changes. There may be multiple MPDroid devices around the house telling MPD to do the same
  * thing (no toggling!). There will always be possible races here, but attempt to minimize.</p>
  *
- * State persistence is a requirement. To keep things persistent, we use the Android
+ * <p>State persistence is a requirement. To keep things persistent, we use the Android
  * {@link PreferenceManager} infrastructure. This comes with a large downside: If a marker is set
  * but not unset, due to conditionals, make sure it has a chance to be unset in the future; a bad
  * situation would be for it to <b>remain</b> unset.</p>

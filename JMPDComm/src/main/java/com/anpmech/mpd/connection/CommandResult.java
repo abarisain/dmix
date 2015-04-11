@@ -28,6 +28,7 @@
 package com.anpmech.mpd.connection;
 
 import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.SplitCommandResponse;
 
 import java.util.Collection;
