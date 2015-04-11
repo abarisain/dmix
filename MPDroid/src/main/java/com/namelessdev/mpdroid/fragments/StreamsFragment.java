@@ -55,9 +55,9 @@ import java.util.ListIterator;
 
 public class StreamsFragment extends BrowseFragment<Stream> {
 
-    public static final int DELETE = 102;
+    private static final int DELETE = 102;
 
-    public static final int EDIT = 101;
+    private static final int EDIT = 101;
 
     private static final String TAG = "StreamsFragment";
 
@@ -82,7 +82,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
     protected void add(final Stream item, final PlaylistFile playlist) {
     }
 
-    public void addEdit() {
+    private void addEdit() {
         addEdit(-1, null);
     }
 
@@ -95,6 +95,13 @@ public class StreamsFragment extends BrowseFragment<Stream> {
         final View view = factory.inflate(R.layout.stream_dialog, null);
         final EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
         final EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
+        final int streamTitle;
+
+        if (idx < 0) {
+            streamTitle = R.string.addStream;
+        } else {
+            streamTitle = R.string.editStream;
+        }
 
         if (idx >= 0 && idx < mStreams.size()) {
             final Stream stream = mStreams.get(idx);
@@ -107,72 +114,12 @@ public class StreamsFragment extends BrowseFragment<Stream> {
         } else if (streamUrlToAdd != null && urlEdit != null) {
             urlEdit.setText(streamUrlToAdd);
         }
+
         new AlertDialog.Builder(getActivity())
-                .setTitle(idx < 0 ? R.string.addStream : R.string.editStream)
+                .setTitle(streamTitle)
                 .setView(view)
-                .setPositiveButton(android.R.string.ok, new OnClickListener() {
-
-                    /**
-                     * Checks the TextView for a getText string, if it exists, trims and returns
-                     * it.
-                     *
-                     * @param textView The TextView to check for a getText() string.
-                     * @return A trimmed getText string.
-                     */
-                    private String getText(final TextView textView) {
-                        final String result;
-
-                        if (textView == null) {
-                            result = null;
-                        } else {
-                            result = textView.getText().toString().trim();
-                        }
-
-                        return result;
-                    }
-
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        final String name = getText(nameEdit);
-                        final String url = getText(urlEdit);
-
-                        if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(url)) {
-                            if (idx >= 0 && idx < mStreams.size()) {
-                                final int removedPos = mStreams.get(idx).getPos();
-                                try {
-                                    mApp.getMPD().editSavedStream(url, name, removedPos);
-                                } catch (final IOException | MPDException e) {
-                                    Log.e(TAG, "Failed to edit a saved stream.", e);
-                                }
-                                mStreams.remove(idx);
-                                for (final Stream stream : mStreams) {
-                                    if (stream.getPos() > removedPos) {
-                                        stream.setPos(stream.getPos() - 1);
-                                    }
-                                }
-                                mStreams.add(new Stream(url, name, mStreams.size()));
-                            } else {
-                                try {
-                                    mApp.getMPD().saveStream(url, name);
-                                } catch (final IOException | MPDException e) {
-                                    Log.e(TAG, "Failed to save stream.", e);
-                                }
-                                mStreams.add(new Stream(url, name, mStreams.size()));
-                            }
-                            Collections.sort(mStreams);
-                            replaceItems(mStreams);
-                            if (streamUrlToAdd == null) {
-                                updateList();
-                            } else {
-                                Toast.makeText(getActivity(), R.string.streamSaved,
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        if (streamUrlToAdd != null) {
-                            getActivity().finish();
-                        }
-                    }
-                })
+                .setPositiveButton(android.R.string.ok,
+                        new AddEditOnClickListener(nameEdit, urlEdit, idx, streamUrlToAdd))
                 .setNegativeButton(android.R.string.cancel, new OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, final int which) {
@@ -180,14 +127,15 @@ public class StreamsFragment extends BrowseFragment<Stream> {
                             getActivity().finish();
                         }
                     }
-                }).setOnCancelListener(new OnCancelListener() {
-            @Override
-            public void onCancel(final DialogInterface dialog) {
-                if (streamUrlToAdd != null) {
-                    getActivity().finish();
-                }
-            }
-        }).show();
+                })
+                .setOnCancelListener(new OnCancelListener() {
+                    @Override
+                    public void onCancel(final DialogInterface dialog) {
+                        if (streamUrlToAdd != null) {
+                            getActivity().finish();
+                        }
+                    }
+                }).show();
     }
 
     @Override
@@ -251,7 +199,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
             final ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        if (info.id >= 0 && info.id < mStreams.size()) {
+        if (info.id >= 0L && info.id < (long) mStreams.size()) {
             final MenuItem editItem = menu.add(Menu.NONE, EDIT, 0, R.string.editStream);
             editItem.setOnMenuItemClickListener(this);
             final MenuItem addAndReplaceItem =
@@ -269,16 +217,16 @@ public class StreamsFragment extends BrowseFragment<Stream> {
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
-        final View v = super.onCreateView(inflater, container, savedInstanceState);
+        final View view = super.onCreateView(inflater, container, savedInstanceState);
 
-        v.findViewById(R.id.streamAddButton).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.streamAddButton).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(final View view) {
+            public void onClick(final View v) {
                 addEdit();
             }
         });
 
-        return v;
+        return view;
     }
 
     @Override
@@ -308,7 +256,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
                 builder.setPositiveButton(R.string.deleteStream, oDialogClickListener);
                 try {
                     builder.show();
-                } catch (final BadTokenException e) {
+                } catch (final BadTokenException ignored) {
                     // Can't display it. Don't care.
                 }
                 break;
@@ -335,11 +283,95 @@ public class StreamsFragment extends BrowseFragment<Stream> {
         return clicked;
     }
 
-    class DeleteDialogClickListener implements OnClickListener {
+    private final class AddEditOnClickListener implements OnClickListener {
+
+        private final int mIndex;
+
+        private final EditText mNameEdit;
+
+        private final CharSequence mStreamUrlToAdd;
+
+        private final EditText mUrlEdit;
+
+        private AddEditOnClickListener(final EditText nameEdit, final EditText urlEdit,
+                final int index, final CharSequence streamUrlToAdd) {
+            super();
+
+            mNameEdit = nameEdit;
+            mUrlEdit = urlEdit;
+            mIndex = index;
+            mStreamUrlToAdd = streamUrlToAdd;
+        }
+
+        /**
+         * Checks the TextView for a getText string, if it exists, trims and returns
+         * it.
+         *
+         * @param textView The TextView to check for a getText() string.
+         * @return A trimmed getText string.
+         */
+        private String getText(final TextView textView) {
+            final String result;
+
+            if (textView == null) {
+                result = null;
+            } else {
+                result = textView.getText().toString().trim();
+            }
+
+            return result;
+        }
+
+        @Override
+        public void onClick(final DialogInterface dialog, final int which) {
+            final String name = getText(mNameEdit);
+            final String url = getText(mUrlEdit);
+
+            if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(url)) {
+                if (mIndex >= 0 && mIndex < mStreams.size()) {
+                    final int removedPos = mStreams.get(mIndex).getPos();
+                    try {
+                        mApp.getMPD().editSavedStream(url, name, removedPos);
+                    } catch (final IOException | MPDException e) {
+                        Log.e(TAG, "Failed to edit a saved stream.", e);
+                    }
+                    mStreams.remove(mIndex);
+                    for (final Stream stream : mStreams) {
+                        if (stream.getPos() > removedPos) {
+                            stream.setPos(stream.getPos() - 1);
+                        }
+                    }
+                    mStreams.add(new Stream(url, name, mStreams.size()));
+                } else {
+                    try {
+                        mApp.getMPD().saveStream(url, name);
+                    } catch (final IOException | MPDException e) {
+                        Log.e(TAG, "Failed to save stream.", e);
+                    }
+                    mStreams.add(new Stream(url, name, mStreams.size()));
+                }
+
+                Collections.sort(mStreams);
+                replaceItems(mStreams);
+
+                if (mStreamUrlToAdd == null) {
+                    updateList();
+                } else {
+                    Toast.makeText(getActivity(), R.string.streamSaved,
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+            if (mStreamUrlToAdd != null) {
+                getActivity().finish();
+            }
+        }
+    }
+
+    private final class DeleteDialogClickListener implements OnClickListener {
 
         private final int mItemIndex;
 
-        DeleteDialogClickListener(final int itemIndex) {
+        private DeleteDialogClickListener(final int itemIndex) {
             super();
             mItemIndex = itemIndex;
         }
