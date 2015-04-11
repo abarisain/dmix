@@ -136,11 +136,7 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
-        final Runnable runnable = addAdapterItem(parent, position);
-
-        if (runnable != null) {
-            mApp.getAsyncHelper().execAsync(runnable);
-        }
+        addAdapterItem(parent, position);
     }
 
     @Override

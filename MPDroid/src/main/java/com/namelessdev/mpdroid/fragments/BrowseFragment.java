@@ -151,13 +151,11 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
      *
      * @param parent   The parent AdapterView.
      * @param position The position in the adapter of the item to add.
-     * @return A Runnable to execute in a thread, null if an error occurred.
      */
-    Runnable addAdapterItem(final AdapterView<?> parent, final int position) {
+    protected void addAdapterItem(final AdapterView<?> parent, final int position) {
         final boolean simpleMode = mApp.isInSimpleMode();
         final T track; /** final required for runnable. */
         Adapter adapter = null;
-        Runnable runnable = null;
 
         if (parent == null) {
             track = null;
@@ -181,15 +179,13 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
             /** Track will always be null here. */
             Log.e(TAG, errorMessage);
         } else {
-            runnable = new Runnable() {
+            mApp.getAsyncHelper().execAsync(new Runnable() {
                 @Override
                 public void run() {
                     add(track, simpleMode, simpleMode);
                 }
-            };
+            });
         }
-
-        return runnable;
     }
 
     private void addAndReplace(final MenuItem item) {

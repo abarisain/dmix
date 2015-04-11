@@ -526,11 +526,7 @@ public class SongsFragment extends BrowseFragment<Music> {
                 }
             });
         } else {
-            final Runnable runnable = addAdapterItem(parent, position);
-
-            if (runnable != null) {
-                mApp.getAsyncHelper().execAsync(runnable);
-            }
+            addAdapterItem(parent, position);
         }
 
     }
