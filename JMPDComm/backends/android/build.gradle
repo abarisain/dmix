@@ -104,8 +104,7 @@ class BrowseJavadoc implements TaskExecutionListener {
             try {
                 def desktop = getClass().classLoader.loadClass("java.awt.Desktop").newInstance()
                 desktop.browse(IndexFile.toURI())
-            } catch (final ClassNotFoundException e) {
-                throw new Exception("Must be Java 6+ to use this task", e)
+            } catch (final java.awt.HeadlessException ignored) {
             }
         }
     }
