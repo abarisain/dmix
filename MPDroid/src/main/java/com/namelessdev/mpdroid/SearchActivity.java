@@ -88,6 +88,12 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     private static final String UNKNOWN_ITEM_ERROR = "Unknown item.";
 
+    /**
+     * The token called back when {@link #asyncComplete(CharSequence)} is called, to indicate
+     * updated items being available.
+     */
+    private static final CharSequence UPDATE_ITEMS_TOKEN = "UPDATE_ITEMS";
+
     private final ArrayList<Album> mAlbumResults;
 
     private final ArrayList<Artist> mArtistResults;
@@ -189,8 +195,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     @Override
-    public void asyncExecSucceeded(final int jobID) {
-        if (mJobID == jobID) {
+    public void asyncComplete(final CharSequence token) {
+        if (UPDATE_ITEMS_TOKEN.equals(token)) {
             updateFromItems();
         }
     }
@@ -413,12 +419,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     @Override
-    public void onDestroy() {
-        mApp.getAsyncHelper().removeAsyncExecListener(this);
-        super.onDestroy();
-    }
-
-    @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         final Object selectedItem = parent.getAdapter().getItem(position);
@@ -594,8 +594,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     public void updateList() {
-        mApp.getAsyncHelper().addAsyncExecListener(this);
-        mJobID = mApp.getAsyncHelper().execAsync(new Runnable() {
+        mApp.getAsyncHelper().execAsync(this, UPDATE_ITEMS_TOKEN, new Runnable() {
             @Override
             public void run() {
                 asyncUpdate();

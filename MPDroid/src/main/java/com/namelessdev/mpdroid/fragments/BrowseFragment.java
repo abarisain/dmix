@@ -31,6 +31,7 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
+import com.namelessdev.mpdroid.helpers.MPDAsyncWorker;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.ui.ToolbarHelper;
@@ -96,6 +97,12 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     private static final String ARGUMENT_EMBEDDED = "embedded";
 
+    /**
+     * The token called back when {@link #asyncComplete(CharSequence)} is called, requiring a
+     * async update.
+     */
+    private static final CharSequence ASYNC_UPDATE_TOKEN = "ASYNC_UPDATE";
+
     private static final int MIN_ITEMS_BEFORE_FASTSCROLL = 50;
 
     private static final String TAG = "BrowseFragment";
@@ -110,9 +117,17 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     final int mIrAdded;
 
-    private final Collection<PlaylistFile> mStoredPlaylists = new ArrayList<>();
+    /**
+     * This runnable is run in our {@link MPDAsyncWorker} thread.
+     */
+    private final Runnable mAsyncUpdate = new Runnable() {
+        @Override
+        public void run() {
+            asyncUpdate();
+        }
+    };
 
-    protected int mJobID = -1;
+    private final Collection<PlaylistFile> mStoredPlaylists = new ArrayList<>();
 
     protected AbsListView mList;
 
@@ -260,8 +275,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     @Override
-    public void asyncExecSucceeded(final int jobID) {
-        if (mJobID == jobID) {
+    public void asyncComplete(final CharSequence token) {
+        if (ASYNC_UPDATE_TOKEN.equals(token)) {
             updateFromItems();
         }
     }
@@ -468,18 +483,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         setupStandardToolbar(view);
 
         return view;
-    }
-
-    @Override
-    public void onDestroy() {
-        try {
-            /**
-             * This needs to be here due to the fragment lifecycle.
-             */
-            mApp.getAsyncHelper().removeAsyncExecListener(this);
-        } finally {
-            super.onDestroy();
-        }
     }
 
     @Override
@@ -749,17 +752,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         mList.setAdapter(null);
         mNoResultView.setVisibility(View.GONE);
         mLoadingView.setVisibility(View.VISIBLE);
-
-        /**
-         * This needs to be here due to the Android Fragments lifecycle.
-         */
-        mApp.getAsyncHelper().addAsyncExecListener(this);
-        mJobID = mApp.getAsyncHelper().execAsync(new Runnable() {
-            @Override
-            public void run() {
-                asyncUpdate();
-            }
-        });
+        mApp.getAsyncHelper().execAsync(this, ASYNC_UPDATE_TOKEN, mAsyncUpdate);
     }
 
     protected void updateToolbarVisibility() {

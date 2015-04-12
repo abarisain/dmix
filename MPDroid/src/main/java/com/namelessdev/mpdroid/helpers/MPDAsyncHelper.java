@@ -39,11 +39,9 @@ public class MPDAsyncHelper implements Handler.Callback {
 
     private static final String TAG = "MPDAsyncHelper";
 
-    private static int sJobID = 0;
-
-    private final Collection<AsyncExecListener> mAsyncExecListeners;
-
     private final Collection<ConnectionInfoListener> mConnectionInfoListeners;
+
+    private final Handler mHelperHandler;
 
     private final MPDAsyncWorker mMPDAsyncWorker;
 
@@ -52,15 +50,9 @@ public class MPDAsyncHelper implements Handler.Callback {
     public MPDAsyncHelper() {
         super();
 
-        mMPDAsyncWorker = new MPDAsyncWorker(new Handler(this));
-        mAsyncExecListeners = new WeakLinkedList<>("AsyncExecListener");
+        mHelperHandler = new Handler(this);
+        mMPDAsyncWorker = new MPDAsyncWorker(mHelperHandler);
         mConnectionInfoListeners = new WeakLinkedList<>("ConnectionInfoListener");
-    }
-
-    public void addAsyncExecListener(final AsyncExecListener listener) {
-        if (!mAsyncExecListeners.contains(listener)) {
-            mAsyncExecListeners.add(listener);
-        }
     }
 
     public void addConnectionInfoListener(final ConnectionInfoListener listener) {
@@ -70,25 +62,39 @@ public class MPDAsyncHelper implements Handler.Callback {
     }
 
     /**
-     * Executes a Runnable Asynchronous. Meant to use for individual long during operations on
-     * JMPDComm. Use this method only, when the code to execute is only used once in the project.
-     * If it's use more than once, implement individual events and listener in this class.
+     * Executes a Runnable asynchronously.
      *
-     * @param run Runnable to execute in background thread.
-     * @return JobID, which is brought back with the AsyncExecListener interface.
+     * <p>Meant to use for individual long during operations. This method returns immediately and
+     * provides no indication of runnable completion.</p>
+     *
+     * @param runnable Runnable to execute in background thread.
+     * @see #execAsync(AsyncExecListener, CharSequence, Runnable)
      */
-    public int execAsync(final Runnable run) {
-        final int activeJobID = sJobID;
-        sJobID++;
+    public void execAsync(final Runnable runnable) {
+        execAsync(null, null, runnable);
+    }
 
+    /**
+     * Executes a Runnable asynchronously.
+     *
+     * <p>Meant to use for individual long during operations. This method returns immediately and
+     * provides indication through the {@code listener} parameter.</p>
+     *
+     * @param listener The listener to callback upon completion.
+     * @param token    The token key matched to the runnable value.
+     * @param runnable The runnable to run.
+     */
+    public void execAsync(final AsyncExecListener listener, final CharSequence token,
+            final Runnable runnable) {
         if (mWorkerHandler == null) {
             mWorkerHandler = mMPDAsyncWorker.startThread();
         }
 
-        mWorkerHandler.obtainMessage(MPDAsyncWorker.EVENT_EXEC_ASYNC, activeJobID, 0, run)
+        final Runnable worker = new WorkerRunnable(mHelperHandler, token, runnable, listener);
+        mWorkerHandler.obtainMessage(MPDAsyncWorker.EVENT_EXEC_ASYNC, worker)
                 .sendToTarget();
-        return activeJobID;
     }
+
 
     /**
      * This method handles Messages, which comes from the AsyncWorker. This Message handler runs in
@@ -107,12 +113,8 @@ public class MPDAsyncHelper implements Handler.Callback {
                     }
                     break;
                 case MPDAsyncWorker.EVENT_EXEC_ASYNC_FINISHED:
-                    // Asynchronous operation finished, call the listeners and supply the JobID...
-                    for (final AsyncExecListener listener : mAsyncExecListeners) {
-                        if (listener != null) {
-                            listener.asyncExecSucceeded(msg.arg1);
-                        }
-                    }
+                    final WorkerRunnable run = (WorkerRunnable) msg.obj;
+                    run.getListener().asyncComplete(run.getToken());
                     break;
                 default:
                     result = false;
@@ -123,10 +125,6 @@ public class MPDAsyncHelper implements Handler.Callback {
         }
 
         return result;
-    }
-
-    public void removeAsyncExecListener(final AsyncExecListener listener) {
-        mAsyncExecListeners.remove(listener);
     }
 
     public void removeConnectionInfoListener(final ConnectionInfoListener listener) {
@@ -144,10 +142,9 @@ public class MPDAsyncHelper implements Handler.Callback {
         return mMPDAsyncWorker.updateConnectionSettings();
     }
 
-    // Interface for callback when Asynchronous operations are finished
     public interface AsyncExecListener {
 
-        void asyncExecSucceeded(int jobID);
+        void asyncComplete(final CharSequence token);
     }
 
     public interface ConnectionInfoListener {

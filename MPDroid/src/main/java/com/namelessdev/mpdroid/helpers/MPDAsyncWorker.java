@@ -73,9 +73,7 @@ public class MPDAsyncWorker implements Handler.Callback,
 
         switch (msg.what) {
             case EVENT_EXEC_ASYNC:
-                final Runnable run = (Runnable) msg.obj;
-                run.run();
-                mHelperHandler.obtainMessage(EVENT_EXEC_ASYNC_FINISHED, msg.arg1, 0).sendToTarget();
+                ((Runnable) msg.obj).run();
                 break;
             case UPDATE_CONNECTION_INFO:
                 setConnectionSettings(SettingsHelper.getConnectionSettings(mConnectionInfo));
