@@ -22,11 +22,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.widget.Toast;
@@ -46,6 +48,8 @@ public final class Tools {
             };
 
     private static final MPDApplication APP = MPDApplication.getInstance();
+
+    private static final String TAG = "Tools";
 
     private Tools() {
         super();
@@ -178,6 +182,28 @@ public final class Tools {
         } else {
             return bitmap;
         }
+    }
+
+    /**
+     * This method checks the {@link PackageManager} for the package represented by the
+     * {@code packageName} argument.
+     *
+     * @param packageName The packageName to find.
+     * @return True if the package appears to be on the localhost, false otherwise.
+     */
+    public static boolean isPackageInstalled(final String packageName) {
+        final PackageManager packageManager = APP.getPackageManager();
+        boolean isInstalled;
+
+        try {
+            packageManager.getPackageInfo(packageName, PackageManager.GET_SERVICES);
+            isInstalled = true;
+        } catch (final PackageManager.NameNotFoundException ignored) {
+            isInstalled = false;
+            Log.d(TAG, packageName + " is not installed, cannot launch.");
+        }
+
+        return isInstalled;
     }
 
     public static boolean isServerLocalhost() {

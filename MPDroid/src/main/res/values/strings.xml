@@ -256,6 +256,7 @@
     <string name="enableExitConfirmationDescription">Require to double tap Back to exit</string>
     <string name="enableLightTheme">Use light theme</string>
     <string name="share">Share</string>
+    <string name="lyrics">Lyrics</string>
     <string name="sharePrefix">Now Playing :</string>
     <string name="enableTabletUI">Use tablet UI</string>
     <string name="enableTabletUIDescription">Restart the application to see the changes</string>

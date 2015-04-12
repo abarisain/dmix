@@ -223,26 +223,6 @@ public class ErrorHandler implements MPDConnectionListener {
     }
 
     /**
-     * This method checks the {@link PackageManager} for a MPD package installation on localhost.
-     *
-     * @return True if MPD is installed, false otherwise.
-     */
-    private boolean isMPDInstalled() {
-        final PackageManager packageManager = mActivity.getPackageManager();
-        boolean isInstalled;
-
-        try {
-            packageManager.getPackageInfo(MPD_PACKAGE_NAME, PackageManager.GET_SERVICES);
-            isInstalled = true;
-        } catch (final PackageManager.NameNotFoundException ignored) {
-            isInstalled = false;
-            debug("MPD is not installed, cannot launch.");
-        }
-
-        return isInstalled;
-    }
-
-    /**
      * This method checks if MPD on localhost is running.
      *
      * @return True if MPD on localhost is running, false otherwise.
@@ -271,8 +251,8 @@ public class ErrorHandler implements MPDConnectionListener {
      * This method launches MPD if a MPD server is setup for the localhost.
      */
     private void launchMPD() {
-        if ("127.0.0.1".equals(mApp.getConnectionSettings().server) && isMPDInstalled()
-                && !isMPDRunning()) {
+        if ("127.0.0.1".equals(mApp.getConnectionSettings().server) && !isMPDRunning() &&
+                Tools.isPackageInstalled(MPD_PACKAGE_NAME)) {
             /**
              * No delay; no matter the time given, this takes a bit.
              */

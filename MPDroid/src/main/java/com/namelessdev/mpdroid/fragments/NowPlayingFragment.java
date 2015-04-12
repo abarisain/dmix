@@ -101,9 +101,13 @@ public class NowPlayingFragment extends Fragment implements
 
     private static final int POPUP_FOLDER = 3;
 
+    private static final int POPUP_LYRICS = 9;
+
     private static final int POPUP_SHARE = 5;
 
     private static final int POPUP_STREAM = 4;
+
+    private static final String QUICK_LYRIC_PACKAGE_NAME = "com.geecko.QuickLyric";
 
     private static final String TAG = "NowPlayingFragment";
 
@@ -409,6 +413,20 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     /**
+     * This produces a intent to open QuickLyric.
+     *
+     * @return An Intent to open QuickLyric.
+     */
+    private Intent getLyricIntent() {
+        final Intent intent = new Intent(QUICK_LYRIC_PACKAGE_NAME + ".getLyrics");
+        final String[] tags = {mCurrentSong.getArtistName(), mCurrentSong.getTitle()};
+
+        intent.putExtra("TAGS", tags);
+
+        return intent;
+    }
+
+    /**
      * This method generates selected track information to send to another application.
      *
      * <p>The current format of this method should output: header artist - title and if the output
@@ -464,6 +482,9 @@ public class NowPlayingFragment extends Fragment implements
                 R.string.goToAlbumArtist);
         menu.add(Menu.NONE, POPUP_FOLDER, Menu.NONE, R.string.goToFolder);
         menu.add(Menu.NONE, POPUP_CURRENT, Menu.NONE, R.string.goToCurrent);
+        if (com.namelessdev.mpdroid.tools.Tools.isPackageInstalled(QUICK_LYRIC_PACKAGE_NAME)) {
+            menu.add(Menu.NONE, POPUP_LYRICS, Menu.NONE, R.string.lyrics);
+        }
         menu.add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
         popupMenu.setOnMenuItemClickListener(this);
         mPopupMenuTouchListener = PopupMenuCompat.getDragToOpenListener(popupMenu);
@@ -811,6 +832,11 @@ public class NowPlayingFragment extends Fragment implements
                     } catch (final ActivityNotFoundException ignored) {
                         notifyUser(R.string.noSendActionReceiver);
                     }
+                }
+                break;
+            case POPUP_LYRICS:
+                if (mCurrentSong != null) {
+                    startActivity(getLyricIntent());
                 }
                 break;
             default:
