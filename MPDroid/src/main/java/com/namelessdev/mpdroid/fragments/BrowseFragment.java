@@ -565,9 +565,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     @Override
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (mItems != null) {
-            mList.setAdapter(getCustomListAdapter());
-        }
+        mList.setAdapter(getCustomListAdapter());
         refreshFastScrollStyle();
     }
 
@@ -594,8 +592,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
      * {@link #refreshFastScrollStyle(boolean)} instead.</p>
      */
     protected void refreshFastScrollStyle() {
-        refreshFastScrollStyle(mItems != null
-                && mItems.size() >= getMinimumItemsCountBeforeFastscroll());
+        refreshFastScrollStyle(mItems.size() >= getMinimumItemsCountBeforeFastscroll());
     }
 
     /**
