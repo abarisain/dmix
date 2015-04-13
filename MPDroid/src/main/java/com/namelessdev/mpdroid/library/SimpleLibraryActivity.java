@@ -109,7 +109,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
 
             rootFragment = new FSFragment().init(folder);
         } else if (intent.hasExtra(Stream.EXTRA)) {
-            rootFragment = new StreamsFragment();
+            rootFragment = getFragment(StreamsFragment.class);
         } else if (intent.hasExtra(OutputsFragment.EXTRA)) {
             rootFragment = new OutputsFragment();
         } else {
