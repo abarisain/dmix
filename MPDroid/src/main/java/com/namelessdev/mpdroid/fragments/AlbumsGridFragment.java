@@ -16,8 +16,6 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import com.anpmech.mpd.item.Artist;
-import com.anpmech.mpd.item.Genre;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.views.AlbumGridDataBinder;
@@ -34,18 +32,6 @@ import android.widget.TextView;
 public class AlbumsGridFragment extends AlbumsFragment {
 
     private static final int MIN_ITEMS_BEFORE_FAST_SCROLL = 6;
-
-    public AlbumsGridFragment() {
-        this(null);
-    }
-
-    public AlbumsGridFragment(final Artist artist) {
-        this(artist, null);
-    }
-
-    public AlbumsGridFragment(final Artist artist, final Genre genre) {
-        super(artist, genre);
-    }
 
     @Override
     protected ListAdapter getCustomListAdapter() {

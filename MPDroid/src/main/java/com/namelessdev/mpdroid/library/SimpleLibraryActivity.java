@@ -59,6 +59,34 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
 
     private TextView mTitleView;
 
+    /**
+     * This method instantiates a fragment with Intent extras as a argument.
+     *
+     * @param tClass The class to instantiate.
+     * @param intent The intent to get the Extra bundles from.
+     * @param <T>    The {@code tClass} must be extended from the {@link Fragment} type.
+     * @return The instantiated fragment with the Intent extras as a argument.
+     */
+    private <T extends Fragment> Fragment getFragment(final Class<T> tClass, final Intent intent) {
+        Bundle bundle = null;
+
+        if (intent != null) {
+            bundle = intent.getExtras();
+        }
+        return Fragment.instantiate(this, tClass.getName(), bundle);
+    }
+
+    /**
+     * This method instantiates a fragment.
+     *
+     * @param tClass The class to instantiate.
+     * @param <T>    The {@code tClass} must be extended from the {@link Fragment} type.
+     * @return The instantiated Fragment.
+     */
+    private <T extends Fragment> Fragment getFragment(final Class<T> tClass) {
+        return getFragment(tClass, null);
+    }
+
     private Fragment getRootFragment() {
         final Intent intent = getIntent();
         final Fragment rootFragment;
@@ -68,14 +96,13 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
 
             rootFragment = new SongsFragment().init(album);
         } else if (intent.hasExtra(Artist.EXTRA)) {
-            final Artist artist = intent.getParcelableExtra(Artist.EXTRA);
             final SharedPreferences settings = PreferenceManager
                     .getDefaultSharedPreferences(mApp);
 
             if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
-                rootFragment = new AlbumsGridFragment(artist);
+                rootFragment = getFragment(AlbumsGridFragment.class, intent);
             } else {
-                rootFragment = new AlbumsFragment(artist);
+                rootFragment = getFragment(AlbumsFragment.class, intent);
             }
         } else if (intent.hasExtra(Directory.EXTRA)) {
             final String folder = intent.getStringExtra(Directory.EXTRA);

@@ -27,10 +27,12 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -144,15 +146,22 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
-        final AlbumsFragment af;
         final SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(mApp);
+        final Activity activity = getActivity();
+        final Bundle bundle = new Bundle(2);
+        final Fragment fragment;
+
+        bundle.putParcelable(Artist.EXTRA, mItems.get(position));
+        bundle.putParcelable(Genre.EXTRA, mGenre);
+
         if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
-            af = new AlbumsGridFragment(mItems.get(position), mGenre);
+            fragment = Fragment.instantiate(activity, AlbumsGridFragment.class.getName(), bundle);
         } else {
-            af = new AlbumsFragment(mItems.get(position), mGenre);
+            fragment = Fragment.instantiate(activity, AlbumsFragment.class.getName(), bundle);
         }
-        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(af, Album.EXTRA);
+
+        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(fragment, Album.EXTRA);
     }
 
     @Override

@@ -32,7 +32,6 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
-import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -73,17 +72,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
     protected boolean mIsCountDisplayed;
 
     public AlbumsFragment() {
-        this(null);
-    }
-
-    @SuppressLint("ValidFragment")
-    public AlbumsFragment(final Artist artist) {
-        this(artist, null);
-    }
-
-    public AlbumsFragment(final Artist artist, final Genre genre) {
         super(R.string.addAlbum, R.string.albumAdded, Music.TAG_ALBUM);
-        init(artist, genre);
     }
 
     private static void refreshCover(final View view, final AlbumInfo album) {
@@ -202,18 +191,20 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         return title;
     }
 
-    public AlbumsFragment init(final Artist artist, final Genre genre) {
-        mArtist = artist;
-        mGenre = genre;
-        return this;
-    }
-
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            init((Artist) savedInstanceState.getParcelable(Artist.EXTRA),
-                    (Genre) savedInstanceState.getParcelable(Genre.EXTRA));
+
+        final Bundle bundle;
+        if (savedInstanceState == null) {
+            bundle = getArguments();
+        } else {
+            bundle = savedInstanceState;
+        }
+
+        if (bundle != null) {
+            mArtist = bundle.getParcelable(Artist.EXTRA);
+            mGenre = bundle.getParcelable(Genre.EXTRA);
         }
     }
 

@@ -134,6 +134,17 @@ public class LibraryFragment extends Fragment {
             return currentTabs.size();
         }
 
+        /**
+         * This gets the fragment name, instantiates it and returns the instance.
+         *
+         * @param tClass The class to instantiate.
+         * @param <T>    The class type, always BrowseFragment.
+         * @return A fragment instantiation.
+         */
+        private <T extends BrowseFragment<?>> BrowseFragment<?> getFragment(final Class<T> tClass) {
+            return (BrowseFragment<?>) Fragment.instantiate(getActivity(), tClass.getName());
+        }
+
         @Override
         public Fragment getItem(final int i) {
             final BrowseFragment fragment;
@@ -144,9 +155,9 @@ public class LibraryFragment extends Fragment {
                     final SharedPreferences settings = PreferenceManager
                             .getDefaultSharedPreferences(mApp);
                     if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, true)) {
-                        fragment = new AlbumsGridFragment(null);
+                        fragment = getFragment(AlbumsGridFragment.class);
                     } else {
-                        fragment = new AlbumsFragment(null);
+                        fragment = getFragment(AlbumsFragment.class);
                     }
                     break;
                 case LibraryTabsUtil.TAB_ARTISTS:
