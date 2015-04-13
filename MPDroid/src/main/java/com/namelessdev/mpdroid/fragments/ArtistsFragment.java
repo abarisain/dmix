@@ -123,23 +123,44 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
 
     @Override
     public String getTitle() {
-        if (mGenre != null) {
-            return mGenre.toString();
-        } else {
-            return getString(R.string.genres);
-        }
-    }
+        final String title;
 
-    public ArtistsFragment init(final Genre g) {
-        mGenre = g;
-        return this;
+        if (mGenre == null) {
+            final Bundle bundle = getArguments();
+            String name = null;
+            if (bundle != null) {
+                final Genre genre = bundle.getParcelable(Genre.EXTRA);
+
+                if (genre != null) {
+                    name = genre.getName();
+                }
+            }
+
+            if (name == null) {
+                title = mApp.getString(R.string.genres);
+            } else {
+                title = name;
+            }
+        } else {
+            title = mGenre.toString();
+        }
+
+        return title;
     }
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            init((Genre) savedInstanceState.getParcelable(Genre.EXTRA));
+
+        final Bundle bundle;
+        if (savedInstanceState == null) {
+            bundle = getArguments();
+        } else {
+            bundle = savedInstanceState;
+        }
+
+        if (bundle != null) {
+            mGenre = bundle.getParcelable(Genre.EXTRA);
         }
     }
 

@@ -25,7 +25,9 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
+import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -90,7 +92,12 @@ public class GenresFragment extends BrowseFragment<Genre> {
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
-        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new ArtistsFragment().init(mItems.get(position)), Artist.EXTRA);
+        final Bundle bundle = new Bundle(1);
+        final Fragment fragment =
+                Fragment.instantiate(getActivity(), ArtistsFragment.class.getName(), bundle);
+
+        bundle.putParcelable(Genre.EXTRA, mItems.get(position));
+
+        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(fragment, Artist.EXTRA);
     }
 }
