@@ -108,6 +108,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
             rootFragment = getFragment(StreamsFragment.class);
         } else if (intent.hasExtra(OutputsFragment.EXTRA)) {
             rootFragment = getFragment(OutputsFragment.class);
+            setTitle(R.string.outputs);
         } else {
             throw new IllegalStateException("SimpleLibraryActivity started with invalid extra: " +
                     Tools.debugIntent(intent, getCallingActivity()));
@@ -118,7 +119,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
 
     @Override
     public void onBackStackChanged() {
-        refreshTitleFromCurrentFragment();
+        refreshTitleFromCurrentFragment(getSupportFragmentManager());
     }
 
     @Override
@@ -128,6 +129,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
 
         final LayoutInflater inflater = (LayoutInflater) getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
+        final FragmentManager fragmentManager = getSupportFragmentManager();
 
         mTitleView = (TextView) inflater.inflate(R.layout.actionbar_title, null);
 
@@ -148,23 +150,23 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
             final Fragment rootFragment = getRootFragment();
 
             if (rootFragment == null) {
-                throw new RuntimeException("Error : SimpleLibraryActivity root fragment is null");
+                throw new UnsupportedOperationException(
+                        "Error : SimpleLibraryActivity root fragment is null");
             }
 
             if (rootFragment instanceof BrowseFragment) {
                 getSupportActionBar().hide();
-            } else if (rootFragment instanceof OutputsFragment) {
-                setTitle(R.string.outputs);
             }
-            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+            final FragmentTransaction ft = fragmentManager.beginTransaction();
 
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             ft.replace(R.id.root_frame, rootFragment);
             ft.commit();
         } else {
-            refreshTitleFromCurrentFragment();
+            refreshTitleFromCurrentFragment(fragmentManager);
         }
-        getSupportFragmentManager().addOnBackStackChangedListener(this);
+        fragmentManager.addOnBackStackChangedListener(this);
     }
 
     @Override
@@ -280,15 +282,15 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
         ft.commit();
     }
 
-    private void refreshTitleFromCurrentFragment() {
-        final FragmentManager supportFM = getSupportFragmentManager();
-        final int fmStackCount = supportFM.getBackStackEntryCount();
+    private void refreshTitleFromCurrentFragment(final FragmentManager fragmentManager) {
+        final int fmStackCount = fragmentManager.getBackStackEntryCount();
 
         if (fmStackCount > 0) {
-            setTitle(supportFM.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
+            setTitle(fragmentManager.getBackStackEntryAt(fmStackCount - 1).getBreadCrumbTitle());
         } else {
             final Fragment displayedFragment = getSupportFragmentManager().findFragmentById(
                     R.id.root_frame);
+
             if (displayedFragment instanceof BrowseFragment) {
                 setTitle(((BrowseFragment<?>) displayedFragment).getTitle());
             } else {
