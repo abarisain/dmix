@@ -170,7 +170,7 @@ public class LibraryFragment extends Fragment {
                     fragment = getFragment(GenresFragment.class);
                     break;
                 case LibraryTabsUtil.TAB_PLAYLISTS:
-                    fragment = new PlaylistsFragment();
+                    fragment = getFragment(PlaylistsFragment.class);
                     break;
                 case LibraryTabsUtil.TAB_STREAMS:
                     fragment = getFragment(StreamsFragment.class);
