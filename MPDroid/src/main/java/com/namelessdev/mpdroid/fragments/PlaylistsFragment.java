@@ -24,11 +24,14 @@ import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -106,8 +109,14 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
-        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new StoredPlaylistFragment().init(mItems.get(position)), "stored_playlist");
+        final Activity activity = getActivity();
+        final Bundle bundle = new Bundle(1);
+        final Fragment fragment =
+                Fragment.instantiate(activity, StoredPlaylistFragment.class.getName(), bundle);
+
+        bundle.putParcelable(PlaylistFile.EXTRA, mItems.get(position));
+
+        ((ILibraryFragmentActivity) activity).pushLibraryFragment(fragment, "stored_playlist");
     }
 
     @Override

@@ -102,12 +102,9 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
 
     @Override
     public String getTitle() {
-        return mPlaylist.getName();
-    }
+        final PlaylistFile playlistFile = getArguments().getParcelable(PlaylistFile.EXTRA);
 
-    public StoredPlaylistFragment init(final PlaylistFile playlist) {
-        mPlaylist = playlist;
-        return this;
+        return playlistFile.getName();
     }
 
     @Override
@@ -118,8 +115,16 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            init((PlaylistFile) savedInstanceState.getParcelable(PlaylistFile.EXTRA));
+
+        final Bundle bundle;
+        if (savedInstanceState == null) {
+            bundle = getArguments();
+        } else {
+            bundle = savedInstanceState;
+        }
+
+        if (bundle != null) {
+            mPlaylist = bundle.getParcelable(PlaylistFile.EXTRA);
         }
     }
 
