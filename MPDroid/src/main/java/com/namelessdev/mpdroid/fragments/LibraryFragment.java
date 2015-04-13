@@ -167,7 +167,7 @@ public class LibraryFragment extends Fragment {
                     fragment = new FSFragment();
                     break;
                 case LibraryTabsUtil.TAB_GENRES:
-                    fragment = new GenresFragment();
+                    fragment = getFragment(GenresFragment.class);
                     break;
                 case LibraryTabsUtil.TAB_PLAYLISTS:
                     fragment = new PlaylistsFragment();
