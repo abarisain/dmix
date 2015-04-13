@@ -105,9 +105,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
                 rootFragment = getFragment(AlbumsFragment.class, intent);
             }
         } else if (intent.hasExtra(Directory.EXTRA)) {
-            final String folder = intent.getStringExtra(Directory.EXTRA);
-
-            rootFragment = new FSFragment().init(folder);
+            rootFragment = getFragment(FSFragment.class, intent);
         } else if (intent.hasExtra(Stream.EXTRA)) {
             rootFragment = getFragment(StreamsFragment.class);
         } else if (intent.hasExtra(OutputsFragment.EXTRA)) {

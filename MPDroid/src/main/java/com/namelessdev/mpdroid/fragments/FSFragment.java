@@ -28,7 +28,9 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 
+import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
@@ -179,17 +181,19 @@ public class FSFragment extends BrowseFragment {
         return title;
     }
 
-    public FSFragment init(final String path) {
-        mDirectory = path;
-        return this;
-    }
-
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            init(savedInstanceState.getString(Directory.EXTRA));
+        final Bundle bundle;
+        if (savedInstanceState == null) {
+            bundle = getArguments();
+        } else {
+            bundle = savedInstanceState;
+        }
+
+        if (bundle != null) {
+            mDirectory = bundle.getString(Directory.EXTRA);
         }
     }
 
@@ -225,10 +229,16 @@ public class FSFragment extends BrowseFragment {
             });
         } else {
             final String dir = ((FilesystemTreeEntry) mItems.toArray()[position]).getFullPath();
-            final ILibraryFragmentActivity activity = (ILibraryFragmentActivity) getActivity();
+            final Activity activity = getActivity();
 
             if (activity != null) {
-                activity.pushLibraryFragment(new FSFragment().init(dir), "filesystem");
+                final Bundle bundle = new Bundle(1);
+                final Fragment fragment =
+                        Fragment.instantiate(activity, FSFragment.class.getName(), bundle);
+
+                bundle.putString(Directory.EXTRA, dir);
+
+                ((ILibraryFragmentActivity) activity).pushLibraryFragment(fragment, "filesystem");
             }
         }
 
