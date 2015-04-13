@@ -111,7 +111,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
         } else if (intent.hasExtra(Stream.EXTRA)) {
             rootFragment = getFragment(StreamsFragment.class);
         } else if (intent.hasExtra(OutputsFragment.EXTRA)) {
-            rootFragment = new OutputsFragment();
+            rootFragment = getFragment(OutputsFragment.class);
         } else {
             throw new IllegalStateException("SimpleLibraryActivity started with invalid extra: " +
                     Tools.debugIntent(intent, getCallingActivity()));
