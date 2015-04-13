@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.item.Music;
 import com.astuetz.PagerSlidingTabStrip;
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.ui.ToolbarHelper;
@@ -30,6 +29,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -52,29 +53,25 @@ public class LibraryFragment extends Fragment {
 
     public static final String PREFERENCE_ARTIST_TAG_TO_USE_BOTH = "both";
 
-    private final MPDApplication mApp = MPDApplication.getInstance();
-
-    Activity mActivity = null;
-
     /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide fragments for each of the
-     * sections. We use a {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
-     * will keep every loaded fragment in memory. If this becomes too memory intensive, it may be
-     * best to switch to a {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     * The {@link PagerAdapter} that will provide fragments for each of the sections. We use a
+     * {@link FragmentPagerAdapter} derivative, which will keep every loaded fragment in memory.
+     *
+     * If this becomes too memory intensive, it may be best to switch to a
+     * {@link FragmentStatePagerAdapter}.
      */
-    SectionsPagerAdapter mSectionsPagerAdapter = null;
+    private SectionsPagerAdapter mSectionsPagerAdapter;
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager mViewPager = null;
+    private ViewPager mViewPager;
 
     @Override
     public void onAttach(final Activity activity) {
         super.onAttach(activity);
 
-        mActivity = activity;
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
+        mSectionsPagerAdapter = new SectionsPagerAdapter(activity, getChildFragmentManager());
         if (mViewPager != null) {
             mViewPager.setAdapter(mSectionsPagerAdapter);
         }
@@ -97,7 +94,7 @@ public class LibraryFragment extends Fragment {
             }
         });*/
 
-        PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) view.findViewById(R.id.tabs);
+        final PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) view.findViewById(R.id.tabs);
         tabs.setViewPager(mViewPager);
 
         final Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
@@ -120,18 +117,27 @@ public class LibraryFragment extends Fragment {
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one of the primary
      * sections of the app.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    private static final class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        private List<String> currentTabs;
+        private static final List<String> CURRENT_TABS = LibraryTabsUtil.getCurrentLibraryTabs();
 
-        public SectionsPagerAdapter(final FragmentManager fm) {
+        private final Activity mActivity;
+
+        /**
+         * Sole constructor.
+         *
+         * @param activity The current activity for context.
+         * @param fm       The fragment manager as required by the {@link FragmentPagerAdapter}.
+         */
+        private SectionsPagerAdapter(final Activity activity, final FragmentManager fm) {
             super(fm);
-            currentTabs = LibraryTabsUtil.getCurrentLibraryTabs();
+
+            mActivity = activity;
         }
 
         @Override
         public int getCount() {
-            return currentTabs.size();
+            return CURRENT_TABS.size();
         }
 
         /**
@@ -141,19 +147,25 @@ public class LibraryFragment extends Fragment {
          * @param <T>    The class type, always BrowseFragment.
          * @return A fragment instantiation.
          */
-        private <T extends BrowseFragment<?>> BrowseFragment<?> getFragment(final Class<T> tClass) {
-            return (BrowseFragment<?>) Fragment.instantiate(getActivity(), tClass.getName());
+        private <T extends BrowseFragment<?>> Fragment getFragment(final Class<T> tClass) {
+            final BrowseFragment<?> fragment =
+                    (BrowseFragment<?>) Fragment.instantiate(mActivity, tClass.getName());
+
+            fragment.setEmbedded(true);
+
+            return fragment;
         }
 
         @Override
-        public Fragment getItem(final int i) {
-            final BrowseFragment fragment;
-            final String tab = currentTabs.get(i);
+        public Fragment getItem(final int position) {
+            final Fragment fragment;
+            final String tab = CURRENT_TABS.get(position);
 
             switch (tab) {
                 case LibraryTabsUtil.TAB_ALBUMS:
-                    final SharedPreferences settings = PreferenceManager
-                            .getDefaultSharedPreferences(mApp);
+                    final SharedPreferences settings =
+                            PreferenceManager.getDefaultSharedPreferences(mActivity);
+
                     if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, true)) {
                         fragment = getFragment(AlbumsGridFragment.class);
                     } else {
@@ -176,12 +188,7 @@ public class LibraryFragment extends Fragment {
                     fragment = getFragment(StreamsFragment.class);
                     break;
                 default:
-                    fragment = null;
-                    break;
-            }
-
-            if (fragment != null) {
-                fragment.setEmbedded(true);
+                    throw new IllegalStateException("getItem() called with invalid Item.");
             }
 
             return fragment;
@@ -189,9 +196,9 @@ public class LibraryFragment extends Fragment {
 
         @Override
         public CharSequence getPageTitle(final int position) {
-            final String tab = currentTabs.get(position);
+            final String tab = CURRENT_TABS.get(position);
 
-            return mActivity.getResources().getString(LibraryTabsUtil.getTabTitleResId(tab));
+            return mActivity.getString(LibraryTabsUtil.getTabTitleResId(tab));
         }
     }
 }
