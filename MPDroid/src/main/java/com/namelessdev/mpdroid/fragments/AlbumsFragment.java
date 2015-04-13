@@ -32,13 +32,15 @@ import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
+import android.support.v4.app.Fragment;
 import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -232,25 +234,32 @@ public class AlbumsFragment extends BrowseFragment<Album> {
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
-        final Album album = mItems.get(position);
+        final Activity activity = getActivity();
+        final Bundle bundle = new Bundle();
+        final Fragment fragment = Fragment.instantiate(activity, SongsFragment.class.getName(),
+                bundle);
+
+        bundle.putParcelable(Album.EXTRA, mItems.get(position));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            final TransitionInflater inflater = TransitionInflater.from(getActivity());
+            final TransitionInflater inflater = TransitionInflater.from(activity);
             final ImageView albumCoverView = (ImageView) view.findViewById(R.id.albumCover);
+            final String transitionName = albumCoverView.getTransitionName();
+            final Drawable drawable = albumCoverView.getDrawable();
 
-            Bitmap thumbnail = null;
-            if (albumCoverView.getDrawable() instanceof BitmapDrawable) {
-                thumbnail = ((BitmapDrawable) albumCoverView.getDrawable()).getBitmap();
+            if (drawable instanceof BitmapDrawable) {
+                bundle.putParcelable(SongsFragment.COVER_THUMBNAIL_BUNDLE_KEY,
+                        ((BitmapDrawable) drawable).getBitmap());
             }
 
-            ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                    new SongsFragment().init(album, thumbnail,
-                            albumCoverView.getTransitionName()),
-                    "songs", albumCoverView, albumCoverView.getTransitionName(),
+            bundle.putString(SongsFragment.COVER_TRANSITION_NAME_BASE, transitionName);
+
+            ((ILibraryFragmentActivity) activity).pushLibraryFragment(
+                    fragment, "songs", albumCoverView,
+                    albumCoverView.getTransitionName(),
                     inflater.inflateTransition(R.transition.album_songs_transition));
         } else {
-            ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                    new SongsFragment().init(album), "songs");
+            ((ILibraryFragmentActivity) activity).pushLibraryFragment(fragment, "songs");
         }
     }
 

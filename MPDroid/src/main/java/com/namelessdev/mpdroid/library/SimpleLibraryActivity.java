@@ -92,9 +92,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
         final Fragment rootFragment;
 
         if (intent.hasExtra(Album.EXTRA)) {
-            final Album album = intent.getParcelableExtra(Album.EXTRA);
-
-            rootFragment = new SongsFragment().init(album);
+            rootFragment = getFragment(SongsFragment.class, intent);
         } else if (intent.hasExtra(Artist.EXTRA)) {
             final SharedPreferences settings = PreferenceManager
                     .getDefaultSharedPreferences(mApp);

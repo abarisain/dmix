@@ -70,6 +70,8 @@ import java.util.Collections;
 
 public class SongsFragment extends BrowseFragment<Music> {
 
+    public static final String COVER_THUMBNAIL_BUNDLE_KEY = "CoverThumbnailBundle";
+
     public static final String COVER_TRANSITION_NAME_BASE = "cover";
 
     private static final String STATE_FIRST_REFRESH = "firstRefresh";
@@ -248,7 +250,13 @@ public class SongsFragment extends BrowseFragment<Music> {
         final String result;
 
         if (mAlbum == null) {
-            result = getString(R.string.songs);
+            final Bundle bundle = getArguments();
+
+            if (bundle == null) {
+                result = mApp.getString(R.string.songs);
+            } else {
+                result = bundle.getParcelable(Album.EXTRA).toString();
+            }
         } else {
             result = mAlbum.toString();
         }
@@ -276,24 +284,22 @@ public class SongsFragment extends BrowseFragment<Music> {
         }
     }
 
-    public SongsFragment init(final Album al) {
-        mAlbum = al;
-        return this;
-    }
-
-    public SongsFragment init(final Album al, final Bitmap bm, final String transitionName) {
-        mCoverThumbnailBitmap = bm;
-        mViewTransitionName = transitionName;
-        return init(al);
-    }
-
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            init((Album) savedInstanceState.getParcelable(Album.EXTRA));
+
+        final Bundle bundle;
+        if (savedInstanceState == null) {
+            bundle = getArguments();
+        } else {
+            bundle = savedInstanceState;
             mFirstRefresh = savedInstanceState.getBoolean(STATE_FIRST_REFRESH, true);
-            mViewTransitionName = savedInstanceState.getString(STATE_VIEW_TRANSITION_NAME);
+        }
+
+        if (bundle != null) {
+            mAlbum = bundle.getParcelable(Album.EXTRA);
+            mCoverThumbnailBitmap = bundle.getParcelable(COVER_THUMBNAIL_BUNDLE_KEY);
+            mViewTransitionName = bundle.getString(STATE_VIEW_TRANSITION_NAME);
         }
     }
 
