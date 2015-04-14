@@ -53,7 +53,7 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
     private static final String TAG = "PlaylistsFragment";
 
     public PlaylistsFragment() {
-        super(R.string.addPlaylist, R.string.playlistAdded, null);
+        super(R.string.addPlaylist, R.string.playlistAdded);
     }
 
     @Override

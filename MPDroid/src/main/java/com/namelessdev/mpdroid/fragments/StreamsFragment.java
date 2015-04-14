@@ -64,7 +64,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
     private final List<Stream> mStreams = new ArrayList<>();
 
     public StreamsFragment() {
-        super(R.string.addStream, R.string.streamAdded, null);
+        super(R.string.addStream, R.string.streamAdded);
     }
 
     @Override

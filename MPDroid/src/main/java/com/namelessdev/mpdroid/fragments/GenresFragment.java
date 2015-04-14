@@ -19,7 +19,6 @@ package com.namelessdev.mpdroid.fragments;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Genre;
-import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
@@ -40,7 +39,7 @@ public class GenresFragment extends BrowseFragment<Genre> {
     private static final String TAG = "GenresFragment";
 
     public GenresFragment() {
-        super(R.string.addGenre, R.string.genreAdded, Music.TAG_GENRE);
+        super(R.string.addGenre, R.string.genreAdded);
     }
 
     @Override

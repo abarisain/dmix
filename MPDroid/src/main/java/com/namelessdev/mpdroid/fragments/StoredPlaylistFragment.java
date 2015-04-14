@@ -46,7 +46,7 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
     private PlaylistFile mPlaylist;
 
     public StoredPlaylistFragment() {
-        super(R.string.addSong, R.string.songAdded, Music.TAG_TITLE);
+        super(R.string.addSong, R.string.songAdded);
         setHasOptionsMenu(true);
     }
 

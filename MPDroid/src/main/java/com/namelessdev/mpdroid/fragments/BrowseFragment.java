@@ -111,8 +111,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     protected final List<T> mItems = new ArrayList<>();
 
-    final String mContext;
-
     final int mIrAdd;
 
     final int mIrAdded;
@@ -144,14 +142,11 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
      */
     private long mLastDBUpdate;
 
-    protected BrowseFragment(@StringRes final int rAdd, @StringRes final int rAdded,
-            final String pContext) {
+    protected BrowseFragment(@StringRes final int rAdd, @StringRes final int rAdded) {
         super();
 
         mIrAdd = rAdd;
         mIrAdded = rAdded;
-
-        mContext = pContext;
 
         setHasOptionsMenu(false);
     }

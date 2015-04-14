@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Directory;
@@ -56,8 +55,7 @@ public class FSFragment extends BrowseFragment {
     private int mNumSubDirs = 0; // number of subdirectories including ".."
 
     public FSFragment() {
-        super(R.string.addDirectory, R.string.addedDirectoryToPlaylist,
-                MPDCommand.MPD_SEARCH_FILENAME);
+        super(R.string.addDirectory, R.string.addedDirectoryToPlaylist);
     }
 
     @Override

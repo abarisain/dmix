@@ -20,7 +20,6 @@ import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Genre;
-import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
@@ -47,7 +46,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
     private Genre mGenre = null;
 
     public ArtistsFragment() {
-        super(R.string.addArtist, R.string.artistAdded, Music.TAG_ARTIST);
+        super(R.string.addArtist, R.string.artistAdded);
     }
 
     @Override

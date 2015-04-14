@@ -20,7 +20,6 @@ import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Genre;
-import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
@@ -74,7 +73,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
     protected boolean mIsCountDisplayed;
 
     public AlbumsFragment() {
-        super(R.string.addAlbum, R.string.albumAdded, Music.TAG_ALBUM);
+        super(R.string.addAlbum, R.string.albumAdded);
     }
 
     private static void refreshCover(final View view, final AlbumInfo album) {

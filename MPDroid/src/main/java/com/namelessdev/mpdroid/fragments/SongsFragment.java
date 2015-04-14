@@ -113,7 +113,7 @@ public class SongsFragment extends BrowseFragment<Music> {
     private PopupMenu mCoverPopupMenu;
 
     public SongsFragment() {
-        super(R.string.addSong, R.string.songAdded, Music.TAG_TITLE);
+        super(R.string.addSong, R.string.songAdded);
         mHandler = new Handler();
         mFirstRefresh = true;
     }
