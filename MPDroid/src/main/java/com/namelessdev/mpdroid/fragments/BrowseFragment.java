@@ -46,7 +46,7 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -398,7 +398,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        final ActionBarActivity activity = (ActionBarActivity) getActivity();
+        final AppCompatActivity activity = (AppCompatActivity) getActivity();
         if (activity != null) {
             final ActionBar actionBar = activity.getSupportActionBar();
             if (actionBar != null) {

@@ -20,7 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 public class MPDroidActivities {
 
@@ -54,7 +54,7 @@ public class MPDroidActivities {
     }
 
     @SuppressLint("Registered")
-    public static class MPDroidActivity extends ActionBarActivity {
+    public static class MPDroidActivity extends AppCompatActivity {
 
         protected final MPDApplication mApp = MPDApplication.getInstance();
 
