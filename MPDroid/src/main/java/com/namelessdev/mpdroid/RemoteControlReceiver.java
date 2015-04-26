@@ -106,16 +106,14 @@ public class RemoteControlReceiver extends BroadcastReceiver {
      */
     private static void run(final String command) {
         final MPD mpd = APP.getMPD();
-        Object token = null;
 
-        try {
-            if (!mpd.getStatus().isValid()) {
-                token = MPDControl.setupConnection();
-            }
-
+        if (mpd.getStatus().isValid()) {
             MPDControl.run(command);
-        } finally {
+        } else {
+            final Object token = MPDControl.setupConnection();
+
             if (token != null) {
+                MPDControl.run(command);
                 APP.removeConnectionLock(token);
             }
         }

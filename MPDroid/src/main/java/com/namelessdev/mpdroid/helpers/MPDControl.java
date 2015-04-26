@@ -210,7 +210,8 @@ public final class MPDControl {
      *
      * <p>This should be used, as required, prior to run().</p>
      *
-     * @return A token to use with {@link MPDApplication#removeConnectionLock(Object)}.
+     * @return A token to use with {@link MPDApplication#removeConnectionLock(Object)}. If
+     * {@code null}, a connection could not be established, and the connection lock was freed.
      */
     public static Object setupConnection() {
         final MPD mpd = APP.getMPD();
@@ -219,13 +220,24 @@ public final class MPDControl {
         if (mpd.getStatus().isValid()) {
             lockToken = new Object();
         } else {
-            lockToken = Integer.valueOf(new Random().nextInt());
+            final Object token = Integer.valueOf(new Random().nextInt());
+            boolean success = true;
 
-            APP.addConnectionLock(lockToken);
+            APP.addConnectionLock(token);
             try {
-                mpd.getConnectionStatus().waitForConnection(5L, TimeUnit.SECONDS);
-                mpd.getStatus().waitForValidity(5L, TimeUnit.SECONDS);
+                success = mpd.getConnectionStatus().waitForConnection(5L, TimeUnit.SECONDS);
+
+                if (success) {
+                    success = mpd.getStatus().waitForValidity(5L, TimeUnit.SECONDS);
+                }
             } catch (final InterruptedException ignored) {
+            }
+
+            if (success) {
+                lockToken = token;
+            } else {
+                lockToken = null;
+                APP.removeConnectionLock(token);
             }
         }
 
