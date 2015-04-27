@@ -40,6 +40,7 @@ import android.view.WindowManager;
 
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ErrorHandler implements MPDConnectionListener {
 
@@ -256,7 +257,8 @@ public class ErrorHandler implements MPDConnectionListener {
             /**
              * No delay; no matter the time given, this takes a bit.
              */
-            final long relaunchTime = SystemClock.elapsedRealtime();
+            final long relaunchTime = SystemClock.elapsedRealtime() +
+                    TimeUnit.SECONDS.toMillis(1L);
             final PackageManager packageManager = mActivity.getPackageManager();
             final AlarmManager alarmService =
                     (AlarmManager) mActivity.getSystemService(Context.ALARM_SERVICE);
