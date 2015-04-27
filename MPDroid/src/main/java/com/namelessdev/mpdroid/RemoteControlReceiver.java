@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid;
 
-import com.anpmech.mpd.MPD;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.service.MPDroidService;
 import com.namelessdev.mpdroid.service.NotificationHandler;
@@ -30,6 +29,8 @@ import android.media.AudioManager;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.KeyEvent;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * RemoteControlReceiver receives media player button stuff. Most of the code was taken from the
@@ -105,12 +106,10 @@ public class RemoteControlReceiver extends BroadcastReceiver {
      * @param command The {@link MPDControl} command to send.
      */
     private static void run(final String command) {
-        final MPD mpd = APP.getMPD();
-
-        if (mpd.getStatus().isValid()) {
+        if (APP.getMPD().getStatus().isValid()) {
             MPDControl.run(command);
         } else {
-            final Object token = MPDControl.setupConnection();
+            final Object token = MPDControl.setupConnection(5L, TimeUnit.SECONDS);
 
             if (token != null) {
                 MPDControl.run(command);

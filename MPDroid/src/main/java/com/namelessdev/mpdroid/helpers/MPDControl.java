@@ -210,35 +210,37 @@ public final class MPDControl {
      *
      * <p>This should be used, as required, prior to run().</p>
      *
+     * @param timeout The maximum time to wait for both a connection and/or status.
+     * @param unit    The time unit of the {@code timeout} argument.
      * @return A token to use with {@link MPDApplication#removeConnectionLock(Object)}. If
-     * {@code null}, a connection could not be established, and the connection lock was freed.
+     * {@code null}, a connection could not be established.
      */
-    public static Object setupConnection() {
+    public static Object setupConnection(final long timeout, final TimeUnit unit) {
         final MPD mpd = APP.getMPD();
-        final Object lockToken;
 
         if (mpd.getStatus().isValid()) {
-            lockToken = new Object();
-        } else {
-            final Object token = Integer.valueOf(new Random().nextInt());
-            boolean success = true;
+            throw new IllegalStateException("setupConnection must be called with invalid status.");
+        }
 
-            APP.addConnectionLock(token);
-            try {
-                success = mpd.getConnectionStatus().waitForConnection(5L, TimeUnit.SECONDS);
+        final Object token = Integer.valueOf(new Random().nextInt());
 
-                if (success) {
-                    success = mpd.getStatus().waitForValidity(5L, TimeUnit.SECONDS);
-                }
-            } catch (final InterruptedException ignored) {
-            }
+        APP.addConnectionLock(token);
+        boolean success = true;
+        try {
+            success = mpd.getConnectionStatus().waitForConnection(timeout, unit);
 
             if (success) {
-                lockToken = token;
-            } else {
-                lockToken = null;
-                APP.removeConnectionLock(token);
+                success = mpd.getStatus().waitForValidity(timeout, unit);
             }
+        } catch (final InterruptedException ignored) {
+        }
+
+        final Object lockToken;
+        if (success) {
+            lockToken = token;
+        } else {
+            lockToken = null;
+            APP.removeConnectionLock(token);
         }
 
         return lockToken;
