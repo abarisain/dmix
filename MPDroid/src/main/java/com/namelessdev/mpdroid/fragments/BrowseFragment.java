@@ -481,15 +481,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     @Override
-    public void onDestroyView() {
-        // help out the GC; imitated from ListFragment source
-        mLoadingView = null;
-        mLoadingTextView = null;
-        mNoResultView = null;
-        super.onDestroyView();
-    }
-
-    @Override
     public boolean onMenuItemClick(final MenuItem item) {
         switch (item.getGroupId()) {
             case ADD_REPLACE_PLAY:
