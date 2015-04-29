@@ -169,6 +169,17 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         return new ArrayIndexerAdapter<>(getActivity(), new AlbumDataBinder<Album>(), mItems);
     }
 
+    /**
+     * This method returns the default string resource.
+     *
+     * @return The default string resource.
+     */
+    @Override
+    @StringRes
+    public int getDefaultTitle() {
+        return R.string.albums;
+    }
+
     @Override
     @StringRes
     public int getLoadingText() {
@@ -180,11 +191,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         final String title;
 
         if (mArtist == null) {
-            if (isAdded()) {
-                title = getString(R.string.albums);
-            } else {
-                title = null;
-            }
+            title = super.getTitle();
         } else {
             title = mArtist.toString();
         }

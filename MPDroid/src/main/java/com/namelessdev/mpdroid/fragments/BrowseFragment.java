@@ -340,6 +340,14 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     /**
+     * Should return a default string resource, -1 if no string resource exists.
+     *
+     * @return A default string resource, -1 if no string resource exists.
+     */
+    @StringRes
+    public abstract int getDefaultTitle();
+
+    /**
      * Override that method if you want BrowseFragment to inflate another layout.
      *
      * @return The layout resource ID.
@@ -366,11 +374,24 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         return MIN_ITEMS_BEFORE_FASTSCROLL;
     }
 
-    /*
-     * Override this to display a custom activity title
+    /**
+     * This method sets a custom activity title, if the {@link #getDefaultTitle()} method doesn't
+     * return -1.
+     *
+     * @return The string from the string resource {@link #getDefaultTitle()}, empty string if
+     * {@link #getDefaultTitle()} is -1.
      */
     public String getTitle() {
-        return "";
+        final int defaultRes = getDefaultTitle();
+        final String title;
+
+        if (defaultRes == -1) {
+            title = "";
+        } else {
+            title = mApp.getString(getDefaultTitle());
+        }
+
+        return title;
     }
 
     /**

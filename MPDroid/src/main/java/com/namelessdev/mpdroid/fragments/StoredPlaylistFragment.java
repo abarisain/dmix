@@ -94,6 +94,16 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
         return new ArrayAdapter<>(getActivity(), new StoredPlaylistDataBinder<Music>(), mItems);
     }
 
+    /**
+     * This method returns the default string resource.
+     *
+     * @return The default string resource.
+     */
+    @Override
+    public int getDefaultTitle() {
+        return -1;
+    }
+
     @Override
     @StringRes
     public int getLoadingText() {

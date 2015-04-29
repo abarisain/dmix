@@ -203,6 +203,17 @@ public class SongsFragment extends BrowseFragment<Music> {
                 mItems);
     }
 
+    /**
+     * This method returns the default string resource.
+     *
+     * @return The default string resource.
+     */
+    @Override
+    @StringRes
+    public int getDefaultTitle() {
+        return R.string.songs;
+    }
+
     private AlbumInfo getFixedAlbumInfo() {
         AlbumInfo albumInfo = null;
         boolean differentArtists = false;
@@ -253,7 +264,7 @@ public class SongsFragment extends BrowseFragment<Music> {
             final Bundle bundle = getArguments();
 
             if (bundle == null) {
-                result = mApp.getString(R.string.songs);
+                result = super.getTitle();
             } else {
                 result = bundle.getParcelable(Album.EXTRA).toString();
             }

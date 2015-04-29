@@ -88,6 +88,16 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
         return null;
     }
 
+    /**
+     * This method returns the default string resource.
+     *
+     * @return The default string resource.
+     */
+    @Override
+    public int getDefaultTitle() {
+        return -1;
+    }
+
     @Override
     @StringRes
     public int getLoadingText() {

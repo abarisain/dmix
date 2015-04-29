@@ -77,15 +77,21 @@ public class GenresFragment extends BrowseFragment<Genre> {
         return null;
     }
 
+    /**
+     * This method returns the default string resource.
+     *
+     * @return The default string resource.
+     */
+    @Override
+    @StringRes
+    public int getDefaultTitle() {
+        return R.string.genres;
+    }
+
     @Override
     @StringRes
     public int getLoadingText() {
         return R.string.loadingGenres;
-    }
-
-    @Override
-    public String getTitle() {
-        return getString(R.string.genres);
     }
 
     @Override

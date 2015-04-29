@@ -29,6 +29,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -160,18 +161,23 @@ public class FSFragment extends BrowseFragment {
         };
     }
 
+    /**
+     * This method returns the default string resource.
+     *
+     * @return The default string resource.
+     */
+    @Override
+    @StringRes
+    public int getDefaultTitle() {
+        return R.string.files;
+    }
+
     @Override
     public String getTitle() {
-        String title;
+        final String title;
 
         if (TextUtils.isEmpty(mDirectory)) {
-            try {
-                title = getString(R.string.files);
-            } catch (final IllegalStateException ignored) {
-                // Can't get the translated string if we are not attached ...
-                // Stupid workaround
-                title = "/";
-            }
+            title = super.getTitle();
         } else {
             title = mDirectory;
         }

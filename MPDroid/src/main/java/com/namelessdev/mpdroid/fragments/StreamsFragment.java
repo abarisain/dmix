@@ -169,6 +169,17 @@ public class StreamsFragment extends BrowseFragment<Stream> {
         return null;
     }
 
+    /**
+     * This method returns the default string resource.
+     *
+     * @return The default string resource.
+     */
+    @Override
+    @StringRes
+    public int getDefaultTitle() {
+        return R.string.streams;
+    }
+
     @Override
     protected int getLayoutResId() {
         return R.layout.streams_list;

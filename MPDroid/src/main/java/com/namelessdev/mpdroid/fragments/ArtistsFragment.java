@@ -125,6 +125,17 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
         return item;
     }
 
+    /**
+     * This method returns the default string resource.
+     *
+     * @return The default string resource.
+     */
+    @Override
+    @StringRes
+    public int getDefaultTitle() {
+        return R.string.genres;
+    }
+
     @Override
     @StringRes
     public int getLoadingText() {
@@ -147,7 +158,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
             }
 
             if (name == null) {
-                title = mApp.getString(R.string.genres);
+                title = super.getTitle();
             } else {
                 title = name;
             }
