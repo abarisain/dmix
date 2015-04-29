@@ -609,16 +609,4 @@ public class SongsFragment extends BrowseFragment<Music> {
             mFirstRefresh = false;
         }
     }
-
-    private void updateNowPlayingSmallFragment(final AlbumInfo albumInfo) {
-        final NowPlayingSmallFragment nowPlayingSmallFragment;
-        if (getActivity() != null) {
-            nowPlayingSmallFragment = (NowPlayingSmallFragment) getActivity()
-                    .getSupportFragmentManager().findFragmentById(R.id.now_playing_small_fragment);
-            if (nowPlayingSmallFragment != null) {
-                nowPlayingSmallFragment.updateCover(albumInfo);
-            }
-        }
-    }
-
 }

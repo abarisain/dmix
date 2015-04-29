@@ -30,6 +30,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
 import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.helpers.MPDAsyncWorker;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
@@ -45,6 +46,7 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -736,6 +738,23 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         mNoResultView.setVisibility(View.GONE);
         mLoadingView.setVisibility(View.VISIBLE);
         mApp.getAsyncHelper().execAsync(this, ASYNC_UPDATE_TOKEN, mAsyncUpdate);
+    }
+
+    /**
+     * This method updates the {@link NowPlayingSmallFragment} cover.
+     *
+     * @param albumInfo The new album info.
+     */
+    protected void updateNowPlayingSmallFragment(final AlbumInfo albumInfo) {
+        final FragmentActivity activity = getActivity();
+
+        if (activity != null) {
+            final NowPlayingSmallFragment fragment = (NowPlayingSmallFragment) activity
+                    .getSupportFragmentManager().findFragmentById(R.id.now_playing_small_fragment);
+            if (fragment != null) {
+                fragment.updateCover(albumInfo);
+            }
+        }
     }
 
     protected void updateToolbarVisibility() {

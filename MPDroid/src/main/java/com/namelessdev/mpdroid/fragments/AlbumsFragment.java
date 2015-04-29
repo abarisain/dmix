@@ -299,15 +299,4 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         }
         super.onSaveInstanceState(outState);
     }
-
-    private void updateNowPlayingSmallFragment(final AlbumInfo albumInfo) {
-        final NowPlayingSmallFragment nowPlayingSmallFragment;
-        if (getActivity() != null) {
-            nowPlayingSmallFragment = (NowPlayingSmallFragment) getActivity()
-                    .getSupportFragmentManager().findFragmentById(R.id.now_playing_small_fragment);
-            if (nowPlayingSmallFragment != null) {
-                nowPlayingSmallFragment.updateCover(albumInfo);
-            }
-        }
-    }
 }
