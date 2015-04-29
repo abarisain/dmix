@@ -64,27 +64,20 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
     private FragmentManager mFragmentManager;
 
-    private LibraryFragment mLibraryFragment;
-
     static {
         final StrictMode.ThreadPolicy policy =
                 new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
     }
 
-    private LibraryFragment initializeLibraryFragment() {
-        LibraryFragment fragment =
-                (LibraryFragment) mFragmentManager.findFragmentByTag(FRAGMENT_TAG_LIBRARY);
-
-        if (fragment == null) {
-            fragment = new LibraryFragment();
+    private void initializeLibraryFragment() {
+        if (mFragmentManager.findFragmentByTag(FRAGMENT_TAG_LIBRARY) == null) {
+            final Fragment fragment = Fragment.instantiate(this, LibraryFragment.class.getName());
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             ft.replace(R.id.library_root_frame, fragment, FRAGMENT_TAG_LIBRARY);
             ft.commit();
         }
-
-        return fragment;
     }
 
     @Override
@@ -138,7 +131,7 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
 
         mFragmentManager = getSupportFragmentManager();
 
-        mLibraryFragment = initializeLibraryFragment();
+        initializeLibraryFragment();
 
         /** Reset the persistent override when the application is reset. */
         mApp.setPersistentOverride(false);

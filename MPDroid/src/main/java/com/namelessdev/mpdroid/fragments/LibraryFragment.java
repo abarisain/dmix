@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import com.anpmech.mpd.item.Music;
 import com.astuetz.PagerSlidingTabStrip;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
@@ -40,18 +39,6 @@ import android.view.ViewGroup;
 import java.util.List;
 
 public class LibraryFragment extends Fragment {
-
-    public static final String PREFERENCE_ALBUM_CACHE = "useLocalAlbumCache";
-
-    public static final String PREFERENCE_ALBUM_LIBRARY = "enableAlbumArtLibrary";
-
-    public static final String PREFERENCE_ARTIST_TAG_TO_USE = "artistTagToUse";
-
-    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST = Music.TAG_ALBUM_ARTIST;
-
-    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ARTIST = Music.TAG_ARTIST;
-
-    public static final String PREFERENCE_ARTIST_TAG_TO_USE_BOTH = "both";
 
     /**
      * The {@link PagerAdapter} that will provide fragments for each of the sections. We use a
@@ -166,7 +153,7 @@ public class LibraryFragment extends Fragment {
                     final SharedPreferences settings =
                             PreferenceManager.getDefaultSharedPreferences(mActivity);
 
-                    if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, true)) {
+                    if (settings.getBoolean(ArtistsFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
                         fragment = getFragment(AlbumsGridFragment.class);
                     } else {
                         fragment = getFragment(AlbumsFragment.class);

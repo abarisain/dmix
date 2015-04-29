@@ -20,6 +20,7 @@ import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Genre;
+import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
@@ -40,6 +41,16 @@ import java.io.IOException;
 import java.util.Collections;
 
 public class ArtistsFragment extends BrowseFragment<Artist> {
+
+    public static final String PREFERENCE_ALBUM_LIBRARY = "enableAlbumArtLibrary";
+
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE = "artistTagToUse";
+
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST = Music.TAG_ALBUM_ARTIST;
+
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE_ARTIST = Music.TAG_ARTIST;
+
+    public static final String PREFERENCE_ARTIST_TAG_TO_USE_BOTH = "both";
 
     private static final String TAG = "ArtistsFragment";
 
@@ -78,23 +89,23 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
         try {
             final SharedPreferences settings = PreferenceManager
                     .getDefaultSharedPreferences(MPDApplication.getInstance());
-            switch (settings.getString(LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE,
-                    LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
-                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
+            switch (settings.getString(PREFERENCE_ARTIST_TAG_TO_USE,
+                    PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
+                case PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
                     if (mGenre != null) {
                         replaceItems(mApp.getMPD().getArtists(mGenre, true));
                     } else {
                         replaceItems(mApp.getMPD().getArtists(true));
                     }
                     break;
-                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
+                case PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
                     if (mGenre != null) {
                         replaceItems(mApp.getMPD().getArtists(mGenre, false));
                     } else {
                         replaceItems(mApp.getMPD().getArtists(false));
                     }
                     break;
-                case LibraryFragment.PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
+                case PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
                 default:
                     if (mGenre != null) {
                         replaceItems(mApp.getMPD().getArtists(mGenre));
@@ -175,7 +186,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
         bundle.putParcelable(Artist.EXTRA, mItems.get(position));
         bundle.putParcelable(Genre.EXTRA, mGenre);
 
-        if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
+        if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, true)) {
             fragment = Fragment.instantiate(activity, AlbumsGridFragment.class.getName(), bundle);
         } else {
             fragment = Fragment.instantiate(activity, AlbumsFragment.class.getName(), bundle);

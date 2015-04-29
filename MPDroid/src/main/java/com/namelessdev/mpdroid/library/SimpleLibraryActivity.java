@@ -25,9 +25,9 @@ import com.namelessdev.mpdroid.MPDroidActivities;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
 import com.namelessdev.mpdroid.fragments.AlbumsGridFragment;
+import com.namelessdev.mpdroid.fragments.ArtistsFragment;
 import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.FSFragment;
-import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
 import com.namelessdev.mpdroid.fragments.SongsFragment;
 import com.namelessdev.mpdroid.fragments.StreamsFragment;
@@ -97,7 +97,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
             final SharedPreferences settings = PreferenceManager
                     .getDefaultSharedPreferences(mApp);
 
-            if (settings.getBoolean(LibraryFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
+            if (settings.getBoolean(ArtistsFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
                 rootFragment = getFragment(AlbumsGridFragment.class, intent);
             } else {
                 rootFragment = getFragment(AlbumsFragment.class, intent);
