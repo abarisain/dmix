@@ -394,10 +394,13 @@ public class MPDApplication extends Application implements
 
         mMPDAsyncHelper = new MPDAsyncHelper();
         mConnectionInfo = mMPDAsyncHelper.updateConnectionSettings();
-        final boolean useAlbumCache = PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean(USE_LOCAL_ALBUM_CACHE_KEY, false);
 
-        mMPD = new CachedMPD(useAlbumCache);
+        if (mSettings.getBoolean(USE_LOCAL_ALBUM_CACHE_KEY, false)) {
+            mMPD = new CachedMPD();
+        } else {
+            mMPD = new MPD();
+        }
+
         mIdleSubsystemMonitor = new IdleSubsystemMonitor(mMPD);
 
         mDisconnectScheduler = new Timer();
