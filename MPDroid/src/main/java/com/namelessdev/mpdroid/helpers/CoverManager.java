@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -57,7 +58,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutorService;
@@ -124,7 +124,7 @@ public final class CoverManager {
 
     private ICoverRetriever[] mCoverRetrievers = null;
 
-    private Map<String, String> mCoverUrlMap = null;
+    private HashMap<String, String> mCoverUrlMap = null;
 
     private Set<String> mNotFoundAlbumKeys;
 
@@ -412,8 +412,8 @@ public final class CoverManager {
         return (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING);
     }
 
-    private static Map<String, String> loadCovers() {
-        Map<String, String> wrongCovers = null;
+    private static HashMap<String, String> loadCovers() {
+        HashMap<String, String> wrongCovers = null;
         ObjectInputStream objectInputStream = null;
 
         try {
@@ -422,7 +422,7 @@ public final class CoverManager {
             if (objectInputStream == null) {
                 wrongCovers = new HashMap<>();
             } else {
-                wrongCovers = (Map<String, String>) objectInputStream.readObject();
+                wrongCovers = (HashMap<String, String>) objectInputStream.readObject();
             }
         } catch (final Exception e) {
             Log.e(TAG, "Cannot load cover history file.", e);
@@ -495,7 +495,7 @@ public final class CoverManager {
         }
     }
 
-    private static void saveCovers(final String fileName, final Object object) {
+    private static void saveCovers(final String fileName, final Serializable object) {
         ObjectOutputStream outputStream = null;
         try {
             final File file = new File(getCoverFolder(), fileName);
