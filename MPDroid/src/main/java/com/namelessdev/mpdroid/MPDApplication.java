@@ -36,6 +36,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -87,6 +88,15 @@ public class MPDApplication extends Application implements
     private ServiceBinder mServiceBinder;
 
     private SharedPreferences mSettings;
+
+    /**
+     * Detect and log all found faults.
+     */
+    static {
+        final StrictMode.ThreadPolicy policy =
+                new StrictMode.ThreadPolicy.Builder().detectAll().build();
+        StrictMode.setThreadPolicy(policy);
+    }
 
     /**
      * A simple method used to suppress or emit debug log output, depending on the {@link #DEBUG}

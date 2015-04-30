@@ -30,7 +30,6 @@ import android.content.SharedPreferences;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -63,12 +62,6 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     private Handler mExitCounterReset = new Handler();
 
     private FragmentManager mFragmentManager;
-
-    static {
-        final StrictMode.ThreadPolicy policy =
-                new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-    }
 
     private void initializeLibraryFragment() {
         if (mFragmentManager.findFragmentByTag(FRAGMENT_TAG_LIBRARY) == null) {
