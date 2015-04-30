@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.QueueControl;
 import com.namelessdev.mpdroid.tools.Tools;
 
+import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
@@ -29,16 +30,18 @@ import android.support.v4.view.ViewPager;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 
 public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
 
     private static final String TAG = "NowPlayingActivity";
 
-    ErrorHandler mErrorHandler = null;
+    private ErrorHandler mErrorHandler;
 
     private boolean mIsDualPaneMode;
 
@@ -47,12 +50,20 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
     private ViewPager initializeNowPlayingPager() {
         final ViewPager nowPlayingPager = (ViewPager) findViewById(R.id.pager);
         if (nowPlayingPager != null) {
-            nowPlayingPager.setAdapter(new MainMenuPagerAdapter());
+            nowPlayingPager.setAdapter(new NowPlayingPagerAdapter(this));
             nowPlayingPager.setOnPageChangeListener(
                     new ViewPager.SimpleOnPageChangeListener() {
                         @Override
                         public void onPageSelected(final int position) {
                             refreshQueueIndicator(position != 0);
+                        }
+
+                        private void refreshQueueIndicator(final boolean queueShown) {
+                            if (queueShown && !mIsDualPaneMode) {
+                                setTitle(R.string.playQueue);
+                            } else {
+                                setTitle(R.string.nowPlaying);
+                            }
                         }
                     });
         }
@@ -61,16 +72,18 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
+        final Window window = getWindow();
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().requestFeature(android.view.Window.FEATURE_CONTENT_TRANSITIONS);
+            window.requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         }
         super.onCreate(savedInstanceState);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Transition ts = new Fade();  //Slide(); //Explode();
-            getWindow().setEnterTransition(ts);
-            getWindow().setExitTransition(ts);
+            final Transition ts = new Fade();  //Slide(); //Explode();
+            window.setEnterTransition(ts);
+            window.setExitTransition(ts);
         }
 
         setContentView(R.layout.activity_now_playing);
@@ -80,10 +93,12 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        final MenuInflater inflater = getMenuInflater();
+
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.mpd_now_playing_menu, menu);
-        getMenuInflater().inflate(R.menu.mpd_queuemenu, menu);
+        inflater.inflate(R.menu.mpd_now_playing_menu, menu);
+        inflater.inflate(R.menu.mpd_queuemenu, menu);
         menu.removeItem(R.id.PLM_EditPL);
         return true;
     }
@@ -153,14 +168,11 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
 
         final MenuItem saveItem = menu.findItem(R.id.PLM_Save);
         final MenuItem clearItem = menu.findItem(R.id.PLM_Clear);
-        if (!mIsDualPaneMode && mNowPlayingPager != null
-                && mNowPlayingPager.getCurrentItem() == 0) {
-            saveItem.setVisible(false);
-            clearItem.setVisible(false);
-        } else {
-            saveItem.setVisible(true);
-            clearItem.setVisible(true);
-        }
+        final boolean isVisible = !mIsDualPaneMode && mNowPlayingPager != null
+                && mNowPlayingPager.getCurrentItem() == 0;
+
+        saveItem.setVisible(isVisible);
+        clearItem.setVisible(isVisible);
 
         /** If in streamingMode or persistentNotification don't allow a checkbox in the menu. */
         final MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
@@ -196,27 +208,18 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
         mErrorHandler = new ErrorHandler(this);
     }
 
-    private void refreshQueueIndicator(final boolean queueShown) {
-        /*if (mHeaderPlayQueue != null) {
-            if (queueShown) {
-                mHeaderPlayQueue.setAlpha(1.0f);
-            } else {
-                mHeaderPlayQueue.setAlpha(0.5f);
-            }
-        }*/
-
-        if (queueShown && !mIsDualPaneMode) {
-            setTitle(R.string.playQueue);
-        } else {
-            setTitle(R.string.nowPlaying);
-        }
-    }
-
     public void showQueue() {
-        // TODO : Implement stub
     }
 
-    private class MainMenuPagerAdapter extends PagerAdapter {
+    private static final class NowPlayingPagerAdapter extends PagerAdapter {
+
+        private final Activity mActivity;
+
+        private NowPlayingPagerAdapter(final Activity activity) {
+            super();
+
+            mActivity = activity;
+        }
 
         @Override
         public void destroyItem(final ViewGroup container, final int position,
@@ -230,7 +233,7 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
 
         @Override
         public Object instantiateItem(final ViewGroup container, final int position) {
-            int resId = 0;
+            final int resId;
 
             switch (position) {
                 case 0:
@@ -240,16 +243,15 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
                     resId = R.id.queue_fragment;
                     break;
                 default:
-                    break;
+                    throw new UnsupportedOperationException("Unknown fragment requested.");
             }
 
-            return findViewById(resId);
+            return mActivity.findViewById(resId);
         }
 
         @Override
-        public boolean isViewFromObject(final View arg0, final Object arg1) {
-            return arg0.equals(arg1);
+        public boolean isViewFromObject(final View view, final Object object) {
+            return view.equals(object);
         }
     }
-
 }
