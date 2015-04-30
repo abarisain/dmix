@@ -175,12 +175,12 @@ public class CommandResult {
         /**
          * The error given if no more elements remain for this iterator instance.
          */
-        private static final String NO_MORE_ELEMENTS_REMAIN = "No more elements remain.";
+        public static final String NO_MORE_ELEMENTS_REMAIN = "No more elements remain.";
 
         /**
          * The error given if trying an operation which this iterator doesn't support.
          */
-        private static final String UNSUPPORTED = "Operation unsupported by this iterator.";
+        public static final String UNSUPPORTED = "Operation unsupported by this iterator.";
 
         /**
          * The MPD protocol command response.

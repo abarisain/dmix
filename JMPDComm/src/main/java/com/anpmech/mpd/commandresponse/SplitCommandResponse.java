@@ -42,6 +42,9 @@ import java.util.NoSuchElementException;
  */
 public class SplitCommandResponse extends CommandResult implements Iterable<CommandResponse> {
 
+    /**
+     * The class log identifier.
+     */
     private static final String TAG = "SplitCommandResponse";
 
     /**
@@ -166,7 +169,21 @@ public class SplitCommandResponse extends CommandResult implements Iterable<Comm
          */
         @Override
         public boolean hasNext() {
-            return getNextPositions()[END_POSITION] != -1;
+            return getNextPositions()[END_POSITION] != -1 || isSingularCommand();
+        }
+
+        /**
+         * This method detects whether the input was one command.
+         *
+         * This is necessary due to {@link CommandQueue#toString(boolean)} outputting a singular
+         * MPD protocol command if only one command has been queued at call.
+         *
+         * @return {@code true} if the initiating {@code CommandQueue} had a size of 1, {@code
+         * false} otherwise.
+         */
+        private boolean isSingularCommand() {
+            return mPosition == 0 && !mResponse.isEmpty() &&
+                    !mResponse.contains(MPDConnection.MPD_CMD_BULK_SEP);
         }
 
         /**
@@ -180,21 +197,30 @@ public class SplitCommandResponse extends CommandResult implements Iterable<Comm
         public CommandResponse next() {
             final int[] pos = getNextPositions();
 
-            if (pos[END_POSITION] == -1) {
-                throw new NoSuchElementException("No more elements remain.");
+            if (!hasNext()) {
+                throw new NoSuchElementException(AbstractResultIterator.NO_MORE_ELEMENTS_REMAIN);
             }
 
-            final String nextLine = mResponse.substring(pos[BEGIN_POSITION], pos[END_POSITION]);
+            final CommandResponse response;
+            if (isSingularCommand()) {
+                response = new CommandResponse(mConnectionResponse, mResponse, null);
 
-            mPositionIndex = pos[POSITION_INDEX];
-            mPosition = pos[END_POSITION] + OK_LENGTH;
+                mPosition = mResponse.length();
+            } else {
+                final String nextLine = mResponse.substring(pos[BEGIN_POSITION], pos[END_POSITION]);
 
-            return new CommandResponse(mConnectionResponse, nextLine, null);
+                mPositionIndex = pos[POSITION_INDEX];
+                mPosition = pos[END_POSITION] + OK_LENGTH;
+
+                response = new CommandResponse(mConnectionResponse, nextLine, null);
+            }
+
+            return response;
         }
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException("Operation unsupported by this iterator.");
+            throw new UnsupportedOperationException(AbstractResultIterator.UNSUPPORTED);
         }
 
         @Override
