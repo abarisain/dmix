@@ -508,14 +508,6 @@ public class SongsFragment extends BrowseFragment<Music> {
     }
 
     @Override
-    public void onDestroyView() {
-        mHeaderArtist = null;
-        mHeaderInfo = null;
-        mCoverArtListener.freeCoverDrawable();
-        super.onDestroyView();
-    }
-
-    @Override
     public void onDetach() {
         mCoverHelper = null;
         super.onDetach();
