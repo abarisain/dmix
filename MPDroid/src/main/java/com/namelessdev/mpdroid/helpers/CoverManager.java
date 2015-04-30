@@ -308,6 +308,35 @@ public final class CoverManager {
     }
 
     /**
+     * Returns a file from the base directory and filename.
+     *
+     * @param dirPath The base directory to get the {@code File} from.
+     * @param name    The filename to get the {@code File} from.
+     * @return A {@code File}.
+     * @throws IOException If there was a problem creating a file from the parameters.
+     */
+    private static File getFile(final String dirPath, final String name)
+            throws IOException {
+        final File file = new File(dirPath, name);
+
+        if (!file.exists()) {
+            final File parent = file.getParentFile();
+
+            if (!parent.exists()) {
+                if (!parent.mkdirs()) {
+                    Log.e(TAG, "Failed to create parent directories.");
+                }
+            }
+
+            if (!file.createNewFile()) {
+                Log.e(TAG, "Failed to create file: " + name);
+            }
+        }
+
+        return file;
+    }
+
+    /**
      * This method takes a URL object and returns a HttpURLConnection object.
      *
      * @param url The URL object used to create the connection.
@@ -346,6 +375,30 @@ public final class CoverManager {
     }
 
     /**
+     * This method builds up a {@link ObjectInputStream} from a base directory and a filename.
+     *
+     * @param dirPath The base directory of the file.
+     * @param name    The filename of the file.
+     * @return A ObjectInputStream for the input file, null if the file is empty.
+     * @throws IOException If there was a problem creating the {@code File} or {@code
+     *                     FileInputStream}.
+     */
+    private static ObjectInputStream getObjectInputStream(final String dirPath, final String name)
+            throws IOException {
+        final File file = getFile(dirPath, name);
+        final FileInputStream fis = new FileInputStream(file);
+        final ObjectInputStream ois;
+
+        if (fis.available() == 0) {
+            ois = null;
+        } else {
+            ois = new ObjectInputStream(new FileInputStream(file));
+        }
+
+        return ois;
+    }
+
+    /**
      * Checks if device connected or connecting to wifi network.
      *
      * @return True if this device is connected or connecting to a WIFI network, false otherwise.
@@ -364,9 +417,13 @@ public final class CoverManager {
         ObjectInputStream objectInputStream = null;
 
         try {
-            final File file = new File(getCoverFolder(), COVERS_FILE_NAME);
-            objectInputStream = new ObjectInputStream(new FileInputStream(file));
-            wrongCovers = (Map<String, String>) objectInputStream.readObject();
+            objectInputStream = getObjectInputStream(getCoverFolder(), COVERS_FILE_NAME);
+
+            if (objectInputStream == null) {
+                wrongCovers = new HashMap<>();
+            } else {
+                wrongCovers = (Map<String, String>) objectInputStream.readObject();
+            }
         } catch (final Exception e) {
             Log.e(TAG, "Cannot load cover history file.", e);
             wrongCovers = new HashMap<>();
@@ -389,9 +446,13 @@ public final class CoverManager {
         ObjectInputStream objectInputStream = null;
 
         try {
-            final File file = new File(getCoverFolder(), WRONG_COVERS_FILE_NAME);
-            objectInputStream = new ObjectInputStream(new FileInputStream(file));
-            wrongCovers = (MultiMap<String, String>) objectInputStream.readObject();
+            objectInputStream = getObjectInputStream(getCoverFolder(), WRONG_COVERS_FILE_NAME);
+
+            if (objectInputStream == null) {
+                wrongCovers = new MultiMap<>();
+            } else {
+                wrongCovers = (MultiMap<String, String>) objectInputStream.readObject();
+            }
         } catch (final Exception e) {
             Log.e(TAG, "Cannot load cover blacklist.", e);
             wrongCovers = new MultiMap<>();
