@@ -139,26 +139,40 @@ public class SongsFragment extends BrowseFragment<Music> {
     }
 
     private void applyPaletteWithBitmapAsync(final Bitmap bitmap) {
-        Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+        final Palette.PaletteAsyncListener paletteAsyncListener =
+                new Palette.PaletteAsyncListener() {
+                    @Override
+                    public void onGenerated(final Palette palette) {
+                        try {
+                            final Palette.Swatch vibrantColor = palette.getDarkVibrantSwatch();
+                            final Palette.Swatch mutedColor = palette.getVibrantSwatch();
+
+                            if (mTracksInfoContainer != null && vibrantColor != null
+                                    && !isDetached()) {
+                                final int bodyTextColor = vibrantColor.getBodyTextColor();
+
+                                mTracksInfoContainer.setBackgroundColor(vibrantColor.getRgb());
+                                mHeaderAlbum.setTextColor(bodyTextColor);
+                                mHeaderArtist.setTextColor(bodyTextColor);
+                                mHeaderInfo.setTextColor(bodyTextColor);
+                            }
+
+                            if (mutedColor != null && mAlbumMenu instanceof FloatingActionButton) {
+                                ((FloatingActionButton) mAlbumMenu)
+                                        .setColorNormal(mutedColor.getRgb());
+                            }
+                        } catch (final NullPointerException | IllegalStateException e) {
+                            Log.e(TAG, "Error while applying generated album art palette colors",
+                                    e);
+                        }
+                    }
+                };
+
+        mApp.getAsyncHelper().execAsync(new Runnable() {
             @Override
-            public void onGenerated(final Palette palette) {
-                try {
-                    final Palette.Swatch vibrantColor = palette.getDarkVibrantSwatch();
-                    final Palette.Swatch mutedColor = palette.getVibrantSwatch();
-
-                    if (mTracksInfoContainer != null && vibrantColor != null && !isDetached()) {
-                        mTracksInfoContainer.setBackgroundColor(vibrantColor.getRgb());
-                        mHeaderAlbum.setTextColor(vibrantColor.getBodyTextColor());
-                        mHeaderArtist.setTextColor(vibrantColor.getBodyTextColor());
-                        mHeaderInfo.setTextColor(vibrantColor.getBodyTextColor());
-                    }
-
-                    if (mutedColor != null && mAlbumMenu instanceof FloatingActionButton) {
-                        ((FloatingActionButton) mAlbumMenu).setColorNormal(mutedColor.getRgb());
-                    }
-                } catch (final NullPointerException | IllegalStateException e) {
-                    Log.e(TAG, "Error while applying generated album art palette colors", e);
-                }
+            public void run() {
+                final Palette.Builder builder = new Palette.Builder(bitmap);
+                builder.generate(paletteAsyncListener);
             }
         });
     }
