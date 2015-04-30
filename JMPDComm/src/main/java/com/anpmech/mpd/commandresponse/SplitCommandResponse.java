@@ -109,6 +109,11 @@ public class SplitCommandResponse extends CommandResult implements Iterable<Comm
         private final String mResponse;
 
         /**
+         * This field stores the positions for the next line.
+         */
+        private int[] mCachedPositions;
+
+        /**
          * This tracks the current iterator character position in the response.
          */
         private int mPosition;
@@ -146,20 +151,26 @@ public class SplitCommandResponse extends CommandResult implements Iterable<Comm
          * being the {@link #BEGIN_POSITION} and the final being the {@link #END_POSITION}.
          */
         private int[] getNextPositions() {
-            int positionIndex = mPositionIndex;
-            int beginPosition;
-            int nextPosition = mPosition;
 
-            do {
-                positionIndex++;
+            if (mCachedPositions == null) {
+                int positionIndex = mPositionIndex;
+                int beginPosition;
+                int nextPosition = mPosition;
 
-                beginPosition = nextPosition;
-                nextPosition = mResponse.indexOf(MPDConnection.MPD_CMD_BULK_SEP,
-                        nextPosition) + OK_LENGTH;
-            } while (mExcludeResponses != null &&
-                    Arrays.binarySearch(mExcludeResponses, positionIndex) >= 0);
+                do {
+                    positionIndex++;
 
-            return new int[]{positionIndex, beginPosition, nextPosition - OK_LENGTH};
+                    beginPosition = nextPosition;
+                    nextPosition = mResponse.indexOf(MPDConnection.MPD_CMD_BULK_SEP,
+                            nextPosition) + OK_LENGTH;
+                } while (mExcludeResponses != null &&
+                        Arrays.binarySearch(mExcludeResponses, positionIndex) >= 0);
+
+                mCachedPositions =
+                        new int[]{positionIndex, beginPosition, nextPosition - OK_LENGTH};
+            }
+
+            return mCachedPositions;
         }
 
         /**
@@ -214,6 +225,8 @@ public class SplitCommandResponse extends CommandResult implements Iterable<Comm
 
                 response = new CommandResponse(mConnectionResponse, nextLine, null);
             }
+
+            mCachedPositions = null;
 
             return response;
         }
