@@ -283,6 +283,7 @@ public class IdleSubsystemMonitor implements Runnable {
             }
 
             boolean dbChanged = false;
+            boolean outputsChanged = false;
             boolean statusChanged = false;
             boolean stickerChanged = false;
             boolean storedPlaylistChanged = false;
@@ -312,6 +313,9 @@ public class IdleSubsystemMonitor implements Runnable {
                                 dbChanged = true;
                                 statusChanged = true;
                                 break;
+                            case IDLE_OUTPUT:
+                                outputsChanged = true;
+                                break;
                             case IDLE_PLAYLIST:
                                 statusChanged = true;
                                 break;
@@ -324,10 +328,6 @@ public class IdleSubsystemMonitor implements Runnable {
                             default:
                                 statusChanged = true;
                                 break;
-                        }
-
-                        if (dbChanged && statusChanged) {
-                            break;
                         }
                     }
                 } catch (final IOException | MPDException e) {
@@ -413,6 +413,17 @@ public class IdleSubsystemMonitor implements Runnable {
                                 @Override
                                 public void run() {
                                     listener.volumeChanged(oldVolume);
+                                }
+                            });
+                        }
+                    }
+
+                    if (connectionReset || outputsChanged) {
+                        for (final StatusChangeListener listener : mStatusChangeListeners) {
+                            MPDExecutor.submit(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.outputsChanged();
                                 }
                             });
                         }

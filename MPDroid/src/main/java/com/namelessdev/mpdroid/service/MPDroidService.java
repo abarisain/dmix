@@ -566,6 +566,13 @@ public final class MPDroidService extends Service implements
     }
 
     /**
+     * Called upon a change in the Output idle subsystem.
+     */
+    @Override
+    public void outputsChanged() {
+    }
+
+    /**
      * A status monitor listener callback method called upon playlist queue changes.
      *
      * @param oldPlaylistVersion old playlist version.

@@ -28,6 +28,7 @@
 package com.anpmech.mpd;
 
 import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.concurrent.MPDFuture;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.connection.MonoIOMPDConnection;
@@ -684,8 +685,8 @@ public class MPD {
         saveStream(url, name);
     }
 
-    public void enableOutput(final int id) throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_OUTPUTENABLE, Integer.toString(id));
+    public MPDFuture enableOutput(final int id) {
+        return mConnection.submit(MPDCommand.MPD_CMD_OUTPUTENABLE, Integer.toString(id));
     }
 
     /**

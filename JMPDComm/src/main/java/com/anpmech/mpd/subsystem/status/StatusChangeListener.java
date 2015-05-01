@@ -43,6 +43,11 @@ public interface StatusChangeListener {
     void libraryStateChanged(boolean updating, boolean dbChanged);
 
     /**
+     * Called upon a change in the Output idle subsystem.
+     */
+    void outputsChanged();
+
+    /**
      * Called when playlist changes on MPD server.
      *
      * @param oldPlaylistVersion old playlist version.

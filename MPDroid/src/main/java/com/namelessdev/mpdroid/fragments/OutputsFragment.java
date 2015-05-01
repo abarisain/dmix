@@ -18,7 +18,9 @@ package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDOutput;
+import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
 
@@ -37,8 +39,10 @@ import android.widget.ListView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-public class OutputsFragment extends ListFragment implements AdapterView.OnItemClickListener {
+public class OutputsFragment extends ListFragment implements AdapterView.OnItemClickListener,
+        MPDConnectionListener, StatusChangeListener {
 
     public static final String EXTRA = "Outputs";
 
@@ -46,59 +50,152 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
-    private ArrayList<MPDOutput> mOutputs;
+    private final List<MPDOutput> mOutputs = new ArrayList<>();
+
+    /**
+     * Called upon connection.
+     *
+     * @param commandErrorCode If this number is non-zero, the number will correspond to a
+     *                         {@link MPDException} error code. If this number is zero, the
+     *                         connection MPD protocol commands were successful.
+     */
+    @Override
+    public void connectionConnected(final int commandErrorCode) {
+        refreshOutputs();
+    }
+
+    /**
+     * Called when connecting.
+     *
+     * <p>This implies that we've disconnected. This callback is intended to be transient. Status
+     * change from connected to connecting may happen, but if a connection is not established, with
+     * a connected callback, the disconnection status callback should be called.</p>
+     */
+    @Override
+    public void connectionConnecting() {
+    }
+
+    /**
+     * Called upon disconnection.
+     *
+     * @param reason The reason given for disconnection.
+     */
+    @Override
+    public void connectionDisconnected(final String reason) {
+    }
+
+    /**
+     * Called when the MPD server update database starts and stops.
+     *
+     * @param updating  true when updating, false when not updating.
+     * @param dbChanged After update, if the database has changed, this will be true else false.
+     */
+    @Override
+    public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
+    }
 
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        final ListAdapter arrayAdapter = new ArrayAdapter<>(getActivity(),
+        final Activity activity = getActivity();
+        final ListView listView = getListView();
+        final ListAdapter arrayAdapter = new ArrayAdapter<>(activity,
                 android.R.layout.simple_list_item_multiple_choice, mOutputs);
         setListAdapter(arrayAdapter);
 
-        getListView().setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-        getListView().setOnItemClickListener(this);
+        listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
+        listView.setOnItemClickListener(this);
 
         // Not needed since MainMenuActivity will take care of telling us to refresh
-        if (!(getActivity() instanceof MainMenuActivity)) {
+        if (!(activity instanceof MainMenuActivity)) {
             refreshOutputs();
         }
     }
 
     @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mOutputs = new ArrayList<>();
-    }
-
-    @Override
     public void onItemClick(
             final AdapterView<?> parent, final View view, final int position, final long id) {
-        mApp.getAsyncHelper().execAsync(new Runnable() {
-            @Override
-            public void run() {
-                final MPD mpd = mApp.getMPD();
-                final MPDOutput output = mOutputs.get(position);
-                try {
-                    if (getListView().isItemChecked(position)) {
-                        mpd.enableOutput(output.getId());
-                    } else {
-                        mpd.disableOutput(output.getId());
-                    }
-                } catch (final IOException | IllegalStateException | MPDException e) {
-                    Log.e(TAG, "Failed to modify output.", e);
-                }
-                final Activity activity = getActivity();
-                if (activity != null) {
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            refreshOutputs();
+        if (mOutputs.isEmpty() || position >= mOutputs.size()) {
+            Log.e(TAG, "Failed to modify out of sync outputs.");
+        } else {
+            mApp.getAsyncHelper().execAsync(new Runnable() {
+                @Override
+                public void run() {
+                    final Activity activity = getActivity();
+                    final MPD mpd = mApp.getMPD();
+                    final MPDOutput output = mOutputs.get(position);
+
+                    try {
+                        if (getListView().isItemChecked(position)) {
+                            mpd.enableOutput(output.getId());
+                        } else {
+                            mpd.disableOutput(output.getId());
                         }
-                    });
+                    } catch (final IOException | IllegalStateException | MPDException e) {
+                        Log.e(TAG, "Failed to modify output.", e);
+                    }
+
+                    if (activity != null) {
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshOutputs();
+                            }
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }
+    }
+
+    /**
+     * Called when the Fragment is no longer resumed.  This is generally
+     * tied to {@link Activity#onPause() Activity.onPause} of the containing
+     * Activity's lifecycle.
+     */
+    @Override
+    public void onPause() {
+        mApp.removeStatusChangeListener(this);
+
+        super.onPause();
+    }
+
+    /**
+     * Called when the fragment is visible to the user and actively running.
+     * This is generally
+     * tied to {@link Activity#onResume() Activity.onResume} of the containing
+     * Activity's lifecycle.
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mApp.addStatusChangeListener(this);
+    }
+
+    /**
+     * Called upon a change in the Output idle subsystem.
+     */
+    @Override
+    public void outputsChanged() {
+        refreshOutputs();
+    }
+
+    /**
+     * Called when playlist changes on MPD server.
+     *
+     * @param oldPlaylistVersion old playlist version.
+     */
+    @Override
+    public void playlistChanged(final int oldPlaylistVersion) {
+    }
+
+    /**
+     * Called when MPD server random feature changes state.
+     */
+    @Override
+    public void randomChanged() {
     }
 
     public void refreshOutputs() {
@@ -112,6 +209,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
                 } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to list outputs.", e);
                 }
+
                 final Activity activity = getActivity();
                 if (activity != null) {
                     activity.runOnUiThread(new Runnable() {
@@ -124,14 +222,63 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
                                 for (int i = 0; i < mOutputs.size(); i++) {
                                     list.setItemChecked(i, mOutputs.get(i).isEnabled());
                                 }
-                            } catch (IllegalStateException e) {
+                            } catch (final IllegalStateException e) {
                                 Log.e(TAG,
-                                        "Illegal Activity state while trying to refresh output list");
+                                        "Illegal Activity state while trying to refresh output list",
+                                        e);
                             }
                         }
                     });
                 }
             }
         });
+    }
+
+    /**
+     * Called when MPD server repeat feature changes state.
+     */
+    @Override
+    public void repeatChanged() {
+    }
+
+    /**
+     * Called when MPD state changes on server.
+     *
+     * @param oldState previous state.
+     */
+    @Override
+    public void stateChanged(final int oldState) {
+    }
+
+    /**
+     * Called when any sticker of any track has been changed on server.
+     */
+    @Override
+    public void stickerChanged() {
+    }
+
+    /**
+     * Called when a stored playlist has been modified, renamed, created or deleted.
+     */
+    @Override
+    public void storedPlaylistChanged() {
+    }
+
+    /**
+     * Called when playing track is changed on server.
+     *
+     * @param oldTrack track number before event.
+     */
+    @Override
+    public void trackChanged(final int oldTrack) {
+    }
+
+    /**
+     * Called when volume changes on MPD server.
+     *
+     * @param oldVolume volume before event
+     */
+    @Override
+    public void volumeChanged(final int oldVolume) {
     }
 }

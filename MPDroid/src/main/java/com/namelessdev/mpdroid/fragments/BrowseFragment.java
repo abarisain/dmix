@@ -579,6 +579,13 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     /**
+     * Called upon a change in the Output idle subsystem.
+     */
+    @Override
+    public void outputsChanged() {
+    }
+
+    /**
      * Called when playlist changes on MPD server.
      *
      * @param oldPlaylistVersion old playlist version.

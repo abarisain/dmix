@@ -933,6 +933,13 @@ public class NowPlayingFragment extends Fragment implements
         updateAudioNameText();
     }
 
+    /**
+     * Called upon a change in the Output idle subsystem.
+     */
+    @Override
+    public void outputsChanged() {
+    }
+
     @Override
     public void playlistChanged(final int oldPlaylistVersion) {
         /**
