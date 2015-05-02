@@ -1,0 +1,14 @@
+file: Albums/Yuna/Nocturnal/11 Escape.flac
+Last-Modified: 2013-11-16T04:22:00Z
+Time: 230
+Title: Escape
+Date: 2013-10-29
+Disc: 1
+AlbumArtistSort: Yuna
+AlbumArtist: Album Artist Name
+Album: Album Name
+Artist: Artist Name
+Composer: Composer Name
+ArtistSort: Yuna
+Track: 11
+Genre: R&B

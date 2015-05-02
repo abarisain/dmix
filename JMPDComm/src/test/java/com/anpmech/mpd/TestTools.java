@@ -36,31 +36,27 @@ public enum TestTools {
     ;
 
     /**
-     * This file contains a single track lsinfo file response with multiple same-tag entries.
-     */
-    public static final String FILE_SINGULAR_MULTI_TAG_FILE = "lsinfo/singular_multi_tag_file.txt";
-
-    /**
      * This file contains a single playlistinfo entry.
      */
     public static final String FILE_SINGULAR_PLAYLISTINFO
-            = "playlistinfo/singular_playlistinfo.txt";
+            = "mpd-protocol/playlistinfo/singular_playlistinfo.txt";
 
     /**
      * This file contains a single track lsinfo file response.
      */
-    public static final String FILE_SINGULAR_TRACK_FILE = "lsinfo/singular_track_file.txt";
+    public static final String FILE_SINGULAR_TRACK_FILE
+            = "mpd-protocol/lsinfo/singular_track_file.txt";
 
     /**
      * This file contains a empty file, to test the a empty response.
      */
-    public static final String FILE_SINGULAR_TRACK_MINIMAL
-            = "lsinfo/singular_track_file_minimal.txt";
+    public static final String FILE_SINGULAR_TRACK_MINIMAL = "mpd-protocol/empty_response.txt";
 
     /**
      * This file contains a single stream lsinfo entry.
      */
-    public static final String FILE_SINGULAR_TRACK_STREAM = "lsinfo/singular_track_stream.txt";
+    public static final String FILE_SINGULAR_TRACK_STREAM
+            = "mpd-protocol/lsinfo/singular_track_stream.txt";
 
     /**
      * This array contains all resource files.
@@ -69,7 +65,6 @@ public enum TestTools {
             FILE_SINGULAR_TRACK_FILE,
             FILE_SINGULAR_TRACK_MINIMAL,
             FILE_SINGULAR_TRACK_STREAM,
-            FILE_SINGULAR_MULTI_TAG_FILE,
             FILE_SINGULAR_PLAYLISTINFO
     };
 

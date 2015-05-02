@@ -46,17 +46,17 @@ abstract class AbstractItem<T extends AbstractItem<T>> implements Comparable<T> 
     /**
      * This {@link Collator} is used for comparison and sorting of {@code Item}s.
      */
-    private static final Collator COLLATOR = Collator.getInstance();
+    static final Collator COLLATOR = Collator.getInstance();
 
     /**
      * The ResourceBundle from which to retrieve any necessary translations.
      */
-    private static final ResourceBundle RESOURCE;
+    static final ResourceBundle RESOURCE;
 
     /**
      * The bundle name for the "Unknown" or empty metadata for an item.
      */
-    private static final String UNKNOWN_METADATA = "UnknownMetadata";
+    static final String UNKNOWN_METADATA = "UnknownMetadata";
 
     static {
         COLLATOR.setStrength(Collator.PRIMARY);

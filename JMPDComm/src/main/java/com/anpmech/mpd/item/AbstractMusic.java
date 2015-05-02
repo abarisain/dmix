@@ -775,8 +775,14 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The URI fragment if it exists, null otherwise.
      */
     public String getURIFragment() {
-        final int pos = mFullPath.indexOf('#');
+        final int pos;
         String streamName = null;
+
+        if (mFullPath == null) {
+            pos = 0;
+        } else {
+            pos = mFullPath.indexOf('#');
+        }
 
         if (pos > 1) {
             streamName = mFullPath.substring(pos + 1, mFullPath.length());
