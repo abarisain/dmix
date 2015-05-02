@@ -189,7 +189,7 @@
 
             <!--
              The following intent filters only common streaming file extensions,
-			scheme "file" is not supported until reverse streaming support is added
+                        scheme "file" is not supported until reverse streaming support is added
             -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

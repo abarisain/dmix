@@ -16,7 +16,7 @@
 
 <!--
      Don't use android:singleline as it makes text disappear when RTL kicks in ...
-	 See bug #13895
+         See bug #13895
 -->
 
 <TextView
