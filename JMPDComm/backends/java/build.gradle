@@ -27,6 +27,10 @@
 
 apply plugin: 'java'
 
+repositories {
+    mavenCentral()
+}
+
 javadoc {
     description = "Generates project-level javadoc."
     title = "${project.name} WIP"
@@ -44,12 +48,28 @@ javadoc {
     }
 }
 
-sourceSets.main {
-    java {
-        srcDirs = ['../../src/main/java', 'src/main/java']
+dependencies {
+    testCompile 'junit:junit:4.12'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['../../src/main/java', 'src/main/java']
+        }
+        resources {
+            srcDirs = ['../../src/main/resources']
+        }
     }
-    resources {
-        srcDirs = ['../../src/main/resources']
+
+    test {
+        java {
+            srcDirs = ['../../src/test/java']
+        }
+
+        resources {
+            srcDirs = ['../../src/test/resources']
+        }
     }
 }
 

@@ -29,9 +29,17 @@
 
 apply plugin: 'com.android.library'
 
+repositories {
+    mavenCentral()
+}
+
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
 
     lintOptions {
         abortOnError false
@@ -42,15 +50,23 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
-    sourceSets.main {
-        java {
-            srcDirs {
-                ['../../src/main/java', 'src/main/java']
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['../../src/main/java', 'src/main/java']
+            }
+            resources {
+                srcDirs = ['../../src/main/resources']
             }
         }
-        resources {
-            srcDirs {
-                ['../../src/main/resources']
+
+        test {
+            java {
+                srcDirs = ['../../src/test/java']
+            }
+
+            resources {
+                srcDirs = ['../../src/test/resources']
             }
         }
     }
@@ -84,6 +100,14 @@ android {
             exclude '**/R.java'
         }
     }
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support.test:runner:0.2'
+
+    // For JUnit 4
+    androidTestCompile 'com.android.support.test:rules:0.2'
 }
 
 class BrowseJavadoc implements TaskExecutionListener {
