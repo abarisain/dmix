@@ -84,7 +84,7 @@ android {
             description "Generates Javadoc for $variant.name."
             source = variant.javaCompile.source
             ext.androidJar =
-                    "${android.plugin.sdkHandler.sdkFolder}" +
+                    "${android.sdkDirectory}" +
                             "/platforms/${android.compileSdkVersion}/android.jar"
             classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
 
@@ -103,7 +103,7 @@ android {
                                 .getDestinationDir()
                                 .toString());
                 linksOffline("http://developer.android.com/reference",
-                        "${android.plugin.sdkHandler.sdkFolder}/docs/reference");
+                        "${android.sdkDirectory}/docs/reference");
                 overview("src/main/overview.html");
                 showAll()
             }

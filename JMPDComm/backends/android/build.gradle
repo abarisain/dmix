@@ -61,7 +61,7 @@ android {
             title = "$name Android WIP"
             description "Generates Javadoc for $variant.name."
             source = variant.javaCompile.source
-            ext.androidJar = "${android.plugin.sdkHandler.sdkFolder}" +
+            ext.androidJar = "${android.sdkDirectory}" +
                     "/platforms/${android.compileSdkVersion}/android.jar"
             classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
 
@@ -75,7 +75,7 @@ android {
                 memberLevel = JavadocMemberLevel.PRIVATE
                 links("http://docs.oracle.com/javase/8/docs/api/");
                 linksOffline("http://developer.android.com/reference",
-                        "${android.plugin.sdkHandler.sdkFolder}/docs/reference");
+                        "${android.sdkDirectory}/docs/reference");
                 overview("src/main/overview.html");
                 showAll()
             }
