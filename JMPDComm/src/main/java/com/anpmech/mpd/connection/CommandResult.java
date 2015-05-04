@@ -182,6 +182,8 @@ public class CommandResult {
          */
         public static final String UNSUPPORTED = "Operation unsupported by this iterator.";
 
+        private static final String INDEX_CANNOT_MATCH = "Position and next index can't match.";
+
         /**
          * The MPD protocol command response.
          */
@@ -250,7 +252,13 @@ public class CommandResult {
          * @return The next MPD result line.
          */
         protected String getNextLine() {
-            return mResult.substring(mPosition, nextIndex());
+            final int index = nextIndex();
+
+            if (mPosition == index) {
+                throw new IllegalStateException(INDEX_CANNOT_MATCH);
+            }
+
+            return mResult.substring(mPosition, index);
         }
 
         /**
@@ -260,6 +268,10 @@ public class CommandResult {
          */
         protected String getPreviousLine() {
             int index = previousIndex();
+
+            if (mPosition == index) {
+                throw new IllegalStateException(INDEX_CANNOT_MATCH);
+            }
 
             /** + 1 to discard the newline. */
             if (index != 0) {
