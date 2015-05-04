@@ -27,9 +27,9 @@
 
 package com.anpmech.mpd.item;
 
+import com.anpmech.mpd.Log;
 import com.anpmech.mpd.Tools;
 
-import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -40,76 +40,76 @@ import java.util.Comparator;
  * subsystem of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>.</p>
  *
  * @param <T> The Music type.
- * @author Felipe Gustavo de Almeida
  */
 abstract class AbstractMusic<T extends Music> extends Item<Music> implements FilesystemTreeEntry {
 
-    /** The media server response key returned for a {@link #mAlbumName} value. */
+    /**
+     * The media server response key returned for a Album value.
+     */
     public static final String RESPONSE_ALBUM = "Album";
 
     /**
-     * The media server response key returned for a {@link #mAlbumArtistName} value.
+     * The media server response key returned for a AlbumArtist value.
      */
     public static final String RESPONSE_ALBUM_ARTIST = "AlbumArtist";
 
     /**
-     * The media server response key returned for a {@link #mArtistName} value.
+     * The media server response key returned for a Artist value.
      */
     public static final String RESPONSE_ARTIST = "Artist";
 
     /**
-     * The media server response key returned for a {@link #mComposerName} value.
+     * The media server response key returned for a Composer value.
      */
     public static final String RESPONSE_COMPOSER = "Composer";
 
     /**
-     * The media server response key returned for a {@link #mDate} value.
+     * The media server response key returned for a Date value.
      */
     public static final String RESPONSE_DATE = "Date";
 
     /**
-     * The media server response key returned for a {@link #mDisc} value.
+     * The media server response key returned for a Disc value.
      */
     public static final String RESPONSE_DISC = "Disc";
 
     /**
-     * The media server response key returned for a {@link #mFullPath} value.
+     * The media server response key returned for a file path value.
      */
     public static final String RESPONSE_FILE = "file";
 
     /**
-     * The media server response key returned for a {@link #mGenreName} value.
+     * The media server response key returned for a Genre value.
      */
     public static final String RESPONSE_GENRE = "Genre";
 
     /**
-     * The media server response key returned for a {@link #mName} value.
+     * The media server response key returned for a Name (tag) value.
      */
     public static final String RESPONSE_NAME = "Name";
 
     /**
-     * The media server response key returned for a {@link #mSongId} value.
+     * The media server response key returned for a playlist queue ID value.
      */
     public static final String RESPONSE_SONG_ID = "Id";
 
     /**
-     * The media server response key returned for a {@link #mSongPos} value.
+     * The media server response key returned for a playlist queue position value.
      */
     public static final String RESPONSE_SONG_POS = "Pos";
 
     /**
-     * The media server response key returned for a {@link #mTime} value.
+     * The media server response key returned for a Time (duration) value.
      */
     public static final String RESPONSE_TIME = "Time";
 
     /**
-     * The media server response key returned for a {@link #mTitle} value.
+     * The media server response key returned for a Title value.
      */
     public static final String RESPONSE_TITLE = "Title";
 
     /**
-     * The media server response key returned for a {@link #mTrack} and {@link #mTotalTracks}
-     * values.
+     * The media server response key returned for a Track value.
      */
     public static final String RESPONSE_TRACK = "Track";
 
@@ -176,86 +176,9 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     /**
      * The log identifier for this class.
      */
-    private static final String TAG = "Music";
+    private static final String TAG = "AbstractMusic";
 
-    /**
-     * This field is storage for the name of the artist of the album this track was published on.
-     */
-    final String mAlbumArtistName;
-
-    /**
-     * This field is storage for the name of the album this track was pushed on.
-     */
-    final String mAlbumName;
-
-    /**
-     * This field is storage for the name of the artist of this track.
-     */
-    final String mArtistName;
-
-    /**
-     * This field is storage for the name of the composer of this track.
-     */
-    final String mComposerName;
-
-    /**
-     * This field is storage for the date the release date of this track.
-     */
-    final long mDate;
-
-    /**
-     * This field is storage for the disc number of the album that this track was published on.
-     */
-    final int mDisc;
-
-    /**
-     * This field is storage for a representation of the source of the media, relative to the media
-     * server.
-     */
-    final String mFullPath;
-
-    /**
-     * This field is storage for the name of the genre for this track.
-     */
-    final String mGenreName;
-
-    /**
-     * This field is storage for the Name tag for this track.
-     */
-    final String mName;
-
-    /**
-     * This field is storage for the song ID, relative to the playlist of the currently connected
-     * media server.
-     */
-    final int mSongId;
-
-    /**
-     * This field is the storage for the song position, relative to the playlist of the currently
-     * connected media server.
-     */
-    final int mSongPos;
-
-    /**
-     * This field is the storage for the time the current track has been playing.
-     */
-    final long mTime;
-
-    /**
-     * This field is the storage for the title of this track.
-     */
-    final String mTitle;
-
-    /**
-     * This field is the storage for the total duration of this track.
-     */
-    final int mTotalTracks;
-
-    /**
-     * This field is the storage for the track number of this track relative to the album it was
-     * produced for.
-     */
-    final int mTrack;
+    final String mResponse;
 
     /**
      * Similar to the default {@code Comparable} for the Music class, but it compares without
@@ -295,34 +218,24 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
                 }
             };
 
-    AbstractMusic(final T music) {
-        this(music.mAlbumName, music.mAlbumArtistName, music.mArtistName, music.mComposerName,
-                music.mDate, music.mDisc, music.mFullPath, music.mGenreName, music.mName,
-                music.mSongId, music.mSongPos, music.mTime, music.mTitle, music.mTotalTracks,
-                music.mTrack);
+    /**
+     * The copy constructor for this class.
+     *
+     * @param track The track to copy from.
+     */
+    protected AbstractMusic(final T track) {
+        this(track.mResponse);
     }
 
-    AbstractMusic(final String albumName, final String albumArtistName, final String artistName,
-            final String composerName, final long date, final int disc, final String fullPath,
-            final String genreName, final String name, final int songId, final int songPos,
-            final long time, final String title, final int totalTracks, final int track) {
+    /**
+     * The generator constructor for this class.
+     *
+     * @param response The MPD protocol response to create this object from.
+     */
+    AbstractMusic(final String response) {
         super();
 
-        mAlbumName = albumName;
-        mArtistName = artistName;
-        mAlbumArtistName = albumArtistName;
-        mComposerName = composerName;
-        mFullPath = fullPath;
-        mDisc = disc;
-        mDate = date;
-        mGenreName = genreName;
-        mTime = time;
-        mTitle = title;
-        mTotalTracks = totalTracks;
-        mTrack = track;
-        mSongId = songId;
-        mSongPos = songPos;
-        mName = name;
+        mResponse = response;
     }
 
     /**
@@ -379,8 +292,33 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
         return result;
     }
 
-    private static boolean isEmpty(final String s) {
-        return null == s || s.isEmpty();
+    /**
+     * This method parses the date MPD protocol response by removing all non-digit characters then
+     * parsing it as a long.
+     *
+     * @param dateResponse The date MPD protocol response.
+     * @return The parsed date.
+     */
+    public static long parseDate(final CharSequence dateResponse) {
+        final int length = dateResponse.length();
+        final StringBuilder sb = new StringBuilder(length);
+        long resultDate = Long.MIN_VALUE;
+
+        for (int i = 0; i < length; i++) {
+            final char c = dateResponse.charAt(i);
+
+            if (Character.isDigit(c)) {
+                sb.append(c);
+            }
+        }
+
+        try {
+            resultDate = Long.parseLong(sb.toString());
+        } catch (final NumberFormatException e) {
+            Log.warning(TAG, "Not a valid date.", e);
+        }
+
+        return resultDate;
     }
 
     /**
@@ -409,17 +347,17 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
         final AbstractMusic<Music> om = (AbstractMusic<Music>) another;
 
         /** songId overrides every other sorting method. It's used for playlists/queue. */
-        int compareResult = compareIntegers(true, mSongId, om.mSongId);
+        int compareResult = compareIntegers(true, getSongId(), om.getSongId());
 
         if (withTrackNumber) {
             if (compareResult == 0) {
                 /** Order by the disc number. */
-                compareResult = compareIntegers(true, mDisc, om.mDisc);
+                compareResult = compareIntegers(true, getDisc(), om.getDisc());
             }
 
             if (compareResult == 0) {
                 /** Order by track number. */
-                compareResult = compareIntegers(true, mTrack, om.mTrack);
+                compareResult = compareIntegers(true, getTrack(), om.getTrack());
             }
         }
 
@@ -430,12 +368,12 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
 
         if (compareResult == 0) {
             /** Order by name (this is helpful for streams). */
-            compareResult = compareString(mName, om.mName);
+            compareResult = compareString(getName(), om.getName());
         }
 
         if (compareResult == 0) {
             /** As a last resort, order by the full path. */
-            compareResult = compareString(mFullPath, om.mFullPath);
+            compareResult = compareString(getFullPath(), om.getFullPath());
         }
 
         return compareResult;
@@ -461,33 +399,9 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
         if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
             /** This has to be the same due to the class check above. */
             //noinspection unchecked
-            final T music = (T) o;
+            final T track = (T) o;
 
-            final Object[][] equalsObjects = {
-                    {mAlbumName, music.mAlbumName},
-                    {mAlbumArtistName, music.mAlbumArtistName},
-                    {mArtistName, music.mArtistName},
-                    {mComposerName, music.mComposerName},
-                    {mGenreName, music.mGenreName},
-                    {mName, music.mName},
-                    {mTitle, music.mTitle}
-            };
-
-            final int[][] equalsInt = {
-                    {mDisc, music.mDisc},
-                    {mSongId, music.mSongId},
-                    {mSongPos, music.mSongPos},
-                    {mTotalTracks, music.mTotalTracks},
-                    {mTrack, music.mTrack}
-            };
-
-            if (mDate != music.mDate || mTime != music.mTime || Tools.isNotEqual(equalsInt)) {
-                isEqual = Boolean.FALSE;
-            }
-
-            if (!mFullPath.equals(music.mFullPath) || Tools.isNotEqual(equalsObjects)) {
-                isEqual = Boolean.FALSE;
-            }
+            isEqual = Boolean.valueOf(track.mResponse.equals(mResponse));
         }
 
         if (isEqual == null) {
@@ -498,29 +412,41 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     }
 
     /**
+     * Returns a key's value from the {@link #mResponse}.
+     *
+     * @param key The key to get the value for.
+     * @return The value paired to the key, null if not found.
+     */
+    private String findValue(final String key) {
+        return Tools.findValue(mResponse, key);
+    }
+
+
+    /**
      * Retrieves an {@link Album} from this item.
      *
      * @return An {@link Album} object of the current track with the Album Artist (if available),
      * otherwise of the Artist.
      */
     public Album getAlbum() {
-        final boolean isAlbumArtist = !isEmpty(mAlbumArtistName);
+        final String albumArtistName = getAlbumArtistName();
+        final boolean isAlbumArtist = !Tools.isEmpty(albumArtistName);
         final AlbumBuilder albumBuilder = new AlbumBuilder();
 
-        albumBuilder.setName(mAlbumName);
+        albumBuilder.setName(getAlbumName());
         if (isAlbumArtist) {
-            albumBuilder.setAlbumArtist(mAlbumArtistName);
+            albumBuilder.setAlbumArtist(albumArtistName);
         } else {
-            albumBuilder.setArtist(mArtistName);
+            albumBuilder.setArtist(getArtistName());
         }
 
-        albumBuilder.setSongDetails(mDate, mFullPath);
+        albumBuilder.setSongDetails(getDate(), findValue(RESPONSE_FILE));
 
         return albumBuilder.build();
     }
 
     public Artist getAlbumArtist() {
-        return new Artist(mAlbumArtistName);
+        return new Artist(getAlbumArtistName());
     }
 
     /**
@@ -529,7 +455,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The name of the album artist or null if it is not set.
      */
     public String getAlbumArtistName() {
-        return mAlbumArtistName;
+        return findValue(RESPONSE_ALBUM_ARTIST);
     }
 
     /**
@@ -539,12 +465,14 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * otherwise it will return the unknown album translation.
      */
     public String getAlbumArtistOrArtist() {
+        final String albumArtistName = findValue(RESPONSE_ALBUM_ARTIST);
+        final String artistName = findValue(RESPONSE_ARTIST);
         final String result;
 
-        if (mAlbumArtistName != null && !mAlbumArtistName.isEmpty()) {
-            result = mAlbumArtistName;
-        } else if (mArtistName != null && !mArtistName.isEmpty()) {
-            result = mArtistName;
+        if (!Tools.isEmpty(albumArtistName)) {
+            result = albumArtistName;
+        } else if (!Tools.isEmpty(artistName)) {
+            result = artistName;
         } else {
             result = getArtist().toString();
         }
@@ -558,7 +486,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return album name.
      */
     public String getAlbumName() {
-        return mAlbumName;
+        return findValue(RESPONSE_ALBUM);
     }
 
     /**
@@ -567,7 +495,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return An {@link Artist} item for this object.
      */
     public Artist getArtist() {
-        return new Artist(mArtistName);
+        return new Artist(getArtistName());
     }
 
     /**
@@ -576,7 +504,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The artist name for this track.
      */
     public String getArtistName() {
-        return mArtistName;
+        return findValue(RESPONSE_ARTIST);
     }
 
     /**
@@ -585,7 +513,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The composer name for this track.
      */
     public String getComposerName() {
-        return mComposerName;
+        return findValue(RESPONSE_COMPOSER);
     }
 
     /**
@@ -594,7 +522,14 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The release date for this track.
      */
     public long getDate() {
-        return mDate;
+        final String date = findValue(RESPONSE_DATE);
+        long parsedDate = Long.MIN_VALUE;
+
+        if (date != null) {
+            parsedDate = parseDate(date);
+        }
+
+        return parsedDate;
     }
 
     /**
@@ -603,7 +538,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The disc number for the album this track was produced for.
      */
     public int getDisc() {
-        return mDisc;
+        return Tools.parseInteger(findValue(RESPONSE_DISC));
     }
 
     /**
@@ -612,7 +547,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The duration of the track formatted as HH:MM:SS.
      */
     public CharSequence getFormattedTime() {
-        return Tools.timeToString(mTime);
+        return Tools.timeToString(getTime());
     }
 
     /**
@@ -626,17 +561,17 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      */
     @Override
     public String getFullPath() {
-        String fileName = mFullPath;
+        String filename = findValue(RESPONSE_FILE);
 
         if (isStream()) {
-            final int pos = mFullPath.indexOf('#');
+            final int pos = filename.indexOf('#');
 
             if (pos != -1) {
-                fileName = mFullPath.substring(0, pos);
+                filename = filename.substring(0, pos);
             }
         }
 
-        return fileName;
+        return filename;
     }
 
     /**
@@ -645,7 +580,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The genre name for this track.
      */
     public String getGenreName() {
-        return mGenreName;
+        return findValue(RESPONSE_GENRE);
     }
 
     /**
@@ -663,10 +598,10 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
         }
 
         if (name == null) {
-            if (isEmpty(mName)) {
+            name = findValue(RESPONSE_NAME);
+
+            if (Tools.isEmpty(name)) {
                 name = getFullPath();
-            } else {
-                name = mName;
             }
         }
 
@@ -679,7 +614,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The name tag as returned by the protocol.
      */
     public String getNameTag() {
-        return mName;
+        return findValue(RESPONSE_NAME);
     }
 
     /**
@@ -712,7 +647,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return current song stopped on or playing, playlist song number.
      */
     public int getPos() {
-        return mSongPos;
+        return Tools.parseInteger(findValue(RESPONSE_SONG_POS));
     }
 
     /**
@@ -721,7 +656,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return current song playlist id.
      */
     public int getSongId() {
-        return mSongId;
+        return Tools.parseInteger(findValue(RESPONSE_SONG_ID));
     }
 
     /**
@@ -730,7 +665,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return playing time.
      */
     public long getTime() {
-        return mTime;
+        return Tools.parseLong(findValue(RESPONSE_TIME));
     }
 
     /**
@@ -739,12 +674,10 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The title if it exists, the full path otherwise.
      */
     public String getTitle() {
-        final String title;
+        String title = findValue(RESPONSE_TITLE);
 
-        if (isEmpty(mTitle)) {
+        if (Tools.isEmpty(title)) {
             title = getFullPath();
-        } else {
-            title = mTitle;
         }
 
         return title;
@@ -757,7 +690,22 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return total number of tracks from this music's album when available.
      */
     public int getTotalTracks() {
-        return mTotalTracks;
+        final String value = findValue(RESPONSE_TRACK);
+        int totalTracks = Integer.MIN_VALUE;
+
+        if (value != null) {
+            final int trackIndex = value.indexOf('/');
+
+            try {
+                if (trackIndex != -1) {
+                    totalTracks = Integer.parseInt(value.substring(trackIndex + 1));
+                }
+            } catch (final NumberFormatException e) {
+                Log.warning(TAG, "Not a valid track number.", e);
+            }
+        }
+
+        return totalTracks;
     }
 
     /**
@@ -766,7 +714,24 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return track number.
      */
     public int getTrack() {
-        return mTrack;
+        final String value = findValue(RESPONSE_TRACK);
+
+        int track = Integer.MIN_VALUE;
+        if (value != null) {
+            final int trackIndex = value.indexOf('/');
+
+            try {
+                if (trackIndex == -1) {
+                    track = Integer.parseInt(value);
+                } else {
+                    track = Integer.parseInt(value.substring(0, trackIndex));
+                }
+            } catch (final NumberFormatException e) {
+                Log.warning(TAG, "Not a valid track number.", e);
+            }
+        }
+
+        return track;
     }
 
     /**
@@ -775,17 +740,18 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return The URI fragment if it exists, null otherwise.
      */
     public String getURIFragment() {
+        final String fullPath = findValue(RESPONSE_FILE);
         final int pos;
         String streamName = null;
 
-        if (mFullPath == null) {
+        if (fullPath == null) {
             pos = 0;
         } else {
-            pos = mFullPath.indexOf('#');
+            pos = fullPath.indexOf('#');
         }
 
         if (pos > 1) {
-            streamName = mFullPath.substring(pos + 1, mFullPath.length());
+            streamName = fullPath.substring(pos + 1, fullPath.length());
         }
 
         return streamName;
@@ -801,19 +767,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      */
     @Override
     public int hashCode() {
-        final Object[] objects = {mAlbumName, mArtistName, mAlbumArtistName, mGenreName, mName,
-                mTitle};
-
-        int result = 31 * mFullPath.hashCode();
-        result = 31 * result + mDisc;
-        result = 31 * result + (int) (mDate ^ (mDate >>> 32));
-        result = 31 * result + mSongId;
-        result = 31 * result + mSongPos;
-        result = 31 * result + (int) (mTime ^ (mTime >>> 32));
-        result = 31 * result + mTotalTracks;
-        result = 31 * result + mTrack;
-
-        return result + Arrays.hashCode(objects);
+        return mResponse.hashCode();
     }
 
     /**
@@ -822,7 +776,9 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * @return True if this item appears to be streaming media, false otherwise.
      */
     public boolean isStream() {
-        return mFullPath != null && mFullPath.contains("://");
+        final String fullPath = findValue(RESPONSE_FILE);
+
+        return fullPath != null && fullPath.contains("://");
     }
 
     /**

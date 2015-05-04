@@ -34,7 +34,6 @@ import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -349,7 +348,7 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
                 connection.submit(MPDCommand.MPD_CMD_LSDIR, getFullPath());
         final ListIterator<Map.Entry<String, String>> iterator =
                 future.get().reverseSplitListIterator();
-        final Collection<String> lineCache = new ArrayList<>(cacheSize);
+        final StringBuilder lineCache = new StringBuilder();
 
         final Map<String, T> directoryEntries = new HashMap<>(mDirectoryEntries.size());
         final Map<String, Music> fileEntries = new HashMap<>(mFileEntries.size());
@@ -366,29 +365,30 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
                     final T dir = makeSubdirectory(entry.getValue());
 
                     directoryEntries.put(dir.mFilename, dir);
-                    lineCache.clear();
+                    lineCache.setLength(0);
                     break;
                 case "file":
                     // Music requires this line to be cached too.
                     // It could be done every time but it would be a waste to add and
                     // clear immediately when we're parsing a playlist or a directory
-                    lineCache.add(entry.toString());
+                    lineCache.append(entry.toString());
+                    lineCache.append('\n');
 
-                    final Music music = MusicBuilder.build(lineCache);
+                    final Music music = new Music(lineCache.toString());
                     fileEntries.put(music.getFullPath(), music);
-
-                    lineCache.clear();
+                    lineCache.setLength(0);
                     break;
                 case "playlist":
                     final PlaylistFile playlistFile = new PlaylistFile(entry.getValue());
 
                     playlistEntries.put(playlistFile.getName(), playlistFile);
 
-                    lineCache.clear();
+                    lineCache.setLength(0);
                     break;
                 default:
                     // We're in something unsupported or in an item description, cache the lines
-                    lineCache.add(entry.toString());
+                    lineCache.append(entry.toString());
+                    lineCache.append('\n');
                     break;
             }
         }

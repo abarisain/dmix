@@ -27,38 +27,33 @@
 
 package com.anpmech.mpd.item;
 
-import com.anpmech.mpd.Log;
 import com.anpmech.mpd.TestTools;
 import com.anpmech.mpd.Tools;
-import com.anpmech.mpd.exception.InvalidResponseException;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * This class tests elements of the {@link Music} and {@link AbstractMusic} classes.
+ */
 public final class MusicTest {
 
+    /**
+     * The class log identifier.
+     */
     private static final String TAG = "MusicTest";
 
     private final Map<String, Music> mMusicList = new HashMap<>();
 
-    private final Map<String, List<String>> mRawMusic = new HashMap<>();
-
-    private static String getMatchMsg(final String message, final String filePath) {
-        return message + " failed to match for filepath: " + filePath + '.';
-    }
+    private final Map<String, String> mRawMusic = new HashMap<>();
 
     private static String getUnknownResource(final Class<? extends Item<?>> clazz) {
         final String key = AbstractItem.UNKNOWN_METADATA + clazz.getSimpleName();
@@ -76,7 +71,7 @@ public final class MusicTest {
     public static long parseDate(final CharSequence dateResponse) {
         final int length = dateResponse.length();
         final StringBuilder sb = new StringBuilder(length);
-        long resultDate = -1L;
+        long resultDate = Long.MIN_VALUE;
 
         for (int i = 0; i < length; i++) {
             final char c = dateResponse.charAt(i);
@@ -88,82 +83,15 @@ public final class MusicTest {
 
         try {
             resultDate = Long.parseLong(sb.toString());
-        } catch (final NumberFormatException e) {
-            Log.warning(TAG, "Not a valid date.", e);
+        } catch (final NumberFormatException ignored) {
         }
 
         return resultDate;
     }
 
-    private static String readFile(final String pathname) throws IOException {
-        final File file = new File(pathname);
-        final StringBuilder fileContents = new StringBuilder((int) file.length());
-        final Scanner scanner = new Scanner(file, "UTF-8");
-        final String lineSeparator = System.getProperty("line.separator");
-
-        try {
-            while (scanner.hasNextLine()) {
-                fileContents.append(scanner.nextLine());
-                fileContents.append(lineSeparator);
-            }
-        } finally {
-            scanner.close();
-        }
-
-        return fileContents.toString();
-    }
-
-    private static List<String> readFileToList(final String file) throws IOException {
-        final List<String> list = new ArrayList<>();
-        BufferedReader br = null;
-        try {
-            final FileInputStream fis = new FileInputStream(new File(file));
-            br = new BufferedReader(new InputStreamReader(fis));
-            String buffer;
-
-            while (true) {
-                buffer = br.readLine();
-                if (buffer != null) {
-                    list.add(buffer);
-                } else {
-                    break;
-                }
-            }
-        } finally {
-            final int toRemove = list.size() - 1;
-
-            if (toRemove > 0) {
-                list.remove(toRemove);
-            }
-
-            if (br != null) {
-                br.close();
-            }
-        }
-
-        return list;
-    }
-
-    public static String[] splitResponse(final String line) {
-        final int delimiterIndex = line.indexOf(':');
-        final String[] result = new String[2];
-
-        if (delimiterIndex == -1) {
-            throw new InvalidResponseException("Failed to parse server response key for line: " +
-                    line);
-        }
-
-        result[0] = line.substring(0, delimiterIndex);
-
-        /** Skip ': ' */
-        result[1] = line.substring(delimiterIndex + 2);
-
-        return result;
-    }
-
     private String getURIFragment(final String filePath) {
         String URIFragment = null;
-        final String value = getValueFromList(filePath, AbstractMusic.RESPONSE_FILE);
+        final String value = getValue(filePath, AbstractMusic.RESPONSE_FILE);
 
         if (value != null) {
             final int pos = value.indexOf('#');
@@ -176,16 +104,18 @@ public final class MusicTest {
         return URIFragment;
     }
 
-    private String getValueFromList(final String filePath, final String key) {
+    private String getValue(final String filePath, final String key) {
         String value = null;
-        String[] pair;
+        final String haystack = mRawMusic.get(filePath);
 
-        for (final String line : mRawMusic.get(filePath)) {
-            pair = splitResponse(line);
+        final int keyIndex = haystack.indexOf(key + ": ");
 
-            if (pair[0].equals(key)) {
-                value = pair[1];
-                break;
+        if (keyIndex != -1) {
+            final int valueIndex = keyIndex + key.length() + 2;
+            final int valueEndIndex = haystack.indexOf('\n', valueIndex);
+
+            if (valueEndIndex != -1) {
+                value = haystack.substring(valueIndex, valueEndIndex);
             }
         }
 
@@ -193,20 +123,25 @@ public final class MusicTest {
     }
 
     private boolean isStream(final String filePath) {
-        final String value = getValueFromList(filePath, AbstractMusic.RESPONSE_FILE);
+        final String value = getValue(filePath, AbstractMusic.RESPONSE_FILE);
 
         return value != null && value.contains("://");
     }
 
     @Before
-    public void loadSingleNonstreamLsinfo() throws Exception {
-        final ClassLoader classLoader = getClass().getClassLoader();
+    public void loadFiles() throws IOException {
+        final ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 
         for (final String filePath : TestTools.TEST_FILE_PATHS) {
-            final String resourcePath = classLoader.getResource(filePath).getFile();
+            final URL path = classLoader.getResource(filePath);
+            if (path == null) {
+                throw new FileNotFoundException("File not found: " + filePath);
+            }
 
-            mRawMusic.put(resourcePath, readFileToList(resourcePath));
-            mMusicList.put(resourcePath, MusicBuilder.build(mRawMusic.get(resourcePath)));
+            final String resourcePath = path.getFile();
+
+            mRawMusic.put(resourcePath, TestTools.readFile(filePath));
+            mMusicList.put(resourcePath, new Music(mRawMusic.get(resourcePath)));
         }
     }
 
@@ -214,10 +149,10 @@ public final class MusicTest {
     public void testAlbumArtistNameMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String expectedValue = getValueFromList(filePath,
+            final String expectedValue = getValue(filePath,
                     AbstractMusic.RESPONSE_ALBUM_ARTIST);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("AlbumArtistName", filePath);
+            final String msg = TestTools.getMatchMsg("AlbumArtistName", filePath);
 
             assertEquals(msg, expectedValue, music.getAlbumArtistName());
         }
@@ -227,16 +162,16 @@ public final class MusicTest {
     public void testAlbumArtistOrArtist() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String albumArtistName = getValueFromList(filePath,
+            final String albumArtistName = getValue(filePath,
                     AbstractMusic.RESPONSE_ALBUM_ARTIST);
-            final String artistName = getValueFromList(filePath, AbstractMusic.RESPONSE_ARTIST);
+            final String artistName = getValue(filePath, AbstractMusic.RESPONSE_ARTIST);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Album Artist or Artist", filePath);
+            final String msg = TestTools.getMatchMsg("Album Artist or Artist", filePath);
 
             final String expectedValue;
-            if (albumArtistName != null && !albumArtistName.isEmpty()) {
+            if (!Tools.isEmpty(albumArtistName)) {
                 expectedValue = albumArtistName;
-            } else if (artistName != null && !artistName.isEmpty()) {
+            } else if (!Tools.isEmpty(artistName)) {
                 expectedValue = artistName;
             } else {
                 expectedValue = getUnknownResource(Artist.class);
@@ -251,25 +186,24 @@ public final class MusicTest {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
             final Album expectedValue = mMusicList.get(filePath).getAlbum();
-            final String albumArtistName = getValueFromList(filePath,
+            final String albumArtistName = getValue(filePath,
                     AbstractMusic.RESPONSE_ALBUM_ARTIST);
-            final String msg = getMatchMsg(AbstractMusic.RESPONSE_ALBUM, filePath);
-            final boolean isAlbumArtist = albumArtistName != null && !albumArtistName.isEmpty();
-            final String albumName = getValueFromList(filePath, AbstractMusic.RESPONSE_ALBUM);
+            final String msg = TestTools.getMatchMsg(AbstractMusic.RESPONSE_ALBUM, filePath);
+            final String albumName = getValue(filePath, AbstractMusic.RESPONSE_ALBUM);
 
             final AlbumBuilder albumBuilder = new AlbumBuilder();
             albumBuilder.setName(albumName);
-            if (isAlbumArtist) {
-                albumBuilder.setAlbumArtist(albumArtistName);
+            if (Tools.isEmpty(albumArtistName)) {
+                albumBuilder.setArtist(getValue(filePath, AbstractMusic.RESPONSE_ARTIST));
             } else {
-                albumBuilder.setArtist(getValueFromList(filePath, AbstractMusic.RESPONSE_ARTIST));
+                albumBuilder.setAlbumArtist(albumArtistName);
             }
-            final String fullPath = getValueFromList(filePath, AbstractMusic.RESPONSE_FILE);
-            final String date = getValueFromList(filePath, AbstractMusic.RESPONSE_DATE);
+            final String fullPath = getValue(filePath, AbstractMusic.RESPONSE_FILE);
+            final String date = getValue(filePath, AbstractMusic.RESPONSE_DATE);
 
             final long parsedDate;
             if (date == null) {
-                parsedDate = -1L;
+                parsedDate = Long.MIN_VALUE;
             } else {
                 parsedDate = parseDate(date);
             }
@@ -283,9 +217,9 @@ public final class MusicTest {
     public void testArtistNameMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String expectedValue = getValueFromList(filePath, AbstractMusic.RESPONSE_ARTIST);
+            final String expectedValue = getValue(filePath, AbstractMusic.RESPONSE_ARTIST);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Artist Name", filePath);
+            final String msg = TestTools.getMatchMsg("Artist Name", filePath);
 
             assertEquals(msg, expectedValue, music.getArtistName());
         }
@@ -295,10 +229,10 @@ public final class MusicTest {
     public void testComposerNameMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String expectedValue = getValueFromList(filePath,
+            final String expectedValue = getValue(filePath,
                     AbstractMusic.RESPONSE_COMPOSER);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Composer Name", filePath);
+            final String msg = TestTools.getMatchMsg("Composer Name", filePath);
 
             assertEquals(msg, expectedValue, music.getComposerName());
         }
@@ -308,13 +242,13 @@ public final class MusicTest {
     public void testDateMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final CharSequence value = getValueFromList(filePath, AbstractMusic.RESPONSE_DATE);
+            final CharSequence value = getValue(filePath, AbstractMusic.RESPONSE_DATE);
             final long expectedValue;
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Date", filePath);
+            final String msg = TestTools.getMatchMsg("Date", filePath);
 
             if (value == null) {
-                expectedValue = -1L;
+                expectedValue = Long.MIN_VALUE;
             } else {
                 expectedValue = parseDate(value);
             }
@@ -327,10 +261,10 @@ public final class MusicTest {
     public void testDiscMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String value = getValueFromList(filePath, AbstractMusic.RESPONSE_DISC);
+            final String value = getValue(filePath, AbstractMusic.RESPONSE_DISC);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Disc", filePath);
-            int expectedValue = -1;
+            final String msg = TestTools.getMatchMsg("Disc", filePath);
+            int expectedValue = Integer.MIN_VALUE;
 
             if (value != null) {
                 final int discIndex = value.indexOf('/');
@@ -352,11 +286,11 @@ public final class MusicTest {
     public void testFormattedTimeMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String value = getValueFromList(filePath, AbstractMusic.RESPONSE_TIME);
+            final String value = getValue(filePath, AbstractMusic.RESPONSE_TIME);
 
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Formatted Time", filePath);
-            long time = -1L;
+            final String msg = TestTools.getMatchMsg("Formatted Time", filePath);
+            long time = Long.MIN_VALUE;
 
             try {
                 time = Long.parseLong(value);
@@ -374,13 +308,13 @@ public final class MusicTest {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Full Path", filePath);
-            String expectedValue = getValueFromList(filePath, AbstractMusic.RESPONSE_FILE);
+            final String msg = TestTools.getMatchMsg("Full Path", filePath);
+            String expectedValue = getValue(filePath, AbstractMusic.RESPONSE_FILE);
 
             if (isStream(filePath)) {
                 final int pos = expectedValue.indexOf('#');
 
-                if (pos != -1) {
+                if (pos != Integer.MIN_VALUE) {
                     expectedValue = expectedValue.substring(0, pos);
                 }
             }
@@ -393,9 +327,9 @@ public final class MusicTest {
     public void testGenreNameMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String expectedValue = getValueFromList(filePath, AbstractMusic.RESPONSE_GENRE);
+            final String expectedValue = getValue(filePath, AbstractMusic.RESPONSE_GENRE);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Genre Name", filePath);
+            final String msg = TestTools.getMatchMsg("Genre Name", filePath);
 
             assertEquals(msg, expectedValue, music.getGenreName());
         }
@@ -406,7 +340,7 @@ public final class MusicTest {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("isStream", filePath);
+            final String msg = TestTools.getMatchMsg("isStream", filePath);
 
             assertEquals(msg, isStream(filePath), music.isStream());
         }
@@ -416,9 +350,9 @@ public final class MusicTest {
     public void testNameMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String value = getValueFromList(filePath, AbstractMusic.RESPONSE_NAME);
+            final String value = getValue(filePath, AbstractMusic.RESPONSE_NAME);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("name", filePath);
+            final String msg = TestTools.getMatchMsg("name", filePath);
 
             String expectedValue = null;
             if (isStream(filePath)) {
@@ -427,7 +361,7 @@ public final class MusicTest {
 
             if (expectedValue == null) {
                 if (value == null || value.isEmpty()) {
-                    expectedValue = getValueFromList(filePath, AbstractMusic.RESPONSE_FILE);
+                    expectedValue = getValue(filePath, AbstractMusic.RESPONSE_FILE);
                 } else {
                     expectedValue = value;
                 }
@@ -441,9 +375,9 @@ public final class MusicTest {
     public void testNameTagMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String expectedValue = getValueFromList(filePath, AbstractMusic.RESPONSE_NAME);
+            final String expectedValue = getValue(filePath, AbstractMusic.RESPONSE_NAME);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("NameTag", filePath);
+            final String msg = TestTools.getMatchMsg("NameTag", filePath);
 
             assertEquals(msg, expectedValue, music.getNameTag());
         }
@@ -454,8 +388,8 @@ public final class MusicTest {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Parent Directory", filePath);
-            String expectedValue = getValueFromList(filePath, AbstractMusic.RESPONSE_FILE);
+            final String msg = TestTools.getMatchMsg("Parent Directory", filePath);
+            String expectedValue = getValue(filePath, AbstractMusic.RESPONSE_FILE);
 
             if (expectedValue != null) {
                 int index = expectedValue.lastIndexOf('/');
@@ -477,11 +411,11 @@ public final class MusicTest {
     public void testQueueIDMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String value = getValueFromList(filePath, AbstractMusic.RESPONSE_SONG_ID);
+            final String value = getValue(filePath, AbstractMusic.RESPONSE_SONG_ID);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Playlist ID", filePath);
+            final String msg = TestTools.getMatchMsg("Playlist ID", filePath);
 
-            int expectedValue = -1;
+            int expectedValue = Integer.MIN_VALUE;
             if (value != null) {
                 try {
                     expectedValue = Integer.parseInt(value);
@@ -497,11 +431,11 @@ public final class MusicTest {
     public void testQueuePositionMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String value = getValueFromList(filePath, AbstractMusic.RESPONSE_SONG_POS);
+            final String value = getValue(filePath, AbstractMusic.RESPONSE_SONG_POS);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Playlist position", filePath);
+            final String msg = TestTools.getMatchMsg("Playlist position", filePath);
 
-            int expectedValue = -1;
+            int expectedValue = Integer.MIN_VALUE;
             if (value != null) {
                 try {
                     expectedValue = Integer.parseInt(value);
@@ -517,10 +451,10 @@ public final class MusicTest {
     public void testTimeMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String value = getValueFromList(filePath, AbstractMusic.RESPONSE_TIME);
+            final String value = getValue(filePath, AbstractMusic.RESPONSE_TIME);
             final Music music = mMusicList.get(filePath);
-            long expectedValue = -1L;
-            final String msg = getMatchMsg("Time", filePath);
+            long expectedValue = Long.MIN_VALUE;
+            final String msg = TestTools.getMatchMsg("Time", filePath);
 
             try {
                 expectedValue = Long.parseLong(value);
@@ -535,13 +469,13 @@ public final class MusicTest {
     public void testTitleMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String value = getValueFromList(filePath, AbstractMusic.RESPONSE_TITLE);
+            final String value = getValue(filePath, AbstractMusic.RESPONSE_TITLE);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Title", filePath);
+            final String msg = TestTools.getMatchMsg("Title", filePath);
 
             final String expectedValue;
             if (value == null || value.isEmpty()) {
-                expectedValue = getValueFromList(filePath, AbstractMusic.RESPONSE_FILE);
+                expectedValue = getValue(filePath, AbstractMusic.RESPONSE_FILE);
             } else {
                 expectedValue = value;
             }
@@ -554,18 +488,18 @@ public final class MusicTest {
     public void testTotalTrackMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String value = getValueFromList(filePath, AbstractMusic.RESPONSE_TRACK);
+            final String value = getValue(filePath, AbstractMusic.RESPONSE_TRACK);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Total Track", filePath);
+            final String msg = TestTools.getMatchMsg("Total Track", filePath);
 
             final int expectedValue;
             if (value == null) {
-                expectedValue = -1;
+                expectedValue = Integer.MIN_VALUE;
             } else {
                 final int trackIndex = value.indexOf('/');
 
                 if (trackIndex == -1) {
-                    expectedValue = -1;
+                    expectedValue = Integer.MIN_VALUE;
                 } else {
                     expectedValue = Integer.parseInt(value.substring(trackIndex + 1));
                 }
@@ -579,13 +513,13 @@ public final class MusicTest {
     public void testTrackMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String value = getValueFromList(filePath, AbstractMusic.RESPONSE_TRACK);
+            final String value = getValue(filePath, AbstractMusic.RESPONSE_TRACK);
             final Music music = mMusicList.get(filePath);
-            final String msg = getMatchMsg("Track", filePath);
+            final String msg = TestTools.getMatchMsg("Track", filePath);
 
             final int expectedValue;
             if (value == null) {
-                expectedValue = -1;
+                expectedValue = Integer.MIN_VALUE;
             } else {
                 final int trackIndex = value.indexOf('/');
 
@@ -606,7 +540,7 @@ public final class MusicTest {
             final String filePath = entry.getKey();
             final Music music = mMusicList.get(filePath);
             final String expectedValue = getURIFragment(filePath);
-            final String msg = getMatchMsg("URIFragment", filePath);
+            final String msg = TestTools.getMatchMsg("URIFragment", filePath);
 
             assertEquals(msg, expectedValue, music.getURIFragment());
         }

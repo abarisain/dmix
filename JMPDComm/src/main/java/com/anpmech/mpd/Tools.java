@@ -274,6 +274,16 @@ public final class Tools {
     }
 
     /**
+     * Checks the {@link String} for nullity or emptiness.
+     *
+     * @param toCheck The string to analyze.
+     * @return {@code true} if null or empty, {@code false} otherwise.
+     */
+    public static boolean isEmpty(final String toCheck) {
+        return toCheck == null || toCheck.isEmpty();
+    }
+
+    /**
      * This method iterates through a 3 dimensional array to check each two element inner array for
      * equality of it's inner objects with the isNotEqual(object, object) method.
      *

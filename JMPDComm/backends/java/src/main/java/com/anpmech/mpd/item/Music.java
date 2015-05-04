@@ -38,11 +38,7 @@ public class Music extends AbstractMusic<Music> {
         super(music);
     }
 
-    protected Music(final String album, final String albumArtist, final String artist,
-            final String composer, final long date, final int disc, final String fullPath,
-            final String genre, final String name, final int songId, final int songPos,
-            final long time, final String title, final int totalTracks, final int track) {
-        super(album, albumArtist, artist, composer, date, disc, fullPath, genre, name, songId,
-                songPos, time, title, totalTracks, track);
+    public Music(final String response) {
+        super(response);
     }
 }

@@ -55,12 +55,8 @@ public class Music extends AbstractMusic<Music> {
         super(music);
     }
 
-    Music(final String album, final String albumArtist, final String artist, final String composer,
-            final long date, final int disc, final String fullPath, final String genre,
-            final String name, final int songId, final int songPos, final long time,
-            final String title, final int totalTracks, final int track) {
-        super(album, albumArtist, artist, composer, date, disc, fullPath, genre, name, songId,
-                songPos, time, title, totalTracks, track);
+    public Music(final String response) {
+        super(response);
     }
 
     /**
@@ -70,9 +66,7 @@ public class Music extends AbstractMusic<Music> {
      * @param in The {@link Parcel} that contains our object
      */
     protected Music(final Parcel in) {
-        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(),
-                in.readInt(), in.readString(), in.readString(), in.readString(), in.readInt(),
-                in.readInt(), in.readLong(), in.readString(), in.readInt(), in.readInt());
+        super(in.readString());
     }
 
     /**
@@ -85,36 +79,22 @@ public class Music extends AbstractMusic<Music> {
     public void getMediaMetadata(final MediaMetadata.Builder metadata) {
         final Album album = getAlbum();
 
-        metadata.putLong(MediaMetadata.METADATA_KEY_DISC_NUMBER, (long) mDisc)
-                .putLong(MediaMetadata.METADATA_KEY_DURATION, mTime)
-                .putLong(MediaMetadata.METADATA_KEY_NUM_TRACKS, (long) mTotalTracks)
-                .putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, (long) mTrack)
+        metadata.putLong(MediaMetadata.METADATA_KEY_DISC_NUMBER, (long) getDisc())
+                .putLong(MediaMetadata.METADATA_KEY_DURATION, getTime())
+                .putLong(MediaMetadata.METADATA_KEY_NUM_TRACKS, (long) getTotalTracks())
+                .putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, (long) getTrack())
                 .putLong(MediaMetadata.METADATA_KEY_YEAR, album.getDate())
                 .putString(MediaMetadata.METADATA_KEY_ALBUM, album.getName())
-                .putString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST, mAlbumArtistName)
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, mArtistName)
-                .putString(MediaMetadata.METADATA_KEY_COMPOSER, mComposerName)
-                .putString(MediaMetadata.METADATA_KEY_DATE, Long.toString(mDate))
-                .putString(MediaMetadata.METADATA_KEY_GENRE, mGenreName)
-                .putString(MediaMetadata.METADATA_KEY_TITLE, mTitle);
+                .putString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST, getAlbumArtistName())
+                .putString(MediaMetadata.METADATA_KEY_ARTIST, getArtistName())
+                .putString(MediaMetadata.METADATA_KEY_COMPOSER, getComposerName())
+                .putString(MediaMetadata.METADATA_KEY_DATE, Long.toString(getDate()))
+                .putString(MediaMetadata.METADATA_KEY_GENRE, getGenreName())
+                .putString(MediaMetadata.METADATA_KEY_TITLE, getTitle());
     }
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(mAlbumName);
-        dest.writeString(mAlbumArtistName);
-        dest.writeString(mArtistName);
-        dest.writeString(mComposerName);
-        dest.writeLong(mDate);
-        dest.writeInt(mDisc);
-        dest.writeString(mFullPath);
-        dest.writeString(mGenreName);
-        dest.writeString(mName);
-        dest.writeInt(mSongId);
-        dest.writeInt(mSongPos);
-        dest.writeLong(mTime);
-        dest.writeString(mTitle);
-        dest.writeInt(mTotalTracks);
-        dest.writeInt(mTrack);
+        dest.writeString(mResponse);
     }
 }

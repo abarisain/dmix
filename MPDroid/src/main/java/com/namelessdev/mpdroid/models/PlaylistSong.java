@@ -16,12 +16,12 @@
 
 package com.namelessdev.mpdroid.models;
 
+import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.item.Music;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static android.text.TextUtils.isEmpty;
 import static android.text.TextUtils.join;
 
 public class PlaylistSong extends AbstractPlaylistMusic {
@@ -38,10 +38,10 @@ public class PlaylistSong extends AbstractPlaylistMusic {
     @Override
     public String getPlaylistSubLine() {
         final Collection<String> subLineTexts = new ArrayList<>();
-        if (!isEmpty(getArtistName())) {
+        if (!Tools.isEmpty(getArtistName())) {
             subLineTexts.add(getArtistName());
         }
-        if (!isEmpty(getAlbumName())) {
+        if (!Tools.isEmpty(getAlbumName())) {
             subLineTexts.add(getAlbumName());
         }
         return join(" - ", subLineTexts);
