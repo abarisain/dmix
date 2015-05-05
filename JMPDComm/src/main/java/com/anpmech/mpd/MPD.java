@@ -1342,9 +1342,9 @@ public class MPD {
         final AlbumBuilder albumBuilder = new AlbumBuilder();
         final String albumResponse = Music.RESPONSE_ALBUM;
         final String artistResponse;
-        final List<String> response =
-                mConnection.send(listAllAlbumsGroupedCommand(useAlbumArtist));
-        final List<Album> result = new ArrayList<>(response.size() / 2);
+        final CommandResponse response =
+                mConnection.submit(listAllAlbumsGroupedCommand(useAlbumArtist)).get();
+        final List<Album> result = new ArrayList<>();
         String currentAlbum = null;
 
         if (useAlbumArtist) {
@@ -1353,24 +1353,23 @@ public class MPD {
             artistResponse = Music.RESPONSE_ARTIST;
         }
 
-        for (final String[] pair : Tools.splitResponse(response)) {
-
-            if (artistResponse.equals(pair[KEY])) {
+        for (final Map.Entry<String, String> entry : response.splitListIterator()) {
+            if (artistResponse.equals(entry.getKey())) {
                 if (currentAlbum != null) {
-                    albumBuilder.setBase(currentAlbum, pair[VALUE], useAlbumArtist);
+                    albumBuilder.setBase(currentAlbum, entry.getValue(), useAlbumArtist);
                     result.add(albumBuilder.build());
 
                     currentAlbum = null;
                 }
-            } else if (albumResponse.equals(pair[KEY])) {
+            } else if (albumResponse.equals(entry.getKey())) {
                 if (currentAlbum != null) {
                     albumBuilder.setName(currentAlbum);
                     /** There was no artist in this response, add the album alone */
                     result.add(albumBuilder.build());
                 }
 
-                if (!pair[VALUE].isEmpty() || includeUnknownAlbum) {
-                    currentAlbum = pair[VALUE];
+                if (!entry.getValue().isEmpty() || includeUnknownAlbum) {
+                    currentAlbum = entry.getValue();
                 } else {
                     currentAlbum = null;
                 }
