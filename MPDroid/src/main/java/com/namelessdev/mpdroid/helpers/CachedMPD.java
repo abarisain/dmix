@@ -216,26 +216,4 @@ public class CachedMPD extends MPD {
             throws IOException, MPDException {
         return new ArrayList(mCache.getAlbums(artist, useAlbumArtist));
     }
-
-    /**
-     * List all album artist or artist names of all given albums from database.
-     *
-     * @param albums         List of Album objects to get Artists or Album Artists from.
-     * @param useAlbumArtist If true use album artist, false otherwise.
-     * @return list of arrays of artist names for each album.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    @Override
-    public List<List<String>> listArtists(final List<Album> albums, final boolean useAlbumArtist)
-            throws IOException, MPDException {
-        final List<List<String>> artists = new ArrayList<>(albums.size());
-
-        for (final Album album : albums) {
-            final List<String> aba = mCache.getArtistsByAlbum(album.getName(), useAlbumArtist);
-            artists.add(aba);
-        }
-
-        return artists;
-    }
 }

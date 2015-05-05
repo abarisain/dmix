@@ -543,27 +543,6 @@ public abstract class MPDConnection implements MPDConnectionListener {
     }
 
     /**
-     * Sends the commands (with separated results) which were {@code add}ed to the queue.
-     *
-     * @param commandQueue The CommandQueue to send.
-     * @return The results of from the media server.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     * @deprecated Use {@link #submitSeparated(CommandQueue)}
-     */
-    @Deprecated
-    public List<List<String>> sendSeparated(final CommandQueue commandQueue)
-            throws IOException, MPDException {
-        final List<List<String>> lists = new ArrayList<>();
-
-        for (final CommandResponse response : submitSeparated(commandQueue).get()) {
-            lists.add(response.getList());
-        }
-
-        return lists;
-    }
-
-    /**
      * Sets the default password for this connection.
      *
      * @param password The main password for this connection.

@@ -1409,47 +1409,6 @@ public class MPD {
     }
 
     /**
-     * List all album artist or artist names of all given albums from database.
-     *
-     * @param albums         The albums to list the artists from.
-     * @param useAlbumArtist True to list the album artists from each album given in the {@code
-     *                       albums} parameter, false to list the artist.
-     * @return list of array of artist names for each album.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public List<List<String>> listArtists(final List<Album> albums, final boolean useAlbumArtist)
-            throws IOException, MPDException {
-        final List<List<String>> responses = listArtistsCommand(albums, useAlbumArtist);
-        final List<List<String>> result = new ArrayList<>(responses.size());
-        final int artistLength;
-        List<String> albumResult = Collections.emptyList();
-
-        if (useAlbumArtist) {
-            artistLength = Music.RESPONSE_ALBUM_ARTIST.length() + 2;
-        } else {
-            artistLength = Music.RESPONSE_ARTIST.length() + 2;
-        }
-
-        for (final List<String> response : responses) {
-            albumResult.clear();
-
-            for (final String album : response) {
-                final String name = album.substring(artistLength);
-
-                /** Give the array list an approximate size. */
-                albumResult = new ArrayList<>(album.length() * response.size());
-
-                albumResult.add(name);
-            }
-
-            result.add(albumResult);
-        }
-
-        return result;
-    }
-
-    /**
      * List all artist names from database.
      *
      * @param genre The genre to list artists from.
@@ -1462,34 +1421,6 @@ public class MPD {
                 Music.TAG_ARTIST, Music.TAG_GENRE, genre.getName()).get();
 
         return response.getValues(Music.RESPONSE_ARTIST);
-    }
-
-    private List<List<String>> listArtistsCommand(final Iterable<Album> albums,
-            final boolean useAlbumArtist) throws IOException, MPDException {
-        final CommandQueue commandQueue = new CommandQueue();
-
-        for (final Album album : albums) {
-            final Artist artist = album.getArtist();
-
-            // When adding album artist to existing artist check that the artist matches
-            if (useAlbumArtist && artist != null && !artist.isUnknown()) {
-                commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM_ARTIST,
-                        Music.TAG_ALBUM, album.getName(),
-                        Music.TAG_ARTIST, artist.getName());
-            } else {
-                final String artistCommand;
-                if (useAlbumArtist) {
-                    artistCommand = Music.TAG_ALBUM_ARTIST;
-                } else {
-                    artistCommand = Music.TAG_ARTIST;
-                }
-
-                commandQueue.add(MPDCommand.MPD_CMD_LIST_TAG, artistCommand,
-                        Music.TAG_ALBUM, album.getName());
-            }
-        }
-
-        return mConnection.sendSeparated(commandQueue);
     }
 
     /**
