@@ -28,6 +28,7 @@
 package com.anpmech.mpd;
 
 import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.commandresponse.SplitCommandResponse;
 import com.anpmech.mpd.concurrent.MPDFuture;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
@@ -60,6 +61,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import static com.anpmech.mpd.Tools.KEY;
 import static com.anpmech.mpd.Tools.VALUE;
@@ -424,45 +426,45 @@ public class MPD {
         add(commandQueue, replace, play);
     }
 
-    protected void addAlbumDetails(final List<Album> albums)
-            throws IOException, MPDException {
+    protected void addAlbumDetails(final List<Album> albums) throws IOException, MPDException {
         final CommandQueue commandQueue = new CommandQueue(albums.size());
         for (final Album album : albums) {
             commandQueue.add(getAlbumDetailsCommand(album));
         }
-        final List<List<String>> response = mConnection.sendSeparated(commandQueue);
 
-        if (response.size() == albums.size()) {
-            final AlbumBuilder albumBuilder = new AlbumBuilder();
+        final SplitCommandResponse responses = mConnection.submitSeparated(commandQueue).get();
 
-            for (int i = 0; i < response.size(); i++) {
-                final List<String> list = response.get(i);
-                final Album album = albums.get(i);
-                long duration = 0L;
-                long songCount = 0L;
+        final AlbumBuilder albumBuilder = new AlbumBuilder();
+        int i = 0;
+        for (final CommandResponse response : responses) {
+            final ListIterator<Map.Entry<String, String>> list = response.splitListIterator();
+            final Album album = albums.get(i);
 
-                albumBuilder.setAlbum(albums.get(i));
+            albumBuilder.setAlbum(albums.get(i));
 
-                /** First, extract the album specifics from the response. */
-                for (final String[] pair : Tools.splitResponse(list)) {
-                    if ("songs".equals(pair[KEY])) {
-                        songCount = Long.parseLong(pair[VALUE]);
-                    } else if ("playtime".equals(pair[KEY])) {
-                        duration = Long.parseLong(pair[VALUE]);
-                    }
+            /** First, extract the album specifics from the response. */
+            for (final Map.Entry<String, String> entry : response.splitListIterator()) {
+                switch (entry.getKey()) {
+                    case "songs":
+                        albumBuilder.setSongCount(Long.parseLong(entry.getValue()));
+                        break;
+                    case "playtime":
+                        albumBuilder.setDuration(Long.parseLong(entry.getValue()));
+                        break;
+                    default:
+                        break;
                 }
-
-                albumBuilder.setAlbumDetails(songCount, duration);
-
-                /** Then extract the date and path from a song of the album. */
-                final List<Music> songs = getFirstTrack(album);
-
-                if (!songs.isEmpty()) {
-                    albumBuilder.setSongDetails(songs.get(0).getDate(),
-                            songs.get(0).getParentDirectory());
-                }
-                albums.set(i, albumBuilder.build());
             }
+
+            /** Then extract the date and path from a song of the album. */
+            final List<Music> songs = getFirstTrack(album);
+
+            if (!songs.isEmpty()) {
+                albumBuilder.setSongDetails(songs.get(0).getDate(),
+                        songs.get(0).getParentDirectory());
+            }
+            albums.set(i, albumBuilder.build());
+            i++;
         }
     }
 
