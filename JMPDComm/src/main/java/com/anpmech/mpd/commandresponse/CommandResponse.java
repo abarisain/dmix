@@ -204,7 +204,7 @@ public class CommandResponse extends CommandResult implements Iterable<String> {
      * @return A iterator to return the response, line by line.
      * @see #getList()
      */
-    public ListIterator<String> listIterator() {
+    public ResponseIterator listIterator() {
         return new ResponseIterator(mResult, 0);
     }
 
@@ -238,7 +238,7 @@ public class CommandResponse extends CommandResult implements Iterable<String> {
      * @return A iterator to return key/value pairs.
      * @see #getSplitList()
      */
-    public ListIterator<Map.Entry<String, String>> splitListIterator() {
+    public ResponseSplitIterator splitListIterator() {
         return new ResponseSplitIterator(mResult, 0);
     }
 
@@ -260,7 +260,7 @@ public class CommandResponse extends CommandResult implements Iterable<String> {
     /**
      * This class instantiates an {@link Iterator} to iterate over the MPD command response.
      */
-    private static class ResponseIterator extends AbstractResultIterator<String> {
+    public static final class ResponseIterator extends AbstractResultIterator<String> {
 
         /**
          * Sole constructor.
@@ -269,7 +269,7 @@ public class CommandResponse extends CommandResult implements Iterable<String> {
          * @param position The position relative to the response to initiate the
          *                 {@link CommandResult.AbstractResultIterator#mPosition} to.
          */
-        ResponseIterator(final String response, final int position) {
+        private ResponseIterator(final String response, final int position) {
             super(response, position);
         }
 
@@ -312,7 +312,7 @@ public class CommandResponse extends CommandResult implements Iterable<String> {
      * This class instantiates an {@link Iterator} to iterate over a key:value MPD command
      * response.
      */
-    private static class ResponseSplitIterator
+    public static final class ResponseSplitIterator
             extends AbstractResultIterator<Map.Entry<String, String>> {
 
         /**
@@ -322,7 +322,7 @@ public class CommandResponse extends CommandResult implements Iterable<String> {
          * @param position The position relative to the response to initiate the
          *                 {@link AbstractResultIterator#mPosition} to.
          */
-        ResponseSplitIterator(final String response, final int position) {
+        private ResponseSplitIterator(final String response, final int position) {
             super(response, position);
         }
 
@@ -366,7 +366,7 @@ public class CommandResponse extends CommandResult implements Iterable<String> {
     /**
      * This creates a simple map entry for key:value entries.
      */
-    public static final class SimplerImmutableEntry implements Map.Entry<String, String> {
+    private static final class SimplerImmutableEntry implements Map.Entry<String, String> {
 
         /**
          * The MPD protocol [KEY]:[VALUE] delimiter.

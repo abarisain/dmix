@@ -181,7 +181,8 @@ public class CommandResult {
      *
      * @param <T> The type to iterate over.
      */
-    protected abstract static class AbstractResultIterator<T> implements ListIterator<T> {
+    protected abstract static class AbstractResultIterator<T> implements ListIterator<T>,
+            Iterable<T> {
 
         /**
          * The error given if no more elements remain for this iterator instance.
@@ -321,6 +322,16 @@ public class CommandResult {
         private void invalidateCache() {
             mNextIndexCache = Integer.MIN_VALUE;
             mPreviousIndexCache = Integer.MIN_VALUE;
+        }
+
+        /**
+         * Returns an {@link Iterator} for the elements in this object.
+         *
+         * @return An {@code Iterator} instance.
+         */
+        @Override
+        public Iterator<T> iterator() {
+            return this;
         }
 
         /**
