@@ -31,6 +31,7 @@ import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.SplitCommandResponse;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -163,6 +164,16 @@ public class CommandResult {
      */
     public boolean isHeaderValid() {
         return mConnectionResult != null;
+    }
+
+    @Override
+    public String toString() {
+        return "CommandResult{" +
+                "mConnectionResult='" + mConnectionResult + '\'' +
+                ", mExcludeResponses=" + Arrays.toString(mExcludeResponses) +
+                ", mResult='" + mResult + '\'' +
+                ", mListSize=" + mListSize +
+                '}';
     }
 
     /**
