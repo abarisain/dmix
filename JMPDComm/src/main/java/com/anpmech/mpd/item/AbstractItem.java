@@ -32,6 +32,7 @@ import java.text.Collator;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
@@ -215,7 +216,7 @@ abstract class AbstractItem<T extends AbstractItem<T>> implements Comparable<T> 
         String name = sortName();
 
         if (name != null) {
-            name = name.toLowerCase();
+            name = name.toLowerCase(Locale.getDefault());
         }
 
         return name;
