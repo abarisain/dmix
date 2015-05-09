@@ -1,3 +1,5 @@
+import java.awt.HeadlessException
+
 /*
  * Copyright (C) 2004 Felipe Gustavo de Almeida
  * Copyright (C) 2010-2015 The MPDroid Project
@@ -33,11 +35,17 @@ repositories {
     mavenCentral()
 }
 
+final def shortHash() {
+    "git rev-parse --short HEAD".execute().text.trim()
+}
+
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
     defaultConfig {
+        versionCode Integer.parseInt("git rev-list HEAD --count".execute().text.trim())
+        versionName shortHash()
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -53,37 +61,38 @@ android {
     sourceSets {
         main {
             java {
-                srcDirs = ['../../src/main/java', 'src/main/java']
+                srcDirs '../../src/main/java', 'src/main/java'
             }
             resources {
-                srcDirs = ['../../src/main/resources']
+                srcDirs '../../src/main/resources'
             }
         }
 
         test {
             java {
-                srcDirs = ['../../src/test/java']
+                srcDirs '../../src/test/java'
             }
 
             resources {
-                srcDirs = ['../../src/test/resources']
+                srcDirs '../../src/test/resources'
             }
         }
     }
 
-    libraryVariants.all { variant ->
+    libraryVariants.all { final variant ->
 
         task("${variant.name}Javadoc", type: Javadoc) {
-            title = "$name Android WIP"
+            title = "$name Android WIP " + shortHash()
             description "Generates Javadoc for $variant.name."
+            group "documentation"
             source = variant.javaCompile.source
             ext.androidJar = "${android.sdkDirectory}" +
                     "/platforms/${android.compileSdkVersion}/android.jar"
             classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
 
             gradle.taskGraph.addTaskExecutionListener new BrowseJavadoc(
-                    Task: "${variant.name}Javadoc",
-                    IndexFile: file("${destinationDir}/index.html"))
+                    mTask: "${variant.name}Javadoc",
+                    mIndexFile: file("${destinationDir}/index.html"))
 
             options {
                 author = true
@@ -112,9 +121,9 @@ dependencies {
 
 class BrowseJavadoc implements TaskExecutionListener {
 
-    String Task
+    String mTask
 
-    File IndexFile
+    File mIndexFile
 
     @Override
     void beforeExecute(final Task task) {
@@ -122,13 +131,13 @@ class BrowseJavadoc implements TaskExecutionListener {
 
     @Override
     void afterExecute(final Task task, final TaskState taskState) {
-        if (taskState.executed && !taskState.failure && task.name.equals(Task)) {
-            println "Javadoc built: " + IndexFile
+        if (taskState.executed && !taskState.failure && task.name.equals(mTask)) {
+            println "Javadoc built: " + mIndexFile
+            final def Class desktop = getClass().classLoader.loadClass("java.awt.Desktop")
 
             try {
-                def desktop = getClass().classLoader.loadClass("java.awt.Desktop").newInstance()
-                desktop.browse(IndexFile.toURI())
-            } catch (final java.awt.HeadlessException ignored) {
+                desktop.newInstance().browse(mIndexFile.toURI())
+            } catch (final HeadlessException ignored) {
             }
         }
     }

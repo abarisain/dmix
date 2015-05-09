@@ -1,3 +1,5 @@
+import java.awt.HeadlessException
+
 /*
  * Copyright (C) 2010-2015 The MPDroid Project
  *
@@ -14,7 +16,8 @@
  * limitations under the License.
  */
 
-
+apply plugin: 'com.android.application'
+apply plugin: 'crashlytics'
 
 buildscript {
     repositories {
@@ -26,16 +29,13 @@ buildscript {
     }
 }
 
-apply plugin: 'com.android.application'
-apply plugin: 'crashlytics'
-
 repositories {
     mavenCentral()
     maven { url 'http://download.crashlytics.com/maven' }
 }
 
 def gitShortHash() {
-    return "git rev-parse --short HEAD".execute().text.replace("\n", "")
+    return "git rev-parse --short HEAD".execute().text.trim()
 }
 
 android {
@@ -77,11 +77,12 @@ android {
         }
     }
 
-    applicationVariants.all { variant ->
+    applicationVariants.all { final variant ->
 
         task("${variant.name}Javadoc", type: Javadoc) {
             title = "$name $versionName"
             description "Generates Javadoc for $variant.name."
+            group "documentation"
             source = variant.javaCompile.source
             ext.androidJar =
                     "${android.sdkDirectory}" +
@@ -89,8 +90,8 @@ android {
             classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
 
             gradle.taskGraph.addTaskExecutionListener new BrowseJavadoc(
-                    Task: "${variant.name}Javadoc",
-                    IndexFile: file("${destinationDir}/index.html"))
+                    mTask: "${variant.name}Javadoc",
+                    mIndexFile: file("${destinationDir}/index.html"))
 
             dependsOn = [':JMPDCommAndroid:debugJavadoc'];
 
@@ -116,10 +117,10 @@ android {
 
 dependencies {
     // Support Libraries
-    compile 'com.android.support:support-v4:22.1.1'
-    compile 'com.android.support:palette-v7:22.1.1'
-    compile 'com.android.support:appcompat-v7:22.1.1'
-    compile 'com.android.support:cardview-v7:22.1.1'
+    compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.android.support:palette-v7:22.2.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:cardview-v7:22.2.0'
     // Projects
     compile project(':JMPDCommAndroid')
     // Libraries from maven
@@ -131,9 +132,9 @@ dependencies {
 
 class BrowseJavadoc implements TaskExecutionListener {
 
-    String Task
+    String mTask
 
-    File IndexFile
+    File mIndexFile
 
     @Override
     void beforeExecute(final Task task) {
@@ -141,14 +142,13 @@ class BrowseJavadoc implements TaskExecutionListener {
 
     @Override
     void afterExecute(final Task task, final TaskState taskState) {
-        if (taskState.executed && !taskState.failure && task.name.equals(Task)) {
-            println "Javadoc built: " + IndexFile
+        if (taskState.executed && !taskState.failure && task.name.equals(mTask)) {
+            println "Javadoc built: " + mIndexFile
+            final def Class desktop = getClass().classLoader.loadClass("java.awt.Desktop")
 
             try {
-                final def desktop = getClass().classLoader.loadClass("java.awt.Desktop")
-                        .newInstance()
-                desktop.browse(IndexFile.toURI())
-            } catch (final java.awt.HeadlessException ignored) {
+                desktop.newInstance().browse(mIndexFile.toURI())
+            } catch (final HeadlessException ignored) {
             }
         }
     }

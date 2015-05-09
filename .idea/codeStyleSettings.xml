@@ -75,6 +75,13 @@
             </value>
           </option>
         </AndroidXmlCodeStyleSettings>
+        <GroovyCodeStyleSettings>
+          <option name="PACKAGES_TO_USE_IMPORT_ON_DEMAND">
+            <value>
+              <package name="javax.swing" withSubpackages="false" static="false" />
+            </value>
+          </option>
+        </GroovyCodeStyleSettings>
         <XML>
           <option name="XML_KEEP_LINE_BREAKS" value="false" />
           <option name="XML_ALIGN_ATTRIBUTES" value="false" />
