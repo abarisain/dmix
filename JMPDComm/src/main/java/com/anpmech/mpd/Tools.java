@@ -54,6 +54,11 @@ public final class Tools {
     public static final int VALUE = 1;
 
     /**
+     * The generic fragment of the error message strings.
+     */
+    private static final String PARSE_ERROR = "Failed to parse as a ";
+
+    /**
      * The class log identifier.
      */
     private static final String TAG = "Tools";
@@ -99,6 +104,34 @@ public final class Tools {
         } else {
             return a.equals(b);
         }
+    }
+
+    /**
+     * Finds the {@code value} associated with a {@code key} in a {@code response}.
+     *
+     * @param response The response to search for the {@code key} key parameter.
+     * @param key      The {@code key} to extract the {@code value} from.
+     * @return The value associated with the {@code key} parameter in the {@code response}.
+     */
+    public static String findValue(final String response, final String key) {
+        final int keyIndex = response.indexOf(key + ": ");
+        String value = null;
+
+        if (keyIndex != -1) {
+            final int valueIndex = keyIndex + key.length() + 2;
+            final int valueEndIndex = response.indexOf('\n', valueIndex);
+
+            if (valueEndIndex == -1) {
+                /**
+                 * The remainder of the response.
+                 */
+                value = response.substring(valueIndex, response.length());
+            } else {
+                value = response.substring(valueIndex, valueEndIndex);
+            }
+        }
+
+        return value;
     }
 
     /**
@@ -323,6 +356,108 @@ public final class Tools {
         }
 
         return result;
+    }
+
+    /**
+     * This method parses the {@code value} parameter for an primitive {@code float} and returns a
+     * default value upon error or {@code null} input.
+     *
+     * @param value The value to parse.
+     * @return The value as a primitive {@code float}, {@code defaultValue} if the value cannot be
+     * converted.
+     */
+    public static float parseFloat(final String value) {
+        float result;
+
+        if (value == null || value.isEmpty()) {
+            result = Float.MIN_VALUE;
+        } else {
+            try {
+                result = Float.parseFloat(value);
+            } catch (final NumberFormatException ignored) {
+                Log.error(TAG, PARSE_ERROR + "float: " + value);
+                result = Float.MIN_VALUE;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * This method parses the value parameter for an primitive {@code int} and returns a default
+     * value upon error or {@code null} input.
+     *
+     * @param value The value to parse.
+     * @return The value as a primitive {@code int}, {@link Integer#MIN_VALUE} if the value is not
+     * an {@code int}.
+     */
+    public static int parseInteger(final String value) {
+        return parseInteger(value, Integer.MIN_VALUE);
+    }
+
+    /**
+     * This method parses the value parameter for an primitive int and returns a default value upon
+     * error or null input.
+     *
+     * @param value        The value to parse.
+     * @param defaultValue The value to return if the value parameter cannot be converted to an
+     *                     int.
+     * @return The value as a primitive int, {@code defaultValue} if the value cannot be converted.
+     */
+    public static int parseInteger(final String value, final int defaultValue) {
+        int result;
+
+        if (value == null || value.isEmpty()) {
+            result = defaultValue;
+        } else {
+            try {
+                result = Integer.parseInt(value);
+            } catch (final NumberFormatException ignored) {
+                Log.error(TAG, PARSE_ERROR + "integer: " + value);
+                result = defaultValue;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * This method parses the {@code value} parameter for an primitive {@code long} and returns a
+     * default value upon error or {@code null} input.
+     *
+     * @param value        The value to parse.
+     * @param defaultValue The value to return if the value parameter cannot be converted to a
+     *                     {@code long}.
+     * @return The value as a primitive {@code long}, {@code defaultValue} if the value cannot be
+     * converted.
+     */
+    public static long parseLong(final String value, final long defaultValue) {
+        long result;
+
+        if (value == null || value.isEmpty()) {
+            result = defaultValue;
+        } else {
+            try {
+                result = Long.parseLong(value);
+            } catch (final NumberFormatException ignored) {
+                Log.error(TAG, PARSE_ERROR + "long: " + value);
+                result = defaultValue;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * This method parses the value parameter for an primitive {@code long} and returns a default
+     * value upon error or null input.
+     *
+     * @param value The value to parse.
+     * @return The value as a primitive {@code long}, {@link Long#MIN_VALUE} if the value is not
+     * long.
+     */
+    public static long parseLong(final String value) {
+        return parseLong(value, Long.MIN_VALUE);
     }
 
     /**

@@ -27,7 +27,7 @@
 
 package com.anpmech.mpd.subsystem.status;
 
-import com.anpmech.mpd.Log;
+import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.commandresponse.CommandResponse;
 
 import java.util.HashMap;
@@ -67,11 +67,6 @@ class ResponseMap {
      * This is the value given if there was no String value assigned to the given key in the map.
      */
     protected static final String STRING_DEFAULT = null;
-
-    /**
-     * The generic fragment of the error message strings.
-     */
-    private static final String PARSE_ERROR = "Failed to parse as a ";
 
     /**
      * The log class identifier.
@@ -128,110 +123,6 @@ class ResponseMap {
 
         //noinspection AssignmentToCollectionOrArrayFieldFromParameter
         mResponseMap = map;
-    }
-
-    /**
-     * This method parses the {@code value} parameter for an primitive {@code float} and returns a
-     * default value upon error or {@code null} input.
-     *
-     * @param value        The value to parse.
-     * @param defaultValue The value to return if the value parameter cannot be converted to a
-     *                     {@code float}.
-     * @return The value as a primitive {@code float}, {@code defaultValue} if the value cannot be
-     * converted.
-     */
-    private static float parseFloat(final String value, final float defaultValue) {
-        float result;
-
-        if (value == null || value.isEmpty()) {
-            result = defaultValue;
-        } else {
-            try {
-                result = Float.parseFloat(value);
-            } catch (final NumberFormatException ignored) {
-                Log.error(TAG, PARSE_ERROR + "float: " + value);
-                result = defaultValue;
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * This method parses the value parameter for an primitive {@code int} and returns a default
-     * value upon error or {@code null} input.
-     *
-     * @param value The value to parse.
-     * @return The value as a primitive {@code int}, {@link #INTEGER_DEFAULT} if the value is not an
-     * {@code int}.
-     */
-    protected static int parseInteger(final String value) {
-        return parseInteger(value, INTEGER_DEFAULT);
-    }
-
-    /**
-     * This method parses the value parameter for an primitive int and returns a default value upon
-     * error or null input.
-     *
-     * @param value        The value to parse.
-     * @param defaultValue The value to return if the value parameter cannot be converted to an
-     *                     int.
-     * @return The value as a primitive int, {@code defaultValue} if the value cannot be converted.
-     */
-    private static int parseInteger(final String value, final int defaultValue) {
-        int result;
-
-        if (value == null || value.isEmpty()) {
-            result = defaultValue;
-        } else {
-            try {
-                result = Integer.parseInt(value);
-            } catch (final NumberFormatException ignored) {
-                Log.error(TAG, PARSE_ERROR + "integer: " + value);
-                result = defaultValue;
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * This method parses the {@code value} parameter for an primitive {@code long} and returns a
-     * default value upon error or {@code null} input.
-     *
-     * @param value        The value to parse.
-     * @param defaultValue The value to return if the value parameter cannot be converted to a
-     *                     {@code long}.
-     * @return The value as a primitive {@code long}, {@code defaultValue} if the value cannot be
-     * converted.
-     */
-    private static long parseLong(final String value, final long defaultValue) {
-        long result;
-
-        if (value == null || value.isEmpty()) {
-            result = defaultValue;
-        } else {
-            try {
-                result = Long.parseLong(value);
-            } catch (final NumberFormatException ignored) {
-                Log.error(TAG, PARSE_ERROR + "long: " + value);
-                result = defaultValue;
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * This method parses the value parameter for an primitive {@code long} and returns a default
-     * value upon error or null input.
-     *
-     * @param value The value to parse.
-     * @return The value as a primitive {@code long}, {@link #LONG_DEFAULT} if the value is not
-     * long.
-     */
-    protected static long parseLong(final String value) {
-        return parseLong(value, LONG_DEFAULT);
     }
 
     /**
@@ -298,21 +189,7 @@ class ResponseMap {
      * conversion failed.
      */
     protected float parseMapFloat(final CharSequence key) {
-        return parseFloat(getMapValue(key), FLOAT_DEFAULT);
-    }
-
-    /**
-     * This method retrieves the value assigned to the {@code key} parameter from the map and
-     * converts it to a primitive {@code float}.
-     *
-     * @param key          The key to the value to retrieve.
-     * @param defaultValue The value to return if the value assigned to the key parameter cannot be
-     *                     converted to an {@code float}.
-     * @return The value assigned to the key as a {@code float}, or {@code defaultValue} if the
-     * conversion failed.
-     */
-    private float parseMapFloat(final CharSequence key, final float defaultValue) {
-        return parseFloat(getMapValue(key), defaultValue);
+        return Tools.parseFloat(getMapValue(key));
     }
 
     /**
@@ -324,21 +201,7 @@ class ResponseMap {
      * conversion failed.
      */
     protected int parseMapInteger(final CharSequence key) {
-        return parseInteger(getMapValue(key));
-    }
-
-    /**
-     * This method retrieves the value assigned to the {@code key} parameter from the map and
-     * converts it to a primitive {@code int}.
-     *
-     * @param key          The key to the value to retrieve.
-     * @param defaultValue The value to return if the value assigned to the key parameter cannot be
-     *                     converted to an {@code int}.
-     * @return The value assigned to the key as a {@code int}, or {@code defaultValue} if the
-     * conversion failed.
-     */
-    private int parseMapInteger(final CharSequence key, final int defaultValue) {
-        return parseInteger(getMapValue(key), defaultValue);
+        return Tools.parseInteger(getMapValue(key));
     }
 
     /**
@@ -350,21 +213,7 @@ class ResponseMap {
      * conversion failed.
      */
     protected long parseMapLong(final CharSequence key) {
-        return parseLong(getMapValue(key));
-    }
-
-    /**
-     * This method retrieves the value assigned to the {@code key} parameter from the map and
-     * converts it to a primitive {@code long}.
-     *
-     * @param key          The key to the value to retrieve.
-     * @param defaultValue The value to return if the value assigned to the key parameter cannot be
-     *                     converted to a {@code long}.
-     * @return The value assigned to the key as a {@code long}, or {@code defaultValue} if the
-     * conversion failed.
-     */
-    private long parseMapLong(final CharSequence key, final long defaultValue) {
-        return parseLong(getMapValue(key), defaultValue);
+        return Tools.parseLong(getMapValue(key));
     }
 
     /**

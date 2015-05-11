@@ -28,6 +28,7 @@
 package com.anpmech.mpd.subsystem.status;
 
 import com.anpmech.mpd.Log;
+import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.concurrent.ResponseFuture;
 import com.anpmech.mpd.connection.MPDConnection;
@@ -330,7 +331,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
             final int delimiterIndex = value.indexOf(':');
             final int secondIndex = value.lastIndexOf(':');
 
-            bitsPerSample = parseInteger(value.substring(delimiterIndex + 1, secondIndex));
+            bitsPerSample = Tools.parseInteger(value.substring(delimiterIndex + 1, secondIndex));
         }
 
         return bitsPerSample;
@@ -349,7 +350,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
         if (value == null) {
             channels = DEFAULT_INTEGER;
         } else {
-            channels = parseInteger(value.substring(value.lastIndexOf(':') + 1));
+            channels = Tools.parseInteger(value.substring(value.lastIndexOf(':') + 1));
         }
 
         return channels;
@@ -387,7 +388,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
         long elapsedTime = DEFAULT_LONG;
 
         if (value != null) {
-            elapsedTime = parseLong(value.substring(0, value.indexOf(':')));
+            elapsedTime = Tools.parseLong(value.substring(0, value.indexOf(':')));
 
             if (isState(STATE_PLAYING)) {
                 /** We can't expect to always update right before this is called. */
@@ -503,7 +504,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
         if (value != null) {
             final int delimiterIndex = value.indexOf(':');
 
-            sampleRate = parseInteger(value.substring(0, delimiterIndex));
+            sampleRate = Tools.parseInteger(value.substring(0, delimiterIndex));
         }
 
         return sampleRate;
@@ -576,7 +577,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
         if (value != null) {
             final int timeIndex = value.indexOf(':');
 
-            result = parseLong(value.substring(timeIndex + 1));
+            result = Tools.parseLong(value.substring(timeIndex + 1));
         }
 
         return result;
