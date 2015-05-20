@@ -16,11 +16,14 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.melnykov.fab.FloatingActionButton;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
@@ -463,8 +466,17 @@ public class SongsFragment extends BrowseFragment<Music> {
                 mApp.getAsyncHelper().execAsync(new Runnable() {
                     @Override
                     public void run() {
+                        final MPD mpd = mApp.getMPD();
+                        final MPDStatus status = mpd.getStatus();
+                        final boolean omitPlay = status.isRandom() &&
+                                status.isState(MPDStatusMap.STATE_PLAYING);
+
+                        if (omitPlay) {
+                            Tools.notifyUser(R.string.notPlayingInRandomMode);
+                        }
+
                         try {
-                            mApp.getMPD().add(mAlbum, false, true);
+                            mpd.add(mAlbum, false, !omitPlay);
                         } catch (final IOException | MPDException e) {
                             Log.e(TAG, "Failed to add album.", e);
                         }
