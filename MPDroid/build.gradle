@@ -126,7 +126,7 @@ dependencies {
     // Libraries from maven
     compile 'asia.ivity.android:drag-sort-listview:1.0'
     compile 'com.melnykov:floatingactionbutton:1.3.0'
-    compile 'com.jpardogo.materialtabstrip:library:1.0.9'
+    compile 'com.jpardogo.materialtabstrip:library:1.1.0'
     closedbitsCompile 'com.crashlytics.android:crashlytics:1.+'
 }
 
