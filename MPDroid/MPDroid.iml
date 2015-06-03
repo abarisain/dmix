@@ -7,9 +7,13 @@
         <option name="SELECTED_TEST_ARTIFACT" value="_unit_test_" />
         <option name="ASSEMBLE_TASK_NAME" value="assembleFossDebug" />
         <option name="COMPILE_JAVA_TASK_NAME" value="compileFossDebugSources" />
-        <option name="SOURCE_GEN_TASK_NAME" value="generateFossDebugSources" />
         <option name="ASSEMBLE_TEST_TASK_NAME" value="assembleFossDebugUnitTest" />
         <option name="COMPILE_JAVA_TEST_TASK_NAME" value="compileFossDebugUnitTestSources" />
+        <afterSyncTasks>
+          <task>generateFossDebugSources</task>
+          <task>mockableAndroidJar</task>
+          <task>prepareFossDebugUnitTestDependencies</task>
+        </afterSyncTasks>
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
         <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
         <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res" />
@@ -24,7 +28,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" inherit-compiler-output="false">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/build/intermediates/classes/foss/debug" />
     <output-test url="file://$MODULE_DIR$/build/intermediates/classes/test/foss/debug" />
     <exclude-output />
