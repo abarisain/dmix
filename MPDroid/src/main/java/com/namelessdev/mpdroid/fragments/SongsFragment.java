@@ -636,6 +636,11 @@ public class SongsFragment extends BrowseFragment<Music> {
                 mCoverArtListener.onCoverNotFound(new CoverInfo(fixedAlbumInfo));
             }
             mFirstRefresh = false;
+
+            // Workaround a kitkat redraw bug, leading to a empty header
+            if (mTracksInfoContainer != null) {
+                mTracksInfoContainer.invalidate();
+            }
         }
     }
 }
