@@ -77,12 +77,16 @@
                 android:text="@string/no_result" />
         </ScrollView>
 
+        <!-- Shitty padding workaround for the collapsable actionbar issue -->
         <com.melnykov.fab.FloatingActionButton
             android:id="@+id/streamAddButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="?attr/streamsFabBottomMargin"
             android:src="@drawable/ic_fab_add"
             fab:fab_colorNormal="@color/fab_color"
             fab:fab_colorPressed="@color/fab_color_pressed"

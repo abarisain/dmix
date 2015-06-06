@@ -32,12 +32,16 @@
         <item name="android:windowContentTransitions">true</item>
         <item name="android:windowAllowEnterTransitionOverlap">true</item>
         <item name="android:windowAllowReturnTransitionOverlap">true</item>
+        <item name="streamsFabBottomMargin">80dp</item>
+        <item name="libraryPagerBottomMargin">0dp</item>
     </style>
 
     <style name="AppThemeBase.Light" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:colorPrimary">@color/actionbar_background_blue</item>
         <item name="android:colorPrimaryDark">@color/statusbar_background_blue</item>
         <item name="android:colorAccent">@color/accent_blue</item>
+        <item name="streamsFabBottomMargin">80dp</item>
+        <item name="libraryPagerBottomMargin">0dp</item>
     </style>
 
 </resources>

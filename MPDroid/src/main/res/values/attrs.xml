@@ -46,6 +46,9 @@
         <attr name="listItemSecondaryTextColor" format="color" />
         <attr name="toolbarPopupTheme" format="reference" />
         <attr name="nowPlayingSongInfoBackground" format="reference" />
+
+        <attr name="streamsFabBottomMargin" format="dimension" />
+        <attr name="libraryPagerBottomMargin" format="dimension" />
     </declare-styleable>
 
 </resources>

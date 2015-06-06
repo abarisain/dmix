@@ -32,9 +32,15 @@
         <item name="background">@drawable/tab_indicator_ab_light</item>
     </style>
 
-    <style name="AppThemeBase" parent="Theme.AppCompat" />
+    <style name="AppThemeBase" parent="Theme.AppCompat">
+        <item name="streamsFabBottomMargin">16dp</item>
+        <item name="libraryPagerBottomMargin">?attr/actionBarSize</item>
+    </style>
 
-    <style name="AppThemeBase.Light" parent="Theme.AppCompat.Light.DarkActionBar" />
+    <style name="AppThemeBase.Light" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="streamsFabBottomMargin">16dp</item>
+        <item name="libraryPagerBottomMargin">?attr/actionBarSize</item>
+    </style>
 
     <style name="AppTheme" parent="@style/AppThemeBase">
         <item name="colorPrimary">@color/nowplaying_background</item>
