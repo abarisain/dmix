@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import com.astuetz.PagerSlidingTabStrip;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.ui.ToolbarHelper;
@@ -25,6 +24,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -81,8 +81,10 @@ public class LibraryFragment extends Fragment {
             }
         });*/
 
-        final PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) view.findViewById(R.id.tabs);
-        tabs.setViewPager(mViewPager);
+        final TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+        tabs.setTabTextColors(getResources().getColor(R.color.library_tab_text_color), getResources().getColor(R.color.library_tab_text_color_selected));
+        tabs.setTabMode(TabLayout.MODE_SCROLLABLE);
+        tabs.setupWithViewPager(mViewPager);
 
         final Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.app_name);

@@ -41,4 +41,6 @@
     <color name="nowplaying_slider_background_color_light">#ffffffff</color>
     <color name="list_item_secondary_text_color">#8affffff</color>
     <color name="list_item_secondary_text_color_light">#8a000000</color>
+    <color name="library_tab_text_color_selected">@android:color/white</color>
+    <color name="library_tab_text_color">#aaffffff</color>
 </resources>
