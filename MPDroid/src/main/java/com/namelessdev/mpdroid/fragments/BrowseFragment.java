@@ -500,6 +500,10 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
         setupStandardToolbar(view);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mList.setNestedScrollingEnabled(true);
+        }
+
         return view;
     }
 
