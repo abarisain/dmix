@@ -135,7 +135,8 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dip"
         android:layout_marginRight="16dip"
-        android:layout_marginTop="5dip">
+        android:layout_marginTop="5dip"
+        android:clipChildren="false">
 
         <TextView
             android:id="@+id/trackTime"
@@ -143,7 +144,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:paddingLeft="10dip"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?attr/nowPlayingPrimaryTextColor"
             android:textSize="12sp" />
@@ -154,7 +154,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:paddingRight="10dip"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?attr/nowPlayingPrimaryTextColor"
             android:textSize="12sp" />
@@ -166,8 +165,6 @@
             android:layout_below="@+id/trackTime"
             android:layout_marginTop="5dip"
             android:max="100"
-            android:paddingLeft="10dip"
-            android:paddingRight="10dip"
             android:progress="0" />
     </RelativeLayout>
 
