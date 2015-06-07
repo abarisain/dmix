@@ -86,7 +86,12 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
             window.setExitTransition(ts);
         }*/
 
-        setContentView(R.layout.activity_now_playing);
+
+        if (mApp.isTabletUiEnabled()) {
+            setContentView(R.layout.activity_now_playing_tablet);
+        } else {
+            setContentView(R.layout.activity_now_playing);
+        }
 
         mIsDualPaneMode = findViewById(R.id.nowplaying_dual_pane) != null;
         mNowPlayingPager = initializeNowPlayingPager();
