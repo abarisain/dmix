@@ -204,29 +204,6 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
     }
 
     @Override
-    public boolean onKeyUp(final int keyCode, @NonNull final KeyEvent event) {
-        boolean result = true;
-
-        if (event.isTracking() && !event.isCanceled() && !mApp.isLocalAudible()) {
-            switch (keyCode) {
-                case KeyEvent.KEYCODE_VOLUME_UP:
-                    MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
-                    break;
-                case KeyEvent.KEYCODE_VOLUME_DOWN:
-                    MPDControl.run(MPDControl.ACTION_VOLUME_STEP_DOWN);
-                    break;
-                default:
-                    result = super.onKeyUp(keyCode, event);
-                    break;
-            }
-        } else {
-            result = super.onKeyUp(keyCode, event);
-        }
-
-        return result;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         final boolean result;
 
