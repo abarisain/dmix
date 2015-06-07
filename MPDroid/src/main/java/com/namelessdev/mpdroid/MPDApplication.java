@@ -54,6 +54,8 @@ public class MPDApplication extends Application implements
 
     public static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
 
+    public static final String INTENT_ACTION_REFRESH = "com.namelessdev.mpdroid.action.ui.refresh";
+
     private static final boolean DEBUG = false;
 
     private static final long DISCONNECT_TIMER = 15000L;

@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.ui;
 
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.SettingsActivity;
 import com.namelessdev.mpdroid.fragments.OutputsFragment;
@@ -26,6 +27,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -142,6 +144,10 @@ public class ToolbarHelper {
                         SimpleLibraryActivity.class);
                 outputIntent.putExtra(OutputsFragment.EXTRA, "1");
                 context.startActivity(outputIntent);
+                return true;
+            case R.id.menu_refresh:
+                LocalBroadcastManager.getInstance(MPDApplication.getInstance()).sendBroadcast(
+                        new Intent(MPDApplication.INTENT_ACTION_REFRESH));
                 return true;
             case R.id.menu_settings:
                 final Intent settingsIntent = new Intent(context,

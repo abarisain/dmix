@@ -86,7 +86,7 @@ public class MPDroidActivities {
         }
 
         @Override
-        public final boolean onKeyUp(final int keyCode, @NonNull final KeyEvent event) {
+        public boolean onKeyUp(final int keyCode, @NonNull final KeyEvent event) {
             boolean result = true;
 
             switch (keyCode) {

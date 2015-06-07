@@ -39,14 +39,18 @@ import com.namelessdev.mpdroid.ui.ToolbarHelper;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -128,6 +132,13 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     };
 
     private final Collection<PlaylistFile> mStoredPlaylists = new ArrayList<>();
+
+    private final BroadcastReceiver mLocalBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            updateList();
+        }
+    };
 
     protected AbsListView mList;
 
@@ -546,6 +557,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     public void onPause() {
         mApp.removeStatusChangeListener(this);
         mApp.getMPD().getConnectionStatus().removeListener(this);
+        LocalBroadcastManager.getInstance(MPDApplication.getInstance()).unregisterReceiver(mLocalBroadcastReceiver);
 
         super.onPause();
     }
@@ -562,6 +574,9 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
         mApp.getMPD().getConnectionStatus().addListener(this);
         mApp.addStatusChangeListener(this);
+        IntentFilter filter = new IntentFilter(MPDApplication.INTENT_ACTION_REFRESH);
+        LocalBroadcastManager.getInstance(MPDApplication.getInstance()).registerReceiver(
+                mLocalBroadcastReceiver, filter);
         checkDatabase();
     }
 
