@@ -16,11 +16,15 @@
 
 package com.namelessdev.mpdroid;
 
+import com.namelessdev.mpdroid.helpers.MPDControl;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 
 public class MPDroidActivities {
 
@@ -61,6 +65,47 @@ public class MPDroidActivities {
         protected void onCreate(final Bundle savedInstanceState) {
             applyTheme(this);
             super.onCreate(savedInstanceState);
+        }
+
+        @Override
+        public boolean onKeyLongPress(final int keyCode, final KeyEvent event) {
+            boolean result = true;
+
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                    MPDControl.run(MPDControl.ACTION_NEXT);
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    MPDControl.run(MPDControl.ACTION_PREVIOUS);
+                    break;
+                default:
+                    result = super.onKeyLongPress(keyCode, event);
+                    break;
+            }
+            return result;
+        }
+
+        @Override
+        public final boolean onKeyUp(final int keyCode, @NonNull final KeyEvent event) {
+            boolean result = true;
+
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    if (event.isTracking() && !event.isCanceled() && !mApp.isLocalAudible()) {
+                        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                            MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
+                        } else {
+                            MPDControl.run(MPDControl.ACTION_VOLUME_STEP_DOWN);
+                        }
+                    }
+                    break;
+                default:
+                    result = super.onKeyUp(keyCode, event);
+                    break;
+            }
+
+            return result;
         }
     }
 
