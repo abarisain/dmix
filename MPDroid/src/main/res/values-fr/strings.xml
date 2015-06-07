@@ -221,7 +221,6 @@
     <string name="share">Partager</string>
     <string name="sharePrefix">Now Playing :</string>
     <string name="enableTabletUI">Utiliser l\'interface pour tablette</string>
-    <string name="enableTabletUIDescription">Redémarrer l\'application pour voir les changements</string>
     <string name="enableInternetCover">Télécharger les pochettes</string>
     <string name="enableInternetCoverDescription">Obtenir les pochettes via divers services (leur envoie les informations sur la chanson courante)</string>
 

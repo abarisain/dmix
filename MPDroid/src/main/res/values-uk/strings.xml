@@ -234,5 +234,4 @@
     <string name="share">Порекомендувати</string>
     <string name="sharePrefix">Зараз вітворюється:</string>
     <string name="enableTabletUI">Використовувати оболонку для планшета</string>
-    <string name="enableTabletUIDescription">Перезапустіть програму, щоб зміни набули чинності</string>
 </resources>

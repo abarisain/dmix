@@ -261,7 +261,6 @@
     <string name="share">Weiterleiten</string>
     <string name="sharePrefix">Wird abgespielt:</string>
     <string name="enableTabletUI">Tablet-Ansicht</string>
-    <string name="enableTabletUIDescription">Neustart erforderlich</string>
     <string name="enableInternetCover">Albencover</string>
     <string name="enableInternetCoverDescription">Cover über verschiedene Anbieter herunterladen (sendet Titel-Informationen)</string>
     <string name="gracenoteClientId">GraceNote-Client-ID</string>

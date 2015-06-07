@@ -217,7 +217,6 @@
                 android:defaultValue="true"
                 android:key="tabletUI"
                 android:persistent="true"
-                android:summary="@string/enableTabletUIDescription"
                 android:title="@string/enableTabletUI" />
 
             <CheckBoxPreference

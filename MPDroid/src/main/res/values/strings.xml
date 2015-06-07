@@ -259,7 +259,6 @@
     <string name="lyrics">Lyrics</string>
     <string name="sharePrefix">Now Playing :</string>
     <string name="enableTabletUI">Use tablet UI</string>
-    <string name="enableTabletUIDescription">Restart the application to see the changes</string>
     <string name="enableInternetCover">Download cover art</string>
     <string name="enableInternetCoverDescription">Get cover art using various internet services (sends them your song information)</string>
     <string name="gracenoteClientId">GraceNote Client ID</string>

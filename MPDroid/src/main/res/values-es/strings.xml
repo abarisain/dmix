@@ -257,7 +257,6 @@
     <string name="share">Compartir</string>
     <string name="sharePrefix">Estoy escuchando:</string>
     <string name="enableTabletUI">Usar la interfaz de usuario para tablets</string>
-    <string name="enableTabletUIDescription">Reiniciar la aplicación para ver los cambios</string>
     <string name="enableInternetCover">Descargar carátulas</string>
     <string name="enableInternetCoverDescription">Obtener carátulas usando varios servicios de internet (enviando la información de la canción)</string>
     <string name="gracenoteClientId">ID de Cliente de GraceNote</string>

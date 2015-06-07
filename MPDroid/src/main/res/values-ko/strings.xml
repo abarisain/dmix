@@ -256,7 +256,6 @@
     <string name="share">공유</string>
     <string name="sharePrefix">지금 연주 중 :</string>
     <string name="enableTabletUI">태블릿 UI 사용</string>
-    <string name="enableTabletUIDescription">바꾸려면 앱을 다시 시작해야 합니다</string>
     <string name="enableInternetCover">음반표지 내려받기</string>
     <string name="enableInternetCoverDescription">인터넷으로 음반표지를 내려받습니다 (음악정보 보냄)</string>
     <string name="gracenoteClientId">GraceNote 클라이언트 ID</string>
