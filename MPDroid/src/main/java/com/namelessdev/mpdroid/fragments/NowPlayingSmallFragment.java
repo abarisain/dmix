@@ -178,14 +178,15 @@ public class NowPlayingSmallFragment extends Fragment implements
                 Intent intent = new Intent(getActivity(), NowPlayingActivity.class);
                 // create the transition animation - the images in the layouts
                 // of both activities are defined with android:transitionName="cover"
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // This is ridiculously bugged
+                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     ActivityOptions options = ActivityOptions
                             .makeSceneTransitionAnimation(getActivity(), mCoverArt, "cover");
                     // start the new activity
                     getActivity().startActivity(intent, options.toBundle());
-                } else {
+                } else {*/
                     getActivity().startActivity(intent);
-                }
+                //}
             }
         });
         return view;
