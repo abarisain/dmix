@@ -247,7 +247,8 @@ public class AlbumsFragment extends BrowseFragment<Album> {
 
         bundle.putParcelable(Album.EXTRA, mItems.get(position));
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        // Terribly bugged
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             final TransitionInflater inflater = TransitionInflater.from(activity);
             final ImageView albumCoverView = (ImageView) view.findViewById(R.id.albumCover);
             final String transitionName = albumCoverView.getTransitionName();
@@ -264,9 +265,9 @@ public class AlbumsFragment extends BrowseFragment<Album> {
                     fragment, "songs", albumCoverView,
                     albumCoverView.getTransitionName(),
                     inflater.inflateTransition(R.transition.album_songs_transition));
-        } else {
+        } else {*/
             ((ILibraryFragmentActivity) activity).pushLibraryFragment(fragment, "songs");
-        }
+        //}
     }
 
     @Override
