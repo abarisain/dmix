@@ -29,6 +29,7 @@ import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.MPDroidActivities;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.NowPlayingActivity;
 import com.namelessdev.mpdroid.R;
@@ -48,11 +49,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -67,6 +70,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -832,8 +836,18 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 viewHolder.mAlbumCover.setTag(R.id.AlbumCoverDownloadListener, acd);
                 viewHolder.mAlbumCover.setTag(R.id.CoverAsyncHelper, viewHolder.mCoverHelper);
                 viewHolder.mCoverHelper.addCoverDownloadListener(acd);
-                viewHolder.mMenuButton = view.findViewById(R.id.menu);
+                viewHolder.mMenuButton = (ImageButton) view.findViewById(R.id.menu);
                 viewHolder.mMenuButton.setOnClickListener(mItemMenuButtonListener);
+
+                // Tint the overflow button if needed
+                if (MPDApplication.getInstance().isLightThemeSelected()) {
+                    Drawable drawable = viewHolder.mMenuButton.getDrawable();
+
+                    drawable = DrawableCompat.wrap(drawable);
+                    DrawableCompat.setTint(drawable, getResources().getColor(android.R.color.darker_gray));
+                    viewHolder.mMenuButton.setImageDrawable(drawable);
+                }
+
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (PlayQueueViewHolder) convertView.getTag();

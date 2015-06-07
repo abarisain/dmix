@@ -97,10 +97,10 @@
         android:layout_alignParentTop="false"
         android:layout_centerVertical="true"
         android:layout_gravity="bottom"
-        android:background="@null"
+        android:background="?android:attr/actionBarItemBackground"
         android:contentDescription="@string/menuButton"
         android:paddingLeft="2dip"
         android:paddingRight="16dip"
-        android:src="@drawable/ic_menu_moreoverflow_card" />
+        android:src="@drawable/abc_ic_menu_moreoverflow_mtrl_alpha" />
 
 </RelativeLayout>
