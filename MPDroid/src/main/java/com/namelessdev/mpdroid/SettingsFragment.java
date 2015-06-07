@@ -26,6 +26,7 @@ import com.namelessdev.mpdroid.tools.Tools;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.CheckBoxPreference;
@@ -143,6 +144,11 @@ public class SettingsFragment extends PreferenceFragment {
         } else {
             mMusicPath.setEnabled(false);
             mCoverFilename.setEnabled(false);
+        }
+
+        // Small seekbars don't work on lollipop
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            findPreference("smallSeekbars").setEnabled(false);
         }
 
         mCacheUsage1 = (EditTextPreference) findPreference("cacheUsage1");

@@ -131,11 +131,11 @@
         <item name="windowActionBarOverlay">true</item>
     </style>
 
-    <style name="AppTheme.MainMenu.SmallSeekBars" parent="AppTheme.MainMenu">
+    <style name="AppTheme.SmallSeekBars" parent="AppTheme">
         <item name="android:seekBarStyle">@style/SeekBar</item>
     </style>
 
-    <style name="AppTheme.MainMenu.Light.SmallSeekBars" parent="AppTheme.MainMenu.Light">
+    <style name="AppTheme.Light.SmallSeekBars" parent="AppTheme.Light">
         <item name="android:seekBarStyle">@style/SeekBar</item>
     </style>
 
