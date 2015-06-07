@@ -109,6 +109,7 @@
         android:layout_below="@+id/albumCoverFrame"
         android:layout_marginRight="32dp"
         android:layout_marginTop="-32dp"
+        android:paddingRight="8dp"
         android:src="@drawable/ic_media_play"
         fab:fab_colorNormal="@color/fab_color"
         fab:fab_colorPressed="@color/fab_color_pressed"
