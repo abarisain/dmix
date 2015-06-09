@@ -90,16 +90,17 @@
 
             <LinearLayout
                 android:id="@+id/albumLayout"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="false"
+                android:layout_alignParentEnd="false"
                 android:layout_below="@+id/artistName"
                 android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/albumName"
                     style="@style/InfoSubText"
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dip"
                     android:maxLines="1"
@@ -109,7 +110,7 @@
                 <TextView
                     android:id="@+id/yearName"
                     style="@style/InfoSubText"
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dip"
                     android:maxLines="1"
