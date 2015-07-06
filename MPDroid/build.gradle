@@ -17,21 +17,21 @@ import java.awt.HeadlessException
  */
 
 apply plugin: 'com.android.application'
-apply plugin: 'crashlytics'
+apply plugin: 'io.fabric'
 
 buildscript {
     repositories {
-        maven { url 'http://download.crashlytics.com/maven' }
+        maven { url 'https://maven.fabric.io/public' }
     }
 
     dependencies {
-        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 
 repositories {
     mavenCentral()
-    maven { url 'http://download.crashlytics.com/maven' }
+    maven { url 'https://maven.fabric.io/public' }
 }
 
 def gitShortHash() {
@@ -127,7 +127,9 @@ dependencies {
     // Libraries from maven
     compile 'asia.ivity.android:drag-sort-listview:1.0'
     compile 'com.melnykov:floatingactionbutton:1.3.0'
-    closedbitsCompile 'com.crashlytics.android:crashlytics:1.+'
+    closedbitsCompile('com.crashlytics.sdk.android:crashlytics:2.4.0@aar') {
+        transitive = true
+    }
 }
 
 class BrowseJavadoc implements TaskExecutionListener {

@@ -19,7 +19,7 @@ package com.namelessdev.mpdroid.closedbits;
 import android.content.Context;
 
 @SuppressWarnings("ALL")
-public class CrashlyticsWrapper {
+public class FabricWrapper {
 
     public static void log(final int priority, final String tag, final String message) {
         // Stub

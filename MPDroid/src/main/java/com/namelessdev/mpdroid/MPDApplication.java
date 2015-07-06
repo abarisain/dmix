@@ -20,7 +20,7 @@ import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.anpmech.mpd.subsystem.status.TrackPositionListener;
-import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
+import com.namelessdev.mpdroid.closedbits.FabricWrapper;
 import com.namelessdev.mpdroid.helpers.CachedMPD;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
@@ -387,7 +387,7 @@ public class MPDApplication extends Application implements
         debug("onCreate Application");
 
         // Don't worry FOSS guys, crashlytics is not included in the "foss" flavour
-        CrashlyticsWrapper.start(this);
+        FabricWrapper.start(this);
 
         mSettings = PreferenceManager.getDefaultSharedPreferences(this);
 
