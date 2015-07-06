@@ -16,13 +16,15 @@
 
 package com.namelessdev.mpdroid.widgets;
 
-import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import android.app.IntentService;
 import android.content.Intent;
+
+import java.util.concurrent.TimeUnit;
 
 public class WidgetHelperService extends IntentService {
 
@@ -32,7 +34,7 @@ public class WidgetHelperService extends IntentService {
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
-    private boolean mPlaying = false;
+    private boolean mPlaying;
 
     public WidgetHelperService() {
         super(TAG);
@@ -44,33 +46,25 @@ public class WidgetHelperService extends IntentService {
 
     @Override
     protected void onHandleIntent(final Intent intent) {
-        // get MPD connection
-        mApp.addConnectionLock(this);
-
-        // prepare values for runnable
-        final MPD mpd = mApp.getMPD();
         final String action = intent.getAction();
+        final MPDStatus status = mApp.getMPD().getStatus();
 
-        // schedule real work
-        mApp.getAsyncHelper().execAsync(new Runnable() {
-            @Override
-            public void run() {
-                processIntent(action, mpd);
-            }
-        });
-
-        // clean up
-        mApp.removeConnectionLock(this);
-    }
-
-    void processIntent(final String action, final MPD mpd) {
         switch (action) {
             case CMD_UPDATE_WIDGET:
-                mPlaying = mpd.getStatus().isState(MPDStatusMap.STATE_PLAYING);
+                mPlaying = status.isState(MPDStatusMap.STATE_PLAYING);
                 SimpleWidgetProvider.getInstance().notifyChange(this);
                 break;
             default:
-                MPDControl.run(action);
+                if (status.isValid()) {
+                    MPDControl.run(action);
+                } else {
+                    final Object token = MPDControl.setupConnection(5L, TimeUnit.SECONDS);
+
+                    if (token != null) {
+                        MPDControl.run(action);
+                        mApp.removeConnectionLock(token);
+                    }
+                }
         }
     }
 }
