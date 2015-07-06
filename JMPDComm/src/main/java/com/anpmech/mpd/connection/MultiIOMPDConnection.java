@@ -64,7 +64,9 @@ public class MultiIOMPDConnection extends MPDConnection {
     public void disconnect() throws IOException {
         super.disconnect();
 
-        MultiIOCommandProcessor.disconnect(mSocketAddress);
+        if (mSocketAddress != null) {
+            MultiIOCommandProcessor.disconnect(mSocketAddress);
+        }
     }
 
     /**
