@@ -255,16 +255,24 @@ public class SongsFragment extends BrowseFragment<Music> {
     }
 
     private CharSequence getHeaderInfoString() {
-        final int count = mItems.size();
-        final int header;
+        final String headerInfo;
 
-        if (count > 1) {
-            header = R.string.tracksInfoHeaderPlural;
+        if (getActivity() == null) {
+            headerInfo = "";
         } else {
-            header = R.string.tracksInfoHeader;
+            final int count = mItems.size();
+            final int header;
+
+            if (count > 1) {
+                header = R.string.tracksInfoHeaderPlural;
+            } else {
+                header = R.string.tracksInfoHeader;
+            }
+
+            headerInfo = getString(header, count, getTotalTimeForTrackList());
         }
 
-        return getString(header, count, getTotalTimeForTrackList());
+        return headerInfo;
     }
 
     @Override
