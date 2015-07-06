@@ -52,9 +52,9 @@ public class MPDApplication extends Application implements
         Handler.Callback,
         MPDAsyncHelper.ConnectionInfoListener {
 
-    public static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
-
     public static final String INTENT_ACTION_REFRESH = "com.namelessdev.mpdroid.action.ui.refresh";
+
+    public static final String USE_LOCAL_ALBUM_CACHE_KEY = "useLocalAlbumCache";
 
     private static final boolean DEBUG = false;
 

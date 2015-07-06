@@ -44,10 +44,8 @@
         <item name="libraryPagerBottomMargin">0dp</item>
     </style>
 
-    <style name="AppTheme.SmallSeekBars" parent="AppTheme">
-    </style>
+    <style name="AppTheme.SmallSeekBars" parent="AppTheme"></style>
 
-    <style name="AppTheme.Light.SmallSeekBars" parent="AppTheme.Light">
-    </style>
+    <style name="AppTheme.Light.SmallSeekBars" parent="AppTheme.Light"></style>
 
 </resources>

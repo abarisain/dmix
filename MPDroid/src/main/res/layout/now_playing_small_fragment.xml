@@ -61,9 +61,9 @@
             android:ellipsize="marquee"
             android:gravity="bottom"
             android:maxLines="1"
-            android:textColor="?android:attr/textColorPrimary"
             android:scrollHorizontally="true"
             android:singleLine="true"
+            android:textColor="?android:attr/textColorPrimary"
             android:textIsSelectable="false"
             android:textSize="14sp"
             android:textStyle="bold" />

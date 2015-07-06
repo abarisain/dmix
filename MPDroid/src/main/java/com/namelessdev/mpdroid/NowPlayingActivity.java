@@ -23,18 +23,14 @@ import com.namelessdev.mpdroid.helpers.QueueControl;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.transition.Fade;
-import android.transition.Transition;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 
 
 public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
@@ -85,7 +81,6 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
             window.setEnterTransition(ts);
             window.setExitTransition(ts);
         }*/
-
 
         if (mApp.isTabletUiEnabled()) {
             setContentView(R.layout.activity_now_playing_tablet);

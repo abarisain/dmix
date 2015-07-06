@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.ui.ToolbarHelper;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
@@ -81,8 +82,10 @@ public class LibraryFragment extends Fragment {
             }
         });*/
 
+        final Resources resources = getResources();
         final TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
-        tabs.setTabTextColors(getResources().getColor(R.color.library_tab_text_color), getResources().getColor(R.color.library_tab_text_color_selected));
+        tabs.setTabTextColors(resources.getColor(R.color.library_tab_text_color),
+                resources.getColor(R.color.library_tab_text_color_selected));
         tabs.setTabMode(TabLayout.MODE_SCROLLABLE);
         tabs.setupWithViewPager(mViewPager);
 

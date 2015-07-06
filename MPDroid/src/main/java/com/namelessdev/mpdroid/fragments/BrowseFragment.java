@@ -29,7 +29,7 @@ import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
-import com.namelessdev.mpdroid.closedbits.CrashlyticsWrapper;
+import com.namelessdev.mpdroid.closedbits.FabricWrapper;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.helpers.MPDAsyncWorker;
@@ -133,13 +133,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
 
     private final Collection<PlaylistFile> mStoredPlaylists = new ArrayList<>();
 
-    private final BroadcastReceiver mLocalBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(final Context context, final Intent intent) {
-            updateList();
-        }
-    };
-
     protected AbsListView mList;
 
     protected TextView mLoadingTextView;
@@ -147,6 +140,13 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     protected View mLoadingView;
 
     protected View mNoResultView;
+
+    private final BroadcastReceiver mLocalBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            updateList();
+        }
+    };
 
     protected Toolbar mToolbar;
 
@@ -197,7 +197,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
                     + adapter + " track: " + null;
 
             /** Temporary, I want to find out exactly what's null. */
-            CrashlyticsWrapper.log(Log.ERROR, TAG, errorMessage);
+            FabricWrapper.log(Log.ERROR, TAG, errorMessage);
 
             /** Track will always be null here. */
             Log.e(TAG, errorMessage);
@@ -557,7 +557,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     public void onPause() {
         mApp.removeStatusChangeListener(this);
         mApp.getMPD().getConnectionStatus().removeListener(this);
-        LocalBroadcastManager.getInstance(MPDApplication.getInstance()).unregisterReceiver(mLocalBroadcastReceiver);
+        LocalBroadcastManager.getInstance(MPDApplication.getInstance())
+                .unregisterReceiver(mLocalBroadcastReceiver);
 
         super.onPause();
     }

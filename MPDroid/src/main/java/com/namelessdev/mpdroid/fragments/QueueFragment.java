@@ -29,7 +29,6 @@ import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.MPDroidActivities;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.NowPlayingActivity;
 import com.namelessdev.mpdroid.R;
@@ -844,7 +843,8 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                     Drawable drawable = viewHolder.mMenuButton.getDrawable();
 
                     drawable = DrawableCompat.wrap(drawable);
-                    DrawableCompat.setTint(drawable, getResources().getColor(android.R.color.darker_gray));
+                    DrawableCompat.setTint(drawable,
+                            getResources().getColor(android.R.color.darker_gray));
                     viewHolder.mMenuButton.setImageDrawable(drawable);
                 }
 

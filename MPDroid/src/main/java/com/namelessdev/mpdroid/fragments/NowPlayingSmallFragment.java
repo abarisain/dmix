@@ -35,12 +35,10 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -175,18 +173,9 @@ public class NowPlayingSmallFragment extends Fragment implements
         view.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View view) {
-                Intent intent = new Intent(getActivity(), NowPlayingActivity.class);
-                // create the transition animation - the images in the layouts
-                // of both activities are defined with android:transitionName="cover"
-                // This is ridiculously bugged
-                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    ActivityOptions options = ActivityOptions
-                            .makeSceneTransitionAnimation(getActivity(), mCoverArt, "cover");
-                    // start the new activity
-                    getActivity().startActivity(intent, options.toBundle());
-                } else {*/
-                    getActivity().startActivity(intent);
-                //}
+                final Activity activity = getActivity();
+
+                activity.startActivity(new Intent(activity, NowPlayingActivity.class));
             }
         });
         return view;

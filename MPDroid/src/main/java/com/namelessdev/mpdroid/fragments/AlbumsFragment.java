@@ -33,14 +33,10 @@ import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
-import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -49,7 +45,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 
@@ -266,7 +261,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
                     albumCoverView.getTransitionName(),
                     inflater.inflateTransition(R.transition.album_songs_transition));
         } else {*/
-            ((ILibraryFragmentActivity) activity).pushLibraryFragment(fragment, "songs");
+        ((ILibraryFragmentActivity) activity).pushLibraryFragment(fragment, "songs");
         //}
     }
 

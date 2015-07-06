@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid.views.holders;
 
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
