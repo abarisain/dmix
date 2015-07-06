@@ -980,13 +980,18 @@ public class NowPlayingFragment extends Fragment implements
      * @param button    The button with which to set the attribute resource.
      */
     private void setButtonAttribute(@AttrRes final int attribute, final ImageButton button) {
-        final int[] attrs = {attribute};
-        final TypedArray ta = mActivity.obtainStyledAttributes(attrs);
-        final Drawable drawableFromTheme = ta.getDrawable(0);
+        final Activity activity = getActivity();
 
-        button.setImageDrawable(drawableFromTheme);
-        button.invalidate();
-        ta.recycle();
+        if (activity != null) {
+            final int[] attrs = {attribute};
+
+            final TypedArray ta = activity.obtainStyledAttributes(attrs);
+            final Drawable drawableFromTheme = ta.getDrawable(0);
+
+            button.setImageDrawable(drawableFromTheme);
+            button.invalidate();
+            ta.recycle();
+        }
     }
 
     private void setStickerVisibility() {
