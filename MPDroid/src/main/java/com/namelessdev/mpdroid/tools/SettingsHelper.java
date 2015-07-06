@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public final class SettingsHelper {
 
@@ -40,6 +41,8 @@ public final class SettingsHelper {
 
     private static final SharedPreferences SETTINGS =
             PreferenceManager.getDefaultSharedPreferences(APP);
+
+    private static final String TAG = "SettingsHelper";
 
     private SettingsHelper() {
         super();
@@ -118,8 +121,18 @@ public final class SettingsHelper {
     }
 
     private static int getIntegerSetting(final String name, final int defaultValue) {
-        return Integer.parseInt(
-                SETTINGS.getString(name, Integer.toString(defaultValue)).trim());
+        int setting = defaultValue;
+        final String settingString =
+                SETTINGS.getString(name, Integer.toString(defaultValue).trim());
+
+        try {
+            setting = Integer.parseInt(settingString);
+        } catch (final NumberFormatException e) {
+            Log.e(TAG, "Received a bad integer during processing", e);
+
+        }
+
+        return setting;
     }
 
     private static String getStringSetting(final String name) {
