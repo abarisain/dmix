@@ -84,6 +84,7 @@ public class CachedMPD extends MPD {
         final ListIterator<Album> iterator = albums.listIterator();
         final AlbumBuilder albumBuilder = new AlbumBuilder();
 
+        mCache.refresh();
         while (iterator.hasNext()) {
             final Album album = iterator.next();
             albumBuilder.setAlbum(album);
@@ -115,6 +116,7 @@ public class CachedMPD extends MPD {
         final ListIterator<Album> iterator = albums.listIterator();
         final AlbumBuilder albumBuilder = new AlbumBuilder();
 
+        mCache.refresh();
         while (iterator.hasNext()) {
             final Album album = iterator.next();
             final Artist artist = album.getArtist();
@@ -149,6 +151,7 @@ public class CachedMPD extends MPD {
     public List<Album> getAllAlbums()
             throws IOException, MPDException {
         final List<Album> allAlbums;
+        mCache.refresh();
         final Set<List<String>> albumListSet = mCache.getUniqueAlbumSet();
         final Set<Album> albums = new HashSet<>(albumListSet.size());
         final AlbumBuilder albumBuilder = new AlbumBuilder();
@@ -190,6 +193,7 @@ public class CachedMPD extends MPD {
             throws IOException, MPDException {
         final List<List<String>> albumArtists = new ArrayList<>(albums.size());
 
+        mCache.refresh();
         for (final Album album : albums) {
             final Artist artist = album.getArtist();
             final Set<String> albumArtist;
@@ -214,6 +218,7 @@ public class CachedMPD extends MPD {
     @Override
     public List<String> listAlbums(final Artist artist, final boolean useAlbumArtist)
             throws IOException, MPDException {
+        mCache.refresh();
         return new ArrayList(mCache.getAlbums(artist, useAlbumArtist));
     }
 }
