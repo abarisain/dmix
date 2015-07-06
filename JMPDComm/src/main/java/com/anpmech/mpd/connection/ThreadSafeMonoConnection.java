@@ -44,6 +44,17 @@ public interface ThreadSafeMonoConnection {
     void connect() throws UnknownHostException;
 
     /**
+     * Resolves a host then sets up connection to host/port pair.
+     *
+     * <p>If a main password is required, it MUST be called prior to calling this method. This call
+     * exits immediately and status will be provided at callback.</p>
+     *
+     * @param host The media server host to connect to.
+     * @param port The media server port to connect to.
+     */
+    void connect(final String host, final int port);
+
+    /**
      * Sets up connection to host/port pair.
      *
      * <p>If a main password is required, it MUST be called prior to calling this method.</p>

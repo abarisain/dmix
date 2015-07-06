@@ -202,6 +202,31 @@ public abstract class MPDConnection implements MPDConnectionListener {
     }
 
     /**
+     * Resolves a host then sets up connection to host/port pair.
+     *
+     * <p>If a main password is required, it MUST be called prior to calling this method. This call
+     * exits immediately and status will be provided at callback.</p>
+     *
+     * @param host The media server host to connect to.
+     * @param port The media server port to connect to.
+     */
+    public void connect(final String host, final int port) {
+        final Runnable resolveHost = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    connect(InetAddress.getByName(host), port);
+                } catch (final UnknownHostException e) {
+                    mConnectionStatus.disconnectedCallbackComplete(
+                            "Unknown host: " + e.getLocalizedMessage());
+                }
+            }
+        };
+
+        MPDExecutor.submit(resolveHost);
+    }
+
+    /**
      * Sets up connection to host/port pair.
      *
      * <p>If a main password is required, it MUST be called prior to calling this method. This call

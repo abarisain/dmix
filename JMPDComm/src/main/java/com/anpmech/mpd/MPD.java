@@ -122,11 +122,12 @@ public class MPD {
      * @param server   The server address or host name to connect to.
      * @param port     The server port to connect to.
      * @param password The default password to use for this connection.
-     * @throws UnknownHostException If the {@code server} parameter cannot be resolved to a host.
      */
-    public MPD(final String server, final int port, final CharSequence password)
-            throws UnknownHostException {
-        this(InetAddress.getByName(server), port, password);
+    public MPD(final String server, final int port, final CharSequence password) {
+        this();
+
+        setDefaultPassword(password);
+        connect(server, port);
     }
 
     private static String[] getAlbumArtistPair(final Album album) {
@@ -638,11 +639,12 @@ public class MPD {
      *
      * @param server server address or host name
      * @param port   server port
-     * @throws UnknownHostException Thrown when a hostname can not be resolved.
      */
-    public final void connect(final String server, final int port) throws UnknownHostException {
-        final InetAddress address = InetAddress.getByName(server);
-        connect(address, port);
+    public final void connect(final String server, final int port) {
+        if (!isConnected()) {
+            mConnection.connect(server, port);
+            mIdleConnection.connect(server, port);
+        }
     }
 
     /**
@@ -651,9 +653,8 @@ public class MPD {
      * prior to this method.</p>
      *
      * @param server server address or host name and port (server:port)
-     * @throws UnknownHostException Thrown when a hostname can not be resolved.
      */
-    public final void connect(final String server) throws UnknownHostException {
+    public final void connect(final String server) {
         int port = MPDCommand.DEFAULT_MPD_PORT;
         final String host;
         if (server.indexOf(':') == -1) {
