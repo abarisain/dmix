@@ -530,7 +530,7 @@ public class SongsFragment extends BrowseFragment<Music> {
             @Override
             public boolean onLongClick(final View v) {
                 mCoverPopupMenu.show();
-                return false;
+                return true;
             }
         });
 
