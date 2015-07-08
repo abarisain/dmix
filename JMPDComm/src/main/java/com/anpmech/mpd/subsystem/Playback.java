@@ -494,6 +494,7 @@ public class Playback {
                 future = pause();
                 break;
             case MPDStatusMap.STATE_PAUSED:
+            case MPDStatusMap.STATE_STOPPED:
                 future = play();
                 break;
             default:
