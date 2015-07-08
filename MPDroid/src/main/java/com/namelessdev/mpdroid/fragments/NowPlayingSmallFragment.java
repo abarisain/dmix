@@ -51,18 +51,15 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.concurrent.TimeUnit;
+
 public class NowPlayingSmallFragment extends Fragment implements
         MPDConnectionListener, StatusChangeListener,
         UpdateTrackInfo.TrackInfoUpdate {
 
     private static final String TAG = "NowPlayingSmallFragment";
 
-    final OnClickListener mButtonClickListener = new OnClickListener() {
-        @Override
-        public void onClick(final View v) {
-            MPDControl.run(v.getId());
-        }
-    };
+    final OnClickListener mButtonClickListener = new OnClickControlListener();
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
@@ -321,5 +318,28 @@ public class NowPlayingSmallFragment extends Fragment implements
 
     @Override
     public void volumeChanged(final int oldVolume) {
+    }
+
+    static class OnClickControlListener implements OnClickListener {
+
+        protected static void runCommand(final int command) {
+            final MPDApplication app = MPDApplication.getInstance();
+
+            if (app.getMPD().getStatus().isValid()) {
+                MPDControl.run(command);
+            } else {
+                final Object token = MPDControl.setupConnection(5L, TimeUnit.SECONDS);
+
+                if (token != null) {
+                    MPDControl.run(command);
+                    app.removeConnectionLock(token);
+                }
+            }
+        }
+
+        @Override
+        public void onClick(final View v) {
+            runCommand(v.getId());
+        }
     }
 }

@@ -1269,12 +1269,8 @@ public class NowPlayingFragment extends Fragment implements
         mVolumeSeekBar.setProgress(volume);
     }
 
-    private static class ButtonEventHandler implements OnClickListener, View.OnLongClickListener {
-
-        @Override
-        public void onClick(final View v) {
-            MPDControl.run(v.getId());
-        }
+    private static class ButtonEventHandler extends NowPlayingSmallFragment.OnClickControlListener
+            implements View.OnLongClickListener {
 
         @Override
         public boolean onLongClick(final View v) {
@@ -1283,7 +1279,7 @@ public class NowPlayingFragment extends Fragment implements
             final MPDStatus mpdStatus = app.getMPD().getStatus();
 
             if (v.getId() == R.id.playpause && !mpdStatus.isState(MPDStatusMap.STATE_STOPPED)) {
-                MPDControl.run(MPDControl.ACTION_STOP);
+                runCommand(R.id.stop);
                 isConsumed = true;
             } else {
                 isConsumed = false;
