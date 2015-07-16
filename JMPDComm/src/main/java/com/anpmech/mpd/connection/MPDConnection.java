@@ -48,6 +48,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Semaphore;
 
 /**
  * Class representing a connection to MPD Server.
@@ -126,9 +127,13 @@ public abstract class MPDConnection implements MPDConnectionListener {
     private final Collection<String> mAvailableCommands = new ArrayList<>();
 
     /**
-     * The lock for this connection.
+     * The locking Semaphore for this connection.
+     * <BR><BR>
+     * This is used to prevent more than one connection configuration from running at the same time
+     * in the same instance. This is necessary due to the threaded nature of the connection. This
+     * Semaphore is also constructed with fairness to allow FIFO connect() execution.
      */
-    private final Object mConnectionLock = new Object();
+    private final Semaphore mConnectionLock = new Semaphore(1, true);
 
     /**
      * The host/port pair used to connect to the media server.
@@ -192,8 +197,12 @@ public abstract class MPDConnection implements MPDConnectionListener {
     /**
      * This method calls standard defaults for the host/port pair and MPD password, if it exists.
      *
-     * <p>If a main password is required, it MUST be called prior to calling this method. This call
-     * exits immediately and status will be provided at callback.</p>
+     * <p>If a main password is required, it MUST be called prior to calling this method.</p>
+     *
+     * <p>All threads calling this method in the same instance with a different host will block
+     * until the prior connection threads succeeds or fail. Otherwise, expected behaviour is this
+     * method will return immediately and status will be provided to listeners via
+     * {@link MPDConnectionStatus#addListener(MPDConnectionListener)}.</p>
      *
      * @throws UnknownHostException Thrown when a hostname can not be resolved.
      */
@@ -204,8 +213,12 @@ public abstract class MPDConnection implements MPDConnectionListener {
     /**
      * Resolves a host then sets up connection to host/port pair.
      *
-     * <p>If a main password is required, it MUST be called prior to calling this method. This call
-     * exits immediately and status will be provided at callback.</p>
+     * <p>If a main password is required, it MUST be called prior to calling this method.</p>
+     *
+     * <p>All threads calling this method in the same instance with a different host will block
+     * until the prior connection threads succeeds or fail. Otherwise, expected behaviour is this
+     * method will return immediately and status will be provided to listeners via
+     * {@link MPDConnectionStatus#addListener(MPDConnectionListener)}.</p>
      *
      * @param host The media server host to connect to.
      * @param port The media server port to connect to.
@@ -229,27 +242,31 @@ public abstract class MPDConnection implements MPDConnectionListener {
     /**
      * Sets up connection to host/port pair.
      *
-     * <p>If a main password is required, it MUST be called prior to calling this method. This call
-     * exits immediately and status will be provided at callback.</p>
+     * <p>If a main password is required, it MUST be called prior to calling this method.</p>
+     *
+     * <p>All threads calling this method in the same instance with a different host will block
+     * until the prior connection threads succeeds or fail. Otherwise, expected behaviour is this
+     * method will return immediately and status will be provided to listeners via
+     * {@link MPDConnectionStatus#addListener(MPDConnectionListener)}.</p>
      *
      * @param host The media server host to connect to.
      * @param port The media server port to connect to.
      */
     public void connect(final InetAddress host, final int port) {
-        synchronized (mConnectionLock) {
-            final InetSocketAddress address = new InetSocketAddress(host, port);
-            final boolean hostChanged = !address.equals(mSocketAddress);
-            debug("hasHostChanged: " + hostChanged + " isCancelled: " + mConnectionStatus
-                    .isCancelled());
-            if (hostChanged || !mConnectionStatus.isConnected() ||
-                    mConnectionStatus.isCancelled()) {
-                debug("Information changed, connecting");
-                mConnectionStatus.unsetCancelled();
-                mSocketAddress = address;
-                mConnectionResponse = submit(Reflection.CMD_ACTION_COMMANDS);
-            } else {
-                debug("Not reconnecting, already connected with same information");
-            }
+        final InetSocketAddress address = new InetSocketAddress(host, port);
+
+        debug("Acquiring a connection lock.");
+        mConnectionLock.acquireUninterruptibly();
+        final boolean hostChanged = !address.equals(mSocketAddress);
+        debug("hasHostChanged: " + hostChanged + " isCancelled: " + mConnectionStatus
+                .isCancelled());
+        if (hostChanged || !mConnectionStatus.isConnected() || mConnectionStatus.isCancelled()) {
+            debug("Information changed, connecting");
+            mConnectionStatus.unsetCancelled();
+            mSocketAddress = address;
+            mConnectionResponse = submit(Reflection.CMD_ACTION_COMMANDS);
+        } else {
+            debug("Not reconnecting, already connected with same information");
         }
     }
 
@@ -261,39 +278,37 @@ public abstract class MPDConnection implements MPDConnectionListener {
     @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
     @Override
     public void connectionConnected(final int zero) {
-        synchronized (mConnectionLock) {
-            if (mConnectionResponse != null) {
-                int commandErrorCode = 0;
-                CommandResponse commandResponse = null;
+        int commandErrorCode = 0;
+        CommandResponse commandResponse = null;
 
-                try {
-                    commandResponse = mConnectionResponse.get();
-                } catch (final MPDException e) {
-                    commandErrorCode = e.mErrorCode;
-                    Log.error(TAG, "Exception during connection.", e);
-                } catch (final IOException e) {
-                    throw new IllegalStateException("IOException thrown as result of successful" +
-                            "connection.", e);
-                }
-
-                /**
-                 * Don't worry too much about it if we didn't get a connection header. Sometimes,
-                 * we'll have been told we disconnected when we had not.
-                 */
-                if (commandResponse != null && commandResponse.isHeaderValid()) {
-                    mAvailableCommands.clear();
-                    mAvailableCommands.addAll(commandResponse.getValues());
-
-                    mMPDVersion = commandResponse.getMPDVersion();
-                }
-
-                /**
-                 * This should be the final call from this method.
-                 */
-                mConnectionStatus.connectedCallbackComplete(commandErrorCode);
-                mConnectionResponse = null;
-            }
+        try {
+            commandResponse = mConnectionResponse.get();
+        } catch (final MPDException e) {
+            commandErrorCode = e.mErrorCode;
+            Log.error(TAG, "Exception during connection.", e);
+        } catch (final IOException e) {
+            throw new IllegalStateException("IOException thrown as result of successful" +
+                    "connection.", e);
         }
+
+        /**
+         * Don't worry too much about it if we didn't get a connection header. Sometimes,
+         * we'll have been told we disconnected when we had not.
+         */
+        if (commandResponse != null && commandResponse.isHeaderValid()) {
+            mAvailableCommands.clear();
+            mAvailableCommands.addAll(commandResponse.getValues());
+
+            mMPDVersion = commandResponse.getMPDVersion();
+        }
+
+        debug("Releasing connection lock upon successful connection.");
+        mConnectionLock.release();
+
+        /**
+         * This should be the final call from this method.
+         */
+        mConnectionStatus.connectedCallbackComplete(commandErrorCode);
     }
 
     /**
@@ -318,6 +333,9 @@ public abstract class MPDConnection implements MPDConnectionListener {
      */
     @Override
     public void connectionDisconnected(final String reason) {
+        debug("Releasing connection lock upon disconnection.");
+        mConnectionLock.release();
+
         /**
          * This should be the final call from this method.
          */
