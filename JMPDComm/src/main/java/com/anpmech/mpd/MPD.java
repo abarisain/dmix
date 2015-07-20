@@ -924,6 +924,24 @@ public class MPD {
         return mIdleConnection.getConnectionStatus();
     }
 
+    /**
+     * This retrieves the current track from the {@link MPDPlaylist}/{@link MPDStatusMap} cache.
+     *
+     * @return The current track.
+     */
+    public Music getCurrentTrack() {
+        final int songID = mStatus.getSongId();
+        final Music currentTrack;
+
+        if (songID == MPDStatusMap.DEFAULT_INTEGER) {
+            currentTrack = null;
+        } else {
+            currentTrack = mPlaylist.getById(songID);
+        }
+
+        return currentTrack;
+    }
+
     protected List<Music> getFirstTrack(final Album album) throws IOException, MPDException {
         final Artist artist = album.getArtist();
         final String[] args = new String[6];
