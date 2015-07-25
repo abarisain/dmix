@@ -442,7 +442,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         final View currentFocus = getCurrentFocus();
         final boolean isConsumed;
 
-        if (itemFocus == null || currentFocus == null || !itemFocus.equals(currentFocus)) {
+        if (itemFocus == null || currentFocus != null && !itemFocus.equals(currentFocus)) {
             isConsumed = false;
             Log.w(TAG, "Ignoring menu item press due to view change.");
         } else {
