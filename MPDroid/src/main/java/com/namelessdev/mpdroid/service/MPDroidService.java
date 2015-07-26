@@ -118,8 +118,6 @@ public final class MPDroidService extends Service implements
 
     private ConnectionInfo mConnectionInfo = APP.getConnectionSettings();
 
-    private Music mCurrentTrack = null;
-
     /** True if audio is focused on this service. */
     private boolean mIsAudioFocusedOnThis = false;
 
@@ -579,12 +577,14 @@ public final class MPDroidService extends Service implements
      */
     @Override
     public void playlistChanged(final int oldPlaylistVersion) {
+        final Music currentTrack = APP.getMPD().getCurrentTrack();
+
         /**
          * This is required because streams will emit a playlist (current queue) event as the
          * metadata will change while the same audio file is playing (no track change).
          */
-        if (mCurrentTrack != null && mCurrentTrack.isStream()) {
-            updateTrack();
+        if (currentTrack != null && currentTrack.isStream()) {
+            updateTrack(currentTrack);
         }
     }
 
@@ -825,14 +825,22 @@ public final class MPDroidService extends Service implements
      * Updates the current track of all handlers which require a current track.
      */
     private void updateTrack() {
-        final int songPos = mMPDStatus.getSongPos();
-        mCurrentTrack = APP.getMPD().getPlaylist().getByIndex(songPos);
+        final Music currentTrack = APP.getMPD().getCurrentTrack();
 
-        if (mNotificationHandler != null && mCurrentTrack != null) {
-            mRemoteControlClientHandler.update(mCurrentTrack);
-            mAlbumCoverHandler.update(new AlbumInfo(mCurrentTrack));
-            mNotificationHandler.setNewTrack(mCurrentTrack);
-            sendBroadcast(getPebbleIntent(mCurrentTrack));
+        updateTrack(currentTrack);
+    }
+
+    /**
+     * Updates the current track of all handlers which require a current track.
+     *
+     * @param currentTrack The current track to update handlers to.
+     */
+    private void updateTrack(final Music currentTrack) {
+        if (mNotificationHandler != null && currentTrack != null) {
+            mRemoteControlClientHandler.update(currentTrack);
+            mAlbumCoverHandler.update(new AlbumInfo(currentTrack));
+            mNotificationHandler.setNewTrack(currentTrack);
+            sendBroadcast(getPebbleIntent(currentTrack));
         }
     }
 
@@ -1034,7 +1042,9 @@ public final class MPDroidService extends Service implements
                     haltService();
                     break;
                 case REFRESH_COVER:
-                    mAlbumCoverHandler.update(new AlbumInfo(mCurrentTrack));
+                    final AlbumInfo currentTrack = new AlbumInfo(APP.getMPD().getCurrentTrack());
+
+                    mAlbumCoverHandler.update(currentTrack);
                     break;
                 case UPDATE_CLIENT_STATUS:
                     sendHandlerStatus();
