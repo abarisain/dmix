@@ -158,7 +158,7 @@ class ResponseMap {
      */
     public void invalidate() {
         mResponseMap.clear();
-        mMapValidity.tryAcquire();
+        mMapValidity.drainPermits();
     }
 
     /**
