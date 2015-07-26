@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -673,5 +674,44 @@ public final class Tools {
         }
 
         return stringBuilder;
+    }
+
+    /**
+     * Blocks indefinitely until this object is valid.
+     *
+     * @param semaphore The semaphore to check for validity.
+     * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
+     */
+    public static void waitForValidity(final Semaphore semaphore) throws InterruptedException {
+        try {
+            semaphore.acquire();
+        } finally {
+            semaphore.release();
+        }
+    }
+
+    /**
+     * Blocks for the given waiting time.
+     *
+     * @param semaphore The semaphore to check for validity.
+     * @param timeout   The time to wait for a valid object.
+     * @param unit      The time unit of the {@code timeout} argument.
+     * @return {@code true} if a the {@code ResponseMap} was valid by the time of return, false
+     * otherwise.
+     * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
+     */
+    public static boolean waitForValidity(final Semaphore semaphore, final long timeout,
+            final TimeUnit unit) throws InterruptedException {
+        boolean isValid = false;
+
+        try {
+            isValid = semaphore.tryAcquire(timeout, unit);
+        } finally {
+            if (isValid) {
+                semaphore.release();
+            }
+        }
+
+        return isValid;
     }
 }

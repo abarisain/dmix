@@ -254,11 +254,7 @@ class ResponseMap {
      * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
      */
     public void waitForValidity() throws InterruptedException {
-        try {
-            mMapValidity.acquire();
-        } finally {
-            mMapValidity.release();
-        }
+        Tools.waitForValidity(mMapValidity);
     }
 
     /**
@@ -272,16 +268,6 @@ class ResponseMap {
      */
     public boolean waitForValidity(final long timeout, final TimeUnit unit)
             throws InterruptedException {
-        boolean isValid = false;
-
-        try {
-            isValid = mMapValidity.tryAcquire(timeout, unit);
-        } finally {
-            if (isValid) {
-                mMapValidity.release();
-            }
-        }
-
-        return isValid;
+        return Tools.waitForValidity(mMapValidity, timeout, unit);
     }
 }

@@ -41,6 +41,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The frontend for {@link MusicList} and MPD protocol
@@ -83,6 +85,8 @@ public class MPDPlaylist {
     private final MPDConnection mConnection;
 
     private final MusicList mList;
+
+    private final Semaphore mPlaylistValidity = new Semaphore(0);
 
     private int mLastPlaylistVersion = -1;
 
@@ -225,6 +229,29 @@ public class MPDPlaylist {
     }
 
     /**
+     * Invalidate this {@code MPDPlaylist}.
+     */
+    public void invalidate() {
+        mList.clear();
+        mPlaylistValidity.drainPermits();
+    }
+
+    /**
+     * This method checks the playlist for validation.
+     *
+     * @return True if the playlist is valid, false otherwise.
+     */
+    public boolean isValid() {
+        final boolean isAcquired = mPlaylistValidity.tryAcquire();
+
+        if (isAcquired) {
+            mPlaylistValidity.release();
+        }
+
+        return isAcquired;
+    }
+
+    /**
      * Load playlist file.
      *
      * @param file playlist filename without .m3u extension.
@@ -280,39 +307,6 @@ public class MPDPlaylist {
             final String target = Integer.toString(to);
             mConnection
                     .send(MPD_CMD_PLAYLIST_MOVE, beginRange + ':' + endRange, target);
-        }
-    }
-
-    /**
-     * Reloads the playlist content. This is the only place the {@link MusicList} should be
-     * modified, don't call this method unless you know exactly what you're doing.
-     *
-     * @param mpdStatus A current {@code MPDStatus} object.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public void refresh(final MPDStatus mpdStatus) throws IOException, MPDException {
-        /** Synchronize this block to make sure the playlist version stays coherent. */
-        synchronized (mList) {
-            final int newPlaylistVersion = mpdStatus.getPlaylistVersion();
-
-            if (mLastPlaylistVersion == MPDStatusMap.DEFAULT_INTEGER || mList.size() == 0) {
-                mList.replace(getFullPlaylist());
-            } else if (mLastPlaylistVersion != newPlaylistVersion) {
-                final List<String> response =
-                        mConnection.send(MPD_CMD_PLAYLIST_CHANGES,
-                                Integer.toString(mLastPlaylistVersion));
-                final Collection<Music> changes = MusicBuilder.buildMusicFromList(response);
-
-                try {
-                    mList.manipulate(changes, mpdStatus.getPlaylistLength());
-                } catch (final IllegalStateException e) {
-                    Log.error(TAG, "Partial update failed, running full update.", e);
-                    mList.replace(getFullPlaylist());
-                }
-            }
-
-            mLastPlaylistVersion = newPlaylistVersion;
         }
     }
 
@@ -423,7 +417,6 @@ public class MPDPlaylist {
         }
         mConnection.send(commandQueue);
     }
-
 
     /**
      * Removes entries from playlist.
@@ -538,4 +531,63 @@ public class MPDPlaylist {
         return stringBuilder.toString();
     }
 
+    /**
+     * Reloads the playlist content. This is the only place the {@link MusicList} should be
+     * modified, don't call this method unless you know exactly what you're doing.
+     *
+     * @param mpdStatus A current {@code MPDStatus} object.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void update(final MPDStatus mpdStatus) throws IOException, MPDException {
+        /** Synchronize this block to make sure the playlist version stays coherent. */
+        synchronized (mList) {
+            final int newPlaylistVersion = mpdStatus.getPlaylistVersion();
+
+            if (mLastPlaylistVersion == MPDStatusMap.DEFAULT_INTEGER || mList.size() == 0) {
+                mList.replace(getFullPlaylist());
+
+                if (mPlaylistValidity.availablePermits() == 0) {
+                    mPlaylistValidity.release();
+                }
+            } else if (mLastPlaylistVersion != newPlaylistVersion) {
+                final List<String> response =
+                        mConnection.send(MPD_CMD_PLAYLIST_CHANGES,
+                                Integer.toString(mLastPlaylistVersion));
+                final Collection<Music> changes = MusicBuilder.buildMusicFromList(response);
+
+                try {
+                    mList.manipulate(changes, mpdStatus.getPlaylistLength());
+                } catch (final IllegalStateException e) {
+                    Log.error(TAG, "Partial update failed, running full update.", e);
+                    mList.replace(getFullPlaylist());
+                }
+            }
+
+            mLastPlaylistVersion = newPlaylistVersion;
+        }
+    }
+
+    /**
+     * Blocks indefinitely until this object is valid.
+     *
+     * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
+     */
+    public void waitForValidity() throws InterruptedException {
+        Tools.waitForValidity(mPlaylistValidity);
+    }
+
+    /**
+     * Blocks for the given waiting time.
+     *
+     * @param timeout The time to wait for a valid object.
+     * @param unit    The time unit of the {@code timeout} argument.
+     * @return {@code true} if a the {@code ResponseMap} was valid by the time of return, false
+     * otherwise.
+     * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
+     */
+    public boolean waitForValidity(final long timeout, final TimeUnit unit)
+            throws InterruptedException {
+        return Tools.waitForValidity(mPlaylistValidity, timeout, unit);
+    }
 }

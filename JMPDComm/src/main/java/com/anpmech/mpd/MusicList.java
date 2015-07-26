@@ -111,6 +111,15 @@ final class MusicList implements Iterable<Music> {
     }
 
     /**
+     * Clear the music list backend.
+     *
+     * This should only be called when manually invalidating this list.
+     */
+    void clear() {
+        mList.clear();
+    }
+
+    /**
      * Retrieves a {@code Music} object by its songId.
      *
      * @param songId songId from the music to be retrieved.

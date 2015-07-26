@@ -330,7 +330,7 @@ public class IdleSubsystemMonitor implements Runnable {
                         oldStatus = status.getImmutableStatus();
                         statistics.update();
                         status.update();
-                        playlist.refresh(status);
+                        playlist.update(status);
                     } catch (final IOException e) {
                         emitError(STATUS_UPDATE_FAILURE, e);
                     } catch (final MPDException e) {
@@ -421,7 +421,7 @@ public class IdleSubsystemMonitor implements Runnable {
                     // playlist
                     final int oldPlaylistVersion = oldStatus.getPlaylistVersion();
                     if (connectionReset || oldPlaylistVersion != status.getPlaylistVersion()) {
-                        playlist.refresh(status);
+                        playlist.update(status);
 
                         for (final StatusChangeListener listener : mStatusChangeListeners) {
                             MPDExecutor.submitCallback(new Runnable() {
