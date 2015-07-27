@@ -746,12 +746,19 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
      */
     @Override
     public void storedPlaylistChanged() {
-        try {
-            mStoredPlaylists.clear();
-            mStoredPlaylists.addAll(mApp.getMPD().getPlaylists());
-        } catch (final IOException | MPDException e) {
-            Log.e(TAG, "Failed to parse playlists.", e);
-        }
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mStoredPlaylists.clear();
+                    mStoredPlaylists.addAll(mApp.getMPD().getPlaylists());
+                } catch (final IOException | MPDException e) {
+                    Log.e(TAG, "Failed to parse playlists.", e);
+                }
+            }
+        };
+
+        new Thread(runnable).start();
     }
 
     /**
