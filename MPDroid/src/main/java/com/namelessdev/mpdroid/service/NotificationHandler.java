@@ -115,6 +115,10 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
         builder.setContentIntent(notificationClick);
         builder.setStyle(new NotificationCompat.BigTextStyle());
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder.setVisibility(Notification.VISIBILITY_PUBLIC);
+        }
+
         return builder;
     }
 
