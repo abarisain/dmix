@@ -581,6 +581,15 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         checkDatabase();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (mApp.getMPD().isConnected()) {
+            storedPlaylistChanged();
+        }
+    }
+
     /**
      * Override this to add actions on toolbar menu item click.
      *
