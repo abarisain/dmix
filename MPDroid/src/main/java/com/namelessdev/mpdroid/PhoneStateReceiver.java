@@ -21,6 +21,7 @@ import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.helpers.MPDControl;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -199,7 +200,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 
                     if (playAfterCall && (get(PAUSED_MARKER) || !get(PAUSE_DURING_CALL))) {
                         debug("Resuming play after call.");
-                        MPDControl.run(MPDControl.ACTION_PLAY);
+                        Tools.runCommand(MPDControl.ACTION_PLAY);
                     } else {
                         debug("No need to resume play after call.");
                     }

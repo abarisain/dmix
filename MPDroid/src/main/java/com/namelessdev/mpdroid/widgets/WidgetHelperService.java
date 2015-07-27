@@ -19,12 +19,10 @@ package com.namelessdev.mpdroid.widgets;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.helpers.MPDControl;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.IntentService;
 import android.content.Intent;
-
-import java.util.concurrent.TimeUnit;
 
 public class WidgetHelperService extends IntentService {
 
@@ -55,16 +53,7 @@ public class WidgetHelperService extends IntentService {
                 SimpleWidgetProvider.getInstance().notifyChange(this);
                 break;
             default:
-                if (status.isValid()) {
-                    MPDControl.run(action);
-                } else {
-                    final Object token = MPDControl.setupConnection(5L, TimeUnit.SECONDS);
-
-                    if (token != null) {
-                        MPDControl.run(action);
-                        mApp.removeConnectionLock(token);
-                    }
-                }
+                Tools.runCommand(action);
         }
     }
 }

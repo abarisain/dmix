@@ -30,8 +30,6 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.KeyEvent;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * RemoteControlReceiver receives media player button stuff. Most of the code was taken from the
  * Android Open Source Project music app.
@@ -66,28 +64,28 @@ public class RemoteControlReceiver extends BroadcastReceiver {
             switch (eventKeyCode) {
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                    run(MPDControl.ACTION_TOGGLE_PLAYBACK);
+                    Tools.runCommand(MPDControl.ACTION_TOGGLE_PLAYBACK);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
-                    run(MPDControl.ACTION_NEXT);
+                    Tools.runCommand(MPDControl.ACTION_NEXT);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                    run(MPDControl.ACTION_PAUSE);
+                    Tools.runCommand(MPDControl.ACTION_PAUSE);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PLAY:
-                    run(MPDControl.ACTION_PLAY);
+                    Tools.runCommand(MPDControl.ACTION_PLAY);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                    run(MPDControl.ACTION_PREVIOUS);
+                    Tools.runCommand(MPDControl.ACTION_PREVIOUS);
                     break;
                 case KeyEvent.KEYCODE_MEDIA_STOP:
-                    run(MPDControl.ACTION_STOP);
+                    Tools.runCommand(MPDControl.ACTION_STOP);
                     break;
                 case KeyEvent.KEYCODE_VOLUME_UP:
-                    run(MPDControl.ACTION_VOLUME_STEP_UP);
+                    Tools.runCommand(MPDControl.ACTION_VOLUME_STEP_UP);
                     break;
                 case KeyEvent.KEYCODE_VOLUME_DOWN:
-                    run(MPDControl.ACTION_VOLUME_STEP_DOWN);
+                    Tools.runCommand(MPDControl.ACTION_VOLUME_STEP_DOWN);
                     break;
                 default:
                     isHandled = false;
@@ -98,24 +96,6 @@ public class RemoteControlReceiver extends BroadcastReceiver {
         }
 
         return isHandled;
-    }
-
-    /**
-     * This method sets up the connection prior to running, only if necessary.
-     *
-     * @param command The {@link MPDControl} command to send.
-     */
-    private static void run(final String command) {
-        if (APP.getMPD().getStatus().isValid()) {
-            MPDControl.run(command);
-        } else {
-            final Object token = MPDControl.setupConnection(5L, TimeUnit.SECONDS);
-
-            if (token != null) {
-                MPDControl.run(command);
-                APP.removeConnectionLock(token);
-            }
-        }
     }
 
     @Override
@@ -131,7 +111,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
             switch (action) {
                 case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
                     if (Tools.isServerLocalhost()) {
-                        run(MPDControl.ACTION_PAUSE);
+                        Tools.runCommand(MPDControl.ACTION_PAUSE);
                     } else {
                         redirectIntentToService(false, intent);
                     }
@@ -149,7 +129,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     redirectIntentToService(true, intent);
                     break;
                 default:
-                    run(action);
+                    Tools.runCommand(action);
                     break;
             }
         }

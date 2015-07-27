@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.tools;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -34,6 +35,7 @@ import android.view.KeyEvent;
 import android.widget.Toast;
 
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 public final class Tools {
 
@@ -240,4 +242,22 @@ public final class Tools {
         return args;
     }
 
+
+    /**
+     * This method sets up the connection prior to running, only if necessary.
+     *
+     * @param command The {@link MPDControl} command to send.
+     */
+    public static void runCommand(final String command) {
+        if (APP.getMPD().getStatus().isValid()) {
+            MPDControl.run(command);
+        } else {
+            final Object token = MPDControl.setupConnection(5L, TimeUnit.SECONDS);
+
+            if (token != null) {
+                MPDControl.run(command);
+                APP.removeConnectionLock(token);
+            }
+        }
+    }
 }
