@@ -229,20 +229,6 @@ public final class Tools {
         Toast.makeText(APP, message, Toast.LENGTH_SHORT).show();
     }
 
-    public static int[] toIntArray(final Collection<Integer> list) {
-        final int[] ret = new int[list.size()];
-        int i = 0;
-        for (final Integer e : list) {
-            ret[i++] = e.intValue();
-        }
-        return ret;
-    }
-
-    public static Object[] toObjectArray(final Object... args) {
-        return args;
-    }
-
-
     /**
      * This method sets up the connection prior to running, only if necessary.
      *
@@ -259,5 +245,18 @@ public final class Tools {
                 APP.removeConnectionLock(token);
             }
         }
+    }
+
+    public static int[] toIntArray(final Collection<Integer> list) {
+        final int[] ret = new int[list.size()];
+        int i = 0;
+        for (final Integer e : list) {
+            ret[i++] = e.intValue();
+        }
+        return ret;
+    }
+
+    public static Object[] toObjectArray(final Object... args) {
+        return args;
     }
 }

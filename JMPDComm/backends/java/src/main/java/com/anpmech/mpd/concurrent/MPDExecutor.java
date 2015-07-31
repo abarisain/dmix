@@ -31,22 +31,63 @@ import com.anpmech.mpd.connection.CommandResult;
 
 import java.security.PrivilegedAction;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class provides one executor to use for this library.
  */
 public final class MPDExecutor {
 
-    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+    private static final ScheduledExecutorService EXECUTOR =
+            Executors.newScheduledThreadPool(Integer.MAX_VALUE);
 
     /**
      * This is a utility class, no instantiation.
      */
     private MPDExecutor() {
         super();
+    }
+
+    /**
+     * Submits a runnable for execution in the future with a callback as the contents.
+     *
+     * @param task  A runnable with a callback as the content.
+     * @param delay The time from now to delay execution.
+     * @param unit  The {@link TimeUnit} of the delay parameter.
+     * @return Returns true if the Runnable was successfully placed in to the message queue.
+     * Returns false on failure, usually because the looper processing the message queue is
+     * exiting.
+     */
+    public static MPDFuture schedule(final Runnable task, final long delay, final TimeUnit unit) {
+        return new MPDFuture(EXECUTOR.schedule(task, delay, unit));
+    }
+
+    /**
+     * Submits a value-returning task for execution in the future and returns a Future representing
+     * the pending results of the task. The Future's <tt>get</tt> method will return the task's
+     * result upon successful completion.
+     *
+     * <p>If you would like to immediately block waiting for a task, you can use constructions of
+     * the form <tt>result = exec.submit(aCallable).get();</tt></p>
+     *
+     * <p> Note: The {@link Executors} class includes a set of methods that can convert some other
+     * common closure-like objects, for example, {@link PrivilegedAction} to {@link Callable} form
+     * so they can be submitted.</p>
+     *
+     * @param task  The task to submit.
+     * @param delay The time from now to delay execution.
+     * @param unit  The {@link TimeUnit} of the delay parameter.
+     * @param <T>   The type used in the parameter will be the type returned.
+     * @return a Future representing pending completion of the task
+     * @throws RejectedExecutionException If the task cannot be scheduled for execution.
+     * @throws NullPointerException       If the task is null.
+     */
+    public static <T extends CommandResult> MPDFuture schedule(final Callable<T> task,
+            final long delay, final TimeUnit unit) {
+        return new MPDFuture(EXECUTOR.schedule(task, delay, unit));
     }
 
     /**
@@ -94,13 +135,13 @@ public final class MPDExecutor {
     /**
      * Submits a runnable with a callback as the contents.
      *
-     * @param runnable A runnable with a callback as the content.
+     * @param task A runnable with a callback as the content.
      * @return Returns true if the Runnable was successfully placed in to the message queue.
      * Returns false on failure, usually because the looper processing the message queue is
      * exiting.
      */
-    public static boolean submitCallback(final Runnable runnable) {
-        submit(runnable);
+    public static boolean submitCallback(final Runnable task) {
+        submit(task);
         return true;
     }
 }

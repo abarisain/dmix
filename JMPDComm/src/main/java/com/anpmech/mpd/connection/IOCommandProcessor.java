@@ -30,6 +30,7 @@ package com.anpmech.mpd.connection;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.concurrent.MPDFuture;
 import com.anpmech.mpd.exception.MPDException;
 
 import java.io.BufferedReader;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.CharBuffer;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This is the foundation for a {@link Callable} class which sends one {@link MPDCommand} or
@@ -60,6 +62,11 @@ abstract class IOCommandProcessor implements Callable<CommandResult> {
      * Use the {@link BufferedReader} standard buffer size.
      */
     private static final int READ_BUFFER_SIZE = 8192;
+
+    /**
+     * This is the read blocking timeout of the stream, in seconds.
+     */
+    private static final long STREAM_TIMEOUT = 5L;
 
     /**
      * The class log identifier.
@@ -228,7 +235,9 @@ abstract class IOCommandProcessor implements Callable<CommandResult> {
      * @throws IOException Thrown upon a communication error with the server.
      */
     protected void innerConnect(final IOSocketSet socketSet) throws IOException {
+        final MPDFuture future = socketSet.startTimeout(STREAM_TIMEOUT, TimeUnit.SECONDS);
         mHeader = socketSet.getReader().readLine();
+        future.cancel(true);
 
         if (mHeader == null) {
             throw new IOException("No response from server.");

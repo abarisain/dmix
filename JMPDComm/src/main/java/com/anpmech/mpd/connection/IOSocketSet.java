@@ -27,6 +27,9 @@
 
 package com.anpmech.mpd.connection;
 
+import com.anpmech.mpd.concurrent.MPDExecutor;
+import com.anpmech.mpd.concurrent.MPDFuture;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +38,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A set of fields associated with the socket address with which it is constructed.
@@ -63,6 +68,12 @@ class IOSocketSet {
      * The socket associated with the constructed socket address.
      */
     private final Socket mSocket;
+
+    /**
+     * This {@link Runnable} implementation will close the socket, unless the {@link MPDFuture} is
+     * cancelled.
+     */
+    private final Runnable mStreamTimeout = new Timeout(this);
 
     /**
      * The writer associated with {@link #mSocket}.
@@ -137,6 +148,17 @@ class IOSocketSet {
         return mSocket.isConnected() && !mSocket.isClosed();
     }
 
+    /**
+     * This method starts a timeout to close the socket for the current stream.
+     *
+     * @param delay The delay to timeout this stream.
+     * @param unit  The {@link TimeUnit} for the delay.
+     * @return A {@link MPDFuture} to use to cancel the timeout.
+     */
+    public MPDFuture startTimeout(final long delay, final TimeUnit unit) {
+        return MPDExecutor.schedule(mStreamTimeout, delay, unit);
+    }
+
     @Override
     public String toString() {
         final String socketLine = "isBound(): " + mSocket.isBound() +
@@ -151,5 +173,38 @@ class IOSocketSet {
                 ", mWriter=" + mWriter +
                 ", mSocket={" + socketLine + " }," +
                 '}';
+    }
+
+    /**
+     * This class is used to cancel a blocking IO socket from another thread.
+     *
+     * <p>This class should be used in a {@link ScheduledExecutorService}.</p>
+     */
+    private static final class Timeout implements Runnable {
+
+        /**
+         * This is "this" IOSocketSet.
+         */
+        private final IOSocketSet mSocketSet;
+
+        /**
+         * Sole constructor.
+         *
+         * @param ioSocketSet This is "this" IOSocketSet.
+         */
+        private Timeout(final IOSocketSet ioSocketSet) {
+            super();
+
+            mSocketSet = ioSocketSet;
+        }
+
+        @Override
+        public void run() {
+            try {
+                mSocketSet.close();
+            } catch (final IOException ignored) {
+                // This will be caught in the running thread!
+            }
+        }
     }
 }
