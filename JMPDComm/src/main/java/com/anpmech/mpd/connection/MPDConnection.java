@@ -263,6 +263,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
         if (hostChanged || !mConnectionStatus.isConnected() || mConnectionStatus.isCancelled()) {
             debug("Information changed, connecting");
             mConnectionStatus.unsetCancelled();
+            mConnectionStatus.statusChangeConnecting();
             mSocketAddress = address;
             mConnectionResponse = submit(Reflection.CMD_ACTION_COMMANDS);
         } else {
