@@ -128,9 +128,22 @@ public class IdleSubsystemMonitor implements Runnable {
     private static final long PENALIZATION_TIMEOUT = TimeUnit.SECONDS.toMillis(10L);
 
     /**
+     * A log message delivered upon status update failure.
+     */
+    private static final String STATUS_UPDATE_FAILURE = "Failed to force a status update.";
+
+    /**
      * The class log identifier.
      */
     private static final String TAG = "IdleStatusMonitor";
+
+    /**
+     * The listeners for this IdleSubsystemMonitor.
+     *
+     * <p>These errors should be treated seriously. They will affect function of this subsystem
+     * monitor and likely to affect other parts of a implemented application.</p>
+     */
+    private final List<Error> mErrorListeners;
 
     /**
      * The MPD object to keep updated.
@@ -179,6 +192,18 @@ public class IdleSubsystemMonitor implements Runnable {
         mStop = false;
         mStatusChangeListeners = new ArrayList<>();
         mTrackPositionListeners = new ArrayList<>();
+        mErrorListeners = new ArrayList<>();
+    }
+
+    /**
+     * Adds a {@code Error} listener.
+     *
+     * @param listener a {@code Error} listener.
+     */
+    public void addIdleSubsystemErrorListener(final Error listener) {
+        if (!mErrorListeners.contains(listener)) {
+            mErrorListeners.add(listener);
+        }
     }
 
     /**
@@ -200,6 +225,42 @@ public class IdleSubsystemMonitor implements Runnable {
     public void addTrackPositionListener(final TrackPositionListener listener) {
         if (!mTrackPositionListeners.contains(listener)) {
             mTrackPositionListeners.add(listener);
+        }
+    }
+
+    /**
+     * This method logs and sends callbacks for IdleSubsystem error handling.
+     *
+     * @param message The message to log.
+     * @param e       The exception raised.
+     */
+    private void emitError(final String message, final MPDException e) {
+        for (final Error listener : mErrorListeners) {
+            MPDExecutor.submitCallback(new Runnable() {
+                @Override
+                public void run() {
+                    Log.error(TAG, message, e);
+                    listener.onMPDError(e);
+                }
+            });
+        }
+    }
+
+    /**
+     * This method logs and sends callbacks for IdleSubsystem error handling.
+     *
+     * @param message The message to log.
+     * @param e       The exception raised.
+     */
+    private void emitError(final String message, final IOException e) {
+        for (final Error listener : mErrorListeners) {
+            MPDExecutor.submitCallback(new Runnable() {
+                @Override
+                public void run() {
+                    Log.error(TAG, message, e);
+                    listener.onIOError(e);
+                }
+            });
         }
     }
 
@@ -270,8 +331,10 @@ public class IdleSubsystemMonitor implements Runnable {
                         statistics.update();
                         status.update();
                         playlist.refresh(status);
-                    } catch (final IOException | MPDException e) {
-                        Log.error(TAG, "Failed to force a status update.", e);
+                    } catch (final IOException e) {
+                        emitError(STATUS_UPDATE_FAILURE, e);
+                    } catch (final MPDException e) {
+                        emitError(STATUS_UPDATE_FAILURE, e);
                     }
                 } else {
                     try {
@@ -292,6 +355,7 @@ public class IdleSubsystemMonitor implements Runnable {
                 dbChanged = true;
                 statusChanged = true;
             } else {
+                boolean inError = false;
                 mIdleTracker = connection.submit(MPDCommand.MPD_CMD_IDLE,
                         mSupportedSubsystems);
 
@@ -330,8 +394,15 @@ public class IdleSubsystemMonitor implements Runnable {
                                 break;
                         }
                     }
-                } catch (final IOException | MPDException e) {
-                    Log.error(TAG, GENERAL_ERROR, e);
+                } catch (final IOException e) {
+                    emitError(GENERAL_ERROR, e);
+                    inError = true;
+                } catch (final MPDException e) {
+                    emitError(GENERAL_ERROR, e);
+                    inError = true;
+                }
+
+                if (inError) {
                     synchronized (this) {
                         try {
                             Log.error(TAG, "Sleeping for " +
@@ -493,10 +564,10 @@ public class IdleSubsystemMonitor implements Runnable {
                 continue;
             } catch (final IOException e) {
                 if (mMPD.isConnected()) {
-                    Log.error(TAG, GENERAL_ERROR, e);
+                    emitError(GENERAL_ERROR, e);
                 }
             } catch (final MPDException e) {
-                Log.error(TAG, GENERAL_ERROR, e);
+                emitError(GENERAL_ERROR, e);
             }
         }
     }
@@ -532,5 +603,27 @@ public class IdleSubsystemMonitor implements Runnable {
         if (mIdleTracker != null) {
             mIdleTracker.cancel(true);
         }
+    }
+
+    /**
+     * This interface is used to handle errors during execution of this monitor.
+     */
+    public interface Error {
+
+        /**
+         * Listeners of this interface method will be called upon IdleSubsystemMonitor IOException
+         * error.
+         *
+         * @param e The {@link IOException} which caused this callback.
+         */
+        void onIOError(final IOException e);
+
+        /**
+         * Listeners of this interface method will be called upon IdleSubsystemMonitor IOException
+         * error.
+         *
+         * @param e The {@link MPDException} which caused this callback.
+         */
+        void onMPDError(final MPDException e);
     }
 }
