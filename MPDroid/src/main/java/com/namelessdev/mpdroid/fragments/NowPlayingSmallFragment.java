@@ -258,8 +258,7 @@ public class NowPlayingSmallFragment extends Fragment implements
         if (isAdded()) {
             final MPD mpd = mApp.getMPD();
             final MPDStatus mpdStatus = mpd.getStatus();
-            final int songPos = mpdStatus.getSongPos();
-            final Music currentSong = mpd.getPlaylist().getByIndex(songPos);
+            final Music currentSong = mpd.getCurrentTrack();
 
             if (currentSong != null && currentSong.isStream() ||
                     mpdStatus.isState(MPDStatusMap.STATE_STOPPED)) {

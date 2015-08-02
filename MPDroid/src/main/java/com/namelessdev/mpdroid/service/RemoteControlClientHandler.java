@@ -154,8 +154,7 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
                          * This is an ugly fix for now. I will clean this up sooner or later.
                          */
                         final MPD mpd = MPDApplication.getInstance().getMPD();
-                        final int songPos = mpd.getStatus().getSongPos();
-                        final Music currentTrack = mpd.getPlaylist().getByIndex(songPos);
+                        final Music currentTrack = mpd.getCurrentTrack();
 
                         if (currentTrack != null) {
                             mRemoteControlClient.editMetadata(true)
