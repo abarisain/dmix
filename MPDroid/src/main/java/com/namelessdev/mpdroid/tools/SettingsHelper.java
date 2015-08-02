@@ -125,11 +125,13 @@ public final class SettingsHelper {
         final String settingString =
                 SETTINGS.getString(name, Integer.toString(defaultValue).trim());
 
-        try {
-            setting = Integer.parseInt(settingString);
-        } catch (final NumberFormatException e) {
-            Log.e(TAG, "Received a bad integer during processing", e);
+        if (!settingString.isEmpty()) {
+            try {
+                setting = Integer.parseInt(settingString);
+            } catch (final NumberFormatException e) {
+                Log.e(TAG, "Received a bad integer during processing", e);
 
+            }
         }
 
         return setting;
