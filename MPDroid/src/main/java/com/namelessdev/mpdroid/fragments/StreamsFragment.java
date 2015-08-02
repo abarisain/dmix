@@ -338,6 +338,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
         public void onClick(final DialogInterface dialog, final int which) {
             final String name = getText(mNameEdit);
             final String url = getText(mUrlEdit);
+            mApp.addConnectionLock(this);
 
             if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(url)) {
                 if (mIndex >= 0 && mIndex < mStreams.size()) {
@@ -373,6 +374,8 @@ public class StreamsFragment extends BrowseFragment<Stream> {
                             Toast.LENGTH_SHORT).show();
                 }
             }
+
+            mApp.removeConnectionLock(this);
             if (mStreamUrlToAdd != null) {
                 getActivity().finish();
             }
