@@ -106,6 +106,8 @@
     <string name="portDescription">MPD-Server port (Default: 6600)</string>
     <string name="password">Password</string>
     <string name="passwordDescription">Password for the Server</string>
+    <string name="invalidPassword">Invalid password for this server.</string>
+    <string name="corePermissionDenied">Core command permission denied for this password: %s</string>
     <string name="version">Version</string>
     <string name="songs">Songs</string>
     <string name="serverInformation">Server Information</string>

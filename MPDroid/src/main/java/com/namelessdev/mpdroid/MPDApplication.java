@@ -131,6 +131,15 @@ public class MPDApplication extends Application implements
     }
 
     /**
+     * Adds a {@link IdleSubsystemMonitor.Error} listener.
+     *
+     * @param listener A IdleSubsystemMonitor error listener.
+     */
+    public void addIdleSubsystemErrorListener(final IdleSubsystemMonitor.Error listener) {
+        mIdleSubsystemMonitor.addIdleSubsystemErrorListener(listener);
+    }
+
+    /**
      * Adds a {@link StatusChangeListener} from the associated {@link IdleSubsystemMonitor}.
      *
      * @param listener The {@link StatusChangeListener} to add for notification for the

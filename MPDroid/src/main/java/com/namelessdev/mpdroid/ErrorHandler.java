@@ -19,6 +19,7 @@ package com.namelessdev.mpdroid;
 import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -38,11 +39,13 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class ErrorHandler implements MPDConnectionListener {
+public class ErrorHandler implements IdleSubsystemMonitor.Error,
+        MPDConnectionListener {
 
     private static final boolean DEBUG = false;
 
@@ -90,6 +93,8 @@ public class ErrorHandler implements MPDConnectionListener {
         } else {
             connectionConnecting();
         }
+
+        mApp.addIdleSubsystemErrorListener(this);
     }
 
     private static void debug(final String line) {
@@ -275,6 +280,42 @@ public class ErrorHandler implements MPDConnectionListener {
             Tools.notifyUser(R.string.launchingLocalhostMPD);
             final Intent mpdIntent = packageManager.getLaunchIntentForPackage(MPD_PACKAGE_NAME);
             mActivity.startActivityIfNeeded(mpdIntent, 0);
+        }
+    }
+
+    /**
+     * Listeners of this interface method will be called upon IdleSubsystemMonitor IOException
+     * error.
+     *
+     * @param e The {@link IOException} which caused this callback.
+     */
+    @Override
+    public void onIOError(final IOException e) {
+    }
+
+    /**
+     * Listeners of this interface method will be called upon IdleSubsystemMonitor IOException
+     * error.
+     *
+     * @param e The {@link MPDException} which caused this callback.
+     */
+    @Override
+    public void onMPDError(final MPDException e) {
+        final Intent intent = new Intent(mActivity, WifiConnectionSettings.class);
+
+        switch (e.mErrorCode) {
+            case MPDException.ACK_ERROR_PASSWORD:
+                // TODO: This needs a better UI.
+                Tools.notifyUser(R.string.invalidPassword);
+                mActivity.startActivityIfNeeded(intent, SETTINGS);
+                break;
+            case MPDException.ACK_ERROR_PERMISSION:
+                // TODO: This needs a better UI.
+                Tools.notifyUser(R.string.corePermissionDenied, e.mErrorMessage);
+                mActivity.startActivityIfNeeded(intent, SETTINGS);
+                break;
+            default:
+                break;
         }
     }
 
