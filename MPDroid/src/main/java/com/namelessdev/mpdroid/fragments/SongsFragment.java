@@ -174,8 +174,11 @@ public class SongsFragment extends BrowseFragment<Music> {
         mApp.getAsyncHelper().execAsync(new Runnable() {
             @Override
             public void run() {
-                final Palette.Builder builder = new Palette.Builder(bitmap);
-                builder.generate(paletteAsyncListener);
+                // Suppress this crash. It can happen (rarely) and it's not worth crashing over.
+                if (bitmap != null && !bitmap.isRecycled()) {
+                    final Palette.Builder builder = new Palette.Builder(bitmap);
+                    builder.generate(paletteAsyncListener);
+                }
             }
         });
     }
