@@ -113,10 +113,10 @@ android {
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    androidTestCompile 'com.android.support.test:runner:0.2'
+    androidTestCompile 'com.android.support.test:runner:0.3'
 
     // For JUnit 4
-    androidTestCompile 'com.android.support.test:rules:0.2'
+    androidTestCompile 'com.android.support.test:rules:0.3'
 }
 
 class BrowseJavadoc implements TaskExecutionListener {
