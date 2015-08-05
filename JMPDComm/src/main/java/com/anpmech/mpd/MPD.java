@@ -678,6 +678,7 @@ public class MPD {
     public synchronized void disconnect() throws IOException {
         mIdleConnection.disconnect();
         mConnection.disconnect();
+        mPlaylist.invalidate();
         mStatistics.invalidate();
         mStatus.invalidate();
     }
