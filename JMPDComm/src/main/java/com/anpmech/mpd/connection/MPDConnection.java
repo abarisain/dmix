@@ -288,28 +288,42 @@ public abstract class MPDConnection implements MPDConnectionListener {
             commandErrorCode = e.mErrorCode;
             Log.error(TAG, "Exception during connection.", e);
         } catch (final IOException e) {
-            throw new IllegalStateException("IOException thrown as result of successful" +
-                    "connection.", e);
+            /**
+             * This should not happen. If it does, it is a programmatic error in the
+             * CommandProcessor. MPDConnectionStatus.statusChangeDisconnected() should have been
+             * called prior to the MPDFuture task completion (and the result from MPDFuture.get()).
+             */
+            if (mConnectionStatus.isConnected()) {
+                throw new IllegalStateException("IOException thrown as result of successful" +
+                        "connection.", e);
+            }
         }
 
         /**
-         * Don't worry too much about it if we didn't get a connection header. Sometimes,
-         * we'll have been told we disconnected when we had not.
+         * This can happen because this callback is called early in the CommandProcessor execution.
+         * If not connected, this will be skipped and another MPDConnectionStatus callback will
+         * have been called.
          */
-        if (commandResponse != null && commandResponse.isHeaderValid()) {
-            mAvailableCommands.clear();
-            mAvailableCommands.addAll(commandResponse.getValues());
+        if (mConnectionStatus.isConnected()) {
+            /**
+             * Don't worry too much about it if we didn't get a connection header. Sometimes,
+             * we'll have been told we disconnected when we had not.
+             */
+            if (commandResponse != null && commandResponse.isHeaderValid()) {
+                mAvailableCommands.clear();
+                mAvailableCommands.addAll(commandResponse.getValues());
 
-            mMPDVersion = commandResponse.getMPDVersion();
+                mMPDVersion = commandResponse.getMPDVersion();
+            }
+
+            debug("Releasing connection lock upon successful connection.");
+            mConnectionLock.release();
+
+            /**
+             * This should be the final call from this method.
+             */
+            mConnectionStatus.connectedCallbackComplete(commandErrorCode);
         }
-
-        debug("Releasing connection lock upon successful connection.");
-        mConnectionLock.release();
-
-        /**
-         * This should be the final call from this method.
-         */
-        mConnectionStatus.connectedCallbackComplete(commandErrorCode);
     }
 
     /**
