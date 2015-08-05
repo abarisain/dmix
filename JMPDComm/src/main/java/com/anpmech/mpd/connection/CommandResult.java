@@ -222,9 +222,14 @@ public class CommandResult {
          * @param result   The MPD protocol command result.
          * @param position The position relative to the result to initiate the {@link #mPosition}
          *                 to.
+         * @throws IllegalArgumentException if the position parameter is less than 0.
          */
         protected AbstractResultIterator(final String result, final int position) {
             super();
+
+            if (position < 0) {
+                throw new IllegalArgumentException("Position must 0 or greater.");
+            }
 
             mResult = result;
             mPosition = position;
