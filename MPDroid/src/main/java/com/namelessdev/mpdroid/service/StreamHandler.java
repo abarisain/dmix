@@ -239,7 +239,6 @@ public final class StreamHandler implements
 
         mServiceHandler.sendEmptyMessage(BUFFERING_BEGIN);
         final String streamSource = getStreamSource();
-        final long asyncIdle = 1500L;
         mPreparingStream = true;
         mServiceHandler.removeMessages(STOP);
 
@@ -272,7 +271,12 @@ public final class StreamHandler implements
          *
          * This order is very specific and if interrupted can cause big problems.
          */
-        mHandler.sendEmptyMessageDelayed(PREPARE_ASYNC, asyncIdle); /** Go to onPrepared() */
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
+            final long asyncIdle = 1500L;
+            mHandler.sendEmptyMessageDelayed(PREPARE_ASYNC, asyncIdle);
+        } else {
+            prepareAsync();
+        }
     }
 
     /**
@@ -293,33 +297,12 @@ public final class StreamHandler implements
      */
     @Override
     public boolean handleMessage(final Message msg) {
-        boolean result = false;
+        boolean result = true;
 
         if (msg.what == PREPARE_ASYNC) {
-            /**
-             * If MediaPlayer is null, the stream has already been
-             * stopped; action is/has already been taken.
-             */
-            if (mIsPlaying && mMediaPlayer != null) {
-                if (DEBUG) {
-                    Log.d(TAG, "Start mediaPlayer buffering.");
-                }
-
-                try {
-                    mMediaPlayer.prepareAsync();
-                } catch (final IllegalStateException e) {
-                    showErrorToUser(R.string.streamPreparationError, e);
-                    windDownResources(BUFFERING_END);
-                }
-                /**
-                 * Between here and onPrepared, if the media server
-                 * stream pauses, error handling workarounds will be used.
-                 */
-            } else {
-                mPreparingStream = false;
-                windDownResources(STREAMING_PAUSE);
-            }
-            result = true;
+            prepareAsync();
+        } else {
+            result = false;
         }
 
         return result;
@@ -504,6 +487,35 @@ public final class StreamHandler implements
 
         mPreparingStream = false;
         mErrorIterator = 0; /** Reset the error iterator. */
+    }
+
+    /**
+     * This method begins the stream buffering.
+     */
+    private void prepareAsync() {
+        /**
+         * If MediaPlayer is null, the stream has already been
+         * stopped; action is/has already been taken.
+         */
+        if (mIsPlaying && mMediaPlayer != null) {
+            if (DEBUG) {
+                Log.d(TAG, "Start mediaPlayer buffering.");
+            }
+
+            try {
+                mMediaPlayer.prepareAsync();
+            } catch (final IllegalStateException e) {
+                showErrorToUser(R.string.streamPreparationError, e);
+                windDownResources(BUFFERING_END);
+            }
+            /**
+             * Between here and onPrepared, if the media server
+             * stream pauses, error handling workarounds will be used.
+             */
+        } else {
+            mPreparingStream = false;
+            windDownResources(STREAMING_PAUSE);
+        }
     }
 
     /**
