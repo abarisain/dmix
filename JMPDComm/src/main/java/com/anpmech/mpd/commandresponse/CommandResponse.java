@@ -228,8 +228,16 @@ public class CommandResponse extends CommandResult implements Iterable<String> {
      * @return A iterator to return key/value pairs.
      */
     public ListIterator<Map.Entry<String, String>> reverseSplitListIterator() {
-        return new ResponseSplitIterator(mResult,
-                mResult.lastIndexOf(MPDCommand.MPD_CMD_NEWLINE));
+        int lastIndex = mResult.lastIndexOf(MPDCommand.MPD_CMD_NEWLINE);
+
+        /**
+         * If the last index is -1, the position will be wrongly calculated.
+         */
+        if (lastIndex == -1) {
+            lastIndex = 0;
+        }
+
+        return new ResponseSplitIterator(mResult, lastIndex);
     }
 
     /**
