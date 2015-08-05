@@ -93,7 +93,7 @@ public final class StreamHandler implements
      * Called as an argument to windDownResources() when a message is not required to send to the
      * service.
      */
-    private static final int INVALID_INT = -1;
+    private static final int INVALID_INT = Integer.MIN_VALUE;
 
     private static final MPD MPD = MPDApplication.getInstance().getMPD();
 
@@ -690,17 +690,17 @@ public final class StreamHandler implements
         if (mMediaPlayer != null) {
             /**
              * Cannot run reset/release when buffering, MediaPlayer will ANR or crash MPDroid, at
-             * least on Android 4.4.2. Worst case, not resetting may cause a stale buffer to play at
+             * least on Android <5.0. Worst case, not resetting may cause a stale buffer to play at
              * the beginning and restart buffering; not perfect, but this is a pretty good solution.
              */
-            if (mPreparingStream) {
+            if (mPreparingStream && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
                 Log.w(TAG, "Media player paused during streaming, workarounds running.");
                 mHandler.removeMessages(PREPARE_ASYNC);
-                mPreparingStream = false;
             } else {
                 mMediaPlayer.release();
                 mMediaPlayer = null;
             }
+            mPreparingStream = false;
         }
     }
 
