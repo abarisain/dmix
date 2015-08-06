@@ -928,6 +928,10 @@ public class MPD {
     /**
      * This retrieves the current track from the {@link MPDPlaylist}/{@link MPDStatusMap} cache.
      *
+     * <p>This method <b>depends</b> on a valid MPDStatus and MPDPlaylist prior to being run. The
+     * reason it is not run by this method is to wait for validity will block and it is up to the
+     * user to take precaution for this prior to running this method.</p>
+     *
      * @return The current track.
      */
     public Music getCurrentTrack() {

@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.service;
 
+import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Music;
@@ -825,9 +826,15 @@ public final class MPDroidService extends Service implements
      * Updates the current track of all handlers which require a current track.
      */
     private void updateTrack() {
-        final Music currentTrack = APP.getMPD().getCurrentTrack();
+        final MPD mpd = APP.getMPD();
 
-        updateTrack(currentTrack);
+        try {
+            mMPDStatus.waitForValidity();
+            mpd.getPlaylist().waitForValidity();
+        } catch (final InterruptedException ignored) {
+        }
+
+        updateTrack(mpd.getCurrentTrack());
     }
 
     /**
