@@ -392,7 +392,7 @@ public final class CoverManager {
         if (fis.available() == 0) {
             ois = null;
         } else {
-            ois = new ObjectInputStream(new FileInputStream(file));
+            ois = new ObjectInputStream(fis);
         }
 
         return ois;
