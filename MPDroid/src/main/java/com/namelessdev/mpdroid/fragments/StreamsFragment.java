@@ -361,7 +361,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
                     } catch (final IOException | MPDException e) {
                         Log.e(TAG, "Failed to save stream.", e);
                     }
-                    mStreams.add(new Stream(url, name, mStreams.size()));
+                    mStreams.add(new Stream(name, url, mStreams.size()));
                 }
 
                 Collections.sort(mStreams);
