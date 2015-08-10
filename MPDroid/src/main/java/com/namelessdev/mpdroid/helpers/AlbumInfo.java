@@ -361,7 +361,7 @@ public class AlbumInfo {
         String album = cleanGetRequest(mAlbumName);
         album = MEDIA_REMOVE.matcher(album).replaceAll(" ");
 
-        return new AlbumInfo(album, artist, mParentDirectory, mFilename);
+        return new AlbumInfo(artist, album, mParentDirectory, mFilename);
     }
 
     /**
