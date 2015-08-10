@@ -206,7 +206,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
     public void onItemClick(final AdapterView<?> adapterView, final View view, final int i,
             final long l) {
         final AbstractMap<String, Object> item = mSongList.get(i);
-        item.get("marked");
+
         if (item.get("marked").equals(true)) {
             item.put("marked", false);
         } else {
