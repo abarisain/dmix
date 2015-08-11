@@ -1130,10 +1130,14 @@ public final class MPDroidService extends Service implements
                     Log.d(TAG, "No service clients. What: " + ServiceBinder.getHandlerValue(what));
                 }
             } else {
-                final Message msg = ServiceBinder.getBoolMessage(mHandler, what, isActive);
-
                 for (int iterator = mServiceClients.size() - 1; iterator >= 0; iterator--) {
                     try {
+                        /**
+                         * Obtain a new message each time, the message is freed by the Messenger
+                         * after sending.
+                         */
+                        final Message msg = ServiceBinder.getBoolMessage(mHandler, what, isActive);
+
                         mServiceClients.get(iterator).send(msg);
                     } catch (final RemoteException e) {
                         /**
