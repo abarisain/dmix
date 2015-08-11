@@ -406,10 +406,14 @@ public final class CoverManager {
     static boolean isWifi() {
         final ConnectivityManager conMan = (ConnectivityManager) sApp
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
-        // Get status of wifi connection
-        final NetworkInfo.State wifi = conMan.getNetworkInfo(1).getState();
+        NetworkInfo.State wifi = NetworkInfo.State.DISCONNECTED;
 
-        return (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING);
+        if (conMan != null) {
+            // Get status of wifi connection
+            wifi = conMan.getNetworkInfo(1).getState();
+        }
+
+        return wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING;
     }
 
     private static HashMap<String, String> loadCovers() {
