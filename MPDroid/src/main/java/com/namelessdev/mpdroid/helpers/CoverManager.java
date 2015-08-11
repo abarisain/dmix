@@ -711,11 +711,10 @@ public final class CoverManager {
     }
 
     void setCoverRetrievers(final List<CoverRetrievers> whichCoverRetrievers) {
-        if (whichCoverRetrievers == null) {
-            mCoverRetrievers = new ICoverRetriever[0];
-        }
-        mCoverRetrievers = new ICoverRetriever[whichCoverRetrievers.size()];
-        for (int i = 0; i < whichCoverRetrievers.size(); i++) {
+        final int coverRetrieverSize = whichCoverRetrievers.size();
+        mCoverRetrievers = new ICoverRetriever[coverRetrieverSize];
+
+        for (int i = 0; i < coverRetrieverSize; i++) {
             switch (whichCoverRetrievers.get(i)) {
                 case CACHE:
                     mCoverRetrievers[i] = new CachedCover();
