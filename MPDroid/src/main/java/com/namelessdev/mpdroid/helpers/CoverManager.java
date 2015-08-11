@@ -880,15 +880,16 @@ public final class CoverManager {
                 mCoverInfo.setBitmap(bitmaps);
                 mCoverInfo.setCoverBytes(null);
 
-                final ICoverRetriever cacheRetriever;
-                cacheRetriever = getCacheRetriever();
+                final CachedCover cacheRetriever = getCacheRetriever();
+
                 if (cacheRetriever != null && !mCoverInfo.getCoverRetriever()
                         .equals(cacheRetriever)) {
                     if (DEBUG) {
                         Log.i(TAG, "Saving cover art to cache");
                     }
+
                     // Save the fullsize bitmap
-                    getCacheRetriever().save(mCoverInfo, fullBmp);
+                    cacheRetriever.save(mCoverInfo, fullBmp);
 
                     // Release the cover immediately if not used
                     if (!bitmaps[0].equals(bitmaps[1])) {
