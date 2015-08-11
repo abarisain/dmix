@@ -75,11 +75,14 @@ public final class LibraryTabsUtil {
 
     public static ArrayList<String> getCurrentLibraryTabs() {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(APP);
-        String currentSettings = settings.getString(LIBRARY_TABS_SETTINGS_KEY, "");
-        if (currentSettings != null && currentSettings.isEmpty()) {
+        String currentSettings =
+                settings.getString(LIBRARY_TABS_SETTINGS_KEY, DEFAULT_LIBRARY_TABS);
+
+        if (currentSettings.isEmpty()) {
             currentSettings = DEFAULT_LIBRARY_TABS;
             resetLibraryTabs();
         }
+
         return new ArrayList<>(Arrays.asList(currentSettings.split('\\'
                 + LIBRARY_TABS_DELIMITER)));
     }
