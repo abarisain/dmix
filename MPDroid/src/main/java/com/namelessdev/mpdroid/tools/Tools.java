@@ -195,14 +195,15 @@ public final class Tools {
      */
     public static boolean isPackageInstalled(final String packageName) {
         final PackageManager packageManager = APP.getPackageManager();
-        boolean isInstalled;
+        boolean isInstalled = false;
 
-        try {
-            packageManager.getPackageInfo(packageName, PackageManager.GET_SERVICES);
-            isInstalled = true;
-        } catch (final PackageManager.NameNotFoundException ignored) {
-            isInstalled = false;
-            Log.d(TAG, packageName + " is not installed, cannot launch.");
+        if (packageManager != null) {
+            try {
+                packageManager.getPackageInfo(packageName, PackageManager.GET_SERVICES);
+                isInstalled = true;
+            } catch (final PackageManager.NameNotFoundException ignored) {
+                Log.d(TAG, packageName + " is not installed, cannot launch.");
+            }
         }
 
         return isInstalled;

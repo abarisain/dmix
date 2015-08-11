@@ -266,21 +266,24 @@ public class ErrorHandler implements IdleSubsystemMonitor.Error,
             final long relaunchTime = SystemClock.elapsedRealtime() +
                     TimeUnit.SECONDS.toMillis(1L);
             final PackageManager packageManager = mActivity.getPackageManager();
-            final AlarmManager alarmService =
-                    (AlarmManager) mActivity.getSystemService(Context.ALARM_SERVICE);
-            final Intent restartActivity =
-                    packageManager.getLaunchIntentForPackage(mActivity.getPackageName());
-            final PendingIntent relaunchMPDroid = PendingIntent.getActivity(mActivity, 1,
-                    restartActivity, PendingIntent.FLAG_ONE_SHOT);
 
-            /**
-             * Ready an alarm to restart MPDroid after MPD is launched.
-             */
-            alarmService.set(AlarmManager.ELAPSED_REALTIME, relaunchTime, relaunchMPDroid);
+            if (packageManager != null) {
+                final AlarmManager alarmService =
+                        (AlarmManager) mActivity.getSystemService(Context.ALARM_SERVICE);
+                final Intent restartActivity =
+                        packageManager.getLaunchIntentForPackage(mActivity.getPackageName());
+                final PendingIntent relaunchMPDroid = PendingIntent.getActivity(mActivity, 1,
+                        restartActivity, PendingIntent.FLAG_ONE_SHOT);
 
-            Tools.notifyUser(R.string.launchingLocalhostMPD);
-            final Intent mpdIntent = packageManager.getLaunchIntentForPackage(MPD_PACKAGE_NAME);
-            mActivity.startActivityIfNeeded(mpdIntent, 0);
+                /**
+                 * Ready an alarm to restart MPDroid after MPD is launched.
+                 */
+                alarmService.set(AlarmManager.ELAPSED_REALTIME, relaunchTime, relaunchMPDroid);
+
+                Tools.notifyUser(R.string.launchingLocalhostMPD);
+                final Intent mpdIntent = packageManager.getLaunchIntentForPackage(MPD_PACKAGE_NAME);
+                mActivity.startActivityIfNeeded(mpdIntent, 0);
+            }
         }
     }
 
