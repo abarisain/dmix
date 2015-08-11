@@ -124,10 +124,13 @@ public final class Tools {
 
                 if (Intent.EXTRA_KEY_EVENT.equals(what)) {
                     final KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-                    final int eventKeyCode = event.getKeyCode();
 
-                    stringBuilder.append(", with keycode: ");
-                    stringBuilder.append(eventKeyCode);
+                    if (event != null) {
+                        final int eventKeyCode = event.getKeyCode();
+
+                        stringBuilder.append(", with keycode: ");
+                        stringBuilder.append(eventKeyCode);
+                    }
                 }
             }
         }
