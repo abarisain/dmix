@@ -146,8 +146,10 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         public void onClick(final View v) {
             mPopupSongID = (Integer) v.getTag();
             final PopupMenu popupMenu = new PopupMenu(mActivity, v);
+            final Music track = getPlaylistItemSong(mPopupSongID);
+
             popupMenu.getMenuInflater().inflate(R.menu.mpd_playlistcnxmenu, popupMenu.getMenu());
-            if (getPlaylistItemSong(mPopupSongID).isStream()) {
+            if (track != null && track.isStream()) {
                 popupMenu.getMenu().findItem(R.id.PLCX_goto).setVisible(false);
             }
             popupMenu.setOnMenuItemClickListener(QueueFragment.this);
