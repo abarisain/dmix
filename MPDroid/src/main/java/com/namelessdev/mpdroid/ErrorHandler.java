@@ -41,7 +41,8 @@ import android.view.WindowManager;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 public class ErrorHandler implements IdleSubsystemMonitor.Error,
@@ -236,8 +237,8 @@ public class ErrorHandler implements IdleSubsystemMonitor.Error,
     private boolean isMPDRunning() {
         final ActivityManager activityManager =
                 (ActivityManager) mActivity.getSystemService(Context.ACTIVITY_SERVICE);
-        final List<ActivityManager.RunningAppProcessInfo> apps =
-                activityManager.getRunningAppProcesses();
+        final Collection<ActivityManager.RunningAppProcessInfo> apps = new ArrayList<>();
+        apps.addAll(activityManager.getRunningAppProcesses());
 
         boolean isRunning = false;
         for (final ActivityManager.RunningAppProcessInfo app : apps) {
