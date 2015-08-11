@@ -74,12 +74,10 @@ public class AlbumsFragment extends BrowseFragment<Album> {
     private static void refreshCover(final View view, final AlbumInfo album) {
         if (view.getTag() instanceof AlbumViewHolder) {
             final AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
-            if (albumViewHolder.mAlbumCover
-                    .getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
-                final CoverAsyncHelper coverAsyncHelper
-                        = (CoverAsyncHelper) albumViewHolder.mAlbumCover
-                        .getTag(R.id.CoverAsyncHelper);
-                coverAsyncHelper.downloadCover(album, true);
+            final Object tag = albumViewHolder.mAlbumCover.getTag(R.id.CoverAsyncHelper);
+
+            if (tag instanceof CoverAsyncHelper) {
+                ((CoverAsyncHelper) tag).downloadCover(album, true);
             }
         }
     }
