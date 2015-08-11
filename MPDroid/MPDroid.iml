@@ -38,7 +38,7 @@
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/foss/debug" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/foss/debug" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/foss/debug" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/generated/foss/debug" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/foss/debug" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/fossDebug/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/fossDebug/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/fossDebug/assets" type="java-resource" />
@@ -46,6 +46,13 @@
       <sourceFolder url="file://$MODULE_DIR$/src/fossDebug/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/fossDebug/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/fossDebug/rs" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFossDebug/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFossDebug/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFossDebug/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFossDebug/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFossDebug/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFossDebug/jni" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFossDebug/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/foss/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/foss/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/foss/assets" type="java-resource" />
@@ -120,7 +127,6 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 22 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" scope="TEST" name="mockable-android-22" level="project" />
     <orderEntry type="library" exported="" name="library-2.4.0" level="project" />
     <orderEntry type="library" exported="" name="drag-sort-listview-1.0" level="project" />
     <orderEntry type="library" exported="" name="palette-v7-22.2.1" level="project" />
