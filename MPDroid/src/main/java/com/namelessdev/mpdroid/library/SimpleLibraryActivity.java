@@ -269,7 +269,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
 
             if (displayedFragment instanceof BrowseFragment) {
                 setTitle(((BrowseFragment<?>) displayedFragment).getTitle());
-            } else {
+            } else if (displayedFragment != null) {
                 setTitle(displayedFragment.toString());
             }
         }
