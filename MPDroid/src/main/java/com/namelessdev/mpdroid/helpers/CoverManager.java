@@ -390,6 +390,7 @@ public final class CoverManager {
         final ObjectInputStream ois;
 
         if (fis.available() == 0) {
+            fis.close();
             ois = null;
         } else {
             ois = new ObjectInputStream(fis);
