@@ -36,6 +36,18 @@ public class CachedCover implements ICoverRetriever {
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
+    private static String getAbsoluteCoverFolderPath(final File cacheDir) {
+        final String folderPath;
+
+        if (cacheDir == null) {
+            folderPath = null;
+        } else {
+            folderPath = cacheDir.getAbsolutePath() + CoverManager.FOLDER_SUFFIX;
+        }
+
+        return folderPath;
+    }
+
     public void clear() {
         delete(null);
     }
@@ -58,19 +70,20 @@ public class CachedCover implements ICoverRetriever {
     }
 
     public String getAbsoluteCoverFolderPath() {
-        final File cacheDir = mApp.getExternalCacheDir();
-        if (cacheDir == null) {
-            return null;
-        }
-        return cacheDir.getAbsolutePath() + CoverManager.FOLDER_SUFFIX;
+        return getAbsoluteCoverFolderPath(mApp.getExternalCacheDir());
     }
 
     public String getAbsolutePathForSong(final AlbumInfo albumInfo) {
         final File cacheDir = mApp.getExternalCacheDir();
+        final String absolutePath;
+
         if (cacheDir == null) {
-            return null;
+            absolutePath = null;
+        } else {
+            absolutePath = getAbsoluteCoverFolderPath(cacheDir) + getCoverFileName(albumInfo);
         }
-        return getAbsoluteCoverFolderPath() + getCoverFileName(albumInfo);
+
+        return absolutePath;
     }
 
     /**
@@ -106,19 +119,23 @@ public class CachedCover implements ICoverRetriever {
     }
 
     @Override
-    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
+    public String[] getCoverUrl(final AlbumInfo albumInfo) {
         final String storageState = Environment.getExternalStorageState();
+        String[] coverUrl = null;
+
         // If there is no external storage available, don't bother
         if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState)
                 || Environment.MEDIA_MOUNTED.equals(storageState)) {
             final String url = getAbsolutePathForSong(albumInfo);
-            if (new File(url).exists()) {
-                return new String[]{
+
+            if (url != null && new File(url).exists()) {
+                coverUrl = new String[]{
                         url
                 };
             }
         }
-        return null;
+
+        return coverUrl;
     }
 
     @Override
