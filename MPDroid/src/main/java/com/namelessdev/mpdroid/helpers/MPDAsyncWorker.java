@@ -76,7 +76,12 @@ public class MPDAsyncWorker implements Handler.Callback,
                 ((Runnable) msg.obj).run();
                 break;
             case UPDATE_CONNECTION_INFO:
-                setConnectionSettings(SettingsHelper.getConnectionSettings(mConnectionInfo));
+                final ConnectionInfo connectionInfo =
+                        SettingsHelper.getConnectionSettings(mConnectionInfo);
+
+                if (connectionInfo != null) {
+                    setConnectionSettings(connectionInfo);
+                }
                 break;
             default:
                 result = false;
