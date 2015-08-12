@@ -150,12 +150,18 @@ public class AlbumCache {
 
     public Set<String> getAlbums(final Artist artist, final boolean albumArtist) {
         final Set<String> albums = new HashSet<>();
-        for (final List<String> ai : mAlbumSet) {
-            if (albumArtist && ai.get(2).equals(artist.getName()) ||
-                    !albumArtist && ai.get(1).equals(artist.getName())) {
-                albums.add(ai.get(0));
+
+        if (artist != null) {
+            final String artistName = artist.getName();
+
+            for (final List<String> ai : mAlbumSet) {
+                if (albumArtist && ai.get(2).equals(artistName) ||
+                        !albumArtist && ai.get(1).equals(artistName)) {
+                    albums.add(ai.get(0));
+                }
             }
         }
+
         return albums;
     }
 
