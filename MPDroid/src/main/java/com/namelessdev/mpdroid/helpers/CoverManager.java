@@ -512,10 +512,15 @@ public final class CoverManager {
             if (outputStream != null) {
                 try {
                     outputStream.flush();
+                } catch (final IOException e) {
+                    Log.e(TAG, "Cannot flush cover file.", e);
+
+                }
+
+                try {
                     outputStream.close();
                 } catch (final IOException e) {
                     Log.e(TAG, "Cannot close cover file.", e);
-
                 }
             }
         }
