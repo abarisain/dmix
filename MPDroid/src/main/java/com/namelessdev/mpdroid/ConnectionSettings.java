@@ -24,6 +24,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -47,6 +48,8 @@ public class ConnectionSettings extends PreferenceActivity {
     public static final int MAIN = 0;
 
     private static final String KEY_CONNECTION_CATEGORY = "connectionCategory";
+
+    private static final String TAG = "ConnectionSettings";
 
     private void createDynamicSettings(final String keyPrefix,
             final PreferenceCategory toCategory) {
@@ -130,15 +133,18 @@ public class ConnectionSettings extends PreferenceActivity {
         final PreferenceCategory masterCategory = (PreferenceCategory) preferenceScreen
                 .findPreference(KEY_CONNECTION_CATEGORY);
 
-        if (getIntent().getStringExtra("SSID") != null) {
-            // WiFi-Based Settings
-            final String SSID = getIntent().getStringExtra("SSID");
-            createDynamicSettings(SSID, masterCategory);
+        if (masterCategory == null) {
+            Log.e(TAG, "Failed to find PreferenceCategory: " + KEY_CONNECTION_CATEGORY);
         } else {
-            // Default settings
-            createDynamicSettings("", masterCategory);
-            masterCategory.setTitle(R.string.defaultSettings);
-
+            if (getIntent().getStringExtra("SSID") != null) {
+                // WiFi-Based Settings
+                final String SSID = getIntent().getStringExtra("SSID");
+                createDynamicSettings(SSID, masterCategory);
+            } else {
+                // Default settings
+                createDynamicSettings("", masterCategory);
+                masterCategory.setTitle(R.string.defaultSettings);
+            }
         }
     }
 
