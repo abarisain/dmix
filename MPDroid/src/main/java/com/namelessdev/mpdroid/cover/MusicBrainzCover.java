@@ -144,13 +144,18 @@ public class MusicBrainzCover extends AbstractWebCover {
     }
 
     private List<String> searchForRelease(final AlbumInfo albumInfo) {
-
+        final List<String> releases = new ArrayList<>();
         final String response;
 
         final String url = "http://musicbrainz.org/ws/2/release-group/?query=" +
                 albumInfo.getArtistName() + ' ' + albumInfo.getAlbumName() +
                 "&type=release-group&limit=5";
         response = executeGetRequestWithConnection(url);
-        return extractReleaseIds(response);
+
+        if (response != null) {
+            releases.addAll(extractReleaseIds(response));
+        }
+
+        return releases;
     }
 }
