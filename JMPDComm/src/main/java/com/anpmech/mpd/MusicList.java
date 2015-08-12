@@ -127,9 +127,11 @@ final class MusicList implements Iterable<Music> {
      * MusicList}.
      */
     Music getById(final int songId) {
-        final int songPos = Integer.valueOf(mSongID.indexOf(songId));
+        synchronized (mList) {
+            final int songPos = Integer.valueOf(mSongID.indexOf(songId));
 
-        return mList.get(songPos);
+            return mList.get(songPos);
+        }
     }
 
     /**
