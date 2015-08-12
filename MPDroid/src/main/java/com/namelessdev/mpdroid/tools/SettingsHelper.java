@@ -28,6 +28,8 @@ import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.util.regex.Pattern;
+
 public final class SettingsHelper {
 
     private static final MPDApplication APP = MPDApplication.getInstance();
@@ -38,6 +40,8 @@ public final class SettingsHelper {
      * This is the code used when there is no SSID, from WifiSsid, which cannot be linked.
      */
     private static final String NONE = "<unknown ssid>";
+
+    private static final Pattern COMPILE = Pattern.compile("\"", Pattern.LITERAL);
 
     private static final SharedPreferences SETTINGS =
             PreferenceManager.getDefaultSharedPreferences(APP);
@@ -106,15 +110,19 @@ public final class SettingsHelper {
     }
 
     public static String getCurrentSSID() {
-        final WifiInfo info =
-                ((WifiManager) APP.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo();
-        final String ssid = info.getSSID();
-        final String result;
+        final WifiManager wifiManager = (WifiManager) APP.getSystemService(Context.WIFI_SERVICE);
+        String result = null;
 
-        if (ssid == null || ssid.equals(NONE)) {
-            result = null;
-        } else {
-            result = ssid.replace("\"", "");
+        if (wifiManager != null) {
+            final WifiInfo info = wifiManager.getConnectionInfo();
+
+            if (info != null) {
+                final String ssid = info.getSSID();
+
+                if (ssid != null && !ssid.equals(NONE)) {
+                    result = COMPILE.matcher(ssid).replaceAll("");
+                }
+            }
         }
 
         return result;
