@@ -27,11 +27,12 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +45,8 @@ public class WifiConnectionSettings extends PreferenceActivity {
     private static final int MAIN = 0;
 
     private static final Pattern QUOTATION_DELIMITER = Pattern.compile("\"");
+
+    private static final String TAG = "WifiConnectionSettings";
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -88,45 +91,46 @@ public class WifiConnectionSettings extends PreferenceActivity {
         Intent intent;
         final PreferenceCategory preferenceCategory =
                 (PreferenceCategory) preferenceScreen.findPreference(KEY_WIFI_BASED_CATEGORY);
-        List<WifiConfiguration> wifiList = null;
+        final Collection<WifiConfiguration> wifiList = new ArrayList<>();
 
-        if (preference.getKey().equals(KEY_WIFI_BASED_SCREEN)) {
-            /** Clear the wifi list. */
-            preferenceCategory.removeAll();
+        if (preferenceCategory == null) {
+            Log.e(TAG, "Failed to find PreferenceCategory: " + KEY_WIFI_BASED_CATEGORY);
+        } else {
+            if (preference.getKey().equals(KEY_WIFI_BASED_SCREEN)) {
+                /** Clear the wifi list. */
+                preferenceCategory.removeAll();
 
-            final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-            wifiList = wifiManager.getConfiguredNetworks();
-        }
+                final WifiManager wifiManager = (WifiManager) getSystemService(
+                        Context.WIFI_SERVICE);
+                wifiList.addAll(wifiManager.getConfiguredNetworks());
+            }
 
-        if (wifiList == null) {
-            wifiList = Collections.emptyList();
-        }
+            for (final WifiConfiguration wifi : wifiList) {
+                if (wifi != null && wifi.SSID != null) {
+                    // Friendly SSID-Name
+                    final Matcher matcher = QUOTATION_DELIMITER.matcher(wifi.SSID);
+                    final String ssid = matcher.replaceAll("");
 
-        for (final WifiConfiguration wifi : wifiList) {
-            if (wifi != null && wifi.SSID != null) {
-                // Friendly SSID-Name
-                final Matcher matcher = QUOTATION_DELIMITER.matcher(wifi.SSID);
-                final String ssid = matcher.replaceAll("");
+                    // Add PreferenceScreen for each network
+                    final PreferenceScreen ssidItem =
+                            getPreferenceManager().createPreferenceScreen(this);
 
-                // Add PreferenceScreen for each network
-                final PreferenceScreen ssidItem =
-                        getPreferenceManager().createPreferenceScreen(this);
+                    intent = new Intent(this, ConnectionSettings.class);
+                    intent.putExtra("SSID", ssid);
 
-                intent = new Intent(this, ConnectionSettings.class);
-                intent.putExtra("SSID", ssid);
+                    ssidItem.setPersistent(false);
+                    ssidItem.setKey("wifiNetwork" + ssid);
+                    ssidItem.setTitle(ssid);
+                    ssidItem.setIntent(intent);
 
-                ssidItem.setPersistent(false);
-                ssidItem.setKey("wifiNetwork" + ssid);
-                ssidItem.setTitle(ssid);
-                ssidItem.setIntent(intent);
+                    if (WifiConfiguration.Status.CURRENT == wifi.status) {
+                        ssidItem.setSummary(R.string.connected);
+                    } else {
+                        ssidItem.setSummary(R.string.notInRange);
+                    }
 
-                if (WifiConfiguration.Status.CURRENT == wifi.status) {
-                    ssidItem.setSummary(R.string.connected);
-                } else {
-                    ssidItem.setSummary(R.string.notInRange);
+                    preferenceCategory.addPreference(ssidItem);
                 }
-
-                preferenceCategory.addPreference(ssidItem);
             }
         }
 
