@@ -176,7 +176,15 @@ public class GracenoteCover extends AbstractWebCover {
                 "</QUERIES>";
 
         final String response = executePostRequest(mApiUrl, request);
-        return extractCoverUrl(response);
+        String coverUrl;
+
+        if (response == null) {
+            coverUrl = null;
+        } else {
+            coverUrl = extractCoverUrl(response);
+        }
+
+        return coverUrl;
     }
 
     @Override
