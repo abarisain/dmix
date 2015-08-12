@@ -112,9 +112,17 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
 
     @Override
     public String getTitle() {
-        final PlaylistFile playlistFile = getArguments().getParcelable(PlaylistFile.EXTRA);
+        final String title;
+        final PlaylistFile parcelable = getArguments().getParcelable(PlaylistFile.EXTRA);
 
-        return playlistFile.getName();
+        if (parcelable == null) {
+            title = super.getTitle();
+        } else {
+            title = parcelable.getName();
+        }
+
+
+        return title;
     }
 
     @Override
