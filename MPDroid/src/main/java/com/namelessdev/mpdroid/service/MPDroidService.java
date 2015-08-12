@@ -1049,9 +1049,11 @@ public final class MPDroidService extends Service implements
                     haltService();
                     break;
                 case REFRESH_COVER:
-                    final AlbumInfo currentTrack = new AlbumInfo(APP.getMPD().getCurrentTrack());
+                    final Music track = APP.getMPD().getCurrentTrack();
 
-                    mAlbumCoverHandler.update(currentTrack);
+                    if (track != null) {
+                        mAlbumCoverHandler.update(new AlbumInfo(track));
+                    }
                     break;
                 case UPDATE_CLIENT_STATUS:
                     sendHandlerStatus();
