@@ -53,6 +53,8 @@ public class AlbumCache {
 
     static final boolean GZIP = false;
 
+    private static final String CACHE_FILE_EXTENSION = GZIP ? ".gz" : "";
+
     private static final String TAG = "AlbumCache";
 
     protected static AlbumCache sInstance = null;
@@ -82,7 +84,6 @@ public class AlbumCache {
         Log.d(TAG, "Starting ...");
         setMPD(mpd);
     }
-    // details
 
     public static String albumCode(final String artist, final String album,
             final boolean isAlbumArtist) {
@@ -209,12 +210,13 @@ public class AlbumCache {
     }
 
     protected synchronized boolean load() {
-        final File file = new File(mFilesDir, getFilename() + (GZIP ? ".gz" : ""));
+        final String fileName = getFilename();
+        final File file = new File(mFilesDir, fileName + CACHE_FILE_EXTENSION);
         if (!file.exists()) {
             return false;
         }
         Log.d(TAG, "Loading " + file);
-        final ObjectInputStream restore;
+        ObjectInputStream restore = null;
         boolean loadedOk = false;
         try {
             if (GZIP) {
@@ -232,7 +234,17 @@ public class AlbumCache {
         } catch (final FileNotFoundException ignored) {
         } catch (final Exception e) {
             Log.e(TAG, "Exception.", e);
+        } finally {
+            if (restore != null) {
+                try {
+                    restore.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "Failed to load file: " +
+                            mFilesDir.getPath() + fileName + CACHE_FILE_EXTENSION, e);
+                }
+            }
         }
+
         if (loadedOk) {
             Log.d(TAG, cacheInfo());
         } else {
@@ -352,7 +364,8 @@ public class AlbumCache {
     }
 
     protected synchronized boolean save() {
-        final File file = new File(mFilesDir, getFilename() + (GZIP ? ".gz" : ""));
+        final String fileName = getFilename();
+        final File file = new File(mFilesDir, fileName + CACHE_FILE_EXTENSION);
         Log.d(TAG, "Saving to " + file);
         final File backupfile = new File(file.getAbsolutePath() + ".bak");
         if (file.exists()) {
@@ -361,8 +374,9 @@ public class AlbumCache {
             }
             file.renameTo(backupfile);
         }
-        final ObjectOutputStream save;
+        ObjectOutputStream save = null;
         boolean error = false;
+
         try {
             if (GZIP) {
                 save = new ObjectOutputStream(new GZIPOutputStream
@@ -374,12 +388,21 @@ public class AlbumCache {
             save.writeObject(mLastUpdate);
             save.writeObject(mAlbumDetails);
             save.writeObject(mAlbumSet);
-            save.close();
-            Log.d(TAG, "saved to " + file);
         } catch (final Exception e) {
             error = true;
             Log.e(TAG, "Failed to save.", e);
+        } finally {
+            if (save != null) {
+                try {
+                    save.close();
+                    Log.d(TAG, "saved to " + file);
+                } catch (final IOException e) {
+                    Log.e(TAG, "Failed to close file: " +
+                            mFilesDir.getPath() + fileName + CACHE_FILE_EXTENSION, e);
+                }
+            }
         }
+
         if (error) {
             file.delete();
             backupfile.renameTo(file);
