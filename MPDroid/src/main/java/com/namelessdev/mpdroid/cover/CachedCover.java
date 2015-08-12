@@ -149,29 +149,37 @@ public class CachedCover implements ICoverRetriever {
     }
 
     public void save(final AlbumInfo albumInfo, final Bitmap cover) {
-        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            // External storage is not there or read only, don't do anything
-            Log.e(TAG, "No writable external storage, not saving cover to cache");
-            return;
-        }
-        FileOutputStream out = null;
-        try {
-            new File(getAbsoluteCoverFolderPath()).mkdirs();
-            out = new FileOutputStream(getAbsolutePathForSong(albumInfo));
-            cover.compress(Bitmap.CompressFormat.JPEG, 95, out);
-        } catch (final Exception e) {
-            if (CoverManager.DEBUG) {
-                Log.e(TAG, "Cache cover write failure.", e);
-            }
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (final IOException e) {
-                    Log.e(TAG, "Cannot close cover stream.", e);
+        final String absoluteCoverFolder = getAbsoluteCoverFolderPath();
+
+        if (absoluteCoverFolder != null &&
+                Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            FileOutputStream out = null;
+
+            try {
+                final boolean dirsCreated = new File(absoluteCoverFolder).mkdirs();
+
+                if (dirsCreated) {
+                    out = new FileOutputStream(getAbsolutePathForSong(albumInfo));
+                    cover.compress(Bitmap.CompressFormat.JPEG, 95, out);
+                } else {
+                    Log.e(TAG, "Couldn't create directories for cached cover.");
+                }
+            } catch (final Exception e) {
+                if (CoverManager.DEBUG) {
+                    Log.e(TAG, "Cache cover write failure.", e);
+                }
+            } finally {
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (final IOException e) {
+                        Log.e(TAG, "Cannot close cover stream.", e);
+                    }
                 }
             }
+        } else {
+            // External storage is not there or read only, don't do anything
+            Log.e(TAG, "No writable external storage, not saving cover to cache");
         }
     }
-
 }
