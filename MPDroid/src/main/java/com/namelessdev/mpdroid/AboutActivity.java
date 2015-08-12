@@ -47,9 +47,13 @@ public class AboutActivity extends AppCompatActivity {
 
         try {
             final ComponentName comp = new ComponentName(APP, cls);
-            final PackageInfo packageInfo = APP.getPackageManager()
-                    .getPackageInfo(comp.getPackageName(), 0);
-            versionName = packageInfo.versionName + " (" + packageInfo.versionCode + ')';
+            final PackageManager packageManager = APP.getPackageManager();
+
+            if (packageManager != null) {
+                final PackageInfo packageInfo = packageManager
+                        .getPackageInfo(comp.getPackageName(), 0);
+                versionName = packageInfo.versionName + " (" + packageInfo.versionCode + ')';
+            }
         } catch (final PackageManager.NameNotFoundException e) {
             Log.e(TAG, "Failed to get the version name.", e);
         }
