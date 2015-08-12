@@ -111,8 +111,8 @@ public class MusicBrainzCover extends AbstractWebCover {
     }
 
     private String getCoverArtArchiveResponse(final String mbid) {
-
         final String request = (COVER_ART_ARCHIVE_URL + mbid + '/');
+
         return executeGetRequestWithConnection(request);
     }
 
@@ -126,7 +126,8 @@ public class MusicBrainzCover extends AbstractWebCover {
         releases = searchForRelease(albumInfo);
         for (final String release : releases) {
             covertArtResponse = getCoverArtArchiveResponse(release);
-            if (!covertArtResponse.isEmpty()) {
+
+            if (covertArtResponse == null || !covertArtResponse.isEmpty()) {
                 coverUrls.addAll(extractImageUrls(covertArtResponse));
             }
 
