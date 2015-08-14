@@ -156,9 +156,9 @@ public class CachedCover implements ICoverRetriever {
             FileOutputStream out = null;
 
             try {
-                final boolean dirsCreated = new File(absoluteCoverFolder).mkdirs();
+                final File folder = new File(absoluteCoverFolder);
 
-                if (dirsCreated) {
+                if (folder.exists() || folder.mkdirs()) {
                     out = new FileOutputStream(getAbsolutePathForSong(albumInfo));
                     cover.compress(Bitmap.CompressFormat.JPEG, 95, out);
                 } else {
