@@ -970,7 +970,7 @@ public final class CoverManager {
                                         && !(coverRetriever.getName()
                                         .equals(LocalCover.RETRIEVER_NAME))) {
                                     final AlbumInfo normalizedAlbumInfo =
-                                            mCoverInfo.getNormalized();
+                                            mCoverInfo.getURLEncoded();
                                     if (!normalizedAlbumInfo.equals(mCoverInfo)) {
                                         if (DEBUG) {
                                             Log.d(TAG,
