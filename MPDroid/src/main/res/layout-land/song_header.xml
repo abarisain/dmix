@@ -15,7 +15,6 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -95,7 +94,7 @@
             tools:text="Artist" />
     </RelativeLayout>
 
-    <com.melnykov.fab.FloatingActionButton
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/album_menu"
         android:layout_width="64dp"
         android:layout_height="64dp"
@@ -104,8 +103,5 @@
         android:layout_marginRight="32dp"
         android:layout_marginTop="4dp"
         android:paddingRight="8dp"
-        android:src="@drawable/ic_media_play"
-        fab:fab_colorNormal="@color/fab_color"
-        fab:fab_colorPressed="@color/fab_color_pressed"
-        fab:fab_colorRipple="@color/fab_color_ripple" />
+        android:src="@drawable/ic_media_play" />
 </RelativeLayout>

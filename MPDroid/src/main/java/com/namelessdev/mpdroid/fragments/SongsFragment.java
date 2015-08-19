@@ -24,7 +24,6 @@ import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
-import com.melnykov.fab.FloatingActionButton;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
@@ -45,6 +44,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.StringRes;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.PopupMenuCompat;
 import android.support.v7.graphics.Palette;
@@ -59,7 +59,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -85,7 +84,7 @@ public class SongsFragment extends BrowseFragment<Music> {
 
     Album mAlbum;
 
-    ImageButton mAlbumMenu;
+    FloatingActionButton mAlbumMenu;
 
     ImageView mCoverArt;
 
@@ -160,11 +159,10 @@ public class SongsFragment extends BrowseFragment<Music> {
                                 mHeaderInfo.setTextColor(bodyTextColor);
                             }
 
-                            if (mutedColor != null && mAlbumMenu instanceof FloatingActionButton) {
-                                ((FloatingActionButton) mAlbumMenu)
-                                        .setColorNormal(mutedColor.getRgb());
+                            if (mutedColor != null) {
+                                mAlbumMenu.setRippleColor(mutedColor.getRgb());
                             }
-                        } catch (final NullPointerException | IllegalStateException e) {
+                        } catch (final IllegalStateException e) {
                             Log.e(TAG, "Error while applying generated album art palette colors",
                                     e);
                         }
@@ -580,7 +578,7 @@ public class SongsFragment extends BrowseFragment<Music> {
         mHeaderInfo = (TextView) view.findViewById(R.id.tracks_info);
         mHeaderToolbar = (Toolbar) view.findViewById(R.id.toolbar);
         mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
-        mAlbumMenu = (ImageButton) view.findViewById(R.id.album_menu);
+        mAlbumMenu = (FloatingActionButton) view.findViewById(R.id.album_menu);
     }
 
     @Override

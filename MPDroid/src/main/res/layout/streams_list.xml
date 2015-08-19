@@ -17,7 +17,6 @@
 <LinearLayout
     android:id="@+id/browse_root"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
@@ -77,8 +76,8 @@
                 android:text="@string/no_result" />
         </ScrollView>
 
-        <!-- Shitty padding workaround for the collapsable actionbar issue -->
-        <com.melnykov.fab.FloatingActionButton
+        <!-- Shitty padding workaround for the collapsible actionbar issue -->
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/streamAddButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -87,9 +86,6 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
-            android:src="@drawable/ic_fab_add"
-            fab:fab_colorNormal="@color/fab_color"
-            fab:fab_colorPressed="@color/fab_color_pressed"
-            fab:fab_colorRipple="@color/fab_color_ripple" />
+            android:src="@drawable/ic_fab_add" />
     </FrameLayout>
 </LinearLayout>
