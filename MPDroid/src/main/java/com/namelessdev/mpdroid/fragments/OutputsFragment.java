@@ -264,6 +264,11 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
     public void storedPlaylistChanged() {
     }
 
+    @Override
+    public String toString() {
+        return EXTRA;
+    }
+
     /**
      * Called when playing track is changed on server.
      *
