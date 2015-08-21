@@ -24,22 +24,49 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public class ItunesCover extends AbstractWebCover {
+
+    /**
+     * The URI host to query covers from the iTunes Search API.
+     */
+    private static final String COVER_QUERY_HOST = "itunes.apple.com";
+
+    /**
+     * The URI path to query covers from the iTunes Search API.
+     */
+    private static final String COVER_QUERY_PATH = "/search";
 
     private static final String TAG = "ItunesCover";
 
+    /**
+     * This method returns a URL for cover query for the iTunes Search API.
+     *
+     * @param albumInfo The {@link AlbumInfo} of the album to query.
+     * @return A {@link URI} encoded URL.
+     * @throws URISyntaxException Upon syntax error.
+     */
+    private static String getCoverQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
+        final String artist = encodeQuery(albumInfo.getArtistName());
+        final String album = encodeQuery(albumInfo.getAlbumName());
+        final String query = "term=" + album + ' ' + artist + "&limit=5&media=music&entity=album";
+
+        return encodeUrl(HTTPS_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
+    }
+
     @Override
     public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
-        final String response;
         final JSONObject jsonRootObject;
         final JSONArray jsonArray;
+        final String response;
+        final String queryURL = getCoverQueryURL(albumInfo);
         String coverUrl;
         JSONObject jsonObject;
 
         try {
-            response = executeGetRequest("https://itunes.apple.com/search?term="
-                    + albumInfo.getAlbumName() + ' ' + albumInfo.getArtistName()
-                    + "&limit=5&media=music&entity=album");
+            response = executeGetRequest(queryURL);
             jsonRootObject = new JSONObject(response);
             jsonArray = jsonRootObject.getJSONArray("results");
             for (int i = 0; i < jsonArray.length(); i++) {

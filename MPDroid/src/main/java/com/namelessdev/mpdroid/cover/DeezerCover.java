@@ -24,27 +24,55 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+import java.net.URISyntaxException;
+
 /**
  * Fetch cover from Deezer
  */
 public class DeezerCover extends AbstractWebCover {
 
+    /**
+     * The URI host to query covers from the Deezer API.
+     */
+    private static final String COVER_QUERY_HOST = "api.deezer.com";
+
+    /**
+     * The URI path to query covers from the Deezer API.
+     */
+    private static final String COVER_QUERY_PATH = "/search/album";
+
+    /**
+     * The class log identifier.
+     */
     private static final String TAG = "DeezerCover";
+
+    /**
+     * This method returns a URL for a cover query for the Deezer API.
+     *
+     * @param albumInfo The {@link AlbumInfo} of the album to query.
+     * @return A URI encoded URL.
+     * @throws URISyntaxException Upon syntax error.
+     */
+    private static String getCoverQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
+        final String album = encodeQuery(albumInfo.getAlbumName());
+        final String artist = encodeQuery(albumInfo.getArtistName());
+        final String query = "q=" + album + ' ' + artist + "&nb_items=1&output=json";
+
+        return encodeUrl(HTTP_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
+    }
 
     @Override
     public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
-
-        final String deezerResponse;
         final JSONObject jsonRootObject;
         final JSONArray jsonArray;
         StringBuilder coverUrl = new StringBuilder();
+        final String queryURL = getCoverQueryURL(albumInfo);
+        final String deezerResponse;
         JSONObject jsonObject;
 
         try {
 
-            deezerResponse = executeGetRequest("http://api.deezer.com/search/album?q="
-                    + albumInfo.getAlbumName() + ' ' + albumInfo.getArtistName()
-                    + "&nb_items=1&output=json");
+            deezerResponse = executeGetRequest(queryURL);
             jsonRootObject = new JSONObject(deezerResponse);
             jsonArray = jsonRootObject.getJSONArray("data");
             for (int i = 0; i < jsonArray.length(); i++) {

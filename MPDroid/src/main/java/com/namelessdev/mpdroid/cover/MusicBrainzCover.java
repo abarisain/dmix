@@ -27,6 +27,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import android.util.Log;
 
 import java.io.StringReader;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,8 +38,21 @@ import java.util.List;
  */
 public class MusicBrainzCover extends AbstractWebCover {
 
-    private static final String COVER_ART_ARCHIVE_URL = "http://coverartarchive.org/release-group/";
+    private static final String COVER_ART_ARCHIVE_URL = "http://coverartarchive.org/release/";
 
+    /**
+     * The URI host to query covers from the MusicBrainz / CoverArtArchive API.
+     */
+    private static final String COVER_QUERY_HOST = "musicbrainz.org";
+
+    /**
+     * The URI path to query covers from the MusicBrainz / CoverArtArchive API.
+     */
+    private static final String COVER_QUERY_PATH = "/ws/2/release/";
+
+    /**
+     * The class log identifier.
+     */
     private static final String TAG = "MusicBrainzCover";
 
     private static Collection<String> extractImageUrls(final String covertArchiveResponse) {
@@ -91,7 +105,7 @@ public class MusicBrainzCover extends AbstractWebCover {
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
-                    if ("release-group".equals(xpp.getName())) {
+                    if ("release".equals(xpp.getName())) {
                         final String id = xpp.getAttributeValue(null, "id");
                         if (id != null) {
                             releaseList.add(id);
@@ -110,6 +124,22 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     }
 
+    /**
+     * This method returns a URL for a cover query for the MusicBrainz / CoverArtArchive API.
+     *
+     * @param albumInfo The {@link AlbumInfo} of the album to query.
+     * @return A URI encoded URL.
+     * @throws URISyntaxException Upon syntax error.
+     */
+    private static String getCoverQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
+        final String artistName = encodeQuery(albumInfo.getArtistName());
+        final String albumName = encodeQuery(albumInfo.getAlbumName());
+        final String query = "query=artist:\"" + artistName + "\" AND release:\""
+                + albumName + "\"&limit=5";
+
+        return encodeUrl(HTTP_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
+    }
+
     private String getCoverArtArchiveResponse(final String mbid) {
         final String request = (COVER_ART_ARCHIVE_URL + mbid + '/');
 
@@ -118,7 +148,6 @@ public class MusicBrainzCover extends AbstractWebCover {
 
     @Override
     public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
-
         final List<String> releases;
         final List<String> coverUrls = new ArrayList<>();
         String covertArtResponse;
@@ -144,14 +173,12 @@ public class MusicBrainzCover extends AbstractWebCover {
         return "MUSICBRAINZ";
     }
 
-    private List<String> searchForRelease(final AlbumInfo albumInfo) {
+    private List<String> searchForRelease(final AlbumInfo albumInfo) throws URISyntaxException {
         final List<String> releases = new ArrayList<>();
+        final String queryURL = getCoverQueryURL(albumInfo);
         final String response;
 
-        final String url = "http://musicbrainz.org/ws/2/release-group/?query=" +
-                albumInfo.getArtistName() + ' ' + albumInfo.getAlbumName() +
-                "&type=release-group&limit=5";
-        response = executeGetRequestWithConnection(url);
+        response = executeGetRequestWithConnection(queryURL);
 
         if (response != null) {
             releases.addAll(extractReleaseIds(response));

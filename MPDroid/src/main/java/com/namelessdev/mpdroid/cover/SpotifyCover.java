@@ -24,6 +24,8 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +35,26 @@ import static android.text.TextUtils.isEmpty;
  * Fetch cover from Spotify
  */
 public class SpotifyCover extends AbstractWebCover {
+
+    /**
+     * The URI host to query AlbumIDs from the Spotify API.
+     */
+    private static final String ALBUM_QUERY_HOST = "ws.spotify.com";
+
+    /**
+     * The URI path to query AlbumIDs from the Spotify API.
+     */
+    private static final String ALBUM_QUERY_PATH = "/search/1/album.json";
+
+    /**
+     * The URI host to query covers from the Spotify API.
+     */
+    private static final String COVER_QUERY_HOST = "embed.spotify.com";
+
+    /**
+     * The URI path to query covers from the Spotify API.
+     */
+    private static final String COVER_QUERY_PATH = "/oembed/";
 
     private static final String TAG = "SpotifyCover";
 
@@ -85,23 +107,48 @@ public class SpotifyCover extends AbstractWebCover {
         return null;
     }
 
+    /**
+     * This method returns a URL for album query for the Spotify Cover API.
+     *
+     * @param albumInfo The {@link AlbumInfo} of the album to query.
+     * @return A URI encoded URL.
+     * @throws URISyntaxException Upon syntax error.
+     */
+    private static String getAlbumQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
+        final String query = "q=" + albumInfo.getArtistName() + ' ' + albumInfo.getAlbumName();
+
+        return new URI(HTTPS_SCHEME, ALBUM_QUERY_HOST, ALBUM_QUERY_PATH, query, null)
+                .toASCIIString();
+    }
+
+    /**
+     * This method returns a URL for a cover query for the Spotify API.
+     *
+     * @param albumID The Spotify specific albumID.
+     * @return A URI encoded URL.
+     * @throws URISyntaxException Upon syntax error.
+     */
+    private static String getCoverQueryURL(final String albumID) throws URISyntaxException {
+        final String query = "url=http://open.spotify.com/album/" + albumID;
+
+        return new URI(HTTPS_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query, null)
+                .toASCIIString();
+    }
+
     @Override
     public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
-
-        final String albumResponse;
         final List<String> albumIds;
         String coverResponse;
         String coverUrl;
 
         try {
-            albumResponse = executeGetRequest("http://ws.spotify.com/search/1/album.json?q="
-                    + albumInfo.getArtistName() + ' ' + albumInfo.getAlbumName());
-            albumIds = extractAlbumIds(albumResponse);
+            albumIds = extractAlbumIds(executeGetRequest(getAlbumQueryURL(albumInfo)));
             for (final String albumId : albumIds) {
-                coverResponse = executeGetRequest(
-                        "https://embed.spotify.com/oembed/?url=http://open.spotify.com/album/"
-                                + albumId);
+                final String queryURL = getCoverQueryURL(albumId);
+
+                coverResponse = executeGetRequest(queryURL);
                 coverUrl = extractImageUrl(coverResponse);
+
                 if (!isEmpty(coverUrl)) {
                     coverUrl = coverUrl.replace("/cover/", "/640/");
                     return new String[]{
