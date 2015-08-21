@@ -25,33 +25,62 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import android.util.Log;
 
 import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Fetch cover from LastFM
  */
 public class LastFMCover extends AbstractWebCover {
 
+    /**
+     * The URI host to query covers from the LastFM API.
+     */
+    private static final String COVER_QUERY_HOST = "ws.audioscrobbler.com";
+
+    /**
+     * The URI path to query covers from the LastFM API.
+     */
+    private static final String COVER_QUERY_PATH = "/2.0/";
+
+    /**
+     * The key used to retrieve the covers for this API.
+     */
+    private static final String KEY = "7fb78a81b20bee7cb6e8fad4cbcb3694";
+
+    /**
+     * The class log identifier.
+     */
     private static final String TAG = "LastFMCover";
 
-    private static final String URL = "http://ws.audioscrobbler.com/2.0/";
+    /**
+     * This method returns a URL for cover query for the LastFM Cover API.
+     *
+     * @param albumInfo The {@link AlbumInfo} of the album to query.
+     * @return A {@link URI} encoded URL.
+     * @throws URISyntaxException Upon syntax error.
+     */
+    private static String getCoverQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
+        final String artist = encodeQuery(albumInfo.getArtistName());
+        final String album = encodeQuery(albumInfo.getAlbumName());
+        final String query = "method=album.getInfo&artist=" + artist + "&album=" + album +
+                "&api_key=" + KEY;
 
-    private static final String sKey = "7fb78a81b20bee7cb6e8fad4cbcb3694";
+        return encodeUrl(HTTPS_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
+    }
 
     @Override
     public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
-
         final String response;
-        final String request;
         String sizeAttribute = null;
         String imageUrl;
         final XmlPullParserFactory factory;
         final XmlPullParser xpp;
+        final String queryURL = getCoverQueryURL(albumInfo);
         int eventType;
 
         try {
-            request = URL + "?method=album.getInfo&artist=" + albumInfo.getArtistName() + "&album="
-                    + albumInfo.getAlbumName() + "&api_key=" + sKey;
-            response = executeGetRequest(request);
+            response = executeGetRequest(queryURL);
 
             factory = XmlPullParserFactory.newInstance();
             factory.setNamespaceAware(true);

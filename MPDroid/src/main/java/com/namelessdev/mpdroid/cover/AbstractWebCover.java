@@ -37,14 +37,84 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.regex.Pattern;
 
 @SuppressWarnings("resource")
 public abstract class AbstractWebCover implements ICoverRetriever {
 
+    /**
+     * This is the string used to designate a secure http scheme for the first URI parameter.
+     */
+    protected static final String HTTPS_SCHEME = "https";
+
+    /**
+     * This is the string used to designate a non-secure http scheme for the first URI parameter.
+     */
+    protected static final String HTTP_SCHEME = "http";
+
+    /**
+     * This pattern compiles to match an ampersand.
+     */
+    private static final Pattern AMPERSAND = Pattern.compile("&");
+
+    /**
+     * This string designates a token to replace an explicit query ampersand prior to URI encoding.
+     */
+    private static final String AMPERSAND_TOKEN = "AMPERSAND-AMPERSAND-AMPERSAND";
+
+    /**
+     * This pattern compiles to match the {@link #AMPERSAND_TOKEN}.
+     */
+    private static final Pattern COMPILE = Pattern.compile(AMPERSAND_TOKEN, Pattern.LITERAL);
+
     private static final boolean DEBUG = CoverManager.DEBUG;
 
     private static final String TAG = "AbstractWebCover";
+
+    /**
+     * This method encodes a query string fragment to explicitly retain it's ampersand.
+     *
+     * <p>This is required to explicitly show which URI query ampersands require encoding.</p>
+     *
+     * @param query The query string requiring ampersand encoding.
+     * @return The query string with ampersand encoding.
+     */
+    protected static String encodeQuery(final String query) {
+        final String tokened;
+
+        if (query.indexOf('&') == -1) {
+            tokened = query;
+        } else {
+            tokened = AMPERSAND.matcher(query).replaceAll(AMPERSAND_TOKEN);
+        }
+
+        return tokened;
+    }
+
+    /**
+     * This method encodes using {@link URI#toASCIIString()}, and encodes explicit ampersands
+     * using {@link #encodeQuery(String)}.
+     *
+     * @param scheme The URI scheme, or null for a non-absolute URI.
+     * @param host   The host for this URL.
+     * @param path   The path for this URL.
+     * @param query  The query for this URL.
+     * @return A encoded URL.
+     * @throws URISyntaxException Upon syntax error.
+     */
+    protected static String encodeUrl(final String scheme, final String host, final String path,
+            final String query) throws URISyntaxException {
+        String uri = new URI(scheme, host, path, query, null).toASCIIString();
+
+        if (uri.contains(AMPERSAND_TOKEN)) {
+            uri = COMPILE.matcher(uri).replaceAll("%26");
+        }
+
+        return uri;
+    }
 
     private static String readInputStream(final InputStream content) {
         final InputStreamReader inputStreamReader = new InputStreamReader(content);
@@ -79,17 +149,15 @@ public abstract class AbstractWebCover implements ICoverRetriever {
 
     protected String executeGetRequest(final String rawRequest) {
         final HttpGet httpGet;
-        final String httpRequest;
         final String response;
 
-        httpRequest = rawRequest.replace(" ", "%20");
         if (DEBUG) {
-            Log.d(TAG, "HTTP request : " + httpRequest);
+            Log.d(TAG, "HTTP request : " + rawRequest);
         }
-        httpGet = new HttpGet(httpRequest);
+        httpGet = new HttpGet(rawRequest);
         response = executeRequest(httpGet);
 
-        if (httpRequest != null && !httpGet.isAborted()) {
+        if (!httpGet.isAborted()) {
             httpGet.abort();
         }
         return response;

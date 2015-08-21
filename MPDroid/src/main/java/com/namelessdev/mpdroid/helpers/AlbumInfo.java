@@ -24,7 +24,6 @@ import com.anpmech.mpd.item.Music;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -278,31 +277,6 @@ public class AlbumInfo {
      */
     public String getArtistName() {
         return mArtistName;
-    }
-
-    /**
-     * This method removes illegal characters, normalizes text, removes references to the media
-     * type and returns the resulting {@code AlbumInfo}.
-     *
-     * @return The modified {@code AlbumInfo}.
-     */
-    public AlbumInfo getURLEncoded() {
-        String artist = null;
-        String album = null;
-
-        try {
-            if (mAlbumName != null) {
-                album = URLEncoder.encode(mAlbumName, "UTF-8");
-            }
-
-            if (mArtistName != null) {
-                artist = URLEncoder.encode(mArtistName, "UTF-8");
-            }
-        } catch (final UnsupportedEncodingException e) {
-            Log.e(TAG, "Your platform does not have support for UTF-8 character encoding.", e);
-        }
-
-        return new AlbumInfo(artist, album, mParentDirectory, mFilename);
     }
 
     /**

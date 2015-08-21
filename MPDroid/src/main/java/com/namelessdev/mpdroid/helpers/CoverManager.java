@@ -956,25 +956,6 @@ public final class CoverManager {
                                 mCoverInfo.setCoverRetriever(coverRetriever);
                                 coverUrls = coverRetriever.getCoverUrl(mCoverInfo);
 
-                                // Normalize (remove special characters ...) the
-                                // artist and album names if no result has been
-                                // found.
-                                if (!(coverUrls != null && coverUrls.length > 0)
-                                        && remote
-                                        && !(coverRetriever.getName()
-                                        .equals(LocalCover.RETRIEVER_NAME))) {
-                                    final AlbumInfo normalizedAlbumInfo =
-                                            mCoverInfo.getURLEncoded();
-                                    if (!normalizedAlbumInfo.equals(mCoverInfo)) {
-                                        if (DEBUG) {
-                                            Log.d(TAG,
-                                                    "Retry to fetch cover with normalized names for "
-                                                            + normalizedAlbumInfo);
-                                        }
-                                        coverUrls = coverRetriever.getCoverUrl(normalizedAlbumInfo);
-                                    }
-                                }
-
                                 if (coverUrls != null && coverUrls.length > 0) {
                                     final List<String> wrongUrlsForCover =
                                             mWrongCoverUrlMap.get(mCoverInfo.getKey());
