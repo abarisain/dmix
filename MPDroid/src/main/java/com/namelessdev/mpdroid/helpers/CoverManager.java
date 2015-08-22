@@ -19,7 +19,6 @@ package com.namelessdev.mpdroid.helpers;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.CachedCover;
 import com.namelessdev.mpdroid.cover.DeezerCover;
-import com.namelessdev.mpdroid.cover.DiscogsCover;
 import com.namelessdev.mpdroid.cover.GracenoteCover;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import com.namelessdev.mpdroid.cover.ItunesCover;
@@ -746,9 +745,6 @@ public final class CoverManager {
                 case MUSICBRAINZ:
                     mCoverRetrievers[i] = new MusicBrainzCover();
                     break;
-                case DISCOGS:
-                    mCoverRetrievers[i] = new DiscogsCover();
-                    break;
                 case SPOTIFY:
                     mCoverRetrievers[i] = new SpotifyCover();
                     break;
@@ -776,7 +772,6 @@ public final class CoverManager {
                 enabledRetrievers.add(CoverRetrievers.ITUNES);
                 enabledRetrievers.add(CoverRetrievers.DEEZER);
                 enabledRetrievers.add(CoverRetrievers.SPOTIFY);
-                enabledRetrievers.add(CoverRetrievers.DISCOGS);
                 enabledRetrievers.add(CoverRetrievers.GRACENOTE);
                 enabledRetrievers.add(CoverRetrievers.MUSICBRAINZ);
             }
@@ -806,7 +801,6 @@ public final class CoverManager {
         GRACENOTE,
         DEEZER,
         MUSICBRAINZ,
-        DISCOGS,
         SPOTIFY,
         ITUNES
     }
