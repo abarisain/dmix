@@ -28,8 +28,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import static com.namelessdev.mpdroid.helpers.CoverManager.getCoverFileName;
-
 public class CachedCover implements ICoverRetriever {
 
     private static final String TAG = "CachedCover";
@@ -46,6 +44,10 @@ public class CachedCover implements ICoverRetriever {
         }
 
         return folderPath;
+    }
+
+    private static String getCoverFileName(final AlbumInfo albumInfo) {
+        return albumInfo.getKey() + ".jpg";
     }
 
     public void clear() {
