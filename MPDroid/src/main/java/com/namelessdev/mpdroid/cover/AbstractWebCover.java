@@ -116,6 +116,20 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         return uri;
     }
 
+    /**
+     * This is used to log an error with parsing a key in the JSON response.
+     *
+     * @param key      The key parsed.
+     * @param response The full response parsed for the key.
+     * @param url      The query URL.
+     */
+    protected static void logError(final String tag, final String key, final Object response,
+            final String url) {
+        if (CoverManager.DEBUG) {
+            Log.d(TAG, "No items of key " + key + " in response " + response + " for url " + url);
+        }
+    }
+
     private static String readInputStream(final InputStream content) {
         final InputStreamReader inputStreamReader = new InputStreamReader(content);
         final BufferedReader reader = new BufferedReader(inputStreamReader);
