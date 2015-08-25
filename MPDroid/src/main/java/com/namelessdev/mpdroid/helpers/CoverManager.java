@@ -22,6 +22,7 @@ import com.namelessdev.mpdroid.cover.DeezerCover;
 import com.namelessdev.mpdroid.cover.GracenoteCover;
 import com.namelessdev.mpdroid.cover.ICoverRetriever;
 import com.namelessdev.mpdroid.cover.ItunesCover;
+import com.namelessdev.mpdroid.cover.JamendoCover;
 import com.namelessdev.mpdroid.cover.LastFMCover;
 import com.namelessdev.mpdroid.cover.LocalCover;
 import com.namelessdev.mpdroid.cover.MusicBrainzCover;
@@ -497,6 +498,9 @@ public final class CoverManager {
                 case ITUNES:
                     mCoverRetrievers[i] = new ItunesCover();
                     break;
+                case JAMENDO:
+                    mCoverRetrievers[i] = new JamendoCover();
+                    break;
             }
         }
     }
@@ -520,6 +524,7 @@ public final class CoverManager {
                 enabledRetrievers.add(CoverRetrievers.SPOTIFY);
                 enabledRetrievers.add(CoverRetrievers.GRACENOTE);
                 enabledRetrievers.add(CoverRetrievers.MUSICBRAINZ);
+                enabledRetrievers.add(CoverRetrievers.JAMENDO);
             }
         }
         setCoverRetrievers(enabledRetrievers);
@@ -548,7 +553,8 @@ public final class CoverManager {
         DEEZER,
         MUSICBRAINZ,
         SPOTIFY,
-        ITUNES
+        ITUNES,
+        JAMENDO
     }
 
     private final class CreateBitmapTask implements Runnable {
