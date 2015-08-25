@@ -26,6 +26,7 @@ import android.util.Log;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.regex.Pattern;
 
 public class ItunesCover extends AbstractWebCover {
 
@@ -38,6 +39,11 @@ public class ItunesCover extends AbstractWebCover {
      * The URI path to query covers from the iTunes Search API.
      */
     private static final String COVER_QUERY_PATH = "/search";
+
+    /**
+     * The Pattern used to replace a small image URL with a large image URL.
+     */
+    private static final Pattern SMALL_IMAGE_ID = Pattern.compile("100x100", Pattern.LITERAL);
 
     private static final String TAG = "ItunesCover";
 
@@ -77,7 +83,7 @@ public class ItunesCover extends AbstractWebCover {
                     // is 100x100
                     // Bigger versions also exists.
                     return new String[]{
-                            coverUrl.replace("100x100", "600x600")
+                            SMALL_IMAGE_ID.matcher(coverUrl).replaceAll("600x600")
                     };
                 }
             }
