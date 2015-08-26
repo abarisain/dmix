@@ -14,83 +14,82 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.cover;
+package com.namelessdev.mpdroid.cover.retriever;
 
+import com.namelessdev.mpdroid.cover.CoverManager;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
-import com.namelessdev.mpdroid.helpers.CoverManager;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.util.Log;
 
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.regex.Pattern;
 
-public class ItunesCover extends AbstractWebCover {
+/**
+ * Fetch cover from Deezer
+ */
+public class DeezerCover extends AbstractWebCover {
 
     /**
-     * The URI host to query covers from the iTunes Search API.
+     * The URI host to query covers from the Deezer API.
      */
-    private static final String COVER_QUERY_HOST = "itunes.apple.com";
+    private static final String COVER_QUERY_HOST = "api.deezer.com";
 
     /**
-     * The URI path to query covers from the iTunes Search API.
+     * The URI path to query covers from the Deezer API.
      */
-    private static final String COVER_QUERY_PATH = "/search";
+    private static final String COVER_QUERY_PATH = "/search/album";
 
     /**
-     * The Pattern used to replace a small image URL with a large image URL.
+     * The class log identifier.
      */
-    private static final Pattern SMALL_IMAGE_ID = Pattern.compile("100x100", Pattern.LITERAL);
-
-    private static final String TAG = "ItunesCover";
+    private static final String TAG = "DeezerCover";
 
     /**
-     * This method returns a URL for cover query for the iTunes Search API.
+     * This method returns a URL for a cover query for the Deezer API.
      *
      * @param albumInfo The {@link AlbumInfo} of the album to query.
-     * @return A {@link URI} encoded URL.
+     * @return A URI encoded URL.
      * @throws URISyntaxException Upon syntax error.
      */
     private static String getCoverQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
-        final String artist = encodeQuery(albumInfo.getArtistName());
         final String album = encodeQuery(albumInfo.getAlbumName());
-        final String query = "term=" + album + ' ' + artist + "&limit=5&media=music&entity=album";
+        final String artist = encodeQuery(albumInfo.getArtistName());
+        final String query = "q=" + album + ' ' + artist + "&nb_items=1&output=json";
 
-        return encodeUrl(HTTPS_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
+        return encodeUrl(HTTP_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
     }
 
     @Override
     public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
         final JSONObject jsonRootObject;
         final JSONArray jsonArray;
-        final String response;
+        StringBuilder coverUrl = new StringBuilder();
         final String queryURL = getCoverQueryURL(albumInfo);
-        String coverUrl;
+        final String deezerResponse;
         JSONObject jsonObject;
 
         try {
-            response = executeGetRequest(queryURL);
-            jsonRootObject = new JSONObject(response);
-            jsonArray = jsonRootObject.getJSONArray("results");
+
+            deezerResponse = executeGetRequest(queryURL);
+            jsonRootObject = new JSONObject(deezerResponse);
+            jsonArray = jsonRootObject.getJSONArray("data");
             for (int i = 0; i < jsonArray.length(); i++) {
                 jsonObject = jsonArray.getJSONObject(i);
-                coverUrl = jsonObject.getString("artworkUrl100");
-                if (coverUrl != null) {
-                    // Based on some tests even if the cover art size returned
-                    // is 100x100
-                    // Bigger versions also exists.
+                coverUrl.setLength(0);
+                coverUrl.append(jsonObject.getString("cover"));
+                if (coverUrl.length() != 0) {
+                    coverUrl.append("&size=big");
                     return new String[]{
-                            SMALL_IMAGE_ID.matcher(coverUrl).replaceAll("600x600")
+                            coverUrl.toString()
                     };
                 }
             }
 
         } catch (final Exception e) {
             if (CoverManager.DEBUG) {
-                Log.e(TAG, "Failed to get cover URL from " + getName(), e);
+                Log.e(TAG, "Failed to get cover URL from Deezer", e);
             }
         }
 
@@ -99,6 +98,6 @@ public class ItunesCover extends AbstractWebCover {
 
     @Override
     public String getName() {
-        return "ITUNES";
+        return "DEEZER";
     }
 }

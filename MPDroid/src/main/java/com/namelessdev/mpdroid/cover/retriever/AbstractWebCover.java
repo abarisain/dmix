@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.cover;
+package com.namelessdev.mpdroid.cover.retriever;
 
-import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.cover.CoverManager;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -43,7 +43,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("resource")
-public abstract class AbstractWebCover implements ICoverRetriever {
+abstract class AbstractWebCover implements ICoverRetriever {
 
     /**
      * This is the string used to designate a secure http scheme for the first URI parameter.
@@ -236,7 +236,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         return result;
     }
 
-    String executeRequest(final HttpUriRequest request) {
+    private String executeRequest(final HttpUriRequest request) {
 
         final AndroidHttpClient client = prepareRequest();
         final HttpResponse response;
@@ -288,7 +288,7 @@ public abstract class AbstractWebCover implements ICoverRetriever {
         return false;
     }
 
-    AndroidHttpClient prepareRequest() {
+    private AndroidHttpClient prepareRequest() {
         final int fiveSeconds = 5000;
         final String userAgent = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
         final AndroidHttpClient client = AndroidHttpClient.newInstance(userAgent);

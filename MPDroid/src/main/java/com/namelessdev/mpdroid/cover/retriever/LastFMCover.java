@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.cover;
+package com.namelessdev.mpdroid.cover.retriever;
 
+import com.namelessdev.mpdroid.cover.CoverManager;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
-import com.namelessdev.mpdroid.helpers.CoverManager;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.cover;
+package com.namelessdev.mpdroid.cover.retriever;
 
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 

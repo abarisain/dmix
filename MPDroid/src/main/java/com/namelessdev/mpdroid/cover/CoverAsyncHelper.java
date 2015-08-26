@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.helpers;
+package com.namelessdev.mpdroid.cover;
 
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.Activity;

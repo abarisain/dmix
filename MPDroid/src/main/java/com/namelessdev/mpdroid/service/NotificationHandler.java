@@ -22,7 +22,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
-import com.namelessdev.mpdroid.helpers.AlbumCoverDownloadListener;
+import com.namelessdev.mpdroid.cover.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import android.annotation.TargetApi;

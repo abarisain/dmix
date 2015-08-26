@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.helpers;
+package com.namelessdev.mpdroid.cover;
+
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
 public interface CoverDownloadListener {
 

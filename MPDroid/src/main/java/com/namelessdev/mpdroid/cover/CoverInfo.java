@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.helpers;
+package com.namelessdev.mpdroid.cover;
 
-import com.namelessdev.mpdroid.cover.ICoverRetriever;
+import com.namelessdev.mpdroid.cover.retriever.ICoverRetriever;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
 import android.graphics.Bitmap;
 

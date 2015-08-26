@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.tools;
+package com.namelessdev.mpdroid.cover;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -24,14 +24,17 @@ import java.util.Map;
 
 /**
  * A {@link Map} that supports multiple values per key.
+ *
+ * This class is depreciated, functionality should be replaced by standard libraries.
  */
-public class MultiMap<K, V> implements Serializable {
+@Deprecated
+class MultiMap<K, V> implements Serializable {
 
     private static final long serialVersionUID = 6716321360137860110L;
 
     private final Map<K, List<V>> mInternalMap;
 
-    public MultiMap() {
+    MultiMap() {
         super();
         mInternalMap = new HashMap<>();
     }
