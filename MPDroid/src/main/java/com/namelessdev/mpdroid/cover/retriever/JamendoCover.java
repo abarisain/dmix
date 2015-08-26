@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.cover;
+package com.namelessdev.mpdroid.cover.retriever;
 
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
@@ -116,7 +116,7 @@ public class JamendoCover extends AbstractWebCover {
      */
     private static String getCoverQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
         final String artist = encodeQuery(albumInfo.getArtistName());
-        final String album = encodeQuery(albumInfo.getCoverAlbumName());
+        final String album = encodeQuery(albumInfo.getAlbumName());
         final String query = "client_id=" + CLIENT_ID + "&name=" + album
                 + "&artist_name=" + artist + "&imagesize=600";
 

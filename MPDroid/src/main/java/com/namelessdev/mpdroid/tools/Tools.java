@@ -24,8 +24,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.util.DisplayMetrics;
@@ -34,7 +32,6 @@ import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 public final class Tools {
@@ -55,30 +52,6 @@ public final class Tools {
 
     private Tools() {
         super();
-    }
-
-    public static int calculateInSampleSize(final BitmapFactory.Options options, final int reqWidth,
-            final int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            // Calculate ratios of height and width to requested height and
-            // width
-            final int heightRatio = Math.round((float) height / (float) reqHeight);
-            final int widthRatio = Math.round((float) width / (float) reqWidth);
-
-            // Choose the smallest ratio as inSampleSize value, this will
-            // guarantee
-            // a final image with both dimensions larger than or equal to the
-            // requested height and width.
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-        }
-
-        return inSampleSize;
     }
 
     /**
@@ -137,56 +110,6 @@ public final class Tools {
 
         stringBuilder.append(". }");
         return stringBuilder.toString();
-    }
-
-    public static Bitmap decodeSampledBitmapFromBytes(
-            final byte[] bytes, final int reqWidth, final int reqHeight,
-            final boolean resizePerfectly) {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
-        if (resizePerfectly) {
-            final Bitmap scaledBitmap = Bitmap
-                    .createScaledBitmap(bitmap, reqWidth, reqHeight, true);
-            bitmap.recycle();
-            return scaledBitmap;
-        } else {
-            return bitmap;
-        }
-    }
-
-    public static Bitmap decodeSampledBitmapFromPath(
-            final String path, final int reqWidth, final int reqHeight,
-            final boolean resizePerfectlty) {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(path, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        final Bitmap bitmap = BitmapFactory.decodeFile(path, options);
-        if (resizePerfectlty) {
-            final Bitmap scaledBitmap = Bitmap
-                    .createScaledBitmap(bitmap, reqWidth, reqHeight, true);
-            bitmap.recycle();
-            return scaledBitmap;
-        } else {
-            return bitmap;
-        }
     }
 
     /**
@@ -249,18 +172,5 @@ public final class Tools {
                 APP.removeConnectionLock(token);
             }
         }
-    }
-
-    public static int[] toIntArray(final Collection<Integer> list) {
-        final int[] ret = new int[list.size()];
-        int i = 0;
-        for (final Integer e : list) {
-            ret[i++] = e.intValue();
-        }
-        return ret;
-    }
-
-    public static Object[] toObjectArray(final Object... args) {
-        return args;
     }
 }

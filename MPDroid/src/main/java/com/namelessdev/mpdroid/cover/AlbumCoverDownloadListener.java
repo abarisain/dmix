@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.helpers;
+package com.namelessdev.mpdroid.cover;
 
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.cover.CoverBitmapDrawable;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;

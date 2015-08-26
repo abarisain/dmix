@@ -19,8 +19,8 @@ package com.namelessdev.mpdroid;
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.status.MPDStatistics;
-import com.namelessdev.mpdroid.cover.CachedCover;
-import com.namelessdev.mpdroid.helpers.CoverManager;
+import com.namelessdev.mpdroid.cover.CoverManager;
+import com.namelessdev.mpdroid.cover.retriever.CachedCover;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.Activity;

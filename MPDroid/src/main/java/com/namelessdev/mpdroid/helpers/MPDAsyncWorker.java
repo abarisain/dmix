@@ -19,7 +19,7 @@ package com.namelessdev.mpdroid.helpers;
 import com.namelessdev.mpdroid.ConnectionInfo;
 import com.namelessdev.mpdroid.ConnectionSettings;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.cover.GracenoteCover;
+import com.namelessdev.mpdroid.cover.retriever.GracenoteCover;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 import android.content.SharedPreferences;

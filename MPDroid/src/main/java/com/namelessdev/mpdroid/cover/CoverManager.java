@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.helpers;
+package com.namelessdev.mpdroid.cover;
 
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.cover.CachedCover;
-import com.namelessdev.mpdroid.cover.DeezerCover;
-import com.namelessdev.mpdroid.cover.GracenoteCover;
-import com.namelessdev.mpdroid.cover.ICoverRetriever;
-import com.namelessdev.mpdroid.cover.ItunesCover;
-import com.namelessdev.mpdroid.cover.JamendoCover;
-import com.namelessdev.mpdroid.cover.LastFMCover;
-import com.namelessdev.mpdroid.cover.LocalCover;
-import com.namelessdev.mpdroid.cover.MusicBrainzCover;
-import com.namelessdev.mpdroid.cover.SpotifyCover;
-import com.namelessdev.mpdroid.tools.MultiMap;
-import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.cover.retriever.CachedCover;
+import com.namelessdev.mpdroid.cover.retriever.DeezerCover;
+import com.namelessdev.mpdroid.cover.retriever.GracenoteCover;
+import com.namelessdev.mpdroid.cover.retriever.ICoverRetriever;
+import com.namelessdev.mpdroid.cover.retriever.ItunesCover;
+import com.namelessdev.mpdroid.cover.retriever.JamendoCover;
+import com.namelessdev.mpdroid.cover.retriever.LastFMCover;
+import com.namelessdev.mpdroid.cover.retriever.LocalCover;
+import com.namelessdev.mpdroid.cover.retriever.MusicBrainzCover;
+import com.namelessdev.mpdroid.cover.retriever.SpotifyCover;
+import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -68,9 +67,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CACHE_COVER_FETCH;
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.CREATE_BITMAP;
-import static com.namelessdev.mpdroid.helpers.CoverInfo.STATE.WEB_COVER_FETCH;
+import static com.namelessdev.mpdroid.cover.CoverInfo.STATE.CACHE_COVER_FETCH;
+import static com.namelessdev.mpdroid.cover.CoverInfo.STATE.CREATE_BITMAP;
+import static com.namelessdev.mpdroid.cover.CoverInfo.STATE.WEB_COVER_FETCH;
 
 public final class CoverManager {
 
@@ -566,6 +565,55 @@ public final class CoverManager {
             mCoverInfo = coverInfo;
         }
 
+        private int calculateInSampleSize(final BitmapFactory.Options options, final int reqWidth,
+                final int reqHeight) {
+            // Raw height and width of image
+            final int height = options.outHeight;
+            final int width = options.outWidth;
+            int inSampleSize = 1;
+
+            if (height > reqHeight || width > reqWidth) {
+
+                // Calculate ratios of height and width to requested height and
+                // width
+                final int heightRatio = Math.round((float) height / (float) reqHeight);
+                final int widthRatio = Math.round((float) width / (float) reqWidth);
+
+                // Choose the smallest ratio as inSampleSize value, this will
+                // guarantee
+                // a final image with both dimensions larger than or equal to the
+                // requested height and width.
+                inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+            }
+
+            return inSampleSize;
+        }
+
+        public Bitmap decodeSampledBitmapFromBytes(
+                final byte[] bytes, final int reqWidth, final int reqHeight,
+                final boolean resizePerfectly) {
+
+            // First decode with inJustDecodeBounds=true to check dimensions
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false;
+            final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+            if (resizePerfectly) {
+                final Bitmap scaledBitmap = Bitmap
+                        .createScaledBitmap(bitmap, reqWidth, reqHeight, true);
+                bitmap.recycle();
+                return scaledBitmap;
+            } else {
+                return bitmap;
+            }
+        }
+
         @Override
         public void run() {
 
@@ -588,7 +636,7 @@ public final class CoverManager {
                     mCoverInfo.setBitmap(bitmaps);
                 } else {
                     bitmaps = new Bitmap[]{
-                            Tools.decodeSampledBitmapFromBytes(mCoverInfo.getCoverBytes(), maxSize,
+                            decodeSampledBitmapFromBytes(mCoverInfo.getCoverBytes(), maxSize,
                                     maxSize, false)
                     };
                     mCoverInfo.setBitmap(bitmaps);
