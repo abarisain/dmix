@@ -30,7 +30,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
 
 /**
  * This class is used to store basic information about an album.
@@ -47,10 +46,6 @@ public class AlbumInfo {
 
     /** Returned upon invalid checksum. */
     private static final String INVALID_ALBUM_CHECKSUM = "INVALID_ALBUM_CHECKSUM";
-
-    /** Remove disc references from albums (like CD1, disc02 ...) */
-    private static final Pattern MEDIA_REMOVE =
-            Pattern.compile("(cd|disc|disque)\\s*\\d+", Pattern.CASE_INSENSITIVE);
 
     /** The class log identifier. */
     private static final String TAG = "AlbumInfo";
@@ -348,10 +343,6 @@ public class AlbumInfo {
             }
         } catch (final UnsupportedEncodingException e) {
             Log.e(TAG, "Your platform does not have support for UTF-8 character encoding.", e);
-        }
-
-        if (album != null) {
-            album = MEDIA_REMOVE.matcher(album).replaceAll(" ");
         }
 
         return new AlbumInfo(artist, album, mParentDirectory, mFilename);
