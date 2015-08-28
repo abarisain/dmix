@@ -196,7 +196,7 @@ public final class CoverManager {
      * @param statusCode An HttpURLConnection object.
      * @return True if the URL exists, false otherwise.
      */
-    public static boolean doesUrlExist(final int statusCode) {
+    private static boolean doesUrlExist(final int statusCode) {
         final int temporaryRedirect = 307; /** No constant for 307 exists */
 
         return statusCode == HttpURLConnection.HTTP_OK ||
@@ -246,28 +246,13 @@ public final class CoverManager {
      *
      * @param url The URL object used to create the connection.
      * @return The connection which is returned; ensure this resource is disconnected after use.
+     * @throws IOException Upon error opening connection.
      */
-    public static HttpURLConnection getHttpConnection(final URL url) {
-        HttpURLConnection connection = null;
-
-        if (url == null) {
-            if (DEBUG) {
-                Log.d(TAG, "Cannot create a connection with a null URL");
-            }
-            return null;
-        }
-
-        try {
-            connection = (HttpURLConnection) url.openConnection();
-        } catch (final IOException e) {
-            Log.w(TAG, "Failed to execute cover get request.", e);
-        }
-
-        if (connection != null) {
-            connection.setUseCaches(true);
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(5000);
-        }
+    public static HttpURLConnection getHTTPConnection(final URL url) throws IOException {
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setUseCaches(true);
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
 
         return connection;
     }
@@ -715,9 +700,9 @@ public final class CoverManager {
             mCoverInfo = coverInfo;
         }
 
-        private byte[] download(final String textUrl) {
+        private byte[] download(final String textUrl) throws IOException {
             final URL url = buildURLForConnection(textUrl);
-            final HttpURLConnection connection = getHttpConnection(url);
+            final HttpURLConnection connection = getHTTPConnection(url);
             BufferedInputStream bis = null;
             ByteArrayOutputStream baos = null;
             byte[] buffer = null;

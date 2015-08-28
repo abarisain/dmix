@@ -18,31 +18,20 @@ package com.namelessdev.mpdroid.cover.retriever;
 
 import com.namelessdev.mpdroid.cover.CoverManager;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-
-import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("resource")
 abstract class AbstractWebCover implements ICoverRetriever {
 
     /**
@@ -119,6 +108,7 @@ abstract class AbstractWebCover implements ICoverRetriever {
     /**
      * This is used to log an error with parsing a key in the JSON response.
      *
+     * @param tag      The log identifier for the class calling this method.
      * @param key      The key parsed.
      * @param response The full response parsed for the key.
      * @param url      The query URL.
@@ -126,13 +116,46 @@ abstract class AbstractWebCover implements ICoverRetriever {
     protected static void logError(final String tag, final String key, final Object response,
             final String url) {
         if (CoverManager.DEBUG) {
-            Log.d(TAG, "No items of key " + key + " in response " + response + " for url " + url);
+            Log.d(tag, "No items of key " + key + " in response " + response + " for url " + url);
         }
     }
 
-    private static String readInputStream(final InputStream content) {
-        final InputStreamReader inputStreamReader = new InputStreamReader(content);
-        final BufferedReader reader = new BufferedReader(inputStreamReader);
+    /**
+     * This method prepares a GET request from a raw string URL.
+     *
+     * @param rawUrl The raw string URL to request a GET response from.
+     * @return A string containing the GET response.
+     * @throws IOException If there was an error communicating the request.
+     */
+    private static HttpURLConnection prepareGetConnection(final String rawUrl) throws IOException {
+        final URL url = new URL(rawUrl);
+        final HttpURLConnection connection = CoverManager.getHTTPConnection(url);
+        connection.setRequestMethod("GET");
+        connection.setDoInput(true);
+
+        return connection;
+    }
+
+    private static HttpURLConnection preparePostConnection(final String rawUrl, final int length)
+            throws IOException {
+        final URL url = new URL(rawUrl);
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        connection.setInstanceFollowRedirects(false);
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "text/plain");
+        connection.setRequestProperty("Charset", "utf-8");
+        connection.setRequestProperty("Content-Length", "" + Integer.toString(length));
+        connection.setUseCaches(false);
+
+        return connection;
+    }
+
+    private static String readInputStream(final InputStream content)
+            throws IOException {
+        final InputStreamReader inputStreamReader = new InputStreamReader(content, "UTF-8");
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(content, "UTF-8"));
 
         /** We have no /idea/ how large the input is going to be. */
         //noinspection StringBufferWithoutInitialCapacity
@@ -145,10 +168,6 @@ abstract class AbstractWebCover implements ICoverRetriever {
                 result.append(line);
                 line = reader.readLine();
             } while (line != null);
-        } catch (final IOException e) {
-            if (CoverManager.DEBUG) {
-                Log.e(TAG, "Failed to retrieve the with the buffered reader.", e);
-            }
         } finally {
             try {
                 inputStreamReader.close();
@@ -161,20 +180,10 @@ abstract class AbstractWebCover implements ICoverRetriever {
         return result.toString();
     }
 
-    protected String executeGetRequest(final String rawRequest) {
-        final HttpGet httpGet;
-        final String response;
+    protected String executeGetRequest(final String request) throws IOException {
+        final HttpURLConnection connection = prepareGetConnection(request);
 
-        if (DEBUG) {
-            Log.d(TAG, "HTTP request : " + rawRequest);
-        }
-        httpGet = new HttpGet(rawRequest);
-        response = executeRequest(httpGet);
-
-        if (!httpGet.isAborted()) {
-            httpGet.abort();
-        }
-        return response;
+        return readInputStream(connection.getInputStream());
     }
 
     /**
@@ -183,11 +192,11 @@ abstract class AbstractWebCover implements ICoverRetriever {
      *
      * @param request The web service request
      * @return The web service response
+     * @throws IOException Upon connection error during GET request.
      */
-    protected String executeGetRequestWithConnection(final String request) {
-
+    protected String executeGetRequestWithConnection(final String request) throws IOException {
         final URL url = CoverManager.buildURLForConnection(request);
-        final HttpURLConnection connection = CoverManager.getHttpConnection(url);
+        final HttpURLConnection connection = CoverManager.getHTTPConnection(url);
         String result = null;
         InputStream inputStream = null;
 
@@ -214,88 +223,33 @@ abstract class AbstractWebCover implements ICoverRetriever {
         return result;
     }
 
-    protected String executePostRequest(final String url, final String request) {
-        HttpPost httpPost = null;
-        String result = null;
+    protected String executePostRequest(final String url, final String request) throws IOException {
+        final HttpURLConnection connection = preparePostConnection(url, request.getBytes().length);
+        String response = null;
+        BufferedWriter writer = null;
 
         try {
-            httpPost = new HttpPost(url);
-            if (DEBUG) {
-                Log.d(TAG, "Http request : " + request);
-            }
-            httpPost.setEntity(new StringEntity(request));
-            result = executeRequest(httpPost);
-        } catch (final UnsupportedEncodingException e) {
-            Log.e(TAG, "Cannot build the HTTP POST.", e);
-            result = "";
+            writer = new BufferedWriter(
+                    new OutputStreamWriter(connection.getOutputStream(), "UTF-8"));
+            writer.write(request);
+            writer.flush();
+
+            response = readInputStream(connection.getInputStream());
         } finally {
-            if (request != null && httpPost != null && !httpPost.isAborted()) {
-                httpPost.abort();
-            }
-        }
-        return result;
-    }
-
-    private String executeRequest(final HttpUriRequest request) {
-
-        final AndroidHttpClient client = prepareRequest();
-        final HttpResponse response;
-        final StatusLine statusLine;
-        final int statusCode;
-        final HttpEntity entity;
-        InputStream content = null;
-        String result = null;
-
-        try {
-            response = client.execute(request);
-            statusLine = response.getStatusLine();
-            statusCode = statusLine.getStatusCode();
-
-            if (CoverManager.doesUrlExist(statusCode)) {
-                entity = response.getEntity();
-                content = entity.getContent();
-                result = readInputStream(content);
-            } else if (CoverManager.DEBUG) {
-                Log.w(TAG, "Failed to download cover : HTTP status code : " + statusCode);
-
-            }
-        } catch (final IOException e) {
-            if (CoverManager.DEBUG) {
-                Log.e(TAG, "Failed to download cover.", e);
-            }
-        } catch (final IllegalStateException e) {
-            Log.e(TAG, "Illegal state exception when downloading.", e);
-        } finally {
-            if (content != null) {
+            if (writer != null) {
                 try {
-                    content.close();
+                    writer.close();
                 } catch (final IOException e) {
-                    Log.e(TAG, "Failed to close the content.", e);
+                    Log.e(TAG, "Failed to close buffered writer.", e);
                 }
             }
-            if (client != null) {
-                client.close();
-            }
         }
-        if (DEBUG) {
-            Log.d(TAG, "HTTP response: " + result);
-        }
-        return result;
+
+        return response;
     }
 
     @Override
     public boolean isCoverLocal() {
         return false;
-    }
-
-    private AndroidHttpClient prepareRequest() {
-        final int fiveSeconds = 5000;
-        final String userAgent = "MPDROID/0.0.0 ( MPDROID@MPDROID.com )";
-        final AndroidHttpClient client = AndroidHttpClient.newInstance(userAgent);
-        final HttpParams params = client.getParams();
-        HttpConnectionParams.setConnectionTimeout(params, fiveSeconds);
-        HttpConnectionParams.setSoTimeout(params, fiveSeconds);
-
-        return client;
     }
 }

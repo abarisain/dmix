@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.io.IOException;
 import java.io.StringReader;
 
 import static android.text.TextUtils.isEmpty;
@@ -157,7 +158,7 @@ public class GracenoteCover extends AbstractWebCover {
         return new String[0];
     }
 
-    public String getCoverUrl(final String artist, final String album) {
+    public String getCoverUrl(final String artist, final String album) throws IOException {
         // Make sure user doesn't try to register again if they already have a
         // userID in the ctor.
         // Do the register request
@@ -235,11 +236,11 @@ public class GracenoteCover extends AbstractWebCover {
     // should be stored
     // in a persistent form (filesystem, db, etc) otherwise you will hit your
     // user limit.
-    public String register() {
+    public String register() throws IOException {
         return register(mClientId);
     }
 
-    public String register(final String clientID) {
+    public String register(final String clientID) throws IOException {
         final String request = "<QUERIES><QUERY CMD=\"REGISTER\"><CLIENT>" + clientID
                 + "</CLIENT></QUERY></QUERIES>";
         final String response = executePostRequest(mApiUrl, request);

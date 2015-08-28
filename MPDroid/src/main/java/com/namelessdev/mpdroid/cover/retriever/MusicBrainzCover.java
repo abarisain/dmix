@@ -26,6 +26,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.util.Log;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -140,7 +141,7 @@ public class MusicBrainzCover extends AbstractWebCover {
         return encodeUrl(HTTP_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
     }
 
-    private String getCoverArtArchiveResponse(final String mbid) {
+    private String getCoverArtArchiveResponse(final String mbid) throws IOException {
         final String request = (COVER_ART_ARCHIVE_URL + mbid + '/');
 
         return executeGetRequestWithConnection(request);
@@ -173,7 +174,8 @@ public class MusicBrainzCover extends AbstractWebCover {
         return "MUSICBRAINZ";
     }
 
-    private List<String> searchForRelease(final AlbumInfo albumInfo) throws URISyntaxException {
+    private List<String> searchForRelease(final AlbumInfo albumInfo)
+            throws URISyntaxException, IOException {
         final List<String> releases = new ArrayList<>();
         final String queryURL = getCoverQueryURL(albumInfo);
         final String response;

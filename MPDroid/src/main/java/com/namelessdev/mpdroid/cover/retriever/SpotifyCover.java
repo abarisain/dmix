@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -155,10 +156,11 @@ public class SpotifyCover extends AbstractWebCover {
      * @return A {@link String} array of image URLs.
      * @throws JSONException      Thrown upon error parsing the JSON response.
      * @throws URISyntaxException Thrown upon error parsing the generated {@code AlbumInfo} URI.
+     * @throws IOException        Thrown upon error retrieving the cover or cover URL.
      */
     @Override
     public String[] getCoverUrl(final AlbumInfo albumInfo)
-            throws JSONException, URISyntaxException {
+            throws JSONException, URISyntaxException, IOException {
         final List<String> coverUrls = new ArrayList<>();
         final String queryURL = getCoverQueryURL(albumInfo);
         final JSONObject root = new JSONObject(executeGetRequest(queryURL));
