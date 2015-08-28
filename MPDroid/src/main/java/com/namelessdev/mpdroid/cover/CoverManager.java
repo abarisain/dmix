@@ -52,7 +52,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -135,34 +135,6 @@ public final class CoverManager {
         mRequestExecutor.submit(new RequestProcessorTask());
         setCoverRetrieversFromPreferences();
         initializeCoverData();
-    }
-
-    /**
-     * This method cleans and builds a proper URL object from a string.
-     *
-     * @param incomingRequest This is the URL in string form.
-     * @return A URL Object
-     */
-    public static URL buildURLForConnection(final String incomingRequest) {
-        URL url = null;
-        String request = null;
-
-        if (incomingRequest != null) {
-            request = incomingRequest.trim();
-        }
-
-        if (TextUtils.isEmpty(request)) {
-            return null;
-        }
-        request = request.replace(" ", "%20");
-
-        try {
-            url = new URL(request);
-        } catch (final MalformedURLException e) {
-            Log.w(TAG, "Failed to parse the URL string for URL object generation.", e);
-        }
-
-        return url;
     }
 
     /**
@@ -751,7 +723,7 @@ public final class CoverManager {
         }
 
         private byte[] download(final String textUrl) throws IOException {
-            final URL url = buildURLForConnection(textUrl);
+            final URL url = URI.create(textUrl).toURL();
             final HttpURLConnection connection = getHTTPConnection(url);
             BufferedInputStream bis = null;
             ByteArrayOutputStream baos = null;
