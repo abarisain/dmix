@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import android.support.annotation.IntDef;
 
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.URI;
@@ -349,7 +350,7 @@ public class LastFMCover extends AbstractWebCover {
 
     @Override
     public String[] getCoverUrl(final AlbumInfo albumInfo)
-            throws URISyntaxException, JSONException {
+            throws URISyntaxException, JSONException, IOException {
         final String queryUrl = getCoverQueryURL(albumInfo);
         final String response = executeGetRequest(queryUrl);
         final JSONObject root = new JSONObject(response);

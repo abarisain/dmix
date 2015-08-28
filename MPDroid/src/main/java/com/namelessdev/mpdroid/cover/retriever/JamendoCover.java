@@ -22,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -138,7 +139,7 @@ public class JamendoCover extends AbstractWebCover {
      */
     @Override
     public String[] getCoverUrl(final AlbumInfo albumInfo) throws JSONException,
-            URISyntaxException {
+            URISyntaxException, IOException {
         final String queryURL = getCoverQueryURL(albumInfo);
         final JSONObject root = new JSONObject(executeGetRequest(queryURL));
         final int coverCount = getCoverCount(root, queryURL);
