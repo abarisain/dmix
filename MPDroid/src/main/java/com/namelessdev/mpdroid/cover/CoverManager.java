@@ -34,7 +34,9 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -290,21 +292,70 @@ public final class CoverManager {
     }
 
     /**
-     * Checks if device connected or connecting to wifi network.
+     * Checks if device connected to a WIFI network.
      *
-     * @return True if this device is connected or connecting to a WIFI network, false otherwise.
+     * <p>On Android SDK 21 and later this sets the first WIFI network found as the
+     * default.</p>
+     *
+     * @return True if this device is connected to a WIFI network, false otherwise.
      */
     private static boolean isWifi() {
-        final ConnectivityManager conMan = (ConnectivityManager) APP
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo.State wifi = NetworkInfo.State.DISCONNECTED;
+        final ConnectivityManager connectivityManager =
+                (ConnectivityManager) APP.getSystemService(Context.CONNECTIVITY_SERVICE);
+        boolean isWifi = false;
 
-        if (conMan != null) {
-            // Get status of wifi connection
-            wifi = conMan.getNetworkInfo(1).getState();
+        if (connectivityManager != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                final Network[] networks = connectivityManager.getAllNetworks();
+
+                for (final Network network : networks) {
+                    if (isWifi(connectivityManager.getNetworkInfo(network))) {
+                        /**
+                         * Using non-depreciated method causes MethodNotFoundException on
+                         * Android 5.1.1.
+                         */
+                        isWifi = ConnectivityManager.setProcessDefaultNetwork(network);
+                        break;
+                    }
+                }
+            } else {
+                if (isWifi(connectivityManager.getNetworkInfo(1))) {
+                    isWifi = true;
+                }
+            }
         }
 
-        return wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING;
+        if (DEBUG) {
+            final StringBuilder stringBuilder = new StringBuilder("Wifi network required and ");
+
+            if (!isWifi) {
+                stringBuilder.append("not ");
+            }
+
+            stringBuilder.append("found.");
+            Log.d(TAG, stringBuilder.toString());
+        }
+
+        return isWifi;
+    }
+
+    /**
+     * Checks if device connected to a WIFI network.
+     *
+     * @param networkInfo The {@link NetworkInfo} to check for connectivity.
+     * @return True if this device is connected or connecting to a WIFI network, false otherwise.
+     */
+    private static boolean isWifi(final NetworkInfo networkInfo) {
+        final boolean isWifiAndConnected;
+
+        if (networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_WIFI &&
+                networkInfo.getState() == NetworkInfo.State.CONNECTED) {
+            isWifiAndConnected = true;
+        } else {
+            isWifiAndConnected = false;
+        }
+
+        return isWifiAndConnected;
     }
 
     private static HashMap<String, String> loadCovers() {
@@ -497,7 +548,7 @@ public final class CoverManager {
         if (settings.getBoolean(PREFERENCE_CACHE, true)) {
             enabledRetrievers.add(CoverRetrievers.CACHE);
         }
-        if (!(settings.getBoolean(PREFERENCE_ONLY_WIFI, false)) | (isWifi())) {
+        if (!settings.getBoolean(PREFERENCE_ONLY_WIFI, false) || isWifi()) {
             if (settings.getBoolean(PREFERENCE_LOCALSERVER, false)) {
                 enabledRetrievers.add(CoverRetrievers.LOCAL);
             }
