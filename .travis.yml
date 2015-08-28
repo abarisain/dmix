@@ -7,7 +7,7 @@ android:
     - build-tools-23.0.0
     - doc-23
 
-    - android-22
+    - android-23
 
     # Additional components
     - extra-android-m2repository
