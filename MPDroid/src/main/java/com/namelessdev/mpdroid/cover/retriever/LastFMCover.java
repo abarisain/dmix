@@ -264,7 +264,7 @@ public class LastFMCover extends AbstractWebCover {
      *
      * @param albumInfo The {@link AlbumInfo} of the album to query.
      * @return A {@link URI} encoded URL.
-     * @throws URISyntaxException Upon syntax error.
+     * @throws URISyntaxException    Upon syntax error.
      * @throws MalformedURLException Upon incorrect input for the URI to ASCII conversion.
      */
     private static URL getCoverQueryURL(final AlbumInfo albumInfo)

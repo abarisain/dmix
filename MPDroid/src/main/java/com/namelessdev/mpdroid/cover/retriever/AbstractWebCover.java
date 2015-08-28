@@ -93,7 +93,7 @@ abstract class AbstractWebCover implements ICoverRetriever {
      * @param path   The path for this URL.
      * @param query  The query for this URL.
      * @return A encoded URL.
-     * @throws URISyntaxException Upon syntax error.
+     * @throws URISyntaxException    Upon syntax error.
      * @throws MalformedURLException Upon incorrect input for the URI to ASCII conversion.
      */
     protected static URL encodeUrl(final String scheme, final String host, final String path,
@@ -196,7 +196,7 @@ abstract class AbstractWebCover implements ICoverRetriever {
      *
      * @param request The web service request
      * @return The web service response
-     * @throws IOException Upon connection error during GET request.
+     * @throws IOException        Upon connection error during GET request.
      * @throws URISyntaxException If the request URL has incorrect syntax.
      */
     protected String executeGetRequestWithConnection(final URL request)
