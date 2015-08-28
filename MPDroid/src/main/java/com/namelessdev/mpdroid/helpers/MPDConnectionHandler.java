@@ -50,9 +50,11 @@ public class MPDConnectionHandler extends BroadcastReceiver {
                 final NetworkInfo networkInfo =
                         intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
 
-                Log.d(TAG, "NETW-STATE:" + action);
-                Log.d(TAG, "NETW-STATE: Connected: " + networkInfo.isConnected()
-                        + ", state: " + networkInfo.getState());
+                if (networkInfo != null) {
+                    Log.d(TAG, "NETW-STATE:" + action);
+                    Log.d(TAG, "NETW-STATE: Connected: " + networkInfo.isConnected()
+                            + ", state: " + networkInfo.getState());
+                }
                 break;
             default:
                 break;
