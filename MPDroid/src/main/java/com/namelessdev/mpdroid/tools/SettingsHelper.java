@@ -34,14 +34,14 @@ public final class SettingsHelper {
 
     private static final MPDApplication APP = MPDApplication.getInstance();
 
+    private static final Pattern COMPILE = Pattern.compile("\"", Pattern.LITERAL);
+
     private static final int DEFAULT_STREAMING_PORT = 8000;
 
     /**
      * This is the code used when there is no SSID, from WifiSsid, which cannot be linked.
      */
     private static final String NONE = "<unknown ssid>";
-
-    private static final Pattern COMPILE = Pattern.compile("\"", Pattern.LITERAL);
 
     private static final SharedPreferences SETTINGS =
             PreferenceManager.getDefaultSharedPreferences(APP);
