@@ -286,35 +286,6 @@ public class AlbumInfo {
     }
 
     /**
-     * This method removes illegal characters, normalizes text, removes references to the media
-     * type and returns the resulting {@code AlbumInfo}.
-     *
-     * @return The modified {@code AlbumInfo}.
-     */
-    public AlbumInfo getURLEncoded() {
-        String artist = null;
-        String album = null;
-
-        try {
-            if (mAlbumName != null) {
-                album = URLEncoder.encode(mAlbumName, "UTF-8");
-            }
-
-            if (mArtistName != null) {
-                artist = URLEncoder.encode(mArtistName, "UTF-8");
-            }
-        } catch (final UnsupportedEncodingException e) {
-            Log.e(TAG, "Your platform does not have support for UTF-8 character encoding.", e);
-        }
-
-        if (album != null) {
-            album = MEDIA_REMOVE.matcher(album).replaceAll(" ");
-        }
-
-        return new AlbumInfo(artist, album, mParentDirectory, mFilename);
-    }
-
-    /**
      * This method returns the filename relating to this album.
      *
      * @return The filename relating to this album.
@@ -355,6 +326,35 @@ public class AlbumInfo {
      */
     public String getParentDirectory() {
         return mParentDirectory;
+    }
+
+    /**
+     * This method removes illegal characters, normalizes text, removes references to the media
+     * type and returns the resulting {@code AlbumInfo}.
+     *
+     * @return The modified {@code AlbumInfo}.
+     */
+    public AlbumInfo getURLEncoded() {
+        String artist = null;
+        String album = null;
+
+        try {
+            if (mAlbumName != null) {
+                album = URLEncoder.encode(mAlbumName, "UTF-8");
+            }
+
+            if (mArtistName != null) {
+                artist = URLEncoder.encode(mArtistName, "UTF-8");
+            }
+        } catch (final UnsupportedEncodingException e) {
+            Log.e(TAG, "Your platform does not have support for UTF-8 character encoding.", e);
+        }
+
+        if (album != null) {
+            album = MEDIA_REMOVE.matcher(album).replaceAll(" ");
+        }
+
+        return new AlbumInfo(artist, album, mParentDirectory, mFilename);
     }
 
     /**

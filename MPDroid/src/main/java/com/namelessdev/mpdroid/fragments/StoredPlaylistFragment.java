@@ -121,7 +121,6 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
             title = parcelable.getName();
         }
 
-
         return title;
     }
 
