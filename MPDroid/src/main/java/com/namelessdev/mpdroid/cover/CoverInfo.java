@@ -20,12 +20,27 @@ import com.namelessdev.mpdroid.cover.retriever.ICoverRetriever;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
 import android.graphics.Bitmap;
+import android.support.annotation.IntDef;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 
 class CoverInfo extends AlbumInfo {
 
-    public static final int MAX_SIZE = 0;
+    static final int MAX_SIZE = 0;
+
+    static final int STATE_CACHE_FETCH = 1;
+
+    static final int STATE_CREATE_BITMAP = 3;
+
+    static final int STATE_FOUND = 4;
+
+    static final int STATE_NEW = 0;
+
+    static final int STATE_NOT_FOUND = 5;
+
+    static final int STATE_WEB_FETCH = 2;
 
     private Bitmap[] mBitmap = new Bitmap[0];
 
@@ -43,9 +58,9 @@ class CoverInfo extends AlbumInfo {
 
     private boolean mRequestGivenUp = false;
 
-    private STATE mState = STATE.NEW;
+    private int mState;
 
-    public CoverInfo(final AlbumInfo albumInfo) {
+    CoverInfo(final AlbumInfo albumInfo) {
         super(albumInfo);
     }
 
@@ -86,7 +101,8 @@ class CoverInfo extends AlbumInfo {
         return mListener;
     }
 
-    STATE getState() {
+    @STATE
+    int getState() {
         return mState;
     }
 
@@ -130,7 +146,7 @@ class CoverInfo extends AlbumInfo {
         mRequestGivenUp = requestGivenUp;
     }
 
-    void setState(final STATE state) {
+    void setState(@STATE final int state) {
         mState = state;
     }
 
@@ -150,7 +166,13 @@ class CoverInfo extends AlbumInfo {
                 '}';
     }
 
-    enum STATE {
-        NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND
+    /**
+     * This is an annotation which tracks the current cover status state.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({STATE_NEW, STATE_CACHE_FETCH, STATE_WEB_FETCH, STATE_CREATE_BITMAP, STATE_FOUND,
+            STATE_NOT_FOUND})
+    @interface STATE {
+
     }
 }

@@ -70,10 +70,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static com.namelessdev.mpdroid.cover.CoverInfo.STATE.CACHE_COVER_FETCH;
-import static com.namelessdev.mpdroid.cover.CoverInfo.STATE.CREATE_BITMAP;
-import static com.namelessdev.mpdroid.cover.CoverInfo.STATE.WEB_COVER_FETCH;
-
 public final class CoverManager {
 
     public static final boolean DEBUG = false;
@@ -785,11 +781,11 @@ public final class CoverManager {
                                 + ", " + coverInfo.getCachedCoverMaxSize() + ") for "
                                 + coverInfo.getAlbumName() + " from " + url);
                     }
-                    if (coverInfo.getState() == CACHE_COVER_FETCH) {
+                    if (coverInfo.getState() == CoverInfo.STATE_CACHE_FETCH) {
 
                         coverBytes = readBytes(new URL("file://" + url).openStream());
 
-                    } else if (coverInfo.getState() == WEB_COVER_FETCH) {
+                    } else if (coverInfo.getState() == CoverInfo.STATE_WEB_FETCH) {
                         coverBytes = download(url);
                     }
                     if (coverBytes != null) {
@@ -855,7 +851,7 @@ public final class CoverManager {
             boolean canStart = true;
             byte[] coverBytes;
 
-            if (mCoverInfo.getState() != WEB_COVER_FETCH
+            if (mCoverInfo.getState() != CoverInfo.STATE_WEB_FETCH
                     || mCoverFetchExecutor.getQueue().size() < MAX_REQUESTS) {
 
                 // If the coverretriever is defined in the coverInfo
@@ -875,9 +871,9 @@ public final class CoverManager {
 
                         if (canStart) {
 
-                            remote = mCoverInfo.getState() == WEB_COVER_FETCH
+                            remote = mCoverInfo.getState() == CoverInfo.STATE_WEB_FETCH
                                     && !coverRetriever.isCoverLocal();
-                            local = mCoverInfo.getState() == CACHE_COVER_FETCH
+                            local = mCoverInfo.getState() == CoverInfo.STATE_CACHE_FETCH
                                     && coverRetriever.isCoverLocal();
                             if (remote || local) {
                                 if (DEBUG) {
@@ -991,7 +987,7 @@ public final class CoverManager {
                     final CoverDownloadListener listener = listenerIterator.next();
 
                     switch (coverInfo.getState()) {
-                        case COVER_FOUND:
+                        case CoverInfo.STATE_FOUND:
                             removeRequest(coverInfo);
                             if (DEBUG) {
                                 Log.d(TAG, "Cover found for " + coverInfo.getAlbumName());
@@ -1008,7 +1004,7 @@ public final class CoverManager {
                                 coverInfo.setBitmap(copyBitmap);
                             }
                             break;
-                        case COVER_NOT_FOUND:
+                        case CoverInfo.STATE_NOT_FOUND:
                             // Re-try the cover art download
                             // if the request has been given up or if the path is
                             // missing (like in artist view)
@@ -1022,7 +1018,7 @@ public final class CoverManager {
                             }
                             listener.onCoverNotFound(coverInfo);
                             break;
-                        case WEB_COVER_FETCH:
+                        case CoverInfo.STATE_WEB_FETCH:
                             listener.onCoverDownloadStarted(coverInfo);
                             break;
                         default:
@@ -1051,7 +1047,7 @@ public final class CoverManager {
                     }
 
                     switch (coverInfo.getState()) {
-                        case NEW:
+                        case CoverInfo.STATE_NEW:
                             // Do not create a new request if a similar one
                             // already exists
                             // Just register the new cover listener and update
@@ -1072,20 +1068,20 @@ public final class CoverManager {
                                                 + "cover with artist=" + coverInfo.getArtistName()
                                                 + ", album=" + coverInfo.getAlbumName());
                                     }
-                                    coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
+                                    coverInfo.setState(CoverInfo.STATE_NOT_FOUND);
                                     notifyListeners(coverInfo);
                                 } else {
                                     mRunningRequests.add(coverInfo);
-                                    coverInfo.setState(CACHE_COVER_FETCH);
+                                    coverInfo.setState(CoverInfo.STATE_CACHE_FETCH);
                                     mCacheCoverFetchExecutor.submit(new FetchCoverTask(coverInfo));
                                 }
                                 break;
 
                             }
-                        case CACHE_COVER_FETCH:
+                        case CoverInfo.STATE_CACHE_FETCH:
                             if (coverInfo.getCoverBytes() == null
                                     || coverInfo.getCoverBytes().length == 0) {
-                                coverInfo.setState(WEB_COVER_FETCH);
+                                coverInfo.setState(CoverInfo.STATE_WEB_FETCH);
                                 notifyListeners(coverInfo);
                                 if (coverInfo.isPriority()) {
                                     mPriorityCoverFetchExecutor
@@ -1095,25 +1091,25 @@ public final class CoverManager {
                                 }
                                 break;
                             } else {
-                                coverInfo.setState(CREATE_BITMAP);
+                                coverInfo.setState(CoverInfo.STATE_CREATE_BITMAP);
                                 mCreateBitmapExecutor.submit(new CreateBitmapTask(coverInfo));
                                 break;
                             }
-                        case WEB_COVER_FETCH:
+                        case CoverInfo.STATE_WEB_FETCH:
                             if (coverInfo.getCoverBytes() != null
                                     && coverInfo.getCoverBytes().length > 0) {
-                                coverInfo.setState(CREATE_BITMAP);
+                                coverInfo.setState(CoverInfo.STATE_CREATE_BITMAP);
                                 notifyListeners(coverInfo);
                                 mCreateBitmapExecutor.submit(new CreateBitmapTask(coverInfo));
                                 break;
                             } else {
-                                coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
+                                coverInfo.setState(CoverInfo.STATE_NOT_FOUND);
                                 notifyListeners(coverInfo);
                                 break;
                             }
-                        case CREATE_BITMAP:
+                        case CoverInfo.STATE_CREATE_BITMAP:
                             if (coverInfo.getBitmap() != null) {
-                                coverInfo.setState(CoverInfo.STATE.COVER_FOUND);
+                                coverInfo.setState(CoverInfo.STATE_FOUND);
                                 notifyListeners(coverInfo);
                             } else if (isLastCoverRetriever(coverInfo.getCoverRetriever())) {
                                 if (DEBUG) {
@@ -1126,13 +1122,13 @@ public final class CoverManager {
                                 }
                                 mCoverFetchExecutor.submit(new FetchCoverTask(coverInfo));
                             } else {
-                                coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
+                                coverInfo.setState(CoverInfo.STATE_NOT_FOUND);
                                 notifyListeners(coverInfo);
                             }
                             break;
                         default:
                             Log.e(TAG, "Unknown request : " + coverInfo);
-                            coverInfo.setState(CoverInfo.STATE.COVER_NOT_FOUND);
+                            coverInfo.setState(CoverInfo.STATE_NOT_FOUND);
                             notifyListeners(coverInfo);
                             break;
                     }
