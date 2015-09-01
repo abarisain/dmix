@@ -28,7 +28,6 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.cover.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.cover.CoverAsyncHelper;
-import com.namelessdev.mpdroid.cover.CoverInfo;
 import com.namelessdev.mpdroid.cover.CoverManager;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
@@ -68,6 +67,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 
 public class SongsFragment extends BrowseFragment<Music> {
@@ -372,8 +372,9 @@ public class SongsFragment extends BrowseFragment<Music> {
 
         mCoverArtListener = new AlbumCoverDownloadListener(mCoverArt, mCoverArtProgress, false) {
             @Override
-            public void onCoverDownloaded(final CoverInfo cover) {
-                super.onCoverDownloaded(cover);
+            public void onCoverDownloaded(final AlbumInfo albumInfo,
+                    final Collection<Bitmap> bitmaps) {
+                super.onCoverDownloaded(albumInfo, bitmaps);
                 final Drawable drawable = mCoverArt.getDrawable();
                 if (drawable instanceof BitmapDrawable) {
                     applyPaletteWithBitmapAsync(((BitmapDrawable) drawable).getBitmap());
@@ -638,7 +639,7 @@ public class SongsFragment extends BrowseFragment<Music> {
                     mCoverHelper.downloadCover(fixedAlbumInfo, true);
                 }
             } else {
-                mCoverArtListener.onCoverNotFound(new CoverInfo(fixedAlbumInfo));
+                mCoverArtListener.onCoverNotFound(fixedAlbumInfo);
             }
             mFirstRefresh = false;
 

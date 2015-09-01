@@ -28,6 +28,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import java.util.Collection;
+
 public class AlbumCoverDownloadListener implements CoverDownloadListener {
 
     private static final String TAG = "CoverDownloadListener";
@@ -135,7 +137,7 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
         }
     }
 
-    private boolean isMatchingCover(final CoverInfo coverInfo) {
+    private boolean isMatchingCover(final AlbumInfo coverInfo) {
         boolean isMatchingCover = false;
 
         if (coverInfo != null && mCoverArt != null) {
@@ -148,17 +150,17 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
     }
 
     @Override
-    public void onCoverDownloadStarted(final CoverInfo cover) {
-        if (isMatchingCover(cover) && mCoverArtProgress != null) {
+    public void onCoverDownloadStarted(final AlbumInfo albumInfo) {
+        if (isMatchingCover(albumInfo) && mCoverArtProgress != null) {
             mCoverArtProgress.setVisibility(View.VISIBLE);
         }
     }
 
     @Override
-    public void onCoverDownloaded(final CoverInfo cover) {
-        if (isMatchingCover(cover) && cover.getBitmap() != null) {
+    public void onCoverDownloaded(final AlbumInfo albumInfo, final Collection<Bitmap> bitmaps) {
+        if (isMatchingCover(albumInfo) && !bitmaps.isEmpty()) {
             final CoverBitmapDrawable coverBitmapDrawable =
-                    new CoverBitmapDrawable(sApp.getResources(), cover.getBitmap()[0]);
+                    new CoverBitmapDrawable(sApp.getResources(), bitmaps);
 
             if (mCoverArtProgress != null) {
                 mCoverArtProgress.setVisibility(View.INVISIBLE);
@@ -166,14 +168,14 @@ public class AlbumCoverDownloadListener implements CoverDownloadListener {
 
             freeCoverDrawable(mCoverArt.getDrawable());
             mCoverArt.setImageDrawable(coverBitmapDrawable);
-            cover.setBitmap(null);
+            ((CoverInfo) albumInfo).setBitmap();
         }
     }
 
     @Override
-    public void onCoverNotFound(final CoverInfo coverInfo) {
-        if (isMatchingCover(coverInfo)) {
-            coverInfo.setBitmap(null);
+    public void onCoverNotFound(final AlbumInfo albumInfo) {
+        if (isMatchingCover(albumInfo)) {
+            ((CoverInfo) albumInfo).setBitmap();
             if (mCoverArtProgress != null) {
                 mCoverArtProgress.setVisibility(View.INVISIBLE);
             }

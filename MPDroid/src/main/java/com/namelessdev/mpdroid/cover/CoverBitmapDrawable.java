@@ -24,8 +24,8 @@ import java.io.InputStream;
 
 public class CoverBitmapDrawable extends BitmapDrawable {
 
-    public CoverBitmapDrawable(final Resources resources, final Bitmap bitmap) {
-        super(resources, bitmap);
+    public CoverBitmapDrawable(final Resources resources, final Iterable<Bitmap> bitmaps) {
+        super(resources, bitmaps.iterator().next());
     }
 
     public CoverBitmapDrawable(final Resources resources, final InputStream is) {

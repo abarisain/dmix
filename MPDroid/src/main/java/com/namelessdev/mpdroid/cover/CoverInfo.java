@@ -23,7 +23,7 @@ import android.graphics.Bitmap;
 
 import java.util.Arrays;
 
-public class CoverInfo extends AlbumInfo {
+class CoverInfo extends AlbumInfo {
 
     public static final int MAX_SIZE = 0;
 
@@ -49,7 +49,7 @@ public class CoverInfo extends AlbumInfo {
         super(albumInfo);
     }
 
-    public CoverInfo(final CoverInfo coverInfo) {
+    CoverInfo(final CoverInfo coverInfo) {
         super(coverInfo);
         mState = coverInfo.mState;
         mBitmap = coverInfo.mBitmap;
@@ -66,71 +66,71 @@ public class CoverInfo extends AlbumInfo {
         return mBitmap;
     }
 
-    public int getCachedCoverMaxSize() {
+    int getCachedCoverMaxSize() {
         return mCachedCoverMaxSize;
     }
 
-    public byte[] getCoverBytes() {
+    byte[] getCoverBytes() {
         return mCoverBytes;
     }
 
-    public int getCoverMaxSize() {
+    int getCoverMaxSize() {
         return mCoverMaxSize;
     }
 
-    public ICoverRetriever getCoverRetriever() {
+    ICoverRetriever getCoverRetriever() {
         return mCoverRetriever;
     }
 
-    public CoverDownloadListener getListener() {
+    CoverDownloadListener getListener() {
         return mListener;
     }
 
-    public STATE getState() {
+    STATE getState() {
         return mState;
     }
 
-    public boolean isPriority() {
+    boolean isPriority() {
         return mPriority;
     }
 
-    public boolean isRequestGivenUp() {
+    boolean isRequestGivenUp() {
         return mRequestGivenUp;
     }
 
-    public void setBitmap(final Bitmap[] bitmap) {
+    void setBitmap(final Bitmap... bitmap) {
         mBitmap = bitmap;
     }
 
-    public void setCachedCoverMaxSize(final int cachedCoverMaxSize) {
+    void setCachedCoverMaxSize(final int cachedCoverMaxSize) {
         mCachedCoverMaxSize = cachedCoverMaxSize;
     }
 
-    public void setCoverBytes(final byte[] coverBytes) {
+    void setCoverBytes(final byte[] coverBytes) {
         mCoverBytes = coverBytes;
     }
 
-    public void setCoverMaxSize(final int coverMaxSize) {
+    void setCoverMaxSize(final int coverMaxSize) {
         mCoverMaxSize = coverMaxSize;
     }
 
-    public void setCoverRetriever(final ICoverRetriever coverRetriever) {
+    void setCoverRetriever(final ICoverRetriever coverRetriever) {
         mCoverRetriever = coverRetriever;
     }
 
-    public void setListener(final CoverDownloadListener listener) {
+    void setListener(final CoverDownloadListener listener) {
         mListener = listener;
     }
 
-    public void setPriority(final boolean priority) {
+    void setPriority(final boolean priority) {
         mPriority = priority;
     }
 
-    public void setRequestGivenUp(final boolean requestGivenUp) {
+    void setRequestGivenUp(final boolean requestGivenUp) {
         mRequestGivenUp = requestGivenUp;
     }
 
-    public void setState(final STATE state) {
+    void setState(final STATE state) {
         mState = state;
     }
 
@@ -150,7 +150,7 @@ public class CoverInfo extends AlbumInfo {
                 '}';
     }
 
-    public enum STATE {
+    enum STATE {
         NEW, CACHE_COVER_FETCH, WEB_COVER_FETCH, CREATE_BITMAP, COVER_FOUND, COVER_NOT_FOUND
     }
 }

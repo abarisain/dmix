@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid.service;
 
 import com.namelessdev.mpdroid.cover.CoverAsyncHelper;
 import com.namelessdev.mpdroid.cover.CoverDownloadListener;
-import com.namelessdev.mpdroid.cover.CoverInfo;
 import com.namelessdev.mpdroid.cover.CoverManager;
 import com.namelessdev.mpdroid.cover.retriever.CachedCover;
 import com.namelessdev.mpdroid.cover.retriever.ICoverRetriever;
@@ -29,6 +28,8 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import java.util.Collection;
 
 /**
  * A simple class tailor designed to keep various handlers of the MPDroid service with an updated
@@ -121,24 +122,28 @@ class AlbumCoverHandler implements CoverDownloadListener {
     /**
      * A method implemented from CoverDownloadListener used for progress.
      *
-     * @param cover A current {@code CoverInfo object}.
+     * @param albumInfo A current {@code AlbumInfo object}.
      */
     @Override
-    public void onCoverDownloadStarted(final CoverInfo cover) {
+    public void onCoverDownloadStarted(final AlbumInfo albumInfo) {
     }
 
     /**
      * A method implemented from CoverDownloadListener executed after cover download has
      * successfully completed.
      *
-     * @param cover A current {@code CoverInfo object}.
+     * @param albumInfo A current {@code AlbumInfo object}.
      */
     @Override
-    public final void onCoverDownloaded(final CoverInfo cover) {
+    public final void onCoverDownloaded(final AlbumInfo albumInfo,
+            final Collection<Bitmap> bitmaps) {
         if (mIsAlbumCacheEnabled) {
-            /** This is a workaround for the rare occasion of cover.getBitmap()[0] being null. */
+            /**
+             * This is a workaround for the rare occasion of bitmaps.iterator().getNext() being
+             * null.
+             */
             Bitmap placeholder = null;
-            for (final Bitmap bitmap : cover.getBitmap()) {
+            for (final Bitmap bitmap : bitmaps) {
                 if (bitmap != null) {
                     placeholder = bitmap;
                     break;
@@ -150,7 +155,7 @@ class AlbumCoverHandler implements CoverDownloadListener {
                 mNotificationCover =
                         Bitmap.createScaledBitmap(mFullSizeAlbumCover, mIconWidth, mIconHeight,
                                 false);
-                mAlbumCoverPath = retrieveCoverArtPath(cover);
+                mAlbumCoverPath = retrieveCoverArtPath(albumInfo);
                 mFullSizeListener.onCoverUpdate(mFullSizeAlbumCover);
                 mNotificationListener.onCoverUpdate(mNotificationCover);
             }
@@ -159,11 +164,9 @@ class AlbumCoverHandler implements CoverDownloadListener {
 
     /**
      * A method implemented from CoverDownloadListener executed after an album cover was not found.
-     *
-     * @param coverInfo A current {@code CoverInfo object}.
      */
     @Override
-    public void onCoverNotFound(final CoverInfo coverInfo) {
+    public void onCoverNotFound(final AlbumInfo albumInfo) {
     }
 
     final void setAlbumCache(final boolean value) {
@@ -172,7 +175,6 @@ class AlbumCoverHandler implements CoverDownloadListener {
 
     final void stop() {
         /** Don't recycle. Android can easily get out of state; let GC do it's magic. */
-
         mFullSizeListener = null;
         mNotificationListener = null;
 

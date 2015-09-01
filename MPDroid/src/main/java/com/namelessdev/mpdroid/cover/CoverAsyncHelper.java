@@ -21,10 +21,12 @@ import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -109,10 +111,10 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     @Override
     public void handleMessage(final Message msg) {
         super.handleMessage(msg);
+        final CoverInfo coverInfo = (CoverInfo) msg.obj;
 
         switch (msg.what) {
             case EVENT_COVER_DOWNLOADED:
-                final CoverInfo coverInfo = (CoverInfo) msg.obj;
                 if (coverInfo.getCachedCoverMaxSize() < mCachedCoverMaxSize ||
                         coverInfo.getCoverMaxSize() < mCoverMaxSize) {
                     // We've got the wrong size, get it again from the cache
@@ -121,7 +123,7 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
                 }
 
                 for (final CoverDownloadListener listener : mCoverDownloadListeners) {
-                    listener.onCoverDownloaded(coverInfo);
+                    listener.onCoverDownloaded(coverInfo, Arrays.asList(coverInfo.getBitmap()));
                 }
 
                 if (CoverManager.DEBUG) {
@@ -130,12 +132,12 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
                 break;
             case EVENT_COVER_NOT_FOUND:
                 for (final CoverDownloadListener listener : mCoverDownloadListeners) {
-                    listener.onCoverNotFound((CoverInfo) msg.obj);
+                    listener.onCoverNotFound(coverInfo);
                 }
                 break;
             case EVENT_COVER_DOWNLOAD_STARTED:
                 for (final CoverDownloadListener listener : mCoverDownloadListeners) {
-                    listener.onCoverDownloadStarted((CoverInfo) msg.obj);
+                    listener.onCoverDownloadStarted(coverInfo);
                 }
                 break;
             default:
@@ -144,18 +146,18 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
     }
 
     @Override
-    public void onCoverDownloadStarted(final CoverInfo cover) {
-        obtainMessage(EVENT_COVER_DOWNLOAD_STARTED, cover).sendToTarget();
+    public void onCoverDownloadStarted(final AlbumInfo albumInfo) {
+        obtainMessage(EVENT_COVER_DOWNLOAD_STARTED, albumInfo).sendToTarget();
     }
 
     @Override
-    public void onCoverDownloaded(final CoverInfo cover) {
-        obtainMessage(EVENT_COVER_DOWNLOADED, cover).sendToTarget();
+    public void onCoverDownloaded(final AlbumInfo albumInfo, final Collection<Bitmap> bitmaps) {
+        obtainMessage(EVENT_COVER_DOWNLOADED, albumInfo).sendToTarget();
     }
 
     @Override
-    public void onCoverNotFound(final CoverInfo coverInfo) {
-        obtainMessage(EVENT_COVER_NOT_FOUND, coverInfo).sendToTarget();
+    public void onCoverNotFound(final AlbumInfo albumInfo) {
+        obtainMessage(EVENT_COVER_NOT_FOUND, albumInfo).sendToTarget();
     }
 
     public void removeCoverDownloadListener(final CoverDownloadListener listener) {
