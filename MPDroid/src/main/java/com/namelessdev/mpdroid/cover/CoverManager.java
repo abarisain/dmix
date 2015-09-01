@@ -55,6 +55,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -996,7 +997,8 @@ public final class CoverManager {
                             if (DEBUG) {
                                 Log.d(TAG, "Cover found for " + coverInfo.getAlbumName());
                             }
-                            listener.onCoverDownloaded(coverInfo);
+                            listener.onCoverDownloaded(coverInfo,
+                                    Arrays.asList(coverInfo.getBitmap()));
                             // Do a copy for the other listeners (not to share
                             // bitmaps between views because of the recycling)
                             if (listenerIterator.hasNext()) {
@@ -1004,9 +1006,7 @@ public final class CoverManager {
                                 final Bitmap copyBitmap = coverInfo.getBitmap()[0].copy(
                                         coverInfo.getBitmap()[0].getConfig(),
                                         coverInfo.getBitmap()[0].isMutable());
-                                coverInfo.setBitmap(new Bitmap[]{
-                                        copyBitmap
-                                });
+                                coverInfo.setBitmap(copyBitmap);
                             }
                             break;
                         case COVER_NOT_FOUND:

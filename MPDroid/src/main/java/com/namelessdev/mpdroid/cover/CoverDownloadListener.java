@@ -18,14 +18,18 @@ package com.namelessdev.mpdroid.cover;
 
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
+import android.graphics.Bitmap;
+
+import java.util.Collection;
+
 public interface CoverDownloadListener {
 
-    void onCoverDownloadStarted(CoverInfo cover);
+    void onCoverDownloadStarted(final AlbumInfo albumInfo);
 
-    void onCoverDownloaded(CoverInfo cover);
+    void onCoverDownloaded(final AlbumInfo albumInfo, final Collection<Bitmap> bitmaps);
 
-    void onCoverNotFound(CoverInfo coverInfo);
+    void onCoverNotFound(final AlbumInfo albumInfo);
 
-    void tagAlbumCover(AlbumInfo albumInfo);
+    void tagAlbumCover(final AlbumInfo albumInfo);
 
 }
