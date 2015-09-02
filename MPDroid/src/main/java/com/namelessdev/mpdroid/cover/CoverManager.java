@@ -693,7 +693,11 @@ public final class CoverManager {
                     }
 
                     // Save the fullsize bitmap
-                    cacheRetriever.save(mCoverInfo, fullBmp);
+                    try {
+                        cacheRetriever.save(mCoverInfo, fullBmp);
+                    } catch (final IOException e) {
+                        Log.e(TAG, "Failed to save cover art to cache.", e);
+                    }
 
                     // Release the cover immediately if not used
                     if (!bitmaps[0].equals(bitmaps[1])) {
@@ -769,12 +773,11 @@ public final class CoverManager {
             return buffer;
         }
 
-        private byte[] getCoverBytes(final String[] coverUrls, final CoverInfo coverInfo) {
+        private byte[] getCoverBytes(final Iterable<String> coverUrls, final CoverInfo coverInfo) {
 
             byte[] coverBytes = null;
 
             for (final String url : coverUrls) {
-
                 try {
                     if (DEBUG) {
                         Log.d(TAG, "Downloading cover (with maxsize " + coverInfo.getCoverMaxSize()
@@ -845,7 +848,6 @@ public final class CoverManager {
 
         @Override
         public void run() {
-            String[] coverUrls;
             boolean remote;
             boolean local;
             boolean canStart = true;
@@ -870,7 +872,6 @@ public final class CoverManager {
                         }
 
                         if (canStart) {
-
                             remote = mCoverInfo.getState() == CoverInfo.STATE_WEB_FETCH
                                     && !coverRetriever.isCoverLocal();
                             local = mCoverInfo.getState() == CoverInfo.STATE_CACHE_FETCH
@@ -882,26 +883,28 @@ public final class CoverManager {
                                             + coverRetriever.getName());
                                 }
                                 mCoverInfo.setCoverRetriever(coverRetriever);
-                                coverUrls = coverRetriever.getCoverUrl(mCoverInfo);
+                                final List<String> coverUrls =
+                                        coverRetriever.getCoverUrls(mCoverInfo);
 
-                                if (coverUrls != null && coverUrls.length > 0) {
+                                if (!coverUrls.isEmpty()) {
+                                    final String firstCover = coverUrls.get(0);
                                     final List<String> wrongUrlsForCover =
                                             mWrongCoverUrlMap.get(mCoverInfo.getKey());
 
                                     if (wrongUrlsForCover == null
-                                            || !isBlacklistedCoverUrl(coverUrls[0],
+                                            || !isBlacklistedCoverUrl(firstCover,
                                             mCoverInfo.getKey())) {
 
                                         if (DEBUG) {
                                             Log.d(TAG, "Cover found for  " +
                                                     mCoverInfo.getAlbumName() + " with "
                                                     + coverRetriever.getName() + " : " +
-                                                    coverUrls[0]);
+                                                    firstCover);
                                         }
                                         coverBytes = getCoverBytes(coverUrls, mCoverInfo);
                                         if (coverBytes != null && coverBytes.length > 0) {
                                             if (!coverRetriever.isCoverLocal()) {
-                                                mCoverUrlMap.put(mCoverInfo.getKey(), coverUrls[0]);
+                                                mCoverUrlMap.put(mCoverInfo.getKey(), firstCover);
                                             }
                                             mCoverInfo.setCoverBytes(coverBytes);
                                             mRequests.addLast(mCoverInfo);
@@ -919,7 +922,7 @@ public final class CoverManager {
                                         if (DEBUG) {
                                             Log.d(TAG, "Blacklisted cover url found for "
                                                     + mCoverInfo.getAlbumName() + " : "
-                                                    + coverUrls[0]);
+                                                    + firstCover);
                                         }
                                     }
                                 }

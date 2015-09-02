@@ -27,6 +27,8 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 public class CachedCover implements ICoverRetriever {
 
@@ -121,9 +123,9 @@ public class CachedCover implements ICoverRetriever {
     }
 
     @Override
-    public String[] getCoverUrl(final AlbumInfo albumInfo) {
+    public List<String> getCoverUrls(final AlbumInfo albumInfo) {
         final String storageState = Environment.getExternalStorageState();
-        String[] coverUrl = null;
+        List<String> coverUrls = Collections.emptyList();
 
         // If there is no external storage available, don't bother
         if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState)
@@ -131,13 +133,11 @@ public class CachedCover implements ICoverRetriever {
             final String url = getAbsolutePathForSong(albumInfo);
 
             if (url != null && new File(url).exists()) {
-                coverUrl = new String[]{
-                        url
-                };
+                coverUrls = Collections.singletonList(url);
             }
         }
 
-        return coverUrl;
+        return coverUrls;
     }
 
     @Override
@@ -150,7 +150,7 @@ public class CachedCover implements ICoverRetriever {
         return true;
     }
 
-    public void save(final AlbumInfo albumInfo, final Bitmap cover) {
+    public void save(final AlbumInfo albumInfo, final Bitmap cover) throws IOException {
         final String absoluteCoverFolder = getAbsoluteCoverFolderPath();
 
         if (absoluteCoverFolder != null &&
@@ -166,17 +166,9 @@ public class CachedCover implements ICoverRetriever {
                 } else {
                     Log.e(TAG, "Couldn't create directories for cached cover.");
                 }
-            } catch (final Exception e) {
-                if (CoverManager.DEBUG) {
-                    Log.e(TAG, "Cache cover write failure.", e);
-                }
             } finally {
                 if (out != null) {
-                    try {
-                        out.close();
-                    } catch (final IOException e) {
-                        Log.e(TAG, "Cannot close cover stream.", e);
-                    }
+                    out.close();
                 }
             }
         } else {

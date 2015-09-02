@@ -16,17 +16,16 @@
 
 package com.namelessdev.mpdroid.cover.retriever;
 
-import com.namelessdev.mpdroid.cover.CoverManager;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Fetch cover from Deezer
@@ -65,38 +64,27 @@ public class DeezerCover extends AbstractWebCover {
     }
 
     @Override
-    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
-        final JSONObject jsonRootObject;
-        final JSONArray jsonArray;
-        StringBuilder coverUrl = new StringBuilder();
+    public List<String> getCoverUrls(final AlbumInfo albumInfo) throws Exception {
+        final List<String> coverUrls = new ArrayList<>();
         final URL query = getCoverQueryURL(albumInfo);
-        final String deezerResponse;
+        final String deezerResponse = executeGetRequest(query);
+        final JSONObject jsonRootObject = new JSONObject(deezerResponse);
+        final JSONArray jsonArray;
+        final StringBuilder coverUrl = new StringBuilder();
         JSONObject jsonObject;
 
-        try {
-
-            deezerResponse = executeGetRequest(query);
-            jsonRootObject = new JSONObject(deezerResponse);
-            jsonArray = jsonRootObject.getJSONArray("data");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                jsonObject = jsonArray.getJSONObject(i);
-                coverUrl.setLength(0);
-                coverUrl.append(jsonObject.getString("cover"));
-                if (coverUrl.length() != 0) {
-                    coverUrl.append("&size=big");
-                    return new String[]{
-                            coverUrl.toString()
-                    };
-                }
-            }
-
-        } catch (final Exception e) {
-            if (CoverManager.DEBUG) {
-                Log.e(TAG, "Failed to get cover URL from Deezer", e);
+        jsonArray = jsonRootObject.getJSONArray("data");
+        for (int i = 0; i < jsonArray.length(); i++) {
+            jsonObject = jsonArray.getJSONObject(i);
+            coverUrl.setLength(0);
+            coverUrl.append(jsonObject.getString("cover"));
+            if (coverUrl.length() != 0) {
+                coverUrl.append("&size=big");
+                coverUrls.add(coverUrl.toString());
             }
         }
 
-        return new String[0];
+        return coverUrls;
     }
 
     @Override

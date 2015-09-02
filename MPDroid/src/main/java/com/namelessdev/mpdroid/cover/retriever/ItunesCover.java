@@ -16,18 +16,17 @@
 
 package com.namelessdev.mpdroid.cover.retriever;
 
-import com.namelessdev.mpdroid.cover.CoverManager;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class ItunesCover extends AbstractWebCover {
@@ -63,38 +62,25 @@ public class ItunesCover extends AbstractWebCover {
     }
 
     @Override
-    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
-        final JSONObject jsonRootObject;
-        final JSONArray jsonArray;
-        final String response;
+    public List<String> getCoverUrls(final AlbumInfo albumInfo) throws Exception {
+        final List<String> coverUrls = new ArrayList<>();
         final URL query = getCoverQueryURL(albumInfo);
-        String coverUrl;
-        JSONObject jsonObject;
+        final String response = executeGetRequest(query);
+        final JSONObject jsonRootObject = new JSONObject(response);
+        final JSONArray jsonArray = jsonRootObject.getJSONArray("results");
 
-        try {
-            response = executeGetRequest(query);
-            jsonRootObject = new JSONObject(response);
-            jsonArray = jsonRootObject.getJSONArray("results");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                jsonObject = jsonArray.getJSONObject(i);
-                coverUrl = jsonObject.getString("artworkUrl100");
-                if (coverUrl != null) {
-                    // Based on some tests even if the cover art size returned
-                    // is 100x100
-                    // Bigger versions also exists.
-                    return new String[]{
-                            SMALL_IMAGE_ID.matcher(coverUrl).replaceAll("600x600")
-                    };
-                }
-            }
-
-        } catch (final Exception e) {
-            if (CoverManager.DEBUG) {
-                Log.e(TAG, "Failed to get cover URL from " + getName(), e);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            final JSONObject jsonObject = jsonArray.getJSONObject(i);
+            final String coverUrl = jsonObject.getString("artworkUrl100");
+            if (coverUrl != null) {
+                // Based on some tests even if the cover art size returned
+                // is 100x100
+                // Bigger versions also exists.
+                coverUrls.add(SMALL_IMAGE_ID.matcher(coverUrl).replaceAll("600x600"));
             }
         }
 
-        return new String[0];
+        return coverUrls;
     }
 
     @Override

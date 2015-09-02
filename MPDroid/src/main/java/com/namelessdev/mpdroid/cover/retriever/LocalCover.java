@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static android.text.TextUtils.isEmpty;
@@ -85,23 +86,20 @@ public class LocalCover implements ICoverRetriever {
     }
 
     @Override
-    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
+    public List<String> getCoverUrls(final AlbumInfo albumInfo) throws Exception {
+        final List<String> coverUrls;
 
         if (isEmpty(albumInfo.getParentDirectory())) {
-            return new String[0];
-        }
-
-        String lfilename;
-        // load URL parts from settings
-        final String musicPath = mSettings.getString("musicPath", "music/");
-        FILENAMES[0] = mSettings.getString("coverFileName", null);
-
-        if (musicPath != null) {
-            // load server name/ip
+            coverUrls = Collections.emptyList();
+        } else {
+            String lfilename;
+            // load URL parts from settings
+            final String musicPath = mSettings.getString("musicPath", "music/");
+            FILENAMES[0] = mSettings.getString("coverFileName", null);
             final String serverName = mApp.getConnectionSettings().server;
 
             String url;
-            final List<String> urls = new ArrayList<>();
+            coverUrls = new ArrayList<>();
             for (final String subfolder : SUB_FOLDERS) {
                 for (String baseFilename : FILENAMES) {
                     for (final String ext : EXT) {
@@ -122,26 +120,27 @@ public class LocalCover implements ICoverRetriever {
 
                         // Add file extension except for the filename coming
                         // from settings
-                        if (!baseFilename.equals(FILENAMES[0])) {
-                            lfilename = subfolder + '/' + baseFilename + '.' + ext;
-                        } else {
+                        if (baseFilename.equals(FILENAMES[0])) {
                             lfilename = baseFilename;
+                        } else {
+                            lfilename = subfolder + '/' + baseFilename + '.' + ext;
                         }
 
-                        url = buildCoverUrl(serverName, musicPath, albumInfo.getParentDirectory(),
+                        url = buildCoverUrl(serverName, musicPath,
+                                albumInfo.getParentDirectory(),
                                 lfilename);
 
-                        if (!urls.contains(url)) {
-                            urls.add(url);
+                        if (!coverUrls.contains(url)) {
+                            coverUrls.add(url);
                         }
                     }
                 }
             }
-            return urls.toArray(new String[urls.size()]);
-        } else {
-            return null;
         }
+
+        return coverUrls;
     }
+
 
     @Override
     public String getName() {

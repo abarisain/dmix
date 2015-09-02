@@ -113,8 +113,8 @@ public class SpotifyCover extends AbstractWebCover {
     /**
      * This method returns the image URL retrieved from an {@link #JSON_KEY_IMAGES} element.
      *
-     * @param images   The {@link #JSON_KEY_IMAGES} JSON.
-     * @param query The query URL to retrieved for these images.
+     * @param images The {@link #JSON_KEY_IMAGES} JSON.
+     * @param query  The query URL to retrieved for these images.
      * @return The first image URL for this {@link #JSON_KEY_IMAGES}, null if there is no first
      * URL.
      * @throws JSONException Upon JSON parsing error.
@@ -156,7 +156,7 @@ public class SpotifyCover extends AbstractWebCover {
      * @throws URISyntaxException Thrown upon error parsing the generated {@code AlbumInfo} URI.
      */
     @Override
-    public String[] getCoverUrl(final AlbumInfo albumInfo)
+    public List<String> getCoverUrls(final AlbumInfo albumInfo)
             throws JSONException, URISyntaxException, IOException {
         final List<String> coverUrls = new ArrayList<>();
         final URL query = getCoverQueryURL(albumInfo);
@@ -189,7 +189,7 @@ public class SpotifyCover extends AbstractWebCover {
             logError(TAG, JSON_KEY_ALBUMS, root, query);
         }
 
-        return coverUrls.toArray(new String[coverUrls.size()]);
+        return coverUrls;
     }
 
     /**

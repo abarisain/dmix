@@ -171,12 +171,8 @@ abstract class AbstractWebCover implements ICoverRetriever {
                 line = reader.readLine();
             } while (line != null);
         } finally {
-            try {
-                inputStreamReader.close();
-                reader.close();
-            } catch (final IOException e) {
-                Log.e(TAG, "Failed to close the buffered reader.", e);
-            }
+            inputStreamReader.close();
+            reader.close();
         }
 
         return result.toString();
@@ -206,18 +202,13 @@ abstract class AbstractWebCover implements ICoverRetriever {
             try {
                 inputStream = connection.getInputStream();
                 result = readInputStream(inputStream);
-            } catch (final IOException e) {
-                Log.e(TAG, "Failed to execute cover get request.", e);
             } finally {
                 if (connection != null) {
                     connection.disconnect();
                 }
-                try {
-                    if (inputStream != null) {
-                        inputStream.close();
-                    }
-                } catch (final IOException e) {
-                    Log.e(TAG, "Failed to close input stream from get request.", e);
+
+                if (inputStream != null) {
+                    inputStream.close();
                 }
             }
         }
@@ -238,11 +229,7 @@ abstract class AbstractWebCover implements ICoverRetriever {
             response = readInputStream(connection.getInputStream());
         } finally {
             if (writer != null) {
-                try {
-                    writer.close();
-                } catch (final IOException e) {
-                    Log.e(TAG, "Failed to close buffered writer.", e);
-                }
+                writer.close();
             }
         }
 

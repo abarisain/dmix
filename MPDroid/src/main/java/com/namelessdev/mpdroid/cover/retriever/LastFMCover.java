@@ -40,6 +40,16 @@ import java.util.List;
 public class LastFMCover extends AbstractWebCover {
 
     /**
+     * The URI host to query covers from the LastFM API.
+     */
+    private static final String COVER_QUERY_HOST = "ws.audioscrobbler.com";
+
+    /**
+     * The URI path to query covers from the LastFM API.
+     */
+    private static final String COVER_QUERY_PATH = "/2.0/";
+
+    /**
      * This is a comparator int used to show equal values passed as parameters.
      */
     private static final int EQUAL = 0;
@@ -49,22 +59,6 @@ public class LastFMCover extends AbstractWebCover {
      * parameter to a specific method.
      */
     private static final int GREATER_THAN = 1;
-
-    /**
-     * This is a comparator int used to show that the first parameter is less than the second
-     * parameter to a specific method.
-     */
-    private static final int LESS_THAN = -1;
-
-    /**
-     * The URI host to query covers from the LastFM API.
-     */
-    private static final String COVER_QUERY_HOST = "ws.audioscrobbler.com";
-
-    /**
-     * The URI path to query covers from the LastFM API.
-     */
-    private static final String COVER_QUERY_PATH = "/2.0/";
 
     /**
      * This is the extra large defined image size in a image response.
@@ -115,6 +109,12 @@ public class LastFMCover extends AbstractWebCover {
      * The key used to retrieve the covers for this API.
      */
     private static final String KEY = "7fb78a81b20bee7cb6e8fad4cbcb3694";
+
+    /**
+     * This is a comparator int used to show that the first parameter is less than the second
+     * parameter to a specific method.
+     */
+    private static final int LESS_THAN = -1;
 
     /**
      * The class log identifier.
@@ -275,7 +275,7 @@ public class LastFMCover extends AbstractWebCover {
      * This method parses the {@link #JSON_KEY_IMAGE} JSON key value and siblings for an image.
      *
      * @param jsonKeyImage The {@link #JSON_KEY_IMAGE} JSONObject key value.
-     * @param query     The query URL used to get the the JSON response.
+     * @param query        The query URL used to get the the JSON response.
      * @return The largest image URL available, null if one is not found.
      * @throws JSONException If there is an error parsing the JSON response.
      */
@@ -352,7 +352,7 @@ public class LastFMCover extends AbstractWebCover {
     }
 
     @Override
-    public String[] getCoverUrl(final AlbumInfo albumInfo)
+    public List<String> getCoverUrls(final AlbumInfo albumInfo)
             throws URISyntaxException, JSONException, IOException {
         final URL query = getCoverQueryURL(albumInfo);
         final String response = executeGetRequest(query);
@@ -377,7 +377,7 @@ public class LastFMCover extends AbstractWebCover {
             logError(TAG, JSON_KEY_ALBUM, root, query);
         }
 
-        return coverUrls.toArray(new String[coverUrls.size()]);
+        return coverUrls;
     }
 
     @Override

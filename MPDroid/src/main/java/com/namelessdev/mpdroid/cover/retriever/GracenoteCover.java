@@ -20,6 +20,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.SharedPreferences;
@@ -28,6 +29,9 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static android.text.TextUtils.isEmpty;
 
@@ -50,73 +54,61 @@ public class GracenoteCover extends AbstractWebCover {
 
     private String mUserId;
 
-    private static String extractCoverUrl(final String response) {
-
-        final String coverUrl;
+    private static List<String> extractCoverUrl(final String response)
+            throws XmlPullParserException, IOException {
+        final List<String> coverUrls = new ArrayList<>();
+        final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+        final XmlPullParser xpp = factory.newPullParser();
+        int eventType = xpp.getEventType();
         String elementName = null;
         String attribute = null;
 
-        try {
-            final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            final XmlPullParser xpp = factory.newPullParser();
+        factory.setNamespaceAware(true);
 
-            xpp.setInput(new StringReader(response));
-            int eventType;
-            eventType = xpp.getEventType();
+        xpp.setInput(new StringReader(response));
 
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.TEXT) {
-                    if ("URL".equals(elementName)) {
-                        if ("COVERART".equals(attribute)) {
-                            coverUrl = xpp.getText();
-                            return coverUrl;
-                        }
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            if (eventType == XmlPullParser.TEXT) {
+                if ("URL".equals(elementName)) {
+                    if ("COVERART".equals(attribute)) {
+                        coverUrls.add(xpp.getText());
                     }
-                } else if (eventType == XmlPullParser.START_TAG) {
-                    elementName = xpp.getName();
-                    attribute = xpp.getAttributeValue(null, "TYPE");
                 }
-                eventType = xpp.next();
+            } else if (eventType == XmlPullParser.START_TAG) {
+                elementName = xpp.getName();
+                attribute = xpp.getAttributeValue(null, "TYPE");
             }
-        } catch (final Exception e) {
-            Log.e(TAG, "Cannot extract coverArt URL from Gracenote response.", e);
+            eventType = xpp.next();
         }
-        return null;
+
+        return coverUrls;
     }
 
-    private static String extractUserID(final String response) {
-
-        final String userId;
+    private static String extractUserID(final String response)
+            throws XmlPullParserException, IOException {
+        final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        final XmlPullParser xpp = factory.newPullParser();
+        String userId = null;
         String elementName = null;
 
-        try {
-            final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            final XmlPullParser xpp = factory.newPullParser();
+        xpp.setInput(new StringReader(response));
+        int eventType;
+        eventType = xpp.getEventType();
 
-            xpp.setInput(new StringReader(response));
-            int eventType;
-            eventType = xpp.getEventType();
-
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.TEXT) {
-                    if ("USER".equals(elementName)) {
-                        userId = xpp.getText();
-                        return userId;
-                    }
-                } else if (eventType == XmlPullParser.START_TAG) {
-                    elementName = xpp.getName();
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            if (eventType == XmlPullParser.TEXT) {
+                if ("USER".equals(elementName)) {
+                    userId = xpp.getText();
+                    break;
                 }
-                eventType = xpp.next();
+            } else if (eventType == XmlPullParser.START_TAG) {
+                elementName = xpp.getName();
             }
-        } catch (final Exception e)
-
-        {
-            Log.e(TAG, "Cannot extract userID from Gracenote response.", e);
+            eventType = xpp.next();
         }
 
-        return null;
+        return userId;
     }
 
     public static boolean isClientIdAvailable() {
@@ -134,31 +126,8 @@ public class GracenoteCover extends AbstractWebCover {
         }
     }
 
-    @Override
-    public String[] getCoverUrl(final AlbumInfo albumInfo) throws Exception {
-        final String coverUrl;
-
-        if (mUserId == null) {
-            initializeUserId();
-        }
-
-        if (mUserId == null) {
-            return new String[0];
-        }
-        try {
-            coverUrl = getCoverUrl(albumInfo.getArtistName(), albumInfo.getAlbumName());
-            if (coverUrl != null) {
-                return new String[]{
-                        coverUrl
-                };
-            }
-        } catch (final Exception ex) {
-            Log.e(TAG, "GracenoteCover fetch failure.", ex);
-        }
-        return new String[0];
-    }
-
-    public String getCoverUrl(final String artist, final String album) throws IOException {
+    public List<String> getCoverUrl(final String artist, final String album)
+            throws IOException, XmlPullParserException {
         // Make sure user doesn't try to register again if they already have a
         // userID in the ctor.
         // Do the register request
@@ -177,15 +146,32 @@ public class GracenoteCover extends AbstractWebCover {
                 "</QUERIES>";
 
         final String response = executePostRequest(mApiUrl, request);
-        String coverUrl;
+        final List<String> coverUrls;
 
         if (response == null) {
-            coverUrl = null;
+            coverUrls = Collections.emptyList();
         } else {
-            coverUrl = extractCoverUrl(response);
+            coverUrls = extractCoverUrl(response);
         }
 
-        return coverUrl;
+        return coverUrls;
+    }
+
+    @Override
+    public List<String> getCoverUrls(final AlbumInfo albumInfo) throws Exception {
+        final List<String> coverUrls;
+
+        if (mUserId == null) {
+            initializeUserId();
+        }
+
+        if (mUserId == null) {
+            coverUrls = Collections.emptyList();
+        } else {
+            coverUrls = getCoverUrl(albumInfo.getArtistName(), albumInfo.getAlbumName());
+        }
+
+        return coverUrls;
     }
 
     @Override
@@ -194,34 +180,29 @@ public class GracenoteCover extends AbstractWebCover {
     }
 
     private void initializeUserId() {
-        try {
-
-            if (SETTINGS == null) {
-                return;
-            }
-
-            final String customClientId = SETTINGS.getString(CUSTOM_CLIENT_ID_KEY, null);
-            if (!isEmpty(customClientId)) {
-                mClientId = customClientId;
-                mApiUrl = "https://c" + getClientIdPrefix() + ".web.cddbp.net/webapi/xml/1.0/";
-            } else {
-                return;
-            }
-            mUserId = SETTINGS.getString(USER_ID, null);
-
-            if (mUserId == null) {
-                mUserId = register();
-                if (SETTINGS != null && mUserId != null) {
-                    final SharedPreferences.Editor editor;
-                    editor = SETTINGS.edit();
-                    editor.putString(USER_ID, mUserId);
-                    editor.commit();
+        if (SETTINGS != null) {
+            try {
+                final String customClientId = SETTINGS.getString(CUSTOM_CLIENT_ID_KEY, null);
+                if (!isEmpty(customClientId)) {
+                    mClientId = customClientId;
+                    mApiUrl = "https://c" + getClientIdPrefix() + ".web.cddbp.net/webapi/xml/1.0/";
+                } else {
+                    return;
                 }
-            }
-        } catch (final Exception e) {
-            Log.e(TAG, "Gracenote initialization failure.", e);
-            if (SETTINGS != null) {
-                if (SETTINGS != null && mUserId != null) {
+                mUserId = SETTINGS.getString(USER_ID, null);
+
+                if (mUserId == null) {
+                    mUserId = register();
+                    if (SETTINGS != null && mUserId != null) {
+                        final SharedPreferences.Editor editor;
+                        editor = SETTINGS.edit();
+                        editor.putString(USER_ID, mUserId);
+                        editor.commit();
+                    }
+                }
+            } catch (final Exception e) {
+                Log.e(TAG, "Gracenote initialization failure.", e);
+                if (mUserId != null) {
                     final SharedPreferences.Editor editor;
                     editor = SETTINGS.edit();
                     editor.remove(USER_ID);
@@ -229,18 +210,17 @@ public class GracenoteCover extends AbstractWebCover {
                 }
             }
         }
-
     }
 
     // Will register your clientID and Tag in order to get a userID. The userID
     // should be stored
     // in a persistent form (filesystem, db, etc) otherwise you will hit your
     // user limit.
-    public String register() throws IOException {
+    public String register() throws IOException, XmlPullParserException {
         return register(mClientId);
     }
 
-    public String register(final String clientID) throws IOException {
+    public String register(final String clientID) throws IOException, XmlPullParserException {
         final String request = "<QUERIES><QUERY CMD=\"REGISTER\"><CLIENT>" + clientID
                 + "</CLIENT></QUERY></QUERIES>";
         final String response = executePostRequest(mApiUrl, request);
