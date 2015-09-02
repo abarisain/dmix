@@ -144,24 +144,19 @@ public final class CoverManager {
      *
      * @param connection An HttpURLConnection object.
      * @return True if the URL exists, false otherwise.
+     * @throws IOException Upon error retrieving a response code.
      */
-    public static boolean doesUrlExist(final HttpURLConnection connection) {
-        int statusCode = 0;
+    public static boolean doesUrlExist(final HttpURLConnection connection) throws IOException {
+        final boolean doesUrlExist;
 
         if (connection == null) {
             Log.d(TAG, "Cannot find out if URL exists with a null connection.");
-            return false;
+            doesUrlExist = false;
+        } else {
+            doesUrlExist = doesUrlExist(connection.getResponseCode());
         }
 
-        try {
-            statusCode = connection.getResponseCode();
-        } catch (final IOException e) {
-            if (DEBUG) {
-                Log.e(TAG, "Failed to get a valid response code.", e);
-            }
-        }
-
-        return doesUrlExist(statusCode);
+        return doesUrlExist;
     }
 
     /**
@@ -181,10 +176,15 @@ public final class CoverManager {
 
     private static String getCoverFolder() {
         final File cacheDir = APP.getExternalCacheDir();
+        final String coverFolder;
+
         if (cacheDir == null) {
-            return null;
+            coverFolder = null;
+        } else {
+            coverFolder = cacheDir.getAbsolutePath() + FOLDER_SUFFIX;
         }
-        return cacheDir.getAbsolutePath() + FOLDER_SUFFIX;
+
+        return coverFolder;
     }
 
     /**
@@ -220,6 +220,7 @@ public final class CoverManager {
         if (sInstance == null) {
             sInstance = new CoverManager();
         }
+
         return sInstance;
     }
 
@@ -408,12 +409,15 @@ public final class CoverManager {
     }
 
     private CachedCover getCacheRetriever() {
+        CachedCover cachedRetriever = null;
+
         for (final ICoverRetriever retriever : mCoverRetrievers) {
             if (retriever instanceof CachedCover && retriever.isCoverLocal()) {
-                return (CachedCover) retriever;
+                cachedRetriever = (CachedCover) retriever;
             }
         }
-        return null;
+
+        return cachedRetriever;
     }
 
     private void initializeCoverData() {
@@ -429,32 +433,31 @@ public final class CoverManager {
             Log.d(TAG, "Blacklisting cover for " + albumInfo);
         }
 
-        if (!albumInfo.isValid()) {
-            Log.w(TAG, "Cannot blacklist cover, missing artist or album : " + albumInfo);
-            return;
-        }
-
-        wrongUrl = mCoverUrlMap.get(albumInfo.getKey());
-        // Do not blacklist cover if from local storage (url starts with /...)
-        if (wrongUrl != null && !wrongUrl.startsWith("/")) {
-            if (DEBUG) {
-                Log.d(TAG, "Cover URL to be blacklisted  " + wrongUrl);
-            }
-
-            mWrongCoverUrlMap.put(albumInfo.getKey(), wrongUrl);
-
-            cacheCoverRetriever = getCacheRetriever();
-            if (cacheCoverRetriever != null) {
+        if (albumInfo.isValid()) {
+            wrongUrl = mCoverUrlMap.get(albumInfo.getKey());
+            // Do not blacklist cover if from local storage (url starts with /...)
+            if (wrongUrl != null && !wrongUrl.startsWith("/")) {
                 if (DEBUG) {
-                    Log.d(TAG, "Removing blacklisted cover from cache : ");
+                    Log.d(TAG, "Cover URL to be blacklisted  " + wrongUrl);
                 }
-                mCoverUrlMap.remove(albumInfo.getKey());
-                cacheCoverRetriever.delete(albumInfo);
+
+                mWrongCoverUrlMap.put(albumInfo.getKey(), wrongUrl);
+
+                cacheCoverRetriever = getCacheRetriever();
+                if (cacheCoverRetriever != null) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Removing blacklisted cover from cache : ");
+                    }
+                    mCoverUrlMap.remove(albumInfo.getKey());
+                    cacheCoverRetriever.delete(albumInfo);
+                }
+            } else {
+                Log.w(TAG, "Cannot blacklist the cover for album : " + albumInfo
+                        + " because no cover URL has been recorded for it");
+
             }
         } else {
-            Log.w(TAG, "Cannot blacklist the cover for album : " + albumInfo
-                    + " because no cover URL has been recorded for it");
-
+            Log.w(TAG, "Cannot blacklist cover, missing artist or album : " + albumInfo);
         }
     }
 
@@ -582,10 +585,9 @@ public final class CoverManager {
             return inSampleSize;
         }
 
-        public Bitmap decodeSampledBitmapFromBytes(
+        private Bitmap decodeSampledBitmapFromBytes(
                 final byte[] bytes, final int reqWidth, final int reqHeight,
                 final boolean resizePerfectly) {
-
             // First decode with inJustDecodeBounds=true to check dimensions
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
@@ -596,15 +598,16 @@ public final class CoverManager {
 
             // Decode bitmap with inSampleSize set
             options.inJustDecodeBounds = false;
-            final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
             if (resizePerfectly) {
                 final Bitmap scaledBitmap = Bitmap
                         .createScaledBitmap(bitmap, reqWidth, reqHeight, true);
                 bitmap.recycle();
-                return scaledBitmap;
-            } else {
-                return bitmap;
+                bitmap = scaledBitmap;
             }
+
+            return bitmap;
         }
 
         @Override
@@ -720,45 +723,44 @@ public final class CoverManager {
             byte[] buffer = null;
             int len;
 
-            if (!doesUrlExist(connection)) {
-                return null;
-            }
+            if (doesUrlExist(connection)) {
+                /** TODO: After minSdkVersion="19" use try-with-resources here. */
+                try {
+                    bis = new BufferedInputStream(connection.getInputStream(), 8192);
+                    baos = new ByteArrayOutputStream();
+                    buffer = new byte[1024];
+                    while ((len = bis.read(buffer)) > -1) {
+                        baos.write(buffer, 0, len);
+                    }
+                    baos.flush();
+                    buffer = baos.toByteArray();
+                } catch (final Exception e) {
+                    if (DEBUG) {
+                        Log.e(TAG, "Failed to download cover.", e);
+                    }
+                } finally {
+                    if (bis != null) {
+                        try {
+                            bis.close();
+                        } catch (final IOException e) {
+                            Log.e(TAG, "Failed to close the BufferedInputStream.", e);
+                        }
+                    }
 
-            /** TODO: After minSdkVersion="19" use try-with-resources here. */
-            try {
-                bis = new BufferedInputStream(connection.getInputStream(), 8192);
-                baos = new ByteArrayOutputStream();
-                buffer = new byte[1024];
-                while ((len = bis.read(buffer)) > -1) {
-                    baos.write(buffer, 0, len);
-                }
-                baos.flush();
-                buffer = baos.toByteArray();
-            } catch (final Exception e) {
-                if (DEBUG) {
-                    Log.e(TAG, "Failed to download cover.", e);
-                }
-            } finally {
-                if (bis != null) {
-                    try {
-                        bis.close();
-                    } catch (final IOException e) {
-                        Log.e(TAG, "Failed to close the BufferedInputStream.", e);
+                    if (baos != null) {
+                        try {
+                            baos.close();
+                        } catch (final IOException e) {
+                            Log.e(TAG, "Failed to close the BufferedArrayOutputStream.", e);
+                        }
+                    }
+
+                    if (connection != null) {
+                        connection.disconnect();
                     }
                 }
-
-                if (baos != null) {
-                    try {
-                        baos.close();
-                    } catch (final IOException e) {
-                        Log.e(TAG, "Failed to close the BufferedArrayOutputStream.", e);
-                    }
-                }
-
-                if (connection != null) {
-                    connection.disconnect();
-                }
             }
+
             return buffer;
         }
 
@@ -792,6 +794,7 @@ public final class CoverManager {
                     Log.w(TAG, "Cover get bytes failure.", e);
                 }
             }
+
             return coverBytes;
         }
 
@@ -814,16 +817,19 @@ public final class CoverManager {
         // The gracenote URLs change at every request. We match for this provider on
         // the URL prefix only.
         private boolean isBlacklistedCoverUrl(final String url, final String albumKey) {
+            boolean isBlacklisted = false;
+
             if (url.contains(GracenoteCover.URL_PREFIX)) {
                 for (final String wrongUrl : mWrongCoverUrlMap.get(albumKey)) {
                     if (wrongUrl.contains(GracenoteCover.URL_PREFIX)) {
-                        return true;
+                        isBlacklisted = true;
                     }
                 }
-                return false;
             } else {
-                return mWrongCoverUrlMap.get(albumKey).contains(url);
+                isBlacklisted = mWrongCoverUrlMap.get(albumKey).contains(url);
             }
+
+            return isBlacklisted;
         }
 
         private byte[] readBytes(final InputStream inputStream) throws IOException {
@@ -964,14 +970,15 @@ public final class CoverManager {
         }
 
         private boolean isLastCoverRetriever(final ICoverRetriever retriever) {
-            for (int r = 0; r < mCoverRetrievers.length; r++) {
-                if (mCoverRetrievers[r].equals(retriever)) {
-                    if (r < mCoverRetrievers.length - 1) {
-                        return false;
-                    }
-                }
+            final boolean isLast;
+
+            if (mCoverRetrievers.length > 0) {
+                isLast = mCoverRetrievers[mCoverRetrievers.length - 1].equals(retriever);
+            } else {
+                isLast = false;
             }
-            return true;
+
+            return isLast;
         }
 
         private void logQueues() {
