@@ -163,7 +163,7 @@ public class SpotifyCover extends AbstractWebCover {
      * @throws IOException        Thrown upon error retrieving the cover or cover URL.
      */
     @Override
-    public String[] getCoverUrl(final AlbumInfo albumInfo)
+    public List<String> getCoverUrls(final AlbumInfo albumInfo)
             throws JSONException, URISyntaxException, IOException {
         final List<String> coverUrls = new ArrayList<>();
         final URL query = getCoverQueryURL(albumInfo);
@@ -196,7 +196,7 @@ public class SpotifyCover extends AbstractWebCover {
             logError(TAG, JSON_KEY_ALBUMS, root, query);
         }
 
-        return coverUrls.toArray(new String[coverUrls.size()]);
+        return coverUrls;
     }
 
     /**

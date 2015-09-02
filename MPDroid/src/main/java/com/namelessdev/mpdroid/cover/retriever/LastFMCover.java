@@ -358,7 +358,7 @@ public class LastFMCover extends AbstractWebCover {
     }
 
     @Override
-    public String[] getCoverUrl(final AlbumInfo albumInfo)
+    public List<String> getCoverUrls(final AlbumInfo albumInfo)
             throws URISyntaxException, JSONException, IOException {
         final URL query = getCoverQueryURL(albumInfo);
         final String response = executeGetRequest(query);
@@ -383,7 +383,7 @@ public class LastFMCover extends AbstractWebCover {
             logError(TAG, JSON_KEY_ALBUM, root, query);
         }
 
-        return coverUrls.toArray(new String[coverUrls.size()]);
+        return coverUrls;
     }
 
     @Override

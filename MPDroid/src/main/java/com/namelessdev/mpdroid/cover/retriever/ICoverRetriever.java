@@ -18,9 +18,11 @@ package com.namelessdev.mpdroid.cover.retriever;
 
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
+import java.util.List;
+
 public interface ICoverRetriever {
 
-    String[] getCoverUrl(AlbumInfo albumInfo) throws Exception;
+    List<String> getCoverUrls(AlbumInfo albumInfo) throws Exception;
 
     String getName();
 

@@ -148,7 +148,7 @@ public class JamendoCover extends AbstractWebCover {
      * @throws IOException        Thrown upon error retrieving the cover or cover URL.
      */
     @Override
-    public String[] getCoverUrl(final AlbumInfo albumInfo) throws JSONException,
+    public List<String> getCoverUrls(final AlbumInfo albumInfo) throws JSONException,
             URISyntaxException, IOException {
         final URL query = getCoverQueryURL(albumInfo);
         final JSONObject root = new JSONObject(executeGetRequest(query));
@@ -177,7 +177,7 @@ public class JamendoCover extends AbstractWebCover {
             coverUrls = Collections.emptyList();
         }
 
-        return coverUrls.toArray(new String[coverUrls.size()]);
+        return coverUrls;
     }
 
     /**
