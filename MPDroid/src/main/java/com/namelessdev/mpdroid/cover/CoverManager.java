@@ -98,6 +98,11 @@ public final class CoverManager {
 
     private final ThreadPoolExecutor mCoverFetchExecutor;
 
+    /**
+     * This Collection stores all enabled cover retrievers.
+     */
+    private final List<ICoverRetriever> mCoverRetrievers = new ArrayList<>();
+
     private final ExecutorService mCreateBitmapExecutor = mCacheCoverFetchExecutor;
 
     private final MultiMap<CoverInfo, CoverDownloadListener> mHelpersByCoverInfo
@@ -113,8 +118,6 @@ public final class CoverManager {
             .synchronizedList(new ArrayList<CoverInfo>());
 
     private boolean mActive = true;
-
-    private ICoverRetriever[] mCoverRetrievers;
 
     private HashMap<String, String> mCoverUrlMap;
 
@@ -471,68 +474,31 @@ public final class CoverManager {
         }
     }
 
-    private void setCoverRetrievers(final List<CoverRetrievers> whichCoverRetrievers) {
-        final int coverRetrieverSize = whichCoverRetrievers.size();
-        mCoverRetrievers = new ICoverRetriever[coverRetrieverSize];
-
-        for (int i = 0; i < coverRetrieverSize; i++) {
-            switch (whichCoverRetrievers.get(i)) {
-                case CACHE:
-                    mCoverRetrievers[i] = new CachedCover();
-                    break;
-                case LASTFM:
-                    mCoverRetrievers[i] = new LastFMCover();
-                    break;
-                case LOCAL:
-                    mCoverRetrievers[i] = new LocalCover();
-                    break;
-                case GRACENOTE:
-                    if (GracenoteCover.isClientIdAvailable()) {
-                        mCoverRetrievers[i] = new GracenoteCover();
-                    }
-                    break;
-                case DEEZER:
-                    mCoverRetrievers[i] = new DeezerCover();
-                    break;
-                case MUSICBRAINZ:
-                    mCoverRetrievers[i] = new MusicBrainzCover();
-                    break;
-                case SPOTIFY:
-                    mCoverRetrievers[i] = new SpotifyCover();
-                    break;
-                case ITUNES:
-                    mCoverRetrievers[i] = new ItunesCover();
-                    break;
-                case JAMENDO:
-                    mCoverRetrievers[i] = new JamendoCover();
-                    break;
-            }
-        }
-    }
-
     public void setCoverRetrieversFromPreferences() {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(APP);
-        final List<CoverRetrievers> enabledRetrievers = new ArrayList<>();
+        mCoverRetrievers.clear();
+
         // There is a cover provider order, respect it.
         // Cache -> MPD Server -> LastFM
         if (settings.getBoolean(PREFERENCE_CACHE, true)) {
-            enabledRetrievers.add(CoverRetrievers.CACHE);
+            mCoverRetrievers.add(new CachedCover());
         }
         if (!settings.getBoolean(PREFERENCE_ONLY_WIFI, false) || isWifi()) {
             if (settings.getBoolean(PREFERENCE_LOCALSERVER, false)) {
-                enabledRetrievers.add(CoverRetrievers.LOCAL);
+                mCoverRetrievers.add(new LocalCover());
             }
             if (settings.getBoolean(PREFERENCE_LASTFM, true)) {
-                enabledRetrievers.add(CoverRetrievers.LASTFM);
-                enabledRetrievers.add(CoverRetrievers.ITUNES);
-                enabledRetrievers.add(CoverRetrievers.DEEZER);
-                enabledRetrievers.add(CoverRetrievers.SPOTIFY);
-                enabledRetrievers.add(CoverRetrievers.GRACENOTE);
-                enabledRetrievers.add(CoverRetrievers.MUSICBRAINZ);
-                enabledRetrievers.add(CoverRetrievers.JAMENDO);
+                mCoverRetrievers.add(new LastFMCover());
+                mCoverRetrievers.add(new ItunesCover());
+                mCoverRetrievers.add(new DeezerCover());
+                mCoverRetrievers.add(new SpotifyCover());
+                if (GracenoteCover.isClientIdAvailable()) {
+                    mCoverRetrievers.add(new GracenoteCover());
+                }
+                mCoverRetrievers.add(new MusicBrainzCover());
+                mCoverRetrievers.add(new JamendoCover());
             }
         }
-        setCoverRetrievers(enabledRetrievers);
     }
 
     private void stopExecutors() {
@@ -548,18 +514,6 @@ public final class CoverManager {
             Log.e(TAG, "Failed to shutdown cover executors.", ex);
         }
 
-    }
-
-    public enum CoverRetrievers {
-        CACHE,
-        LASTFM,
-        LOCAL,
-        GRACENOTE,
-        DEEZER,
-        MUSICBRAINZ,
-        SPOTIFY,
-        ITUNES,
-        JAMENDO
     }
 
     private final class CreateBitmapTask implements Runnable {
@@ -965,9 +919,10 @@ public final class CoverManager {
 
         private boolean isLastCoverRetriever(final ICoverRetriever retriever) {
             final boolean isLast;
+            final int size = mCoverRetrievers.size();
 
-            if (mCoverRetrievers.length > 0) {
-                isLast = mCoverRetrievers[mCoverRetrievers.length - 1].equals(retriever);
+            if (size > 0) {
+                isLast = mCoverRetrievers.get(size - 1).getName().equals(retriever.getName());
             } else {
                 isLast = false;
             }
