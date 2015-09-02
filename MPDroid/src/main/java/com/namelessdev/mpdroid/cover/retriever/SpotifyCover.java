@@ -25,7 +25,9 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -97,8 +99,10 @@ public class SpotifyCover extends AbstractWebCover {
      * @param albumInfo The {@link AlbumInfo} of the album to query.
      * @return A URI encoded URL.
      * @throws URISyntaxException Upon syntax error.
+     * @throws MalformedURLException Upon incorrect input for the URI to ASCII conversion.
      */
-    private static String getCoverQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
+    private static URL getCoverQueryURL(final AlbumInfo albumInfo)
+            throws URISyntaxException, MalformedURLException {
         // Spotify album query is not compatible with colons, as they're part of the API.
         final String album = encodeQuery(albumInfo.getAlbumName());
         final String coverAlbumName = COLON_PATTERN.matcher(album).replaceAll("");
@@ -115,13 +119,13 @@ public class SpotifyCover extends AbstractWebCover {
     /**
      * This method returns the image URL retrieved from an {@link #JSON_KEY_IMAGES} element.
      *
-     * @param images   The {@link #JSON_KEY_IMAGES} JSON.
-     * @param queryURL The query URL to retrieved for these images.
+     * @param images The {@link #JSON_KEY_IMAGES} JSON.
+     * @param query  The query URL to retrieved for these images.
      * @return The first image URL for this {@link #JSON_KEY_IMAGES}, null if there is no first
      * URL.
      * @throws JSONException Upon JSON parsing error.
      */
-    private static String getImageURLFromJSON(final JSONArray images, final String queryURL)
+    private static String getImageURLFromJSON(final JSONArray images, final URL query)
             throws JSONException {
         String url = null;
 
@@ -136,7 +140,7 @@ public class SpotifyCover extends AbstractWebCover {
             if (image.has(JSON_KEY_URL)) {
                 url = image.getString(JSON_KEY_URL);
             } else {
-                logError(TAG, JSON_KEY_URL, image, queryURL);
+                logError(TAG, JSON_KEY_URL, image, query);
             }
         }
 
@@ -162,8 +166,8 @@ public class SpotifyCover extends AbstractWebCover {
     public String[] getCoverUrl(final AlbumInfo albumInfo)
             throws JSONException, URISyntaxException, IOException {
         final List<String> coverUrls = new ArrayList<>();
-        final String queryURL = getCoverQueryURL(albumInfo);
-        final JSONObject root = new JSONObject(executeGetRequest(queryURL));
+        final URL query = getCoverQueryURL(albumInfo);
+        final JSONObject root = new JSONObject(executeGetRequest(query));
 
         if (root.has(JSON_KEY_ALBUMS)) {
             final JSONObject albums = root.getJSONObject(JSON_KEY_ALBUMS);
@@ -176,20 +180,20 @@ public class SpotifyCover extends AbstractWebCover {
 
                     if (item.has(JSON_KEY_IMAGES)) {
                         final JSONArray images = item.getJSONArray(JSON_KEY_IMAGES);
-                        final String imageUrl = getImageURLFromJSON(images, queryURL);
+                        final String imageUrl = getImageURLFromJSON(images, query);
 
                         if (imageUrl != null) {
                             coverUrls.add(imageUrl);
                         }
                     } else {
-                        logError(TAG, JSON_KEY_IMAGES, item, queryURL);
+                        logError(TAG, JSON_KEY_IMAGES, item, query);
                     }
                 }
             } else {
-                logError(TAG, JSON_KEY_ITEMS, albums, queryURL);
+                logError(TAG, JSON_KEY_ITEMS, albums, query);
             }
         } else {
-            logError(TAG, JSON_KEY_ALBUMS, root, queryURL);
+            logError(TAG, JSON_KEY_ALBUMS, root, query);
         }
 
         return coverUrls.toArray(new String[coverUrls.size()]);

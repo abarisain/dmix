@@ -27,8 +27,10 @@ import android.support.annotation.IntDef;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
@@ -263,8 +265,10 @@ public class LastFMCover extends AbstractWebCover {
      * @param albumInfo The {@link AlbumInfo} of the album to query.
      * @return A {@link URI} encoded URL.
      * @throws URISyntaxException Upon syntax error.
+     * @throws MalformedURLException Upon incorrect input for the URI to ASCII conversion.
      */
-    private static String getCoverQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
+    private static URL getCoverQueryURL(final AlbumInfo albumInfo)
+            throws URISyntaxException, MalformedURLException {
         final String artist = encodeQuery(albumInfo.getArtistName());
         final String album = encodeQuery(albumInfo.getAlbumName());
         final String query = "method=album.getInfo&artist=" + artist + "&album=" + album +
@@ -277,11 +281,11 @@ public class LastFMCover extends AbstractWebCover {
      * This method parses the {@link #JSON_KEY_IMAGE} JSON key value and siblings for an image.
      *
      * @param jsonKeyImage The {@link #JSON_KEY_IMAGE} JSONObject key value.
-     * @param queryUrl     The query URL used to get the the JSON response.
+     * @param query        The query URL used to get the the JSON response.
      * @return The largest image URL available, null if one is not found.
      * @throws JSONException If there is an error parsing the JSON response.
      */
-    private static String getImageUrl(final JSONArray jsonKeyImage, final String queryUrl)
+    private static String getImageUrl(final JSONArray jsonKeyImage, final URL query)
             throws JSONException {
         String currentSize = null;
         String imageUrl = null;
@@ -302,11 +306,11 @@ public class LastFMCover extends AbstractWebCover {
                             currentSize = imageSize;
                         }
                     } else {
-                        logError(TAG, JSON_KEY_IMAGE_URL, image, queryUrl);
+                        logError(TAG, JSON_KEY_IMAGE_URL, image, query);
                     }
                 }
             } else {
-                logError(TAG, JSON_KEY_SIZE, image, queryUrl);
+                logError(TAG, JSON_KEY_SIZE, image, query);
             }
         }
 
@@ -356,8 +360,8 @@ public class LastFMCover extends AbstractWebCover {
     @Override
     public String[] getCoverUrl(final AlbumInfo albumInfo)
             throws URISyntaxException, JSONException, IOException {
-        final String queryUrl = getCoverQueryURL(albumInfo);
-        final String response = executeGetRequest(queryUrl);
+        final URL query = getCoverQueryURL(albumInfo);
+        final String response = executeGetRequest(query);
         final JSONObject root = new JSONObject(response);
         List<String> coverUrls = Collections.emptyList();
 
@@ -365,7 +369,7 @@ public class LastFMCover extends AbstractWebCover {
             final JSONObject album = root.getJSONObject(JSON_KEY_ALBUM);
 
             if (album.has(JSON_KEY_IMAGE)) {
-                final String url = getImageUrl(album.getJSONArray(JSON_KEY_IMAGE), queryUrl);
+                final String url = getImageUrl(album.getJSONArray(JSON_KEY_IMAGE), query);
 
                 if (url == null) {
                     coverUrls = Collections.emptyList();
@@ -373,10 +377,10 @@ public class LastFMCover extends AbstractWebCover {
                     coverUrls = Collections.singletonList(url);
                 }
             } else {
-                logError(TAG, JSON_KEY_IMAGE, album, queryUrl);
+                logError(TAG, JSON_KEY_IMAGE, album, query);
             }
         } else {
-            logError(TAG, JSON_KEY_ALBUM, root, queryUrl);
+            logError(TAG, JSON_KEY_ALBUM, root, query);
         }
 
         return coverUrls.toArray(new String[coverUrls.size()]);

@@ -23,7 +23,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -93,7 +95,7 @@ public class JamendoCover extends AbstractWebCover {
      * @return The number of covers offered by this response.
      * @throws JSONException Thrown upon error parsing the JSON response.
      */
-    private static int getCoverCount(final JSONObject root, final String queryURL)
+    private static int getCoverCount(final JSONObject root, final URL queryURL)
             throws JSONException {
         int coverCount = 0;
 
@@ -119,8 +121,10 @@ public class JamendoCover extends AbstractWebCover {
      * @param albumInfo The {@link AlbumInfo} of the album to query.
      * @return A URI encoded URL.
      * @throws URISyntaxException Upon syntax error.
+     * @throws MalformedURLException Upon incorrect input for the URI to ASCII conversion.
      */
-    private static String getCoverQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
+    private static URL getCoverQueryURL(final AlbumInfo albumInfo)
+            throws URISyntaxException, MalformedURLException {
         final String artist = encodeQuery(albumInfo.getArtistName());
         final String album = encodeQuery(albumInfo.getAlbumName());
         final String query = "client_id=" + CLIENT_ID + "&name=" + album
@@ -146,9 +150,9 @@ public class JamendoCover extends AbstractWebCover {
     @Override
     public String[] getCoverUrl(final AlbumInfo albumInfo) throws JSONException,
             URISyntaxException, IOException {
-        final String queryURL = getCoverQueryURL(albumInfo);
-        final JSONObject root = new JSONObject(executeGetRequest(queryURL));
-        final int coverCount = getCoverCount(root, queryURL);
+        final URL query = getCoverQueryURL(albumInfo);
+        final JSONObject root = new JSONObject(executeGetRequest(query));
+        final int coverCount = getCoverCount(root, query);
         final List<String> coverUrls;
 
         if (coverCount > 0) {
@@ -163,11 +167,11 @@ public class JamendoCover extends AbstractWebCover {
                         final String imageURL = result.getString(JSON_KEY_IMAGE);
                         coverUrls.add(imageURL);
                     } else {
-                        logError(TAG, JSON_KEY_IMAGE, result, queryURL);
+                        logError(TAG, JSON_KEY_IMAGE, result, query);
                     }
                 }
             } else {
-                logError(TAG, JSON_KEY_RESULTS, root, queryURL);
+                logError(TAG, JSON_KEY_RESULTS, root, query);
             }
         } else {
             coverUrls = Collections.emptyList();

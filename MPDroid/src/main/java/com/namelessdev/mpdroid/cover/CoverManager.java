@@ -243,22 +243,6 @@ public final class CoverManager {
         return file;
     }
 
-    /**
-     * This method takes a URL object and returns a HttpURLConnection object.
-     *
-     * @param url The URL object used to create the connection.
-     * @return The connection which is returned; ensure this resource is disconnected after use.
-     * @throws IOException Upon error opening connection.
-     */
-    public static HttpURLConnection getHTTPConnection(final URL url) throws IOException {
-        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setUseCaches(true);
-        connection.setConnectTimeout(5000);
-        connection.setReadTimeout(5000);
-
-        return connection;
-    }
-
     public static synchronized CoverManager getInstance() {
         if (sInstance == null) {
             sInstance = new CoverManager();
@@ -833,6 +817,22 @@ public final class CoverManager {
                 }
             }
             return coverBytes;
+        }
+
+        /**
+         * This method takes a URL object and returns a HttpURLConnection object.
+         *
+         * @param url The URL object used to create the connection.
+         * @return The connection which is returned; ensure this resource is disconnected after use.
+         * @throws IOException Thrown upon a communication error with the server.
+         */
+        private HttpURLConnection getHTTPConnection(final URL url) throws IOException {
+            final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setUseCaches(true);
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+
+            return connection;
         }
 
         // The gracenote URLs change at every request. We match for this provider on

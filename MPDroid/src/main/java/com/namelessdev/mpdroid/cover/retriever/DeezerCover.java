@@ -24,7 +24,9 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * Fetch cover from Deezer
@@ -52,8 +54,10 @@ public class DeezerCover extends AbstractWebCover {
      * @param albumInfo The {@link AlbumInfo} of the album to query.
      * @return A URI encoded URL.
      * @throws URISyntaxException Upon syntax error.
+     * @throws MalformedURLException Upon incorrect input for the URI to ASCII conversion.
      */
-    private static String getCoverQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
+    private static URL getCoverQueryURL(final AlbumInfo albumInfo)
+            throws URISyntaxException, MalformedURLException {
         final String album = encodeQuery(albumInfo.getAlbumName());
         final String artist = encodeQuery(albumInfo.getArtistName());
         final String query = "q=" + album + ' ' + artist + "&nb_items=1&output=json";
@@ -66,13 +70,13 @@ public class DeezerCover extends AbstractWebCover {
         final JSONObject jsonRootObject;
         final JSONArray jsonArray;
         StringBuilder coverUrl = new StringBuilder();
-        final String queryURL = getCoverQueryURL(albumInfo);
+        final URL query = getCoverQueryURL(albumInfo);
         final String deezerResponse;
         JSONObject jsonObject;
 
         try {
 
-            deezerResponse = executeGetRequest(queryURL);
+            deezerResponse = executeGetRequest(query);
             jsonRootObject = new JSONObject(deezerResponse);
             jsonArray = jsonRootObject.getJSONArray("data");
             for (int i = 0; i < jsonArray.length(); i++) {
