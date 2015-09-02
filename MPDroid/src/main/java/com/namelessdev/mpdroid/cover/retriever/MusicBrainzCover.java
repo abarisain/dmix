@@ -28,7 +28,9 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -132,7 +134,8 @@ public class MusicBrainzCover extends AbstractWebCover {
      * @return A URI encoded URL.
      * @throws URISyntaxException Upon syntax error.
      */
-    private static String getCoverQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
+    private static URL getCoverQueryURL(final AlbumInfo albumInfo)
+            throws URISyntaxException, MalformedURLException {
         final String artistName = encodeQuery(albumInfo.getArtistName());
         final String albumName = encodeQuery(albumInfo.getAlbumName());
         final String query = "query=artist:\"" + artistName + "\" AND release:\""
@@ -141,8 +144,10 @@ public class MusicBrainzCover extends AbstractWebCover {
         return encodeUrl(HTTP_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
     }
 
-    private String getCoverArtArchiveResponse(final String mbid) throws IOException {
-        final String request = (COVER_ART_ARCHIVE_URL + mbid + '/');
+    private String getCoverArtArchiveResponse(final String mbid)
+            throws IOException, URISyntaxException {
+        /** Shouldn't need to encode this. */
+        final URL request = new URL(COVER_ART_ARCHIVE_URL + mbid + '/');
 
         return executeGetRequestWithConnection(request);
     }
@@ -177,10 +182,10 @@ public class MusicBrainzCover extends AbstractWebCover {
     private List<String> searchForRelease(final AlbumInfo albumInfo)
             throws URISyntaxException, IOException {
         final List<String> releases = new ArrayList<>();
-        final String queryURL = getCoverQueryURL(albumInfo);
+        final URL query = getCoverQueryURL(albumInfo);
         final String response;
 
-        response = executeGetRequestWithConnection(queryURL);
+        response = executeGetRequestWithConnection(query);
 
         if (response != null) {
             releases.addAll(extractReleaseIds(response));

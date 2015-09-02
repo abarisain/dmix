@@ -24,8 +24,10 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.regex.Pattern;
 
 public class ItunesCover extends AbstractWebCover {
@@ -51,7 +53,8 @@ public class ItunesCover extends AbstractWebCover {
      * @return A {@link URI} encoded URL.
      * @throws URISyntaxException Upon syntax error.
      */
-    private static String getCoverQueryURL(final AlbumInfo albumInfo) throws URISyntaxException {
+    private static URL getCoverQueryURL(final AlbumInfo albumInfo)
+            throws URISyntaxException, MalformedURLException {
         final String artist = encodeQuery(albumInfo.getArtistName());
         final String album = encodeQuery(albumInfo.getAlbumName());
         final String query = "term=" + album + ' ' + artist + "&limit=5&media=music&entity=album";
@@ -64,12 +67,12 @@ public class ItunesCover extends AbstractWebCover {
         final JSONObject jsonRootObject;
         final JSONArray jsonArray;
         final String response;
-        final String queryURL = getCoverQueryURL(albumInfo);
+        final URL query = getCoverQueryURL(albumInfo);
         String coverUrl;
         JSONObject jsonObject;
 
         try {
-            response = executeGetRequest(queryURL);
+            response = executeGetRequest(query);
             jsonRootObject = new JSONObject(response);
             jsonArray = jsonRootObject.getJSONArray("results");
             for (int i = 0; i < jsonArray.length(); i++) {

@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -94,15 +95,15 @@ abstract class AbstractWebCover implements ICoverRetriever {
      * @return A encoded URL.
      * @throws URISyntaxException Upon syntax error.
      */
-    protected static String encodeUrl(final String scheme, final String host, final String path,
-            final String query) throws URISyntaxException {
+    protected static URL encodeUrl(final String scheme, final String host, final String path,
+            final String query) throws URISyntaxException, MalformedURLException {
         String uri = new URI(scheme, host, path, query, null).toASCIIString();
 
         if (uri.contains(AMPERSAND_TOKEN)) {
             uri = COMPILE.matcher(uri).replaceAll("%26");
         }
 
-        return uri;
+        return new URL(uri);
     }
 
     /**
@@ -113,21 +114,24 @@ abstract class AbstractWebCover implements ICoverRetriever {
      * @param url      The query URL.
      */
     protected static void logError(final String tag, final String key, final Object response,
-            final String url) {
+            final URL url) {
         if (CoverManager.DEBUG) {
-            Log.d(TAG, "No items of key " + key + " in response " + response + " for url " + url);
+            Log.d(tag, "No items of key " + key + " in response " + response + " for url " + url);
         }
     }
 
     /**
      * This method prepares a GET request from a raw string URL.
      *
-     * @param rawUrl The raw string URL to request a GET response from.
+     * @param url The raw string URL to request a GET response from.
      * @return A string containing the GET response.
      * @throws IOException If there was an error communicating the request.
      */
-    private static HttpURLConnection prepareGetConnection(final String rawUrl) throws IOException {
-        final HttpURLConnection connection = CoverManager.getHTTPConnection(rawUrl);
+    private static HttpURLConnection prepareGetConnection(final URL url) throws IOException {
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setUseCaches(true);
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
         connection.setRequestMethod("GET");
         connection.setDoInput(true);
 
@@ -178,7 +182,7 @@ abstract class AbstractWebCover implements ICoverRetriever {
         return result.toString();
     }
 
-    protected String executeGetRequest(final String request) throws IOException {
+    protected String executeGetRequest(final URL request) throws IOException {
         final HttpURLConnection connection = prepareGetConnection(request);
 
         return readInputStream(connection.getInputStream());
@@ -191,9 +195,9 @@ abstract class AbstractWebCover implements ICoverRetriever {
      * @param request The web service request
      * @return The web service response
      */
-    protected String executeGetRequestWithConnection(final String request) throws IOException {
-        final URL url = CoverManager.buildURLForConnection(request);
-        final HttpURLConnection connection = CoverManager.getHTTPConnection(url);
+    protected String executeGetRequestWithConnection(final URL request)
+            throws IOException, URISyntaxException {
+        final HttpURLConnection connection = prepareGetConnection(request);
         String result = null;
         InputStream inputStream = null;
 

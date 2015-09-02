@@ -249,7 +249,7 @@ public final class CoverManager {
      * @param url The URL object used to create the connection.
      * @return The connection which is returned; ensure this resource is disconnected after use.
      */
-    public static HttpURLConnection getHTTPConnection(final URL url) throws IOException {
+    private static HttpURLConnection getHTTPConnection(final URL url) throws IOException {
         final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setUseCaches(true);
         connection.setConnectTimeout(5000);
