@@ -56,11 +56,13 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutorService;
@@ -108,8 +110,8 @@ public final class CoverManager {
 
     private final ExecutorService mCreateBitmapExecutor = mCacheCoverFetchExecutor;
 
-    private final MultiMap<CoverInfo, CoverDownloadListener> mHelpersByCoverInfo
-            = new MultiMap<>();
+    private final Map<CoverInfo, Collection<CoverDownloadListener>> mHelpersByCoverInfo
+            = new HashMap<>();
 
     private final ExecutorService mPriorityCoverFetchExecutor = Executors.newSingleThreadExecutor();
 
@@ -126,7 +128,7 @@ public final class CoverManager {
 
     private Set<String> mNotFoundAlbumKeys;
 
-    private MultiMap<String, String> mWrongCoverUrlMap;
+    private HashMap<String, Collection<String>> mWrongCoverUrlMap;
 
     private CoverManager() {
         super();
@@ -343,21 +345,21 @@ public final class CoverManager {
         return wrongCovers;
     }
 
-    private static MultiMap<String, String> loadWrongCovers() {
-        MultiMap<String, String> wrongCovers = null;
+    private static HashMap<String, Collection<String>> loadWrongCovers() {
+        HashMap<String, Collection<String>> wrongCovers = null;
         ObjectInputStream objectInputStream = null;
 
         try {
             objectInputStream = getObjectInputStream(getCoverFolder(), WRONG_COVERS_FILE_NAME);
 
             if (objectInputStream == null) {
-                wrongCovers = new MultiMap<>();
+                wrongCovers = new HashMap<>();
             } else {
-                wrongCovers = (MultiMap<String, String>) objectInputStream.readObject();
+                wrongCovers = (HashMap<String, Collection<String>>) objectInputStream.readObject();
             }
         } catch (final Exception e) {
             Log.e(TAG, "Cannot load cover blacklist.", e);
-            wrongCovers = new MultiMap<>();
+            wrongCovers = new HashMap<>();
         } finally {
             if (objectInputStream != null) {
                 try {
@@ -370,6 +372,28 @@ public final class CoverManager {
         }
 
         return wrongCovers;
+    }
+
+    /**
+     * This method creates stores a value in a list in a value of a key.
+     *
+     * @param map   The {@link Map} to store the value's list.
+     * @param key   The key to store the value's list in.
+     * @param value The value to store in a list in the {@link Map}.
+     * @param <T>   The Map type.
+     * @param <K>   The Map's key type.
+     * @param <V>   The Map's list value type.
+     */
+    private static <T extends Map<K, Collection<V>>, K, V> void mapCollectionValue(final T map,
+            final K key, final V value) {
+        Collection<V> valueList = map.get(key);
+
+        if (valueList == null) {
+            valueList = new ArrayList<>();
+            map.put(key, valueList);
+        }
+
+        valueList.add(value);
     }
 
     public void addCoverRequest(final CoverInfo coverInfo) {
@@ -439,7 +463,7 @@ public final class CoverManager {
                     Log.d(TAG, "Cover URL to be blacklisted  " + wrongUrl);
                 }
 
-                mWrongCoverUrlMap.put(albumInfo.getKey(), wrongUrl);
+                mapCollectionValue(mWrongCoverUrlMap, albumInfo.getKey(), wrongUrl);
 
                 cacheCoverRetriever = getCacheRetriever();
                 if (cacheCoverRetriever != null) {
@@ -848,7 +872,7 @@ public final class CoverManager {
 
                                 if (!coverUrls.isEmpty()) {
                                     final String firstCover = coverUrls.get(0);
-                                    final List<String> wrongUrlsForCover =
+                                    final Collection<String> wrongUrlsForCover =
                                             mWrongCoverUrlMap.get(mCoverInfo.getKey());
 
                                     if (wrongUrlsForCover == null
@@ -1017,7 +1041,8 @@ public final class CoverManager {
                             // already exists
                             // Just register the new cover listener and update
                             // the request priority.
-                            mHelpersByCoverInfo.put(coverInfo, coverInfo.getListener());
+                            mapCollectionValue(mHelpersByCoverInfo, coverInfo,
+                                    coverInfo.getListener());
                             if (mRunningRequests.contains(coverInfo)) {
                                 final CoverInfo existingRequest = getExistingRequest(coverInfo);
                                 existingRequest.setPriority(existingRequest.isPriority()
