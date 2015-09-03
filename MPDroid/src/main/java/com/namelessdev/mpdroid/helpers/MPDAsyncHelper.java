@@ -17,11 +17,11 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
-import com.namelessdev.mpdroid.tools.WeakLinkedList;
 
 import android.os.Handler;
 import android.os.Message;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -52,7 +52,7 @@ public class MPDAsyncHelper implements Handler.Callback {
 
         mHelperHandler = new Handler(this);
         mMPDAsyncWorker = new MPDAsyncWorker(mHelperHandler);
-        mConnectionInfoListeners = new WeakLinkedList<>("ConnectionInfoListener");
+        mConnectionInfoListeners = new ArrayList<>();
     }
 
     public void addConnectionInfoListener(final ConnectionInfoListener listener) {
