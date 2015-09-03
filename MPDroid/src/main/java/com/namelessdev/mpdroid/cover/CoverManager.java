@@ -66,9 +66,7 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static com.namelessdev.mpdroid.cover.CoverInfo.STATE.CACHE_COVER_FETCH;
 import static com.namelessdev.mpdroid.cover.CoverInfo.STATE.CREATE_BITMAP;
@@ -100,7 +98,8 @@ public final class CoverManager {
 
     private final ExecutorService mCacheCoverFetchExecutor = Executors.newSingleThreadExecutor();
 
-    private final ThreadPoolExecutor mCoverFetchExecutor;
+    private final ThreadPoolExecutor mCoverFetchExecutor =
+            (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
 
     /**
      * This Collection stores all enabled cover retrievers.
@@ -131,10 +130,6 @@ public final class CoverManager {
 
     private CoverManager() {
         super();
-
-        mCoverFetchExecutor = new ThreadPoolExecutor(2, 2,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>());
 
         mRequestExecutor.submit(new RequestProcessorTask());
         setCoverRetrieversFromPreferences();
