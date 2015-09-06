@@ -26,6 +26,10 @@ import android.support.annotation.LayoutRes;
 
 public class AlbumGridDataBinder extends AlbumDataBinder<Album> {
 
+    public AlbumGridDataBinder(final boolean displayArtist) {
+        super(displayArtist);
+    }
+
     @Override
     @LayoutRes
     public int getLayoutId() {

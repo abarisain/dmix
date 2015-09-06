@@ -35,7 +35,7 @@ public class AlbumsGridFragment extends AlbumsFragment {
 
     @Override
     protected ListAdapter getCustomListAdapter() {
-        return new ArrayAdapter<>(getActivity(), new AlbumGridDataBinder(), mItems);
+        return new ArrayAdapter<>(getActivity(), new AlbumGridDataBinder(mArtist==null), mItems);
     }
 
     @Override

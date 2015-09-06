@@ -159,7 +159,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
 
     @Override
     protected ListAdapter getCustomListAdapter() {
-        return new ArrayIndexerAdapter<>(getActivity(), new AlbumDataBinder<Album>(), mItems);
+        return new ArrayIndexerAdapter<>(getActivity(), new AlbumDataBinder<Album>(mArtist==null), mItems);
     }
 
     /**
