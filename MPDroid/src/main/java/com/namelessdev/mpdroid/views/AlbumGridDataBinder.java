@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.views;
 
 import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.Artist;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
@@ -25,6 +26,17 @@ import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 import android.support.annotation.LayoutRes;
 
 public class AlbumGridDataBinder extends AlbumDataBinder<Album> {
+
+    /**
+     * Sole constructor.
+     *
+     * @param displayedArtist This is the {@link Artist} for the group of {@link Album}s being
+     *                        displayed. If the Album group has no common artist, this will be
+     *                        null.
+     */
+    public AlbumGridDataBinder(final Artist displayedArtist) {
+        super(displayedArtist);
+    }
 
     @Override
     @LayoutRes

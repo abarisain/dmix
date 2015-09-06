@@ -42,14 +42,27 @@ import java.util.List;
 
 public class AlbumDataBinder<T extends Item<T>> extends BaseDataBinder<T> {
 
+    /**
+     * This is the Artist that has been displayed for the group of Albums being displayed.
+     */
+    private final Artist mDisplayedArtist;
+
     private final boolean mUseYear;
 
-    public AlbumDataBinder() {
+    /**
+     * Sole constructor.
+     *
+     * @param displayedArtist This is the {@link Artist} for the group of {@link Album}s being
+     *                        displayed. If the Album group has no common artist, this will be
+     *                        null.
+     */
+    public AlbumDataBinder(final Artist displayedArtist) {
         super();
 
         final MPDApplication app = MPDApplication.getInstance();
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
+        mDisplayedArtist = displayedArtist;
         mUseYear = settings.getBoolean("enableAlbumYearText", true);
     }
 
@@ -106,33 +119,40 @@ public class AlbumDataBinder<T extends Item<T>> extends BaseDataBinder<T> {
         final StringBuilder info = new StringBuilder();
         final long songCount = album.getSongCount();
 
-        if (artist != null) {
-            info.append(artist.toString());
-        }
+        /**
+         * Don't add the artist if it's already been otherwise displayed.
+         */
+        if (mDisplayedArtist == null && artist != null) {
+            info.append(artist);
+        } else {
+            final long date = album.getDate();
 
-        if (mUseYear && album.getDate() > 0L) {
-            if (info.length() != 0) {
-                info.append(SEPARATOR);
-            }
-            info.append(Long.toString(album.getDate()));
-        }
-
-        if (songCount > 0L) {
-            final String trackHeader;
-            final CharSequence duration = Tools.timeToString(album.getDuration());
-
-            if (info.length() != 0) {
-                info.append(SEPARATOR);
+            // If the artist is displayed do not display extra
+            // information since they do not fit on screen
+            if (mUseYear && date > 0L) {
+                if (info.length() != 0) {
+                    info.append(SEPARATOR);
+                }
+                info.append(date);
             }
 
-            if (songCount > 1L) {
-                trackHeader =
-                        context.getString(R.string.tracksInfoHeaderPlural, songCount, duration);
-            } else {
-                trackHeader = context.getString(R.string.tracksInfoHeader, songCount, duration);
-            }
+            if (songCount > 0L) {
+                final String trackHeader;
+                final CharSequence duration = Tools.timeToString(album.getDuration());
 
-            info.append(trackHeader);
+                if (info.length() != 0) {
+                    info.append(SEPARATOR);
+                }
+
+                if (songCount > 1L) {
+                    trackHeader =
+                            context.getString(R.string.tracksInfoHeaderPlural, songCount, duration);
+                } else {
+                    trackHeader = context.getString(R.string.tracksInfoHeader, songCount, duration);
+                }
+
+                info.append(trackHeader);
+            }
         }
 
         // display "artist - album title"
