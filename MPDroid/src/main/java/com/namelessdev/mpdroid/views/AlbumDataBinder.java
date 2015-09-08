@@ -44,13 +44,16 @@ public class AlbumDataBinder<T extends Item<T>> extends BaseDataBinder<T> {
 
     private final boolean mUseYear;
 
-    public AlbumDataBinder() {
+    private boolean displayArtist;
+
+    public AlbumDataBinder(boolean displayArtist) {
         super();
 
         final MPDApplication app = MPDApplication.getInstance();
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
 
         mUseYear = settings.getBoolean("enableAlbumYearText", true);
+        this.displayArtist = displayArtist;
     }
 
     @Override
@@ -106,33 +109,35 @@ public class AlbumDataBinder<T extends Item<T>> extends BaseDataBinder<T> {
         final StringBuilder info = new StringBuilder();
         final long songCount = album.getSongCount();
 
-        if (artist != null) {
+        if (displayArtist && artist != null) {
             info.append(artist.toString());
         }
-
-        if (mUseYear && album.getDate() > 0L) {
-            if (info.length() != 0) {
-                info.append(SEPARATOR);
-            }
-            info.append(Long.toString(album.getDate()));
-        }
-
-        if (songCount > 0L) {
-            final String trackHeader;
-            final CharSequence duration = Tools.timeToString(album.getDuration());
-
-            if (info.length() != 0) {
-                info.append(SEPARATOR);
+        // If the artist is displayed do not display extra informations since they do not fit on screen
+        else {
+            if (mUseYear && album.getDate() > 0L) {
+                if (info.length() != 0) {
+                    info.append(SEPARATOR);
+                }
+                info.append(Long.toString(album.getDate()));
             }
 
-            if (songCount > 1L) {
-                trackHeader =
-                        context.getString(R.string.tracksInfoHeaderPlural, songCount, duration);
-            } else {
-                trackHeader = context.getString(R.string.tracksInfoHeader, songCount, duration);
-            }
+            if (songCount > 0L) {
+                final String trackHeader;
+                final CharSequence duration = Tools.timeToString(album.getDuration());
 
-            info.append(trackHeader);
+                if (info.length() != 0) {
+                    info.append(SEPARATOR);
+                }
+
+                if (songCount > 1L) {
+                    trackHeader =
+                            context.getString(R.string.tracksInfoHeaderPlural, songCount, duration);
+                } else {
+                    trackHeader = context.getString(R.string.tracksInfoHeader, songCount, duration);
+                }
+
+                info.append(trackHeader);
+            }
         }
 
         // display "artist - album title"
