@@ -26,7 +26,6 @@ import com.namelessdev.mpdroid.views.holders.SongViewHolder;
 import android.content.Context;
 import android.support.annotation.LayoutRes;
 import android.view.View;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -45,13 +44,7 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
 
     @Override
     public AbstractViewHolder findInnerViews(final View targetView) {
-        // look up all references to inner views
-        final SongViewHolder viewHolder = new SongViewHolder();
-        viewHolder.mTrackTitle = (TextView) targetView.findViewById(R.id.track_title);
-        viewHolder.mTrackNumber = (TextView) targetView.findViewById(R.id.track_number);
-        viewHolder.mTrackDuration = (TextView) targetView.findViewById(R.id.track_duration);
-        viewHolder.mTrackArtist = (TextView) targetView.findViewById(R.id.track_artist);
-        return viewHolder;
+        return new SongViewHolder(targetView);
     }
 
     @Override
@@ -83,12 +76,12 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
         }
         track.append(trackNumber);
 
-        holder.mTrackTitle.setText(song.getTitle());
-        holder.mTrackNumber.setText(track);
-        holder.mTrackDuration.setText(song.getFormattedTime());
+        holder.getTrackTitle().setText(song.getTitle());
+        holder.getTrackNumber().setText(track);
+        holder.getTrackDuration().setText(song.getFormattedTime());
 
         if (mShowArtist) {
-            holder.mTrackArtist.setText(song.getArtistName());
+            holder.getTrackArtist().setText(song.getArtistName());
         }
     }
 

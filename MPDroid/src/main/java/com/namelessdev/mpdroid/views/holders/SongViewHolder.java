@@ -16,15 +16,84 @@
 
 package com.namelessdev.mpdroid.views.holders;
 
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.views.SongDataBinder;
+
+import android.view.View;
 import android.widget.TextView;
 
+/**
+ * This class holds the {@link View}s required for the {@link SongDataBinder}.
+ */
 public class SongViewHolder extends AbstractViewHolder {
 
-    public TextView mTrackArtist;
+    /**
+     * The track artist view.
+     */
+    private final TextView mTrackArtist;
 
-    public TextView mTrackDuration;
+    /**
+     * The track duration View.
+     */
+    private final TextView mTrackDuration;
 
-    public TextView mTrackNumber;
+    /**
+     * The track number View.
+     */
+    private final TextView mTrackNumber;
 
-    public TextView mTrackTitle;
+    /**
+     * The track title View.
+     */
+    private final TextView mTrackTitle;
+
+    /**
+     * Sole constructor.
+     *
+     * @param view The current {@link View}.
+     */
+    public SongViewHolder(final View view) {
+        super();
+
+        mTrackArtist = (TextView) view.findViewById(R.id.track_artist);
+        mTrackDuration = (TextView) view.findViewById(R.id.track_duration);
+        mTrackNumber = (TextView) view.findViewById(R.id.track_number);
+        mTrackTitle = (TextView) view.findViewById(R.id.track_title);
+    }
+
+    /**
+     * Gets the track artist View.
+     *
+     * @return The track artist view.
+     */
+    public TextView getTrackArtist() {
+        return mTrackArtist;
+    }
+
+    /**
+     * Get the track duration View.
+     *
+     * @return The track duration View.
+     */
+    public TextView getTrackDuration() {
+        return mTrackDuration;
+    }
+
+    /**
+     * Gets the track number View.
+     *
+     * @return The track number View.
+     */
+    public TextView getTrackNumber() {
+        return mTrackNumber;
+    }
+
+    /**
+     * Get the track title View.
+     *
+     * @return The track title View.
+     */
+    public TextView getTrackTitle() {
+        return mTrackTitle;
+    }
 }
