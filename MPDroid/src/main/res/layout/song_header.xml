@@ -30,7 +30,7 @@
 
         <com.namelessdev.mpdroid.ui.SquareImageView
             android:id="@+id/albumCover"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:contentDescription="@string/albumCover"
             android:scaleType="fitCenter"

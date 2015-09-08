@@ -16,8 +16,8 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     tools:ignore="ContentDescription">
 
@@ -30,8 +30,8 @@
 
         <ImageView
             android:id="@+id/albumCover"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:scaleType="fitCenter"
             android:src="@drawable/no_cover_art_big"
@@ -59,7 +59,7 @@
 
         <TextView
             android:id="@+id/songName"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:ellipsize="marquee"
@@ -70,7 +70,7 @@
         <TextView
             android:id="@+id/artistName"
             style="@style/InfoSubText"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/songName"
             android:layout_marginTop="4dip"
@@ -108,7 +108,7 @@
         <TextView
             android:id="@+id/audioName"
             style="@style/InfoSubText"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/albumLayout"
             android:layout_marginTop="4dip"

@@ -29,15 +29,15 @@
         <RelativeLayout
             android:id="@+id/albumCoverFrame"
             android:layout_width="48dip"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="8dip">
 
             <ImageView
                 android:id="@+id/albumCover"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:contentDescription="@string/albumCover"
                 android:scaleType="fitCenter"
                 android:src="?attr/noCoverArtIcon"
@@ -54,7 +54,7 @@
 
         <TextView
             android:id="@+id/song_title"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="24dip"
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@+id/albumCoverFrame"
@@ -70,7 +70,7 @@
 
         <TextView
             android:id="@+id/song_artist"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="24dip"
             android:layout_alignParentBottom="true"
             android:layout_toRightOf="@+id/albumCoverFrame"

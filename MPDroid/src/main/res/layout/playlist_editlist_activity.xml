@@ -16,14 +16,14 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:dslv="http://schemas.android.com/apk/res-auto"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
     <!-- <include android:id="@+id/header" layout="@layout/generic_header" /> -->
     <com.mobeta.android.dslv.DragSortListView
         android:id="@android:id/list"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
         android:drawSelectorOnTop="false"
@@ -42,14 +42,14 @@
 
 
     <View
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="0.75dip"
         android:background="@color/compatactionbar_separator"
         android:paddingTop="4dip" />
 
     <LinearLayout
         style="?android:attr/buttonBarStyle"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:measureWithLargestChild="true">
 
