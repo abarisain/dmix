@@ -108,10 +108,14 @@ public final class CoverManager {
      */
     private final List<ICoverRetriever> mCoverRetrievers = new ArrayList<>();
 
+    private final HashMap<String, String> mCoverUrlMap = new HashMap<>();
+
     private final ExecutorService mCreateBitmapExecutor = mCacheCoverFetchExecutor;
 
     private final Map<CoverInfo, Collection<CoverDownloadListener>> mHelpersByCoverInfo
             = new HashMap<>();
+
+    private final Set<String> mNotFoundAlbumKeys = new HashSet<>();
 
     private final ExecutorService mPriorityCoverFetchExecutor = Executors.newSingleThreadExecutor();
 
@@ -122,13 +126,9 @@ public final class CoverManager {
     private final List<CoverInfo> mRunningRequests = Collections
             .synchronizedList(new ArrayList<CoverInfo>());
 
+    private final HashMap<String, Collection<String>> mWrongCoverUrlMap = new HashMap<>();
+
     private boolean mActive = true;
-
-    private HashMap<String, String> mCoverUrlMap;
-
-    private Set<String> mNotFoundAlbumKeys;
-
-    private HashMap<String, Collection<String>> mWrongCoverUrlMap;
 
     private CoverManager() {
         super();
@@ -225,31 +225,6 @@ public final class CoverManager {
     }
 
     /**
-     * This method builds up a {@link ObjectInputStream} from a base directory and a filename.
-     *
-     * @param dirPath The base directory of the file.
-     * @param name    The filename of the file.
-     * @return A ObjectInputStream for the input file, null if the file is empty.
-     * @throws IOException If there was a problem creating the {@code File} or {@code
-     *                     FileInputStream}.
-     */
-    private static ObjectInputStream getObjectInputStream(final String dirPath, final String name)
-            throws IOException {
-        final File file = getFile(dirPath, name);
-        final FileInputStream fis = new FileInputStream(file);
-        final ObjectInputStream ois;
-
-        if (fis.available() == 0) {
-            fis.close();
-            ois = null;
-        } else {
-            ois = new ObjectInputStream(fis);
-        }
-
-        return ois;
-    }
-
-    /**
      * Checks if device connected to a WIFI network.
      *
      * <p>On Android SDK 21 and later this sets the first WIFI network found as the
@@ -316,50 +291,35 @@ public final class CoverManager {
         return isWifiAndConnected;
     }
 
-    private static HashMap<String, String> loadCovers() {
-        HashMap<String, String> wrongCovers = null;
+    /**
+     * This method loads a serialized object file into a raw {@link Map}.
+     *
+     * <p>This method suppresses raw types and unchecked warnings due to the required
+     * serialization.</p>
+     *
+     * @param map      The map to put all objects from serialized file into.
+     * @param filename The filename of the serialized object file.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static void loadMapFromFile(final Map map, final String filename) {
         ObjectInputStream objectInputStream = null;
 
         try {
-            objectInputStream = getObjectInputStream(getCoverFolder(), COVERS_FILE_NAME);
+            final File file = getFile(getCoverFolder(), filename);
+            final FileInputStream fis = new FileInputStream(file);
 
-            if (objectInputStream == null) {
-                wrongCovers = new HashMap<>();
+            if (fis.available() == 0) {
+                fis.close();
+                objectInputStream = null;
             } else {
-                wrongCovers = (HashMap<String, String>) objectInputStream.readObject();
+                objectInputStream = new ObjectInputStream(fis);
+                final Object oisObject = objectInputStream.readObject();
+
+                map.putAll((Map) oisObject);
             }
-        } catch (final Exception e) {
-            Log.e(TAG, "Cannot load cover history file.", e);
-            wrongCovers = new HashMap<>();
-        } finally {
-            if (objectInputStream != null) {
-                try {
-                    objectInputStream.close();
-                } catch (final IOException e) {
-                    Log.e(TAG, "Cannot close cover history file.", e);
-
-                }
-            }
-        }
-
-        return wrongCovers;
-    }
-
-    private static HashMap<String, Collection<String>> loadWrongCovers() {
-        HashMap<String, Collection<String>> wrongCovers = null;
-        ObjectInputStream objectInputStream = null;
-
-        try {
-            objectInputStream = getObjectInputStream(getCoverFolder(), WRONG_COVERS_FILE_NAME);
-
-            if (objectInputStream == null) {
-                wrongCovers = new HashMap<>();
-            } else {
-                wrongCovers = (HashMap<String, Collection<String>>) objectInputStream.readObject();
-            }
-        } catch (final Exception e) {
-            Log.e(TAG, "Cannot load cover blacklist.", e);
-            wrongCovers = new HashMap<>();
+        } catch (final ClassNotFoundException | IOException ignored) {
+            Log.e(TAG, "Error loading file, removing.");
+            new File(getCoverFolder(), WRONG_COVERS_FILE_NAME).delete();
         } finally {
             if (objectInputStream != null) {
                 try {
@@ -370,8 +330,6 @@ public final class CoverManager {
                 }
             }
         }
-
-        return wrongCovers;
     }
 
     /**
@@ -443,9 +401,12 @@ public final class CoverManager {
     }
 
     private void initializeCoverData() {
-        mWrongCoverUrlMap = loadWrongCovers();
-        mCoverUrlMap = loadCovers();
-        mNotFoundAlbumKeys = new HashSet<>();
+        mCoverUrlMap.clear();
+        mWrongCoverUrlMap.clear();
+
+        loadMapFromFile(mCoverUrlMap, COVERS_FILE_NAME);
+        loadMapFromFile(mWrongCoverUrlMap, WRONG_COVERS_FILE_NAME);
+        mNotFoundAlbumKeys.clear();
     }
 
     public void markWrongCover(final AlbumInfo albumInfo) {
