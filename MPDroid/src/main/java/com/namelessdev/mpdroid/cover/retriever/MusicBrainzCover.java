@@ -127,12 +127,11 @@ public class MusicBrainzCover extends AbstractWebCover {
         return encodeUrl(HTTP_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
     }
 
-    private String getCoverArtArchiveResponse(final String mbid)
-            throws IOException, URISyntaxException {
+    private String getCoverArtArchiveResponse(final String mbid) throws IOException {
         /** Shouldn't need to encode this. */
         final URL request = new URL(COVER_ART_ARCHIVE_URL + mbid + '/');
 
-        return executeGetRequestWithConnection(request);
+        return executeGetRequestIfExists(request);
     }
 
     @Override
@@ -165,7 +164,7 @@ public class MusicBrainzCover extends AbstractWebCover {
         final URL query = getCoverQueryURL(albumInfo);
         final String response;
 
-        response = executeGetRequestWithConnection(query);
+        response = executeGetRequestIfExists(query);
 
         if (response != null) {
             releases.addAll(extractReleaseIds(response));

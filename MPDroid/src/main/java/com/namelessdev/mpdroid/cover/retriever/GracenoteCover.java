@@ -29,6 +29,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +49,7 @@ public class GracenoteCover extends AbstractWebCover {
 
     private static final String TAG = "GracenoteCover";
 
-    private String mApiUrl;
+    private URL mApiUrl;
 
     private String mClientId;
 
@@ -181,11 +182,14 @@ public class GracenoteCover extends AbstractWebCover {
 
     private void initializeUserId() {
         if (SETTINGS != null) {
+            final String url =
+                    "https://c" + getClientIdPrefix() + ".web.cddbp.net/webapi/xml/1.0/";
+
             try {
                 final String customClientId = SETTINGS.getString(CUSTOM_CLIENT_ID_KEY, null);
                 if (!isEmpty(customClientId)) {
                     mClientId = customClientId;
-                    mApiUrl = "https://c" + getClientIdPrefix() + ".web.cddbp.net/webapi/xml/1.0/";
+                    mApiUrl = new URL(url);
                 } else {
                     return;
                 }
