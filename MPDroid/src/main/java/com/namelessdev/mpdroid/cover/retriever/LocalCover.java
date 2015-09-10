@@ -41,8 +41,7 @@ public class LocalCover implements ICoverRetriever {
 
     // Note that having two PLACEHOLDER_FILENAME is on purpose
     private static final String[] FILENAMES = {
-            "%placeholder_custom", PLACEHOLDER_FILENAME,
-            "cover", "folder", "front"
+            "%placeholder_custom", PLACEHOLDER_FILENAME, "AlbumArt", "cover", "folder", "front",
     };
 
     private static final String[] SUB_FOLDERS = {
