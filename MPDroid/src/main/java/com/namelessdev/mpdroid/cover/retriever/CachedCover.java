@@ -142,7 +142,7 @@ public class CachedCover implements ICoverRetriever {
 
     @Override
     public String getName() {
-        return "SD Card Cache";
+        return TAG;
     }
 
     @Override

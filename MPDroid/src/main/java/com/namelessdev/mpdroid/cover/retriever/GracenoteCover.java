@@ -177,7 +177,7 @@ public class GracenoteCover extends AbstractWebCover {
 
     @Override
     public String getName() {
-        return "Gracenote";
+        return TAG;
     }
 
     private void initializeUserId() {

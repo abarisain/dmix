@@ -122,11 +122,6 @@ public class LastFMCover extends AbstractWebCover {
     private static final String TAG = "LastFMCover";
 
     /**
-     * The name for this class.
-     */
-    public static final String NAME = TAG;
-
-    /**
      * The default constructor.
      */
     public LastFMCover() {
@@ -388,7 +383,7 @@ public class LastFMCover extends AbstractWebCover {
 
     @Override
     public String getName() {
-        return NAME;
+        return TAG;
     }
 
     /**

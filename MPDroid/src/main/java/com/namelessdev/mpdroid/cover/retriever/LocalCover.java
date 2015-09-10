@@ -31,7 +31,7 @@ import static android.text.TextUtils.isEmpty;
 
 public class LocalCover implements ICoverRetriever {
 
-    public static final String RETRIEVER_NAME = "User's HTTP Server";
+    private static final String TAG = "LocalCover";
 
     private static final String[] EXT = {
             "jpg", "png", "jpeg",
@@ -144,7 +144,7 @@ public class LocalCover implements ICoverRetriever {
 
     @Override
     public String getName() {
-        return RETRIEVER_NAME;
+        return TAG;
     }
 
     @Override

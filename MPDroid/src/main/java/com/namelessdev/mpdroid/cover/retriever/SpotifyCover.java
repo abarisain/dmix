@@ -81,11 +81,6 @@ public class SpotifyCover extends AbstractWebCover {
     private static final String TAG = "SpotifyCover";
 
     /**
-     * The name for this class.
-     */
-    public static final String NAME = TAG;
-
-    /**
      * The default constructor.
      */
     public SpotifyCover() {
@@ -206,6 +201,6 @@ public class SpotifyCover extends AbstractWebCover {
      */
     @Override
     public String getName() {
-        return NAME;
+        return TAG;
     }
 }

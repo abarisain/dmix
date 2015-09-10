@@ -89,6 +89,6 @@ public class ItunesCover extends AbstractWebCover {
 
     @Override
     public String getName() {
-        return "ITUNES";
+        return TAG;
     }
 }

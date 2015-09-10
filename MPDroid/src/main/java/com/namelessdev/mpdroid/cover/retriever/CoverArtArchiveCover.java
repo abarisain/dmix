@@ -76,11 +76,6 @@ public class CoverArtArchiveCover extends AbstractWebCover {
     private static final String TAG = "CoverArtArchiveCover";
 
     /**
-     * The name for this class.
-     */
-    public static final String NAME = TAG;
-
-    /**
      * Sole constructor.
      */
     public CoverArtArchiveCover() {
@@ -212,7 +207,7 @@ public class CoverArtArchiveCover extends AbstractWebCover {
      */
     @Override
     public String getName() {
-        return NAME;
+        return TAG;
     }
 
 

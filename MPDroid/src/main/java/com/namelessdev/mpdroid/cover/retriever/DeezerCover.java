@@ -90,6 +90,6 @@ public class DeezerCover extends AbstractWebCover {
 
     @Override
     public String getName() {
-        return "DEEZER";
+        return TAG;
     }
 }

@@ -79,12 +79,8 @@ public class JamendoCover extends AbstractWebCover {
      */
     private static final String TAG = "JamendoCover";
 
-    /**
-     * The name for this class.
-     */
-    public static final String NAME = TAG;
-
     public JamendoCover() {
+        super();
     }
 
     /**
@@ -187,6 +183,6 @@ public class JamendoCover extends AbstractWebCover {
      */
     @Override
     public String getName() {
-        return NAME;
+        return TAG;
     }
 }
