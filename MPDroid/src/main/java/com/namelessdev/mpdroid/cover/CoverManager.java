@@ -25,7 +25,7 @@ import com.namelessdev.mpdroid.cover.retriever.ItunesCover;
 import com.namelessdev.mpdroid.cover.retriever.JamendoCover;
 import com.namelessdev.mpdroid.cover.retriever.LastFMCover;
 import com.namelessdev.mpdroid.cover.retriever.LocalCover;
-import com.namelessdev.mpdroid.cover.retriever.MusicBrainzCover;
+import com.namelessdev.mpdroid.cover.retriever.CoverArtArchiveCover;
 import com.namelessdev.mpdroid.cover.retriever.SpotifyCover;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 
@@ -465,7 +465,7 @@ public final class CoverManager {
                 if (GracenoteCover.isClientIdAvailable()) {
                     mCoverRetrievers.add(new GracenoteCover());
                 }
-                mCoverRetrievers.add(new MusicBrainzCover());
+                mCoverRetrievers.add(new CoverArtArchiveCover());
                 mCoverRetrievers.add(new JamendoCover());
             }
         }
