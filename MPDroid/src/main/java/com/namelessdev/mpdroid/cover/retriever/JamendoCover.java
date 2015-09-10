@@ -130,7 +130,7 @@ public class JamendoCover extends AbstractWebCover {
         final String query = "client_id=" + CLIENT_ID + "&name=" + album
                 + "&artist_name=" + artist + "&imagesize=600";
 
-        return encodeUrl(HTTPS_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
+        return encodeUrl(COVER_QUERY_HOST, COVER_QUERY_PATH, query);
     }
 
     /**

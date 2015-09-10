@@ -274,7 +274,7 @@ public class LastFMCover extends AbstractWebCover {
         final String query = "method=album.getInfo&artist=" + artist + "&album=" + album +
                 "&api_key=" + KEY + "&format=json";
 
-        return encodeUrl(HTTPS_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
+        return encodeUrl(COVER_QUERY_HOST, COVER_QUERY_PATH, query);
     }
 
     /**

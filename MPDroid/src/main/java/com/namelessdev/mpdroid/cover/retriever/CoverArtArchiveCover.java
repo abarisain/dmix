@@ -177,7 +177,7 @@ public class CoverArtArchiveCover extends AbstractWebCover {
         final String query = "query=artist:\"" + artistName + "\" AND release:\""
                 + albumName + "\"&fmt=json";
 
-        return encodeUrl(HTTPS_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
+        return encodeUrl(COVER_QUERY_HOST, COVER_QUERY_PATH, query);
     }
 
     /**

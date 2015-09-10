@@ -40,16 +40,6 @@ import java.util.regex.Pattern;
 abstract class AbstractWebCover implements ICoverRetriever {
 
     /**
-     * This is the string used to designate a secure http scheme for the first URI parameter.
-     */
-    protected static final String HTTPS_SCHEME = "https";
-
-    /**
-     * This is the string used to designate a non-secure http scheme for the first URI parameter.
-     */
-    protected static final String HTTP_SCHEME = "http";
-
-    /**
      * This pattern compiles to match an ampersand.
      */
     private static final Pattern AMPERSAND = Pattern.compile("&");
@@ -100,7 +90,6 @@ abstract class AbstractWebCover implements ICoverRetriever {
      * This method encodes using {@link URI#toASCIIString()}, and encodes explicit ampersands
      * using {@link #encodeQuery(String)}.
      *
-     * @param scheme The URI scheme, or null for a non-absolute URI.
      * @param host   The host for this URL.
      * @param path   The path for this URL.
      * @param query  The query for this URL.
@@ -108,9 +97,9 @@ abstract class AbstractWebCover implements ICoverRetriever {
      * @throws URISyntaxException    Upon syntax error.
      * @throws MalformedURLException Upon incorrect input for the URI to ASCII conversion.
      */
-    protected static URL encodeUrl(final String scheme, final String host, final String path,
+    protected static URL encodeUrl(final String host, final String path,
             final String query) throws URISyntaxException, MalformedURLException {
-        String uri = new URI(scheme, host, path, query, null).toASCIIString();
+        String uri = new URI("https", host, path, query, null).toASCIIString();
 
         if (uri.contains(AMPERSAND_TOKEN)) {
             uri = COMPILE.matcher(uri).replaceAll("%26");

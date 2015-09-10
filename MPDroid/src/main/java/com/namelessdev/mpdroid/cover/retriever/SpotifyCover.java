@@ -113,7 +113,7 @@ public class SpotifyCover extends AbstractWebCover {
         final String query = "q=album:" + coverAlbumName + " artist:" + artistAlbumName +
                 "&type=album";
 
-        return encodeUrl(HTTPS_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
+        return encodeUrl(COVER_QUERY_HOST, COVER_QUERY_PATH, query);
     }
 
     /**

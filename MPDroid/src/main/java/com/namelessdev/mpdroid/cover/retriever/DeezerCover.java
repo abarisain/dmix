@@ -61,7 +61,7 @@ public class DeezerCover extends AbstractWebCover {
         final String artist = encodeQuery(albumInfo.getArtistName());
         final String query = "q=" + album + ' ' + artist + "&nb_items=1&output=json";
 
-        return encodeUrl(HTTP_SCHEME, COVER_QUERY_HOST, COVER_QUERY_PATH, query);
+        return encodeUrl(COVER_QUERY_HOST, COVER_QUERY_PATH, query);
     }
 
     @Override
