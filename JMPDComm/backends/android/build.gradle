@@ -41,7 +41,7 @@ final def shortHash() {
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.0"
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         versionCode Integer.parseInt("git rev-list HEAD --count".execute().text.trim())
