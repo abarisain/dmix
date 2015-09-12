@@ -168,11 +168,11 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
 
         final MenuItem saveItem = menu.findItem(R.id.PLM_Save);
         final MenuItem clearItem = menu.findItem(R.id.PLM_Clear);
-        final boolean isVisible = !mIsDualPaneMode && mNowPlayingPager != null
-                && mNowPlayingPager.getCurrentItem() == 0;
+        final boolean isQueueVisible = !mIsDualPaneMode && mNowPlayingPager != null
+                && mNowPlayingPager.getCurrentItem() == 1;
 
-        saveItem.setVisible(isVisible);
-        clearItem.setVisible(isVisible);
+        saveItem.setVisible(isQueueVisible);
+        clearItem.setVisible(isQueueVisible);
 
         /** If in streamingMode or persistentNotification don't allow a checkbox in the menu. */
         final MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);
