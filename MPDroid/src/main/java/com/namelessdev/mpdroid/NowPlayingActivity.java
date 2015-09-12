@@ -138,9 +138,12 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
                 Tools.notifyUser(R.string.playlistCleared);
                 break;
             /**
-             * TODO: Need to reimplement R.id.PLM_Save
+             * TODO: Better reimplementation of PLM_Save
              * (QueueFragment:onOptionsItemSelected(final MenuItem item))
              */
+            case R.id.PLM_Save:
+                getSupportFragmentManager().findFragmentById(R.id.queue_fragment)
+                        .onOptionsItemSelected(item);
             default:
                 itemHandled = super.onOptionsItemSelected(item);
                 break;
