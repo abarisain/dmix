@@ -325,4 +325,6 @@
 
     <string name="refresh">Refresh</string>
     <string name="launchingLocalhostMPD">MPD is installed on localhost and not running, launching.</string>
+
+    <string name="songComments">Comments</string>
 </resources>

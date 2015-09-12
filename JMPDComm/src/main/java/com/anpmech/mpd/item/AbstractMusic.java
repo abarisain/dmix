@@ -769,7 +769,7 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      */
     public String getComments() {
         String comments = findValue(RESPONSE_COMMENT);
-        comments = comments == null ? "" : comments;
+        comments = comments == null ? "foooo\nsdfdsfsdfs" : comments;
         return comments;
     }
 

@@ -287,4 +287,6 @@
     <!-- End MediaPlayer Error Strings -->
 
     <string name="refresh">Rafraîchir</string>
+
+    <string name="songComments">Commentaires</string>
 </resources>

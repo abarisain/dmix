@@ -19,12 +19,15 @@ package com.namelessdev.mpdroid.views;
 import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.SongCommentActivity;
 import com.namelessdev.mpdroid.adapters.ArrayDataBinder;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.SongViewHolder;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.LayoutRes;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
@@ -85,9 +88,10 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
             holder.getTrackArtist().setText(song.getArtistName());
         }
 
-        if (song.getComments().length() > 0) {
+        final String comments = song.getComments();
+        if (!TextUtils.isEmpty(comments)) {
             holder.getComment().setVisibility(View.VISIBLE);
-            holder.getComment().setTag(song.getComments());
+            holder.getComment().setTag(comments);
         } else {
             holder.getComment().setVisibility(View.GONE);
         }
@@ -99,7 +103,12 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
         targetView.findViewById(R.id.show_comments).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                Toast.makeText(context, (String)v.getTag(), Toast.LENGTH_LONG).show();
+                if (!(v.getTag() instanceof String)) {
+                    return;
+                }
+                final Intent i = new Intent(context, SongCommentActivity.class);
+                i.putExtra(SongCommentActivity.COMMENT_KEY, (String) v.getTag());
+                context.startActivity(i);
             }
         });
         return BaseDataBinder.setViewVisible(targetView, R.id.track_artist, mShowArtist);

@@ -117,6 +117,11 @@
                 android:value="com.namelessdev.mpdroid.MainMenuActivity" />
         </activity>
 
+        <activity
+            android:name=".SongCommentActivity"
+            android:label="@string/songComments" >
+        </activity>
+
         <service
             android:name="com.namelessdev.mpdroid.service.MPDroidService"
             android:exported="false"
