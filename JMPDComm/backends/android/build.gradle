@@ -44,7 +44,7 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        versionCode Integer.parseInt("git rev-list HEAD --count".execute().text.trim())
+        versionCode 1
         versionName shortHash()
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
