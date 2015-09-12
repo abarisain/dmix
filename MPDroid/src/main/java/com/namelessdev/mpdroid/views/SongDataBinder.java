@@ -33,6 +33,8 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
 
     private final boolean mShowArtist;
 
+    private boolean displayDetails = false;
+
     public SongDataBinder() {
         this(true);
     }
@@ -40,6 +42,10 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
     public SongDataBinder(final boolean showArtist) {
         super();
         mShowArtist = showArtist;
+    }
+
+    public void setDisplayDetails(boolean displayDetails) {
+        this.displayDetails = displayDetails;
     }
 
     @Override
@@ -79,7 +85,12 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
         holder.getTrackTitle().setText(song.getTitle());
         holder.getTrackNumber().setText(track);
         holder.getTrackDuration().setText(song.getFormattedTime());
-
+        if (displayDetails && song.getComments().length() > 0) {
+            holder.getTrackComments().setText(song.getComments());
+            holder.getTrackComments().setVisibility(View.VISIBLE);
+        } else {
+            holder.getTrackComments().setVisibility(View.GONE);
+        }
         if (mShowArtist) {
             holder.getTrackArtist().setText(song.getArtistName());
         }
