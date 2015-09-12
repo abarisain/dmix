@@ -36,6 +36,7 @@ import com.namelessdev.mpdroid.ui.ToolbarHelper;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -160,7 +161,8 @@ public class SongsFragment extends BrowseFragment<Music> {
                             }
 
                             if (mutedColor != null) {
-                                mAlbumMenu.setRippleColor(mutedColor.getRgb());
+                                mAlbumMenu.setBackgroundTintList(
+                                        ColorStateList.valueOf(mutedColor.getRgb()));
                             }
                         } catch (final IllegalStateException e) {
                             Log.e(TAG, "Error while applying generated album art palette colors",
