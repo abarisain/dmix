@@ -16,19 +16,23 @@
 
 package com.namelessdev.mpdroid.closedbits;
 
+import com.crashlytics.android.Crashlytics;
+
 import android.content.Context;
+
+import io.fabric.sdk.android.Fabric;
 
 public class FabricWrapper {
 
     public static void log(final int priority, final String tag, final String message) {
-        Fabric.log(priority, tag, message);
+        Crashlytics.log(priority, tag, message);
     }
 
     public static void logException(final Exception exception) {
-        Fabric.logException(exception);
+        Crashlytics.logException(exception);
     }
 
     public static void start(Context context) {
-        Fabric.with(this, new Crashlytics());
+        Fabric.with(context, new Crashlytics());
     }
 }
