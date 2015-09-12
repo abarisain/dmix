@@ -317,7 +317,7 @@ public final class CoverManager {
 
                 map.putAll((Map) oisObject);
             }
-        } catch (final ClassNotFoundException | IOException ignored) {
+        } catch (final ClassNotFoundException | IOException | ClassCastException ignored) {
             Log.e(TAG, "Error loading file, removing.");
             new File(getCoverFolder(), WRONG_COVERS_FILE_NAME).delete();
         } finally {
