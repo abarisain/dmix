@@ -17,7 +17,8 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/material_list_item_height_big"
     android:background="?attr/cardBackground"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:descendantFocusability="blocksDescendants">
 
     <TextView
         android:id="@+id/track_number"
