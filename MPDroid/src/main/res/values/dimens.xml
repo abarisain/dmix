@@ -29,7 +29,5 @@
 
     <dimen name="material_list_item_height_big">68dip</dimen>
     <dimen name="material_list_item_element_horizontal_padding">16dip</dimen>
-    <dimen name="material_list_item_element_vertical_padding">8dip</dimen>
-
 
 </resources>

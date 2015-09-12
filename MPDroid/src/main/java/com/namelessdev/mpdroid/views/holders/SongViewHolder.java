@@ -48,12 +48,6 @@ public class SongViewHolder extends AbstractViewHolder {
     private final TextView mTrackTitle;
 
     /**
-     * The track comment View.
-     */
-    private final TextView mTrackComments;
-
-
-    /**
      * Sole constructor.
      *
      * @param view The current {@link View}.
@@ -65,7 +59,6 @@ public class SongViewHolder extends AbstractViewHolder {
         mTrackDuration = (TextView) view.findViewById(R.id.track_duration);
         mTrackNumber = (TextView) view.findViewById(R.id.track_number);
         mTrackTitle = (TextView) view.findViewById(R.id.track_title);
-        mTrackComments = (TextView) view.findViewById(R.id.track_comments);
     }
 
     /**
@@ -103,14 +96,4 @@ public class SongViewHolder extends AbstractViewHolder {
     public TextView getTrackTitle() {
         return mTrackTitle;
     }
-
-    /**
-     * Get the track comment View.
-     *
-     * @return The track comment View.
-     */
-    public TextView getTrackComments() {
-        return mTrackComments;
-    }
-
 }

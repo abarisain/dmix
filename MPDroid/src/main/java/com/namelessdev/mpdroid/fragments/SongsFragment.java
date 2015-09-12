@@ -114,11 +114,6 @@ public class SongsFragment extends BrowseFragment<Music> {
 
     private PopupMenu mCoverPopupMenu;
 
-    // Display song details (comments ...)
-    private boolean detailsDisplayed = false;
-
-    private  SongDataBinder<Music> musicSongDataBinder;
-
     public SongsFragment() {
         super(R.string.addSong, R.string.songAdded);
         mHandler = new Handler();
@@ -222,8 +217,7 @@ public class SongsFragment extends BrowseFragment<Music> {
                 break;
             }
         }
-        musicSongDataBinder = new SongDataBinder<>(differentArtists);
-        return new ArrayAdapter<>(getActivity(), musicSongDataBinder,
+        return new ArrayAdapter<>(getActivity(), new SongDataBinder<Music>(differentArtists),
                 mItems);
     }
 
@@ -368,15 +362,6 @@ public class SongsFragment extends BrowseFragment<Music> {
             populateViews(headerView);
             mCoverArt = (ImageView) headerView.findViewById(R.id.albumCover);
         }
-        // Toggle the song detail display
-        headerView.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                detailsDisplayed = !detailsDisplayed;
-                musicSongDataBinder.setDisplayDetails(detailsDisplayed);
-                mList.invalidateViews();
-            }
-        });
 
         ViewCompat.setTransitionName(mCoverArt, mViewTransitionName);
         if (mCoverThumbnailBitmap != null) {
