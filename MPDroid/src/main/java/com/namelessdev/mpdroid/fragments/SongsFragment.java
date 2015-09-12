@@ -345,8 +345,6 @@ public class SongsFragment extends BrowseFragment<Music> {
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-
         final View view = inflater.inflate(R.layout.songs, container, false);
         mList = (AbsListView) view.findViewById(R.id.list);
         registerForContextMenu(mList);
@@ -355,6 +353,11 @@ public class SongsFragment extends BrowseFragment<Music> {
         if (mList instanceof ListView) {
             ((ListView) mList).setDivider(null);
         }
+
+        mLoadingView = view.findViewById(R.id.loadingLayout);
+        mLoadingTextView = (TextView) view.findViewById(R.id.loadingText);
+        mNoResultView = view.findViewById(R.id.noResultLayout);
+        mLoadingTextView.setText(getLoadingText());
 
         final View headerView = inflater.inflate(R.layout.song_header, null, false);
         mCoverArt = (ImageView) view.findViewById(R.id.albumCover);
@@ -370,6 +373,15 @@ public class SongsFragment extends BrowseFragment<Music> {
             mCoverArt.setImageBitmap(mCoverThumbnailBitmap);
             applyPaletteWithBitmapAsync(mCoverThumbnailBitmap);
             mCoverThumbnailBitmap = null;
+        }
+
+        if (mHeaderToolbar == null) {
+            mHeaderToolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        }
+
+        if (mHeaderToolbar != null) {
+            ToolbarHelper.addSearchView(getActivity(), mHeaderToolbar);
+            ToolbarHelper.showBackButton(this, mHeaderToolbar);
         }
 
         mCoverArtListener = new AlbumCoverDownloadListener(mCoverArt, mCoverArtProgress, false) {
@@ -588,14 +600,6 @@ public class SongsFragment extends BrowseFragment<Music> {
     protected void refreshFastScrollStyle(final boolean shouldShowFastScroll) {
         // No fast scroll for that view
         refreshFastScrollStyle(View.SCROLLBARS_INSIDE_OVERLAY, false);
-    }
-
-    @Override
-    protected void setupStandardToolbar(final View rootView) {
-        mHeaderToolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
-
-        ToolbarHelper.addSearchView(getActivity(), mHeaderToolbar);
-        ToolbarHelper.showBackButton(this, mHeaderToolbar);
     }
 
     @Override
