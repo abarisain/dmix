@@ -26,6 +26,7 @@ import com.namelessdev.mpdroid.views.holders.SongViewHolder;
 import android.content.Context;
 import android.support.annotation.LayoutRes;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -83,11 +84,24 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
         if (mShowArtist) {
             holder.getTrackArtist().setText(song.getArtistName());
         }
+
+        if (song.getComments().length() > 0) {
+            holder.getComment().setVisibility(View.VISIBLE);
+            holder.getComment().setTag(song.getComments());
+        } else {
+            holder.getComment().setVisibility(View.GONE);
+        }
     }
 
     @Override
     public View onLayoutInflation(final Context context, final View targetView,
             final List<T> items) {
+        targetView.findViewById(R.id.show_comments).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                Toast.makeText(context, (String)v.getTag(), Toast.LENGTH_LONG).show();
+            }
+        });
         return BaseDataBinder.setViewVisible(targetView, R.id.track_artist, mShowArtist);
     }
 
