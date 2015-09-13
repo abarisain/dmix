@@ -138,7 +138,7 @@ public class AlbumDataBinder<T extends Item<T>> extends BaseDataBinder<T> {
 
             if (songCount > 0L) {
                 final String trackHeader;
-                final CharSequence duration = Tools.timeToString(album.getDuration(), album.getDuration() < 60);
+                final CharSequence duration = Tools.timeToString(album.getDuration());
 
                 if (info.length() != 0) {
                     info.append(SEPARATOR);
