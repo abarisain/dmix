@@ -31,8 +31,6 @@ import static android.text.TextUtils.isEmpty;
 
 public class LocalCover implements ICoverRetriever {
 
-    private static final String TAG = "LocalCover";
-
     private static final String[] EXT = {
             "jpg", "png", "jpeg",
     };
@@ -47,6 +45,8 @@ public class LocalCover implements ICoverRetriever {
     private static final String[] SUB_FOLDERS = {
             "", "artwork", "Covers"
     };
+
+    private static final String TAG = "LocalCover";
 
     // private final static String URL = "%s/%s/%s";
     private static final String URL_PREFIX = "http://";

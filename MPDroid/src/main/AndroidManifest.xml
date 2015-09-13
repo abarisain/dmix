@@ -119,8 +119,7 @@
 
         <activity
             android:name=".SongCommentActivity"
-            android:label="@string/songComments" >
-        </activity>
+            android:label="@string/songComments"></activity>
 
         <service
             android:name="com.namelessdev.mpdroid.service.MPDroidService"

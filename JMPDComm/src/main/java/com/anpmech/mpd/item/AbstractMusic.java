@@ -59,6 +59,11 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     public static final String RESPONSE_ARTIST = "Artist";
 
     /**
+     * The media server response key returned for a Comment value.
+     */
+    public static final String RESPONSE_COMMENT = "Comment";
+
+    /**
      * The media server response key returned for a Composer value.
      */
     public static final String RESPONSE_COMPOSER = "Composer";
@@ -112,11 +117,6 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * The media server response key returned for a Track value.
      */
     public static final String RESPONSE_TRACK = "Track";
-
-    /**
-     * The media server response key returned for a Comment value.
-     */
-    public static final String RESPONSE_COMMENT = "Comment";
 
     /**
      * The string used to refer to an album tag.
@@ -513,6 +513,15 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     }
 
     /**
+     * Retrieves the comment for this track.
+     *
+     * @return The comment for this track.
+     */
+    public String getComments() {
+        return findValue(RESPONSE_COMMENT);
+    }
+
+    /**
      * Retrieves the composer name for this track.
      *
      * @return The composer name for this track.
@@ -760,17 +769,6 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
         }
 
         return streamName;
-    }
-
-    /**
-     * Retrieves the comment
-     *
-     * @return  The comments or an empty string
-     */
-    public String getComments() {
-        String comments = findValue(RESPONSE_COMMENT);
-        comments = comments == null ? "" : comments;
-        return comments;
     }
 
     /**

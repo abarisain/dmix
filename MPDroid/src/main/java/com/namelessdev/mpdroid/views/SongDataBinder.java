@@ -29,7 +29,7 @@ import android.content.Intent;
 import android.support.annotation.LayoutRes;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.ImageButton;
 
 import java.util.List;
 
@@ -89,29 +89,53 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
         }
 
         final String comments = song.getComments();
-        if (!TextUtils.isEmpty(comments)) {
-            holder.getComment().setVisibility(View.VISIBLE);
-            holder.getComment().setTag(comments);
+        final ImageButton comment = holder.getComment();
+        if (TextUtils.isEmpty(comments)) {
+            comment.setVisibility(View.GONE);
         } else {
-            holder.getComment().setVisibility(View.GONE);
+            comment.setVisibility(View.VISIBLE);
+            comment.setTag(comments);
         }
     }
 
     @Override
     public View onLayoutInflation(final Context context, final View targetView,
             final List<T> items) {
-        targetView.findViewById(R.id.show_comments).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                if (!(v.getTag() instanceof String)) {
-                    return;
-                }
-                final Intent i = new Intent(context, SongCommentActivity.class);
-                i.putExtra(SongCommentActivity.COMMENT_KEY, (String) v.getTag());
-                context.startActivity(i);
-            }
-        });
+        targetView.findViewById(R.id.show_comments).setOnClickListener(
+                new CommentClickListener(context));
         return BaseDataBinder.setViewVisible(targetView, R.id.track_artist, mShowArtist);
     }
 
+    /**
+     * This class is the listener for the Comment button.
+     */
+    private static final class CommentClickListener implements View.OnClickListener {
+
+        /**
+         * The current context.
+         */
+        private final Context mContext;
+
+        /**
+         * Sole constructor.
+         *
+         * @param context The current context.
+         */
+        private CommentClickListener(final Context context) {
+            super();
+
+            mContext = context;
+        }
+
+        @Override
+        public void onClick(final View v) {
+            final Object tag = v.getTag();
+
+            if (tag instanceof String) {
+                final Intent intent = new Intent(mContext, SongCommentActivity.class);
+                intent.putExtra(SongCommentActivity.COMMENT_KEY, (String) tag);
+                mContext.startActivity(intent);
+            }
+        }
+    }
 }

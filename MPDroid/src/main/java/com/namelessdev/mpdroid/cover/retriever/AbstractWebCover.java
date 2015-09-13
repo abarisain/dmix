@@ -90,9 +90,9 @@ abstract class AbstractWebCover implements ICoverRetriever {
      * This method encodes using {@link URI#toASCIIString()}, and encodes explicit ampersands
      * using {@link #encodeQuery(String)}.
      *
-     * @param host   The host for this URL.
-     * @param path   The path for this URL.
-     * @param query  The query for this URL.
+     * @param host  The host for this URL.
+     * @param path  The path for this URL.
+     * @param query The query for this URL.
      * @return A encoded URL.
      * @throws URISyntaxException    Upon syntax error.
      * @throws MalformedURLException Upon incorrect input for the URI to ASCII conversion.

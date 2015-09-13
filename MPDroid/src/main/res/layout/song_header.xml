@@ -109,6 +109,6 @@
         android:layout_marginRight="32dp"
         android:layout_marginTop="-32dp"
         android:paddingRight="8dp"
-        app:borderWidth="0dp"
-        android:src="@drawable/ic_media_play" />
+        android:src="@drawable/ic_media_play"
+        app:borderWidth="0dp" />
 </RelativeLayout>

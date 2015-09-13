@@ -19,7 +19,6 @@ package com.namelessdev.mpdroid.views.holders;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.views.SongDataBinder;
 
-import android.media.Image;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -28,6 +27,11 @@ import android.widget.TextView;
  * This class holds the {@link View}s required for the {@link SongDataBinder}.
  */
 public class SongViewHolder extends AbstractViewHolder {
+
+    /**
+     * The comment button View.
+     */
+    private final ImageButton mComment;
 
     /**
      * The track artist view.
@@ -50,11 +54,6 @@ public class SongViewHolder extends AbstractViewHolder {
     private final TextView mTrackTitle;
 
     /**
-     * The comment button View.
-     */
-    private final ImageButton mComment;
-
-    /**
      * Sole constructor.
      *
      * @param view The current {@link View}.
@@ -67,6 +66,15 @@ public class SongViewHolder extends AbstractViewHolder {
         mTrackNumber = (TextView) view.findViewById(R.id.track_number);
         mTrackTitle = (TextView) view.findViewById(R.id.track_title);
         mComment = (ImageButton) view.findViewById(R.id.show_comments);
+    }
+
+    /**
+     * Get the comment button View.
+     *
+     * @return The comment button View.
+     */
+    public ImageButton getComment() {
+        return mComment;
     }
 
     /**
@@ -103,14 +111,5 @@ public class SongViewHolder extends AbstractViewHolder {
      */
     public TextView getTrackTitle() {
         return mTrackTitle;
-    }
-
-    /**
-     * Get the comment button View.
-     *
-     * @return The comment button View.
-     */
-    public ImageButton getComment() {
-        return mComment;
     }
 }

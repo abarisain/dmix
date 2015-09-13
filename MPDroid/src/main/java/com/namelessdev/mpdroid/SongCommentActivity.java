@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
@@ -28,12 +27,12 @@ public class SongCommentActivity extends MPDroidActivities.MPDroidActivity {
     public static final String COMMENT_KEY = "comment";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_comment);
 
         final ActionBar actionBar = getSupportActionBar();
-        if (getSupportActionBar() != null) {
+        if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -41,10 +40,9 @@ public class SongCommentActivity extends MPDroidActivities.MPDroidActivity {
 
         if (TextUtils.isEmpty(comment)) {
             finish();
-            return;
+        } else {
+            ((TextView) findViewById(R.id.comments)).setText(comment);
         }
-
-        ((TextView) findViewById(R.id.comments)).setText(comment);
     }
 
     @Override
