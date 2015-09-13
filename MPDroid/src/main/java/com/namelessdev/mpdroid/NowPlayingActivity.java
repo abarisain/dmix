@@ -151,6 +151,7 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
                 } else {
                     manager.findFragmentById(R.id.queue_fragment).onOptionsItemSelected(item);
                 }
+                break;
             default:
                 itemHandled = super.onOptionsItemSelected(item);
                 break;
