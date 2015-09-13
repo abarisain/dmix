@@ -24,8 +24,10 @@ import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -142,8 +144,13 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
              * (QueueFragment:onOptionsItemSelected(final MenuItem item))
              */
             case R.id.PLM_Save:
-                getSupportFragmentManager().findFragmentById(R.id.queue_fragment)
-                        .onOptionsItemSelected(item);
+                final FragmentManager manager = getSupportFragmentManager();
+
+                if (manager == null) {
+                    Log.e(TAG, "Failed to get a fragment manager to save the playlist.");
+                } else {
+                    manager.findFragmentById(R.id.queue_fragment).onOptionsItemSelected(item);
+                }
             default:
                 itemHandled = super.onOptionsItemSelected(item);
                 break;
