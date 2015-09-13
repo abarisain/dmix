@@ -147,13 +147,18 @@ public final class CoverManager {
      * @throws IOException Upon error retrieving a response code.
      */
     public static boolean doesUrlExist(final HttpURLConnection connection) throws IOException {
-        final boolean doesUrlExist;
+        boolean doesUrlExist;
 
         if (connection == null) {
             Log.d(TAG, "Cannot find out if URL exists with a null connection.");
             doesUrlExist = false;
         } else {
-            doesUrlExist = doesUrlExist(connection.getResponseCode());
+            try {
+                doesUrlExist = doesUrlExist(connection.getResponseCode());
+            } catch (IOException ex) {
+                Log.e(TAG, "Cannot get the connection response code", ex);
+                doesUrlExist = false;
+            }
         }
 
         return doesUrlExist;
