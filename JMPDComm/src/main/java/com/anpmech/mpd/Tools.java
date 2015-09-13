@@ -636,7 +636,7 @@ public final class Tools {
      * @param totalSeconds Seconds to convert to a string.
      * @return Returns time formatted from the {@code totalSeconds} in format HH:MM:SS.
      */
-    public static CharSequence timeToString(final long totalSeconds) {
+    public static CharSequence timeToString(final long totalSeconds, boolean withSeconds) {
         final long hours = TimeUnit.SECONDS.toHours(totalSeconds);
         long secondCalc = totalSeconds - TimeUnit.HOURS.toSeconds(hours);
         final long minutes = TimeUnit.SECONDS.toMinutes(secondCalc);
@@ -665,23 +665,30 @@ public final class Tools {
             stringBuilder.insert(length, '0');
         }
 
-        stringBuilder.append(':');
-        length = stringBuilder.length();
-        stringBuilder.append(seconds);
+        if (withSeconds) {
+            stringBuilder.append(':');
+            length = stringBuilder.length();
+            stringBuilder.append(seconds);
 
-        if (stringBuilder.length() - length == 1) {
-            stringBuilder.insert(length, '0');
+            if (stringBuilder.length() - length == 1) {
+                stringBuilder.insert(length, '0');
+            }
         }
 
         return stringBuilder;
     }
 
-    /**
-     * Blocks indefinitely until this object is valid.
-     *
-     * @param semaphore The semaphore to check for validity.
-     * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
-     */
+    public static CharSequence timeToString(final long totalSeconds) {
+        return timeToString(totalSeconds, true);
+    }
+
+
+        /**
+         * Blocks indefinitely until this object is valid.
+         *
+         * @param semaphore The semaphore to check for validity.
+         * @throws InterruptedException If the current thread is {@link Thread#interrupted()}.
+         */
     public static void waitForValidity(final Semaphore semaphore) throws InterruptedException {
         try {
             semaphore.acquire();
