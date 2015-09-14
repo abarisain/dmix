@@ -113,34 +113,6 @@ public final class Tools {
     }
 
     /**
-     * Finds the {@code value} associated with a {@code key} in a {@code response}.
-     *
-     * @param response The response to search for the {@code key} key parameter.
-     * @param key      The {@code key} to extract the {@code value} from.
-     * @return The value associated with the {@code key} parameter in the {@code response}.
-     */
-    public static String findValue(final String response, final String key) {
-        final int keyIndex = response.indexOf(key + ": ");
-        String value = null;
-
-        if (keyIndex != -1) {
-            final int valueIndex = keyIndex + key.length() + 2;
-            final int valueEndIndex = response.indexOf('\n', valueIndex);
-
-            if (valueEndIndex == -1) {
-                /**
-                 * The remainder of the response.
-                 */
-                value = response.substring(valueIndex, response.length());
-            } else {
-                value = response.substring(valueIndex, valueEndIndex);
-            }
-        }
-
-        return value;
-    }
-
-    /**
      * This method searches for the next value in a String, beginning at the specified position.
      *
      * <p>The rationale behind this method is to provide a fast find method for key/value

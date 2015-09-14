@@ -31,85 +31,56 @@ import com.anpmech.mpd.ResponseObject;
 
 import org.jetbrains.annotations.NotNull;
 
-import android.annotation.TargetApi;
-import android.media.MediaMetadata;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * This class creates a Music Item, a item commonly found in the
- * <A HREF="http://www.musicpd.org/doc/protocol/database.html">Database Subsystem</A> in the
- * <A HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Android backend.
+ * This class serves as a base for non-music MPD database entries, abstracted for the Android
+ * backend.
  */
-public class Music extends AbstractMusic<Music> {
+public class Entry extends AbstractEntry<Entry> {
 
     /**
      * This field is used to instantiate this class from a {@link Parcel}.
      */
-    public static final Creator<Music> CREATOR = new MusicParcelCreator();
+    public static final Creator<Entry> CREATOR = new EntryParcelCreator();
 
     /**
      * The copy constructor for this class.
      *
-     * @param entry The {@link Entry} to copy.
+     * @param entry The Entry to copy.
      */
-    public Music(@NotNull final Music entry) {
+    public Entry(@NotNull final Entry entry) {
         super(entry.mResponseObject);
     }
 
     /**
-     * This constructor generates a Music Item from a MPD server response.
+     * This constructor creates a new Entry using the MPD server response.
      *
      * @param response The MPD server generated response.
      */
-    public Music(@NotNull final String response) {
+    public Entry(@NotNull final String response) {
         super(new ResponseObject(null, response));
     }
 
-
     /**
-     * This constructor is used to create a new Music item with a ResponseObject.
+     * This object is used to create a new Entry with a ResponseObject.
      *
      * @param object The prepared ResponseObject.
      */
-    private Music(@NotNull final ResponseObject object) {
+    private Entry(@NotNull final ResponseObject object) {
         super(object);
     }
 
     /**
-     * Adds metadata from the current track to a {@code MediaMetadata.Builder} object.
-     *
-     * @param metadata The constructed {@code MediaMetadata.Builder} object to add the current
-     *                 track metadata to.
+     * This class is used to instantiate a Entry Object from a {@code Parcel}.
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public void getMediaMetadata(final MediaMetadata.Builder metadata) {
-        final Album album = getAlbum();
-
-        metadata.putLong(MediaMetadata.METADATA_KEY_DISC_NUMBER, (long) getDisc())
-                .putLong(MediaMetadata.METADATA_KEY_DURATION, getTime())
-                .putLong(MediaMetadata.METADATA_KEY_NUM_TRACKS, (long) getTotalTracks())
-                .putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, (long) getTrack())
-                .putLong(MediaMetadata.METADATA_KEY_YEAR, album.getDate())
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, album.getName())
-                .putString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST, getAlbumArtistName())
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, getArtistName())
-                .putString(MediaMetadata.METADATA_KEY_COMPOSER, getComposerName())
-                .putString(MediaMetadata.METADATA_KEY_DATE, Long.toString(getDate()))
-                .putString(MediaMetadata.METADATA_KEY_GENRE, getGenreName())
-                .putString(MediaMetadata.METADATA_KEY_TITLE, getTitle());
-    }
-
-    /**
-     * This class is used to instantiate a Music Object from a {@code Parcel}.
-     */
-    private static final class MusicParcelCreator implements Parcelable.Creator<Music> {
+    private static final class EntryParcelCreator implements Parcelable.Creator<Entry> {
 
         /**
-         * Sole constructor.
+         * The sole constructor.
          */
-        private MusicParcelCreator() {
+        private EntryParcelCreator() {
             super();
         }
 
@@ -122,8 +93,8 @@ public class Music extends AbstractMusic<Music> {
          * @return Returns a new instance of the Parcelable class.
          */
         @Override
-        public Music createFromParcel(final Parcel source) {
-            return new Music((ResponseObject) source.readParcelable(ResponseObject.LOADER));
+        public Entry createFromParcel(final Parcel source) {
+            return new Entry((ResponseObject) source.readParcelable(ResponseObject.LOADER));
         }
 
         /**
@@ -133,8 +104,8 @@ public class Music extends AbstractMusic<Music> {
          * @return Returns an array of the Parcelable class, with every entry initialized to null.
          */
         @Override
-        public Music[] newArray(final int size) {
-            return new Music[size];
+        public Entry[] newArray(final int size) {
+            return new Entry[size];
         }
     }
 }

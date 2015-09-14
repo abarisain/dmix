@@ -32,37 +32,34 @@ import com.anpmech.mpd.ResponseObject;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class creates a Music Item, a item commonly found in the
- * <A HREF="http://www.musicpd.org/doc/protocol/database.html">Database Subsystem</A> in the
- * <A HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Java backend.
+ * This class serves as a base for non-music MPD database entries, abstracted for the Java backend.
  */
-public class Music extends AbstractMusic<Music> {
+public class Entry extends AbstractEntry<Entry> {
 
     /**
      * The copy constructor for this class.
      *
-     * @param entry The {@link Entry} to copy.
+     * @param entry The Entry to copy.
      */
-    public Music(@NotNull final Music entry) {
+    public Entry(@NotNull final Entry entry) {
         super(entry.mResponseObject);
     }
 
     /**
-     * This constructor generates a Music Item from a MPD server response.
+     * This constructor creates a new Entry using the MPD server response.
      *
      * @param response The MPD server generated response.
      */
-    public Music(@NotNull final String response) {
+    public Entry(@NotNull final String response) {
         super(new ResponseObject(null, response));
     }
 
-
     /**
-     * This constructor is used to create a new Music item with a ResponseObject.
+     * This object is used to create a new Entry with a ResponseObject.
      *
      * @param object The prepared ResponseObject.
      */
-    private Music(@NotNull final ResponseObject object) {
+    private Entry(@NotNull final ResponseObject object) {
         super(object);
     }
 }

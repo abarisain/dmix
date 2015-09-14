@@ -351,7 +351,6 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     public void refresh(final MPDConnection connection) throws IOException, MPDException {
-        final int cacheSize = 40; /** Approximate max number of lines per file entry. */
         final ResponseFuture future =
                 connection.submit(MPDCommand.MPD_CMD_LSDIR, getFullPath());
         final ListIterator<Map.Entry<String, String>> iterator =

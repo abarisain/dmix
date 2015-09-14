@@ -28,8 +28,8 @@
 package com.anpmech.mpd.item;
 
 /**
- * This Interface represents the full path of a {@link Directory}, {@link Music} or
- * {@link PlaylistFile} item.
+ * This Interface represents a filesystem entry ({@link Directory}, {@link Entry}, {@link Music} or
+ * {@link PlaylistFile}) for a MPD protocol item.
  */
 public interface FilesystemTreeEntry {
 

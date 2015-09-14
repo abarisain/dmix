@@ -28,8 +28,11 @@
 package com.anpmech.mpd.item;
 
 import com.anpmech.mpd.Log;
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.exception.InvalidResponseException;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
@@ -43,7 +46,7 @@ import java.util.Comparator;
  *
  * @param <T> The Music type.
  */
-abstract class AbstractMusic<T extends Music> extends Item<Music> implements FilesystemTreeEntry {
+abstract class AbstractMusic<T extends Music> extends AbstractEntry<Music> {
 
     /**
      * The media server response key returned for a Album value.
@@ -185,8 +188,6 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      */
     private static final String TAG = "AbstractMusic";
 
-    final String mResponse;
-
     /**
      * Similar to the default {@code Comparable} for the Music class, but it compares without
      * taking disc and track numbers into account.
@@ -226,23 +227,12 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
             };
 
     /**
-     * The copy constructor for this class.
+     * This constructor is used to create a new Music item with a ResponseObject.
      *
-     * @param track The track to copy from.
+     * @param object The prepared ResponseObject.
      */
-    protected AbstractMusic(final T track) {
-        this(track.mResponse);
-    }
-
-    /**
-     * The generator constructor for this class.
-     *
-     * @param response The MPD protocol response to create this object from.
-     */
-    AbstractMusic(final String response) {
-        super();
-
-        mResponse = response;
+    AbstractMusic(@NotNull final ResponseObject object) {
+        super(object);
     }
 
     /**
@@ -350,82 +340,38 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * if this instance is greater than {@code another}; 0 if this instance has the same order as
      * {@code another}.
      */
-    private int compareTo(final Item<Music> another, final boolean withTrackNumber) {
-        final AbstractMusic<Music> om = (AbstractMusic<Music>) another;
-
+    private int compareTo(final AbstractMusic<Music> another, final boolean withTrackNumber) {
         /** songId overrides every other sorting method. It's used for playlists/queue. */
-        int compareResult = compareIntegers(true, getSongId(), om.getSongId());
+        int compareResult = compareIntegers(true, getSongId(), another.getSongId());
 
         if (withTrackNumber) {
             if (compareResult == 0) {
                 /** Order by the disc number. */
-                compareResult = compareIntegers(true, getDisc(), om.getDisc());
+                compareResult = compareIntegers(true, getDisc(), another.getDisc());
             }
 
             if (compareResult == 0) {
                 /** Order by track number. */
-                compareResult = compareIntegers(true, getTrack(), om.getTrack());
+                compareResult = compareIntegers(true, getTrack(), another.getTrack());
             }
         }
 
         if (compareResult == 0) {
             /** Order by song title (getTitle() fallback on file names). */
-            compareResult = compareString(getTitle(), om.getTitle());
+            compareResult = compareString(getTitle(), another.getTitle());
         }
 
         if (compareResult == 0) {
             /** Order by name (this is helpful for streams). */
-            compareResult = compareString(getName(), om.getName());
+            compareResult = compareString(getName(), another.getName());
         }
 
         if (compareResult == 0) {
             /** As a last resort, order by the full path. */
-            compareResult = compareString(getFullPath(), om.getFullPath());
+            compareResult = compareString(getFullPath(), another.getFullPath());
         }
 
         return compareResult;
-    }
-
-    /**
-     * Compares a Music object with a general contract of comparison that is reflexive, symmetric
-     * and transitive.
-     *
-     * @param o The object to compare this instance with.
-     * @return True if the objects are equal with regard to te general contract, false otherwise.
-     */
-    @Override
-    public boolean equals(final Object o) {
-        Boolean isEqual = null;
-
-        if (this == o) {
-            isEqual = Boolean.TRUE;
-        } else if (o == null || getClass() != o.getClass()) {
-            isEqual = Boolean.FALSE;
-        }
-
-        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
-            /** This has to be the same due to the class check above. */
-            //noinspection unchecked
-            final T track = (T) o;
-
-            isEqual = Boolean.valueOf(track.mResponse.equals(mResponse));
-        }
-
-        if (isEqual == null) {
-            isEqual = Boolean.TRUE;
-        }
-
-        return isEqual.booleanValue();
-    }
-
-    /**
-     * Returns a key's value from the {@link #mResponse}.
-     *
-     * @param key The key to get the value for.
-     * @return The value paired to the key, null if not found.
-     */
-    private String findValue(final String key) {
-        return Tools.findValue(mResponse, key);
     }
 
     /**
@@ -593,21 +539,17 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      * removed.</p>
      *
      * @return The filename of this item without a URI fragment.
-     * @see #getURIFragment()
      */
+    @NotNull
     @Override
     public String getFullPath() {
-        String filename = findValue(RESPONSE_FILE);
+        final String fullPath = getMusicFullPath();
 
-        if (isStream()) {
-            final int pos = filename.indexOf('#');
-
-            if (pos != -1) {
-                filename = filename.substring(0, pos);
-            }
+        if (fullPath == null) {
+            throw new InvalidResponseException(pathNotFoundError());
         }
 
-        return filename;
+        return fullPath;
     }
 
     /**
@@ -661,17 +603,15 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
     public String getParentDirectory() {
         String pathName = getFullPath();
 
-        if (pathName != null) {
-            int index = pathName.lastIndexOf('/');
+        int index = pathName.lastIndexOf('/');
 
-            /** If it ends with a backslash, try again. */
-            if (index == pathName.length() - 1) {
-                index = pathName.lastIndexOf('/', index - 1);
-            }
+        /** If it ends with a backslash, try again. */
+        if (index == pathName.length() - 1) {
+            index = pathName.lastIndexOf('/', index - 1);
+        }
 
-            if (index != -1) {
-                pathName = pathName.substring(0, index);
-            }
+        if (index != -1) {
+            pathName = pathName.substring(0, index);
         }
 
         return pathName;
@@ -791,19 +731,6 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
         }
 
         return streamName;
-    }
-
-    /**
-     * Returns an integer hash code for this Music item. By contract, any two objects for which
-     * {@link #equals} returns {@code true} must return the same hash code value. This means that
-     * subclasses of {@code Object} usually override both methods or neither method.
-     *
-     * @return This Music item hash code.
-     * @see Object#equals(Object)
-     */
-    @Override
-    public int hashCode() {
-        return mResponse.hashCode();
     }
 
     /**
