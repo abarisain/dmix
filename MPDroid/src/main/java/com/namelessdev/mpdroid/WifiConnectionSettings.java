@@ -100,9 +100,21 @@ public class WifiConnectionSettings extends PreferenceActivity {
                 /** Clear the wifi list. */
                 preferenceCategory.removeAll();
 
-                final WifiManager wifiManager = (WifiManager) getSystemService(
-                        Context.WIFI_SERVICE);
-                wifiList.addAll(wifiManager.getConfiguredNetworks());
+                final WifiManager wifiManager =
+                        (WifiManager) getSystemService(Context.WIFI_SERVICE);
+
+                if (wifiManager == null) {
+                    Log.e(TAG, "Failed to retrieve the WifiManager service.");
+                } else {
+                    final Collection<WifiConfiguration> networks =
+                            wifiManager.getConfiguredNetworks();
+
+                    if (networks == null) {
+                        Log.e(TAG, "Failed to retrieve a list of configured networks.");
+                    } else {
+                        wifiList.addAll(networks);
+                    }
+                }
             }
 
             for (final WifiConfiguration wifi : wifiList) {
