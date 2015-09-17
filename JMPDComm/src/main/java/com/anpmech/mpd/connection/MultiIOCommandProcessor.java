@@ -127,7 +127,6 @@ class MultiIOCommandProcessor extends IOCommandProcessor {
         for (final Queue<IOSocketSet> queue : SOCKET_MAP.values()) {
             disconnect(queue);
         }
-        SOCKET_MAP.clear();
     }
 
     /**
@@ -142,16 +141,11 @@ class MultiIOCommandProcessor extends IOCommandProcessor {
         IOSocketSet socketSet = null;
 
         do {
-            if (socketSet == null) {
-                socketSet = SOCKET_MAP.get(mSocketAddress).poll();
-            } else {
-                /** shouldReconnect() is true */
+            /** shouldReconnect() is true */
+            if (socketSet != null) {
                 disconnect(socketSet);
-                socketSet = SOCKET_MAP.get(mSocketAddress).poll();
-                if (socketSet != null) {
-                    innerConnect(socketSet);
-                }
             }
+            socketSet = SOCKET_MAP.get(mSocketAddress).poll();
 
             /**
              * No more left in the Queue, time to create a new one!
