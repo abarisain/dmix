@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid;
 
 import com.namelessdev.mpdroid.helpers.MPDControl;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -73,10 +74,10 @@ public class MPDroidActivities {
 
             switch (keyCode) {
                 case KeyEvent.KEYCODE_VOLUME_UP:
-                    MPDControl.run(MPDControl.ACTION_NEXT);
+                    Tools.runCommand(MPDControl.ACTION_NEXT);
                     break;
                 case KeyEvent.KEYCODE_VOLUME_DOWN:
-                    MPDControl.run(MPDControl.ACTION_PREVIOUS);
+                    Tools.runCommand(MPDControl.ACTION_PREVIOUS);
                     break;
                 default:
                     result = super.onKeyLongPress(keyCode, event);
@@ -94,9 +95,9 @@ public class MPDroidActivities {
                 case KeyEvent.KEYCODE_VOLUME_DOWN:
                     if (event.isTracking() && !event.isCanceled() && !mApp.isLocalAudible()) {
                         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                            MPDControl.run(MPDControl.ACTION_VOLUME_STEP_UP);
+                            Tools.runCommand(MPDControl.ACTION_VOLUME_STEP_UP);
                         } else {
-                            MPDControl.run(MPDControl.ACTION_VOLUME_STEP_DOWN);
+                            Tools.runCommand(MPDControl.ACTION_VOLUME_STEP_DOWN);
                         }
                     }
                     break;
