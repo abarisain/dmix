@@ -161,7 +161,7 @@ public final class Tools {
      *
      * @param command The {@link MPDControl} command to send.
      */
-    public static void runCommand(final String command) {
+    public static void runCommand(@MPDControl.ControlType final String command) {
         if (APP.getMPD().getStatus().isValid()) {
             MPDControl.run(command);
         } else {

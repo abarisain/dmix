@@ -129,6 +129,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     redirectIntentToService(true, intent);
                     break;
                 default:
+                    //noinspection ResourceType
                     Tools.runCommand(action);
                     break;
             }

@@ -23,7 +23,10 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 
 import android.support.annotation.IdRes;
+import android.support.annotation.StringDef;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +41,8 @@ public final class MPDControl {
     public static final long INVALID_LONG = Long.MIN_VALUE;
 
     private static final MPDApplication APP = MPDApplication.getInstance();
+
+    private static final String BAD_ARGUMENT = "Control not setup: ";
 
     private static final String TAG = "MPDControl";
 
@@ -110,7 +115,7 @@ public final class MPDControl {
                 run(ACTION_STOP);
                 break;
             default:
-                break;
+                throw new IllegalArgumentException(BAD_ARGUMENT + resId);
         }
     }
 
@@ -120,7 +125,7 @@ public final class MPDControl {
      *
      * @param userCommand The command to be run.
      */
-    public static void run(final String userCommand) {
+    public static void run(@ControlType final String userCommand) {
         run(userCommand, INVALID_LONG);
     }
 
@@ -131,7 +136,7 @@ public final class MPDControl {
      * @param userCommand The command to be run.
      * @param i           An integer which will be cast to long for run.
      */
-    public static void run(final String userCommand, final int i) {
+    public static void run(@ControlType final String userCommand, final int i) {
         run(userCommand, (long) i);
     }
 
@@ -141,7 +146,7 @@ public final class MPDControl {
      * @param userCommand The command to be run.
      * @param l           A long primitive argument for the {@code userCommand}.
      */
-    public static MPDFuture run(final String userCommand, final long l) {
+    public static MPDFuture run(@ControlType final String userCommand, final long l) {
         final Playback playback = APP.getMPD().getPlayback();
         MPDFuture future = null;
 
@@ -198,8 +203,7 @@ public final class MPDControl {
                 future = playback.stepVolume(VOLUME_STEP);
                 break;
             default:
-                future = null;
-                break;
+                throw new IllegalArgumentException(BAD_ARGUMENT + userCommand);
         }
 
         return future;
@@ -244,5 +248,17 @@ public final class MPDControl {
         }
 
         return lockToken;
+    }
+
+    /**
+     * This annotation is used to give a hint if a possible invalid value is fed to run().
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef({ACTION_CONSUME, ACTION_MUTE, ACTION_NEXT, ACTION_PAUSE, ACTION_PLAY,
+            ACTION_PREVIOUS, ACTION_SEEK, ACTION_SINGLE, ACTION_STOP, ACTION_TOGGLE_PLAYBACK,
+            ACTION_TOGGLE_RANDOM, ACTION_TOGGLE_REPEAT, ACTION_VOLUME_SET, ACTION_VOLUME_STEP_DOWN,
+            ACTION_VOLUME_STEP_UP})
+    public @interface ControlType {
+
     }
 }
