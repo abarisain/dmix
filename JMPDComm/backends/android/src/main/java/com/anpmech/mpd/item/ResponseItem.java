@@ -27,51 +27,38 @@
 
 package com.anpmech.mpd.item;
 
-import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.ResponseObject;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
+import android.os.Parcel;
 
 /**
- * This is the builder for {@code Music} objects.
+ * This class is used to create {@link Item} subclasses using a response backend, abstracted for
+ * the Android backend.
+ *
+ * @param <T> The type of Item to create from this class.
  */
-public final class MusicBuilder {
+abstract class ResponseItem<T extends ResponseItem<T>> extends AbstractResponseItem<T> {
 
     /**
-     * The class log identifier.
-     */
-    private static final String TAG = "MusicBuilder";
-
-    private MusicBuilder() {
-        super();
-    }
-
-    /**
-     * Builds a {@code Music} object from a media server response to a music listing command.
+     * This constructor is used to create a new ResponseItem with a ResponseObject.
      *
-     * @param response A music listing command response.
-     * @return A Music object.
+     * @param object The prepared ResponseObject.
      */
-    public static List<Music> buildMusicFromList(final List<String> response) {
-        final Collection<int[]> ranges = Tools.getRanges(response);
-        final List<Music> result = new ArrayList<>(ranges.size());
-
-        for (final int[] range : ranges) {
-            final String builder = sublistToString(response.subList(range[0], range[1]));
-            result.add(new Music(builder));
-        }
-
-        return result;
+    ResponseItem(@NotNull final ResponseObject object) {
+        super(object);
     }
 
-    private static String sublistToString(final Iterable<String> stringList) {
-        final StringBuilder stringBuilder = new StringBuilder();
-        for (final String line : stringList) {
-            stringBuilder.append(line);
-            stringBuilder.append('\n');
-        }
-
-        return stringBuilder.toString();
+    /**
+     * Flatten this object in to a Parcel.
+     *
+     * @param dest  The Parcel in which the object should be written.
+     * @param flags Additional flags about how the object should be written.
+     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
+     */
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeParcelable(mResponseObject, 0);
     }
 }

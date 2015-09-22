@@ -27,11 +27,11 @@
 
 package com.anpmech.mpd.connection;
 
-import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.SplitCommandResponse;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -129,6 +129,34 @@ public class AbstractCommandResult {
         return hash != collection.hashCode();
     }
 
+
+    public boolean contains(@NotNull final CharSequence value) {
+        return contains(null, value);
+    }
+
+    /**
+     * This method checks this result for a specific value.
+     *
+     * @param key   The key to pair with the value. If null, only the value will be searched for.
+     * @param value The value to find in the response.
+     * @return True if the value, and key, if applicable, is found, false otherwise.
+     */
+    public boolean contains(@Nullable final CharSequence key, @NotNull final CharSequence value) {
+        final StringBuilder stringBuilder;
+
+        if (key == null) {
+            stringBuilder = new StringBuilder(value.length() + 10);
+        } else {
+            stringBuilder = new StringBuilder(key.length() + value.length() + 10);
+            stringBuilder.append(key);
+        }
+        stringBuilder.append(": ");
+        stringBuilder.append(value);
+        stringBuilder.append('\n');
+
+        return mResult.contains(stringBuilder);
+    }
+
     /**
      * Compares this instance with the specified object and indicates if they are equal. In order
      * to
@@ -171,12 +199,20 @@ public class AbstractCommandResult {
     }
 
     /**
+     * This method checks this result for a specific value.
+     *
+     * @param value The value to find in the response.
+     * @return True if the value is found, false otherwise.
+     */
+
+    /**
      * Returns the first string response from the media server after connection. This method is
      * mainly for debugging.
      *
      * @return A string representation of the connection result.
      * @see #getMPDVersion() Use of this method is preferred.
      */
+
     public String getConnectionResult() {
         return mConnectionResult;
     }
@@ -234,6 +270,15 @@ public class AbstractCommandResult {
     }
 
     /**
+     * Returns true if the result returned nothing other than an OK response.
+     *
+     * @return True if the result returned OK and nothing more, false otherwise.
+     */
+    public boolean isEmpty() {
+        return mResult.isEmpty();
+    }
+
+    /**
      * This checks the connection response for validity.
      *
      * @return True if the connection header exists, false otherwise.
@@ -266,11 +311,14 @@ public class AbstractCommandResult {
         public static final String NO_MORE_ELEMENTS_REMAIN = "No more elements remain.";
 
         /**
-         * The error given if trying an operation which this iterator doesn't support.
+         * The exception message given if trying an operation which this iterator doesn't support.
          */
         public static final String UNSUPPORTED = "Operation unsupported by this iterator.";
 
-        private static final String INDEX_CANNOT_MATCH = "Position and next index can't match.";
+        /**
+         * The exception message given when a index matches the current position.
+         */
+        private static final String INDEX_CANNOT_MATCH = "Position and position index can't match.";
 
         /**
          * The MPD protocol command response.
@@ -283,14 +331,25 @@ public class AbstractCommandResult {
         protected int mPosition;
 
         /**
-         * This is the cache for {@link #nextIndex()}, Integer.MIN_VALUE if invalid.
+         * This is the cache for {@link #nextIndexBegin()}, {@link Integer#MIN_VALUE} if invalid.
          */
-        private int mNextIndexCache = Integer.MIN_VALUE;
+        private int mNextIndexBeginCache = Integer.MIN_VALUE;
 
         /**
-         * This is the cache for {@link #previousIndex()}, Integer.MIN_VALUE if invalid.
+         * This is the cache for {@link #nextIndexEnd()}, {@link Integer#MIN_VALUE} if invalid.
          */
-        private int mPreviousIndexCache = Integer.MIN_VALUE;
+        private int mNextIndexEndCache = Integer.MIN_VALUE;
+
+        /**
+         * This is the cache for {@link #previousIndexBegin()}, {@link Integer#MIN_VALUE} if
+         * invalid.
+         */
+        private int mPreviousIndexBeginCache = Integer.MIN_VALUE;
+
+        /**
+         * This is the cache for {@link #previousIndexEnd()}, {@link Integer#MIN_VALUE} if invalid.
+         */
+        private int mPreviousIndexEndCache = Integer.MIN_VALUE;
 
         /**
          * Sole constructor.
@@ -322,6 +381,71 @@ public class AbstractCommandResult {
         }
 
         /**
+         * This is a locally cached version of {@link #nextIndexBegin()}.
+         *
+         * @return The results of {@link #nextIndexBegin()} from a cache, or generated if cache is
+         * invalid.
+         */
+        protected int cachedNextIndexBegin() {
+            if (mNextIndexBeginCache == Integer.MIN_VALUE) {
+                mNextIndexBeginCache = nextIndexBegin();
+            }
+
+            return mNextIndexBeginCache;
+        }
+
+        /**
+         * This method returns a locally cached version of {@link #nextIndexEnd()}.
+         *
+         * @return The results of {@link #nextIndexEnd()} from a cache, or generated if cache is
+         * invalid.
+         */
+        private int cachedNextIndexEnd() {
+            if (mNextIndexEndCache == Integer.MIN_VALUE) {
+                mNextIndexEndCache = nextIndexEnd();
+            }
+
+            if (mPosition == mNextIndexEndCache) {
+                throw new IllegalStateException(INDEX_CANNOT_MATCH);
+            }
+
+            return mNextIndexEndCache;
+        }
+
+        /**
+         * This method returns a locally cached version of {@link #previousIndexBegin()}.
+         *
+         * @return The results of {@link #previousIndexBegin()} from a cache, or generated if cache
+         * is
+         * invalid.
+         */
+        protected int cachedPreviousIndexBegin() {
+            if (mPreviousIndexBeginCache == Integer.MIN_VALUE) {
+                mPreviousIndexBeginCache = previousIndexBegin();
+            }
+
+            if (mPosition == mPreviousIndexBeginCache && mPosition != -1) {
+                throw new IllegalStateException(INDEX_CANNOT_MATCH);
+            }
+
+            return mPreviousIndexBeginCache;
+        }
+
+        /**
+         * This method returns a locally cached version of {@link #previousIndexEnd()}.
+         *
+         * @return The results of {@link #previousIndexEnd()} from a cache, or generated if cache is
+         * invalid.
+         */
+        protected int cachedPreviousIndexEnd() {
+            if (mPreviousIndexEndCache == Integer.MIN_VALUE) {
+                mPreviousIndexEndCache = previousIndexEnd();
+            }
+
+            return mPreviousIndexEndCache;
+        }
+
+        /**
          * Checks for next element, if not throws an exception.
          */
         protected void checkNext() {
@@ -345,13 +469,7 @@ public class AbstractCommandResult {
          * @return The next MPD result line.
          */
         protected String getNextLine() {
-            final int index = nextIndex();
-
-            if (mPosition == index) {
-                throw new IllegalStateException(INDEX_CANNOT_MATCH);
-            }
-
-            return mResult.substring(mPosition, index);
+            return mResult.substring(cachedNextIndexBegin(), cachedNextIndexEnd());
         }
 
         /**
@@ -360,18 +478,7 @@ public class AbstractCommandResult {
          * @return The previous MPD result line.
          */
         protected String getPreviousLine() {
-            int index = previousIndex();
-
-            if (mPosition == index) {
-                throw new IllegalStateException(INDEX_CANNOT_MATCH);
-            }
-
-            /** + 1 to discard the newline. */
-            if (index != 0) {
-                index += 1;
-            }
-
-            return mResult.substring(index, mPosition);
+            return mResult.substring(cachedPreviousIndexBegin(), cachedPreviousIndexEnd());
         }
 
         /**
@@ -401,8 +508,10 @@ public class AbstractCommandResult {
          * This method resets the index cache.
          */
         private void invalidateCache() {
-            mNextIndexCache = Integer.MIN_VALUE;
-            mPreviousIndexCache = Integer.MIN_VALUE;
+            mNextIndexBeginCache = Integer.MIN_VALUE;
+            mNextIndexEndCache = Integer.MIN_VALUE;
+            mPreviousIndexBeginCache = Integer.MIN_VALUE;
+            mPreviousIndexEndCache = Integer.MIN_VALUE;
         }
 
         /**
@@ -418,50 +527,61 @@ public class AbstractCommandResult {
         /**
          * Returns the index of the next object in the iteration.
          *
+         * <p>This will always be equivalent to {@link #nextIndexEnd()}</p>
+         *
          * @return The index of the next object, or the size of the list if the iterator is at the
          * end.
          * @see #next
          */
         @Override
         public int nextIndex() {
-            final int index;
-
-            if (mNextIndexCache == Integer.MIN_VALUE) {
-                index = mResult.indexOf(MPDCommand.MPD_CMD_NEWLINE, mPosition);
-
-                mNextIndexCache = index;
-            } else {
-                index = mNextIndexCache;
-            }
-
-            return index;
+            return cachedNextIndexEnd();
         }
 
         /**
+         * This method returns the index of the next beginning token in relation to the current
+         * position.
+         *
+         * @return The next beginning token in relation to the current position.
+         */
+        protected abstract int nextIndexBegin();
+
+        /**
+         * This method returns the index of the next ending token in relation to the current
+         * position.
+         *
+         * @return The next ending token in relation to the current position.
+         */
+        protected abstract int nextIndexEnd();
+
+        /**
          * Returns the index of the previous object in the iteration.
+         *
+         * <p>This will always be equivalent to {@link #previousIndexBegin()}</p>
          *
          * @return The index of the previous object, or -1 if the iterator is at the beginning.
          * @see #previous
          */
         @Override
         public int previousIndex() {
-            int index;
-
-            if (mPreviousIndexCache == Integer.MIN_VALUE) {
-                /** - 1 to discard the newline. */
-                index = mResult.lastIndexOf(MPDCommand.MPD_CMD_NEWLINE, mPosition - 1);
-
-                if (index == -1 && mPosition != 0) {
-                    index = 0;
-                }
-
-                mPreviousIndexCache = index;
-            } else {
-                index = mPreviousIndexCache;
-            }
-
-            return index;
+            return cachedPreviousIndexBegin();
         }
+
+        /**
+         * This method returns the index of the prior beginning token in relation to the current
+         * position.
+         *
+         * @return The prior beginning token in relation to the current position.
+         */
+        protected abstract int previousIndexBegin();
+
+        /**
+         * This method returns the index of the prior ending token in relation to the current
+         * position.
+         *
+         * @return The prior ending token in relation to the current position.
+         */
+        protected abstract int previousIndexEnd();
 
         /**
          * This object is immutable and it's contents cannot be removed, this method is not
@@ -504,8 +624,10 @@ public class AbstractCommandResult {
             return "AbstractResultIterator{" +
                     "mResult='" + mResult + '\'' +
                     ", mPosition=" + mPosition +
-                    ", mNextIndexCache=" + mNextIndexCache +
-                    ", mPreviousIndexCache=" + mPreviousIndexCache +
+                    ", mNextIndexBeginCache=" + mNextIndexBeginCache +
+                    ", mNextIndexEndCache=" + mNextIndexEndCache +
+                    ", mPreviousIndexBeginCache=" + mPreviousIndexBeginCache +
+                    ", mPreviousIndexEndCache=" + mPreviousIndexEndCache +
                     '}';
         }
     }

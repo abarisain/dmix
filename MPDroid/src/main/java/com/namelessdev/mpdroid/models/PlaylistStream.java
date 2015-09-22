@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.models;
 
-import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.item.Music;
 
 public class PlaylistStream extends AbstractPlaylistMusic {
@@ -27,9 +26,19 @@ public class PlaylistStream extends AbstractPlaylistMusic {
 
     @Override
     public String getPlayListMainLine() {
-        final String name = getName();
+        final CharSequence fileExtension = getFileExtension();
+        String mainline = getName();
 
-        return name.replace('.' + Tools.getExtension(name), "");
+        if (fileExtension != null && !isStream()) {
+            final int extLength = fileExtension.length() + 1;
+            final int mainLength = mainline.length();
+
+            if (extLength < mainLength) {
+                mainline = mainline.substring(mainLength - extLength);
+            }
+        }
+
+        return mainline;
     }
 
     @Override

@@ -42,6 +42,14 @@ import java.util.regex.Pattern;
 abstract class AbstractPlaylistFile<T extends PlaylistFile> extends Item<PlaylistFile>
         implements FilesystemTreeEntry {
 
+    /**
+     * The media server response key returned for a Directory filesystem entry.
+     */
+    public static final String RESPONSE_PLAYLIST = "playlist";
+
+    /**
+     * The class log identifier.
+     */
     protected static final String TAG = "PlaylistFile";
 
     private static final Pattern PLAYLIST_FILE_REGEXP = Pattern.compile("^.*/(.+)\\.(\\w+)$");

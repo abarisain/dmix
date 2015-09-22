@@ -54,9 +54,17 @@ import java.util.TreeSet;
 abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
         implements FilesystemTreeEntry {
 
+    /**
+     * The media server response key returned for a Directory filesystem entry.
+     */
+    public static final String RESPONSE_DIRECTORY = "directory";
+
     /** The MPD protocol directory separator. */
     protected static final char MPD_SEPARATOR = '/';
 
+    /**
+     * The class log identifier.
+     */
     protected static final String TAG = "Directory";
 
     /** A map of directory entries from the current directory on the media server. */
@@ -361,13 +369,13 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
             final Map.Entry<String, String> entry = iterator.previous();
 
             switch (entry.getKey()) {
-                case "directory":
+                case RESPONSE_DIRECTORY:
                     final T dir = makeSubdirectory(entry.getValue());
 
                     directoryEntries.put(dir.mFilename, dir);
                     lineCache.setLength(0);
                     break;
-                case "file":
+                case AbstractMusic.RESPONSE_FILE:
                     // Music requires this line to be cached too.
                     // It could be done every time but it would be a waste to add and
                     // clear immediately when we're parsing a playlist or a directory
@@ -378,7 +386,7 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
                     fileEntries.put(music.getFullPath(), music);
                     lineCache.setLength(0);
                     break;
-                case "playlist":
+                case AbstractPlaylistFile.RESPONSE_PLAYLIST:
                     final PlaylistFile playlistFile = new PlaylistFile(entry.getValue());
 
                     playlistEntries.put(playlistFile.getName(), playlistFile);

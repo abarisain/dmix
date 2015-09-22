@@ -105,7 +105,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
             musics = playlist.getMusicList();
         } else {
             try {
-                musics = mMPD.getPlaylistSongs(mPlaylist);
+                musics = mMPD.getPlaylistSongs(mPlaylist).getList();
             } catch (final IOException | MPDException e) {
                 Log.d(TAG, "Playlist update failure.", e);
                 musics = Collections.emptyList();

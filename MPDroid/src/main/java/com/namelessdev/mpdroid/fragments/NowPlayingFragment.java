@@ -1145,16 +1145,11 @@ public class NowPlayingFragment extends Fragment implements
                 !mMPDStatus.isState(MPDStatusMap.STATE_STOPPED)) {
 
             final char[] separator = {' ', '|', ' '};
-            final String fullPath = mCurrentSong.getFullPath();
             final long bitRate = mMPDStatus.getBitrate();
             final int bitsPerSample = mMPDStatus.getBitsPerSample();
             final int sampleRate = mMPDStatus.getSampleRate();
-            String fileExtension = null;
+            final String fileExtension = mCurrentSong.getFileExtension();
             optionalTrackInfo = new StringBuilder(40);
-
-            if (fullPath != null) {
-                fileExtension = Tools.getExtension(fullPath);
-            }
 
             /**
              * Check each individual bit of info, the sever can give

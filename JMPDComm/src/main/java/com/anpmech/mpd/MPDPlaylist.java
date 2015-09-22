@@ -27,11 +27,12 @@
 
 package com.anpmech.mpd;
 
+import com.anpmech.mpd.commandresponse.MusicResponse;
+import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.FilesystemTreeEntry;
 import com.anpmech.mpd.item.Music;
-import com.anpmech.mpd.item.MusicBuilder;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 
@@ -227,8 +228,8 @@ public class MPDPlaylist {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
     private Collection<Music> getFullPlaylist() throws IOException, MPDException {
-        final List<String> response = mConnection.send(MPD_CMD_PLAYLIST_LIST);
-        return MusicBuilder.buildMusicFromList(response);
+        final CommandResult result = mConnection.submit(MPD_CMD_PLAYLIST_LIST).get();
+        return new MusicResponse(result).getList();
     }
 
     /**
@@ -564,10 +565,10 @@ public class MPDPlaylist {
                     mPlaylistValidity.release();
                 }
             } else if (mLastPlaylistVersion != newPlaylistVersion) {
-                final List<String> response =
-                        mConnection.send(MPD_CMD_PLAYLIST_CHANGES,
-                                Integer.toString(mLastPlaylistVersion));
-                final Collection<Music> changes = MusicBuilder.buildMusicFromList(response);
+                final CommandResult result =
+                        mConnection.submit(MPD_CMD_PLAYLIST_CHANGES,
+                                Integer.toString(mLastPlaylistVersion)).get();
+                final Collection<Music> changes = new MusicResponse(result).getList();
 
                 try {
                     mList.manipulate(changes, mpdStatus.getPlaylistLength());

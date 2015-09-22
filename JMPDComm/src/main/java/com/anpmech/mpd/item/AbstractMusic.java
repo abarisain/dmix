@@ -30,6 +30,8 @@ package com.anpmech.mpd.item;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.Tools;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Comparator;
 
 /**
@@ -426,7 +428,6 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
         return Tools.findValue(mResponse, key);
     }
 
-
     /**
      * Retrieves an {@link Album} from this item.
      *
@@ -553,6 +554,27 @@ abstract class AbstractMusic<T extends Music> extends Item<Music> implements Fil
      */
     public int getDisc() {
         return Tools.parseInteger(findValue(RESPONSE_DISC));
+    }
+
+    /**
+     * This method attempts to return a filename extension for this fullpath.
+     *
+     * @return A filename extension, null if not found.
+     */
+    @Nullable
+    public String getFileExtension() {
+        final String filename = getFullPath();
+        final int index = filename.lastIndexOf('.');
+        final int extLength = filename.length() - index - 1;
+        final int extensionShort = 2;
+        final int extensionLong = 4;
+        String result = null;
+
+        if (extLength >= extensionShort && extLength <= extensionLong) {
+            result = filename.substring(index + 1);
+        }
+
+        return result;
     }
 
     /**

@@ -207,7 +207,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         List<Music> arrayMusic = null;
 
         try {
-            arrayMusic = mApp.getMPD().search("any", finalSearch);
+            arrayMusic = mApp.getMPD().search("any", finalSearch).getList();
             Collections.sort(arrayMusic);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "MPD search failure.", e);

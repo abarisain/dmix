@@ -48,11 +48,6 @@ public enum TestTools {
             = "mpd-protocol/lsinfo/singular_track_file.txt";
 
     /**
-     * This file contains a empty file, to test the a empty response.
-     */
-    public static final String FILE_SINGULAR_TRACK_MINIMAL = "mpd-protocol/empty_response.txt";
-
-    /**
      * This file contains a single stream lsinfo entry.
      */
     public static final String FILE_SINGULAR_TRACK_STREAM
@@ -63,7 +58,6 @@ public enum TestTools {
      */
     public static final String[] TEST_FILE_PATHS = {
             FILE_SINGULAR_TRACK_FILE,
-            FILE_SINGULAR_TRACK_MINIMAL,
             FILE_SINGULAR_TRACK_STREAM,
             FILE_SINGULAR_PLAYLISTINFO
     };

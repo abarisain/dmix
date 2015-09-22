@@ -31,11 +31,12 @@ import com.anpmech.mpd.CommandQueue;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.commandresponse.MusicResponse;
+import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.FilesystemTreeEntry;
 import com.anpmech.mpd.item.Music;
-import com.anpmech.mpd.item.MusicBuilder;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -309,8 +310,8 @@ public class Sticker {
      */
     private Map<String, Music> getMusicPair(final Collection<String> response)
             throws IOException, MPDException {
-        final List<String> musicResponse = mConnection.send(getMusicCommand(response));
-        final List<Music> musicList = MusicBuilder.buildMusicFromList(musicResponse);
+        final CommandResult result = mConnection.submit(getMusicCommand(response)).get();
+        final List<Music> musicList = new MusicResponse(result).getList();
         final Map<String, Music> musicPair = new HashMap<>(musicList.size());
 
         for (final Music music : musicList) {

@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.helpers;
 
+import com.anpmech.mpd.commandresponse.MusicResponse;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Music;
@@ -178,7 +179,7 @@ public class AlbumCache {
             }
         }
         final List<String> result;
-        if (artists != null && !artists.isEmpty()) {
+        if (!artists.isEmpty()) {
             result = new ArrayList<>(artists);
             Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
         } else {
@@ -296,10 +297,9 @@ public class AlbumCache {
         mAlbumDetails = new HashMap<>();
         mAlbumSet = new HashSet<>();
 
-        final List<Music> allmusic;
+        final MusicResponse allmusic;
         try {
             allmusic = mMPD.listAllInfo();
-            Log.d(TAG, "allmusic " + allmusic.size());
         } catch (final IOException | MPDException e) {
             mEnabled = false;
             mLastUpdate = null;

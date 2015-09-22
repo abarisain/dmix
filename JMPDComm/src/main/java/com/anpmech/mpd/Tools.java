@@ -39,7 +39,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Common utilities used for processing the MPD protocol and processing.
+ * Common utilities used by JMPDComm classes.
  */
 public final class Tools {
 
@@ -53,6 +53,11 @@ public final class Tools {
      * array.
      */
     public static final int VALUE = 1;
+
+    /**
+     * The MPD protocol {@code key}:{@code value} delimiter.
+     */
+    private static final char MPD_KV_DELIMITER = ':';
 
     /**
      * The generic fragment of the error message strings.
@@ -136,23 +141,113 @@ public final class Tools {
     }
 
     /**
-     * A simple filename extension extractor.
+     * This method searches for the next value in a String, beginning at the specified position.
      *
-     * @param filename The filename to extract the extension from.
-     * @return The extension extracted from the filename parameter.
+     * <p>The rationale behind this method is to provide a fast find method for key/value
+     * searching. One advantage is {@link String#indexOf(String)} is the performance is severely
+     * degraded in comparison {@link String#indexOf(int)}. A second advantage is when
+     * {@link String#indexOf(String)} is used to search for multiple keys, each one will search
+     * the entire String, until exhausted, even if it doesn't exist in the String, this method
+     * searches key by key which, may sound slower, but has much better performance.</p>
+     *
+     * @param result   The result to find the {@code key} in.
+     * @param position The position to begin looking for the {@code key}.
+     * @param getValue This parameter controls whether to return the key index or the value index
+     *                 found. If true, the value index will be returned, the key value, otherwise.
+     * @param keys     An array of tokens to look for. This array must be sorted in ascending
+     *                 natural order prior to calling this constructor. If this array is empty,
+     *                 the first value found, if it exists will be returned. The first key found
+     *                 will be the value index returned.
+     * @return The index of the first key value found, the index of the first value found if the
+     * {@code keys} parameter is empty, or -1 if not found.
      */
-    public static String getExtension(final String filename) {
-        final int index = filename.lastIndexOf('.');
-        final int extLength = filename.length() - index - 1;
-        final int extensionShort = 2;
-        final int extensionLong = 4;
-        String result = null;
+    private static int getNextIndex(final String result, final int position, final boolean getValue,
+            final String... keys) {
+        int index = -1;
+        int mpdDelimiterIndex = result.indexOf(MPD_KV_DELIMITER, position);
+        int keyIndex;
 
-        if (extLength >= extensionShort && extLength <= extensionLong) {
-            result = filename.substring(index + 1);
+        while (index == -1 && mpdDelimiterIndex != -1) {
+            keyIndex = result.lastIndexOf(MPDCommand.MPD_CMD_NEWLINE, mpdDelimiterIndex) + 1;
+
+            if (keyIndex >= position) {
+                final String foundKey = result.substring(keyIndex, mpdDelimiterIndex);
+                final boolean foundKeyEqual;
+
+                switch (keys.length) {
+                    case 0:
+                        foundKeyEqual = true;
+                        break;
+                    case 1:
+                        foundKeyEqual = keys[0].equals(foundKey);
+                        break;
+                    default:
+                        foundKeyEqual = Arrays.binarySearch(keys, foundKey) >= 0;
+                        break;
+                }
+
+                if (foundKeyEqual) {
+                    if (getValue) {
+                        index = mpdDelimiterIndex + 2;
+                    } else {
+                        index = keyIndex;
+                    }
+                }
+            }
+
+            if (index == -1) {
+                mpdDelimiterIndex = result.indexOf(MPD_KV_DELIMITER, mpdDelimiterIndex + 1);
+            }
         }
 
-        return result;
+        return index;
+    }
+
+    /**
+     * This method searches for the next key in a String, beginning at a specified position.
+     *
+     * <p>The rationale behind this method is to provide a fast find method for key searching.
+     * One advantage is {@link String#indexOf(String)} is the performance is severely
+     * degraded in comparison {@link String#indexOf(int)}. A second advantage is when using
+     * {@link String#indexOf(String)} is used to search for multiple keys, each one will search
+     * the entire String, until exhausted, even if it doesn't exist in the String.</p>
+     *
+     * @param result   The result to find the {@code key} in.
+     * @param position The position to begin looking for the {@code key}.
+     * @param keys     An array of tokens to look for. This array must be sorted in ascending
+     *                 natural order prior to calling this constructor. If this array is empty,
+     *                 the first value found, if it exists will be returned. The first key found
+     *                 will
+     *                 be the key index returned.
+     * @return The index of the first key found, the index of the first key found if the {@code
+     * keys} parameter is empty, or -1 if not found.
+     */
+    public static int getNextKeyIndex(final String result, final int position,
+            final String... keys) {
+        return getNextIndex(result, position, false, keys);
+    }
+
+    /**
+     * This method searches for the next value in a String, beginning at the specified position.
+     *
+     * <p>The rationale behind this method is to provide a fast find method for key searching.
+     * One advantage is {@link String#indexOf(String)} is the performance is severely
+     * degraded in comparison {@link String#indexOf(int)}. A second advantage is when using
+     * {@link String#indexOf(String)} is used to search for multiple keys, each one will search
+     * the entire String, until exhausted, even if it doesn't exist in the String.</p>
+     *
+     * @param result   The result to find the {@code key} in.
+     * @param position The position to begin looking for the {@code key}.
+     * @param keys     An array of tokens to look for. This array must be sorted in ascending
+     *                 natural order prior to calling this constructor. If this array is empty,
+     *                 the first value found, if it exists will be returned. The first key found
+     *                 will be the value index returned.
+     * @return The index of the first key value found, the index of the first value found if the
+     * {@code keys} parameter is empty, or -1 if not found.
+     */
+    public static int getNextValueIndex(final String result, final int position,
+            final String... keys) {
+        return getNextIndex(result, position, true, keys);
     }
 
     /**
@@ -510,7 +605,7 @@ public final class Tools {
                 if (inSequenceRange) {
                     /** Range complete, add it to the store. */
                     stringBuilder.append(integer);
-                    stringBuilder.append(':');
+                    stringBuilder.append(MPD_KV_DELIMITER);
                     /**
                      * The start range (the end number) is +1 on the
                      * MPD playlist range per the protocol.
@@ -569,7 +664,7 @@ public final class Tools {
                 if (inSequenceRange) {
                     /** Range complete, add it to the store. */
                     stringBuilder.append(integer);
-                    stringBuilder.append(':');
+                    stringBuilder.append(MPD_KV_DELIMITER);
                     /**
                      * The start range (the end number) is +1 on the
                      * MPD playlist range per the protocol.

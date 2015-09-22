@@ -217,7 +217,8 @@ public final class MusicTest {
     public void testArtistNameMatch() {
         for (final Map.Entry<String, Music> entry : mMusicList.entrySet()) {
             final String filePath = entry.getKey();
-            final String expectedValue = getValue(filePath, AbstractMusic.RESPONSE_ARTIST);
+            // getValue() has a bug where it will match, either AlbumArtist or Artist.
+            final String expectedValue = getValue(filePath, '\n' + AbstractMusic.RESPONSE_ARTIST);
             final Music music = mMusicList.get(filePath);
             final String msg = TestTools.getMatchMsg("Artist Name", filePath);
 

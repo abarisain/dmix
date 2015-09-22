@@ -28,8 +28,10 @@
 package com.anpmech.mpd;
 
 import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.commandresponse.MusicResponse;
 import com.anpmech.mpd.commandresponse.SplitCommandResponse;
 import com.anpmech.mpd.concurrent.MPDFuture;
+import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.connection.MonoIOMPDConnection;
@@ -44,13 +46,14 @@ import com.anpmech.mpd.item.FilesystemTreeEntry;
 import com.anpmech.mpd.item.Genre;
 import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
-import com.anpmech.mpd.item.MusicBuilder;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.item.Stream;
 import com.anpmech.mpd.subsystem.Playback;
 import com.anpmech.mpd.subsystem.Sticker;
 import com.anpmech.mpd.subsystem.status.MPDStatisticsMap;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -59,6 +62,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -323,7 +327,7 @@ public class MPD {
             commandQueue
                     .add(MPDCommand.MPD_CMD_FIND_ADD, Music.TAG_GENRE, genre.getName());
         } else {
-            final List<Music> music = find(Music.TAG_GENRE, genre.getName());
+            final List<Music> music = find(Music.TAG_GENRE, genre.getName()).getList();
             Collections.sort(music);
 
             commandQueue = MPDPlaylist.addAllCommand(music);
@@ -438,7 +442,6 @@ public class MPD {
         final AlbumBuilder albumBuilder = new AlbumBuilder();
         int i = 0;
         for (final CommandResponse response : responses) {
-            final ListIterator<Map.Entry<String, String>> list = response.splitListIterator();
             final Album album = albums.get(i);
 
             albumBuilder.setAlbum(albums.get(i));
@@ -458,11 +461,10 @@ public class MPD {
             }
 
             /** Then extract the date and path from a song of the album. */
-            final List<Music> songs = getFirstTrack(album);
+            final Music song = getFirstTrack(album);
 
-            if (!songs.isEmpty()) {
-                albumBuilder.setSongDetails(songs.get(0).getDate(),
-                        songs.get(0).getParentDirectory());
+            if (song != null) {
+                albumBuilder.setSongDetails(song.getDate(), song.getParentDirectory());
             }
             albums.set(i, albumBuilder.build());
             i++;
@@ -476,12 +478,11 @@ public class MPD {
 
             while (iterator.hasNext()) {
                 final Album album = iterator.next();
-                final List<Music> songs = getFirstTrack(album);
+                final Music song = getFirstTrack(album);
 
-                if (!songs.isEmpty()) {
+                if (song != null) {
                     albumBuilder.setAlbum(album);
-                    albumBuilder.setSongDetails(songs.get(0).getDate(),
-                            songs.get(0).getParentDirectory());
+                    albumBuilder.setSongDetails(song.getDate(), song.getParentDirectory());
                     iterator.set(albumBuilder.build());
                 }
             }
@@ -583,7 +584,7 @@ public class MPD {
             mConnection.send(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
                     Music.TAG_GENRE, genre.getName());
         } else {
-            final List<Music> music = find(Music.TAG_GENRE, genre.getName());
+            final List<Music> music = find(Music.TAG_GENRE, genre.getName()).getList();
             Collections.sort(music);
 
             addToPlaylist(playlist, music);
@@ -705,12 +706,12 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      * @see Music
      */
-    public List<Music> find(final String type, final String locatorString)
+    public MusicResponse find(final String type, final String locatorString)
             throws IOException, MPDException {
         return genericSearch(MPDCommand.MPD_CMD_FIND, type, locatorString);
     }
 
-    public List<Music> find(final String[] args) throws IOException, MPDException {
+    public MusicResponse find(final String[] args) throws IOException, MPDException {
         return genericSearch(MPDCommand.MPD_CMD_FIND, args);
     }
 
@@ -761,16 +762,18 @@ public class MPD {
         }
     }
 
-    protected List<Music> genericSearch(final CharSequence searchCommand, final String... args)
+    protected MusicResponse genericSearch(final CharSequence searchCommand, final String... args)
             throws IOException, MPDException {
-        return MusicBuilder.buildMusicFromList(mConnection.send(searchCommand, args));
+        final CommandResult result = mConnection.submit(searchCommand, args).get();
+
+        return new MusicResponse(result);
     }
 
-    protected List<Music> genericSearch(final CharSequence searchCommand, final String type,
+    protected MusicResponse genericSearch(final CharSequence searchCommand, final String type,
             final String strToFind) throws IOException, MPDException {
-        final List<String> response = mConnection.send(searchCommand, type, strToFind);
+        final CommandResult result = mConnection.submit(searchCommand, type, strToFind).get();
 
-        return MusicBuilder.buildMusicFromList(response);
+        return new MusicResponse(result);
     }
 
     public int getAlbumCount(final Artist artist, final boolean useAlbumArtistTag)
@@ -947,7 +950,8 @@ public class MPD {
         return currentTrack;
     }
 
-    protected List<Music> getFirstTrack(final Album album) throws IOException, MPDException {
+    @Nullable
+    protected Music getFirstTrack(final Album album) throws IOException, MPDException {
         final Artist artist = album.getArtist();
         final String[] args = new String[6];
 
@@ -968,7 +972,7 @@ public class MPD {
         args[3] = album.getName();
         args[4] = Music.TAG_TRACK;
         args[5] = "1";
-        List<Music> songs = find(args);
+        MusicResponse songs = find(args);
         if (songs.isEmpty()) {
             args[5] = "01";
             songs = find(args);
@@ -982,7 +986,13 @@ public class MPD {
             songs = find(args2);
         }
 
-        return songs;
+        final Iterator<Music> iterator = songs.iterator();
+        Music song = null;
+        if (iterator.hasNext()) {
+            song = iterator.next();
+        }
+
+        return song;
     }
 
     public List<Genre> getGenres() throws IOException, MPDException {
@@ -1069,12 +1079,9 @@ public class MPD {
     }
 
     @SuppressWarnings("TypeMayBeWeakened")
-    public List<Music> getPlaylistSongs(final PlaylistFile playlist)
+    public MusicResponse getPlaylistSongs(final PlaylistFile playlist)
             throws IOException, MPDException {
-        final String[] args = new String[1];
-        args[0] = playlist.getFullPath();
-
-        return genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args);
+        return genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, playlist.getFullPath());
     }
 
     /**
@@ -1108,7 +1115,7 @@ public class MPD {
                 if (STREAMS_PLAYLIST.equals(pair[VALUE])) {
                     final String[] args = {pair[VALUE]};
 
-                    savedStreams = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args);
+                    savedStreams = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args).getList();
                     break;
                 }
             }
@@ -1118,28 +1125,32 @@ public class MPD {
     }
 
     public List<Music> getSongs(final Album album) throws IOException, MPDException {
-        final List<Music> songs = MusicBuilder
-                .buildMusicFromList(mConnection.send(getSongsCommand(album)));
+        final CommandResult result = mConnection.submit(getSongsCommand(album)).get();
+        final MusicResponse response = new MusicResponse(result);
+        final List<Music> tracks;
 
         if (album.hasAlbumArtist()) {
             // remove songs that don't have this album artist (mpd >=0.18 puts them in)
             final Artist artist = album.getArtist();
             String artistName = null;
+            tracks = new ArrayList<>();
 
             if (artist != null) {
                 artistName = artist.getName();
             }
 
-            for (int i = songs.size() - 1; i >= 0; i--) {
-                final String albumArtist = songs.get(i).getAlbumArtistName();
-                if (albumArtist != null && !albumArtist.isEmpty()
-                        && !albumArtist.equals(artistName)) {
-                    songs.remove(i);
+            for (final Music track : response) {
+                final String albumArtist = track.getAlbumArtistName();
+
+                if (Tools.isEmpty(albumArtist) || albumArtist.equals(artistName)) {
+                    tracks.add(track);
                 }
             }
+        } else {
+            tracks = response.getList();
         }
 
-        return songs;
+        return tracks;
     }
 
     public List<Music> getSongs(final Artist artist) throws IOException, MPDException {
@@ -1412,10 +1423,10 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<Music> listAllInfo() throws IOException, MPDException {
-        final List<String> allInfo = mConnection.send(MPDCommand.MPD_CMD_LISTALLINFO);
+    public MusicResponse listAllInfo() throws IOException, MPDException {
+        final CommandResult result = mConnection.submit(MPDCommand.MPD_CMD_LISTALLINFO).get();
 
-        return MusicBuilder.buildMusicFromList(allInfo);
+        return new MusicResponse(result);
     }
 
     /**
@@ -1489,8 +1500,7 @@ public class MPD {
         mConnection.send(MPDCommand.MPD_CMD_REFRESH, folder);
     }
 
-    public void refreshDirectory(final Directory directory)
-            throws IOException, MPDException {
+    public void refreshDirectory(final Directory directory) throws IOException, MPDException {
         directory.refresh(mConnection);
     }
 
@@ -1546,12 +1556,12 @@ public class MPD {
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      * @see Music
      */
-    public List<Music> search(final String type, final String locatorString)
+    public MusicResponse search(final String type, final String locatorString)
             throws IOException, MPDException {
         return genericSearch(MPDCommand.MPD_CMD_SEARCH, type, locatorString);
     }
 
-    public List<Music> search(final String... args) throws IOException, MPDException {
+    public MusicResponse search(final String... args) throws IOException, MPDException {
         return genericSearch(MPDCommand.MPD_CMD_SEARCH, args);
     }
 
