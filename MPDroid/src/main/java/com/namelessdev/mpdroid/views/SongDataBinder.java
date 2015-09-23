@@ -101,8 +101,7 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
     @Override
     public View onLayoutInflation(final Context context, final View targetView,
             final List<T> items) {
-        targetView.findViewById(R.id.show_comments).setOnClickListener(
-                new CommentClickListener(context));
+        targetView.findViewById(R.id.show_comments).setOnClickListener(new CommentClickListener());
         return BaseDataBinder.setViewVisible(targetView, R.id.track_artist, mShowArtist);
     }
 
@@ -112,19 +111,10 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
     private static final class CommentClickListener implements View.OnClickListener {
 
         /**
-         * The current context.
-         */
-        private final Context mContext;
-
-        /**
          * Sole constructor.
-         *
-         * @param context The current context.
          */
-        private CommentClickListener(final Context context) {
+        private CommentClickListener() {
             super();
-
-            mContext = context;
         }
 
         @Override
@@ -132,9 +122,10 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
             final Object tag = v.getTag();
 
             if (tag instanceof String) {
-                final Intent intent = new Intent(mContext, SongCommentActivity.class);
+                final Context context = v.getContext();
+                final Intent intent = new Intent(context, SongCommentActivity.class);
                 intent.putExtra(SongCommentActivity.COMMENT_KEY, (String) tag);
-                mContext.startActivity(intent);
+                context.startActivity(intent);
             }
         }
     }
