@@ -112,6 +112,8 @@ android {
 }
 
 dependencies {
+    compile 'com.intellij:annotations:12.0'
+
     testCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support.test:runner:0.4.1'
 
