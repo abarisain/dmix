@@ -17,12 +17,14 @@
 package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.MPD;
-import com.anpmech.mpd.MPDOutput;
+import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.subsystem.AudioOutput;
 import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.MainMenuActivity;
+import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -38,19 +40,59 @@ import android.widget.ListView;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
+/**
+ * This fragment is used to display {@link AudioOutput} information and status.
+ */
 public class OutputsFragment extends ListFragment implements AdapterView.OnItemClickListener,
-        MPDConnectionListener, StatusChangeListener {
+        MPDAsyncHelper.AsyncExecListener, MPDConnectionListener, StatusChangeListener {
 
-    public static final String EXTRA = "Outputs";
-
+    /**
+     * The class log identifier.
+     */
     private static final String TAG = "OutputsFragment";
 
+    /**
+     * The Application instance.
+     */
     private final MPDApplication mApp = MPDApplication.getInstance();
 
-    private final List<MPDOutput> mOutputs = new ArrayList<>();
+    /**
+     * The Outputs cache.
+     */
+    private final List<AudioOutput> mOutputs = new ArrayList<>();
+
+    /**
+     * This method is run after a AsyncExec Runnable.
+     *
+     * @param token The token used to run the Runnable.
+     */
+    @Override
+    public void asyncComplete(final CharSequence token) {
+        if (AudioOutput.EXTRA.equals(token)) {
+            try {
+                ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
+                final ListView list = getListView();
+                for (int i = 0; i < mOutputs.size(); i++) {
+                    list.setItemChecked(i, mOutputs.get(i).isEnabled());
+                    list.setEnabled(checkOutputCommands());
+                }
+            } catch (final IllegalStateException e) {
+                Log.e(TAG, "Illegal Activity state while trying to refresh output list", e);
+            }
+        }
+    }
+
+    /**
+     * This method checks the AudioOutput commands or availability.
+     *
+     * @return True if the output commands are available, false otherwise.
+     */
+    private boolean checkOutputCommands() {
+        return mApp.getMPD().isCommandAvailable(MPDCommand.MPD_CMD_OUTPUTENABLE) &&
+                mApp.getMPD().isCommandAvailable(MPDCommand.MPD_CMD_OUTPUTDISABLE);
+    }
 
     /**
      * Called upon connection.
@@ -114,38 +156,23 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
     }
 
     @Override
-    public void onItemClick(
-            final AdapterView<?> parent, final View view, final int position, final long id) {
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
+            final long id) {
         if (mOutputs.isEmpty() || position >= mOutputs.size()) {
             Log.e(TAG, "Failed to modify out of sync outputs.");
         } else {
-            mApp.getAsyncHelper().execAsync(new Runnable() {
-                @Override
-                public void run() {
-                    final Activity activity = getActivity();
-                    final MPD mpd = mApp.getMPD();
-                    final MPDOutput output = mOutputs.get(position);
+            final MPD mpd = mApp.getMPD();
+            final AudioOutput output = mOutputs.get(position);
 
-                    try {
-                        if (getListView().isItemChecked(position)) {
-                            mpd.enableOutput(output.getId());
-                        } else {
-                            mpd.disableOutput(output.getId());
-                        }
-                    } catch (final IOException | IllegalStateException | MPDException e) {
-                        Log.e(TAG, "Failed to modify output.", e);
-                    }
-
-                    if (activity != null) {
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                refreshOutputs();
-                            }
-                        });
-                    }
+            try {
+                if (getListView().isItemChecked(position)) {
+                    mpd.enableOutput(output.getId());
+                } else {
+                    mpd.disableOutput(output.getId());
                 }
-            });
+            } catch (final IOException | IllegalStateException | MPDException e) {
+                Log.e(TAG, "Failed to modify output.", e);
+            }
         }
     }
 
@@ -198,40 +225,14 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
     public void randomChanged() {
     }
 
+    /**
+     * This method refreshes the Outputs UI and cache.
+     */
     public void refreshOutputs() {
-        mApp.getAsyncHelper().execAsync(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final Collection<MPDOutput> mpdOutputs = mApp.getMPD().getOutputs();
-                    mOutputs.clear();
-                    mOutputs.addAll(mpdOutputs);
-                } catch (final IOException | MPDException e) {
-                    Log.e(TAG, "Failed to list outputs.", e);
-                }
+        final Runnable updateAudioOutputs = new UpdateAudioOutputs(mApp.getMPD(), mOutputs);
 
-                final Activity activity = getActivity();
-                if (activity != null) {
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        @SuppressWarnings("unchecked")
-                        public void run() {
-                            try {
-                                ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
-                                final ListView list = getListView();
-                                for (int i = 0; i < mOutputs.size(); i++) {
-                                    list.setItemChecked(i, mOutputs.get(i).isEnabled());
-                                }
-                            } catch (final IllegalStateException e) {
-                                Log.e(TAG,
-                                        "Illegal Activity state while trying to refresh output list",
-                                        e);
-                            }
-                        }
-                    });
-                }
-            }
-        });
+        mApp.getAsyncHelper().execAsync(this, AudioOutput.EXTRA, updateAudioOutputs);
+
     }
 
     /**
@@ -266,7 +267,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
 
     @Override
     public String toString() {
-        return EXTRA;
+        return AudioOutput.EXTRA;
     }
 
     /**
@@ -285,5 +286,44 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
      */
     @Override
     public void volumeChanged(final int oldVolume) {
+    }
+
+    /**
+     * This class is used to update AudioOutputs.
+     */
+    private static final class UpdateAudioOutputs implements Runnable {
+
+        /**
+         * The MPD instance used to update the AudioOutputs.
+         */
+        private final MPD mMPD;
+
+        /**
+         * The list of AudioOutputs to modify.
+         */
+        private final List<AudioOutput> mOutputs;
+
+        /**
+         * Sole constructor.
+         *
+         * @param mpd     The MPD instance to use to update the AudioOutputs.
+         * @param outputs The list of AudioOutputs to modify.
+         */
+        private UpdateAudioOutputs(final MPD mpd, final List<AudioOutput> outputs) {
+            super();
+
+            mMPD = mpd;
+            mOutputs = outputs;
+        }
+
+        @Override
+        public void run() {
+            try {
+                mOutputs.clear();
+                mMPD.getOutputs().addAll(mOutputs);
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Failed to list outputs.", e);
+            }
+        }
     }
 }

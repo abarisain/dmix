@@ -20,6 +20,7 @@ import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.Stream;
+import com.anpmech.mpd.subsystem.AudioOutput;
 import com.namelessdev.mpdroid.ErrorHandler;
 import com.namelessdev.mpdroid.MPDroidActivities;
 import com.namelessdev.mpdroid.R;
@@ -105,7 +106,7 @@ public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity imp
             rootFragment = getFragment(FSFragment.class, intent);
         } else if (intent.hasExtra(Stream.EXTRA)) {
             rootFragment = getFragment(StreamsFragment.class);
-        } else if (intent.hasExtra(OutputsFragment.EXTRA)) {
+        } else if (intent.hasExtra(AudioOutput.EXTRA)) {
             rootFragment = getFragment(OutputsFragment.class);
             setTitle(R.string.outputs);
         } else {

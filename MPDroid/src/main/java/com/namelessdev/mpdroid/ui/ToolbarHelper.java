@@ -16,10 +16,10 @@
 
 package com.namelessdev.mpdroid.ui;
 
+import com.anpmech.mpd.subsystem.AudioOutput;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.SettingsActivity;
-import com.namelessdev.mpdroid.fragments.OutputsFragment;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 
 import android.app.Activity;
@@ -137,24 +137,30 @@ public class ToolbarHelper {
         });
     }
 
-    private static boolean standardOnMenuItemClick(Context context, final MenuItem menuItem) {
+    private static boolean standardOnMenuItemClick(final Context context, final MenuItem menuItem) {
+        boolean isConsumed = true;
+
         switch (menuItem.getItemId()) {
             case R.id.menu_outputs:
                 final Intent outputIntent = new Intent(context,
                         SimpleLibraryActivity.class);
-                outputIntent.putExtra(OutputsFragment.EXTRA, "1");
+                outputIntent.putExtra(AudioOutput.EXTRA, "1");
                 context.startActivity(outputIntent);
-                return true;
+                break;
             case R.id.menu_refresh:
                 LocalBroadcastManager.getInstance(MPDApplication.getInstance()).sendBroadcast(
                         new Intent(MPDApplication.INTENT_ACTION_REFRESH));
-                return true;
+                break;
             case R.id.menu_settings:
                 final Intent settingsIntent = new Intent(context,
                         SettingsActivity.class);
                 context.startActivity(settingsIntent);
-                return true;
+                break;
+            default:
+                isConsumed = false;
+                break;
         }
-        return false;
+
+        return isConsumed;
     }
 }

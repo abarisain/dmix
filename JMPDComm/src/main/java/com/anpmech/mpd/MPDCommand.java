@@ -68,8 +68,6 @@ public class MPDCommand {
 
     public static final String MPD_CMD_OUTPUTENABLE = "enableoutput";
 
-    public static final String MPD_CMD_OUTPUTS = "outputs";
-
     public static final String MPD_CMD_PASSWORD = "password";
 
     public static final CharSequence MPD_CMD_PLAYLIST_ADD = "playlistadd";

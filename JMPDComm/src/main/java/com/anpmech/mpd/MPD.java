@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd;
 
+import com.anpmech.mpd.commandresponse.AudioOutputResponse;
 import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.MusicResponse;
 import com.anpmech.mpd.commandresponse.SplitCommandResponse;
@@ -48,6 +49,7 @@ import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.item.Stream;
+import com.anpmech.mpd.subsystem.AudioOutput;
 import com.anpmech.mpd.subsystem.Playback;
 import com.anpmech.mpd.subsystem.Sticker;
 import com.anpmech.mpd.subsystem.status.MPDStatisticsMap;
@@ -1054,10 +1056,10 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public Collection<MPDOutput> getOutputs() throws IOException, MPDException {
-        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_OUTPUTS);
+    public AudioOutputResponse getOutputs() throws IOException, MPDException {
+        final CommandResult result = mConnection.submit(AudioOutput.CMD_ACTION_OUTPUTS).get();
 
-        return MPDOutput.buildOutputsFromList(response);
+        return new AudioOutputResponse(result);
     }
 
     /**
