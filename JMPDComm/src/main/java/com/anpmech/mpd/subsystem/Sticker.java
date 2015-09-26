@@ -30,7 +30,7 @@ package com.anpmech.mpd.subsystem;
 import com.anpmech.mpd.CommandQueue;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
-import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.MusicResponse;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.connection.MPDConnection;
@@ -39,14 +39,10 @@ import com.anpmech.mpd.item.FilesystemTreeEntry;
 import com.anpmech.mpd.item.Music;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.anpmech.mpd.Tools.KEY;
-import static com.anpmech.mpd.Tools.VALUE;
 
 /**
  * This class manages the <A HREF="http://www.musicpd.org/doc/protocol/stickers.html">sticker</A>
@@ -154,12 +150,12 @@ public class Sticker {
      * @param response The media server response from which to retrieve the music list.
      * @return A command queue to retrieve a media server response for a list of music.
      */
-    private static CommandQueue getMusicCommand(final Collection<String> response) {
+    private static CommandQueue getMusicCommand(final CommandResponse response) {
         final CommandQueue commandQueue = new CommandQueue();
 
-        for (final String[] pair : Tools.splitResponse(response)) {
-            if (CMD_RESPONSE_FILE.equals(pair[KEY])) {
-                commandQueue.add(MPDCommand.MPD_CMD_LISTALL, pair[VALUE]);
+        for (final Map.Entry<String, String> entry : response.splitListIterator()) {
+            if (CMD_RESPONSE_FILE.equals(entry.getKey())) {
+                commandQueue.add(MPDCommand.MPD_CMD_LISTALL, entry.getValue());
             }
         }
 
@@ -219,8 +215,8 @@ public class Sticker {
 
         final Map<Music, Map<String, String>> foundStickers;
         if (isAvailable()) {
-            final List<String> response =
-                    mConnection.send(CMD_ACTION_FIND, entry.getFullPath(), name);
+            final CommandResponse response =
+                    mConnection.submit(CMD_ACTION_FIND, entry.getFullPath(), name).get();
 
             /** Generate a map used to create the result. */
             final Map<String, Music> musicPair = getMusicPair(response);
@@ -228,19 +224,22 @@ public class Sticker {
             final Map<String, String> currentTrackStickers = new HashMap<>();
             Music currentMusic = null;
 
-            for (final String[] sticker : Tools.splitResponse(response)) {
-                if (CMD_RESPONSE_FILE.equals(sticker[KEY])) {
+            for (final Map.Entry<String, String> mapEntry : response.splitListIterator()) {
+                final String key = mapEntry.getKey();
+
+                if (CMD_RESPONSE_FILE.equals(key)) {
                     /** Clear the old map, start new! */
                     if (!foundStickers.isEmpty()) {
                         foundStickers.put(currentMusic, currentTrackStickers);
                         currentTrackStickers.clear();
                     }
 
-                    currentMusic = musicPair.get(sticker[VALUE]);
-                } else if (CMD_RESPONSE_STICKER.equals(sticker[KEY])) {
-                    final int delimiterIndex = sticker[VALUE].indexOf('=');
-                    final String stickerKey = sticker[VALUE].substring(0, delimiterIndex);
-                    final String stickerValue = sticker[VALUE].substring(delimiterIndex + 1);
+                    currentMusic = musicPair.get(mapEntry.getValue());
+                } else if (CMD_RESPONSE_STICKER.equals(key)) {
+                    final String value = mapEntry.getValue();
+                    final int delimiterIndex = value.indexOf('=');
+                    final String stickerKey = value.substring(0, delimiterIndex);
+                    final String stickerValue = value.substring(delimiterIndex + 1);
 
                     currentTrackStickers.put(stickerKey, stickerValue);
                 }
@@ -270,10 +269,10 @@ public class Sticker {
         String foundSticker = null;
 
         if (isAvailable()) {
-            List<String> response = Collections.emptyList();
+            CommandResponse response = null;
             try {
-                response = mConnection.send(CMD_ACTION_GET, CMD_STICKER_TYPE_SONG,
-                        entry.getFullPath(), name);
+                response = mConnection.submit(CMD_ACTION_GET, CMD_STICKER_TYPE_SONG,
+                        entry.getFullPath(), name).get();
             } catch (final MPDException e) {
                 /** Do not throw exception when attempting to retrieve a non-existent sticker. */
                 if (e.mErrorCode != MPDException.ACK_ERROR_NO_EXIST) {
@@ -281,17 +280,17 @@ public class Sticker {
                 }
             }
 
-            if (response.isEmpty()) {
+            if (response == null || response.isEmpty()) {
                 if (DEBUG) {
                     Log.debug(TAG, "No responses received from sticker get query. FullPath: " +
                             entry.getFullPath());
                 }
             } else {
-                for (final String[] sticker : Tools.splitResponse(response)) {
-                    if (CMD_RESPONSE_STICKER.equals(sticker[KEY])) {
-                        final int index = sticker[VALUE].indexOf('=');
+                for (final Map.Entry<String, String> mapEntry : response.splitListIterator()) {
+                    if (CMD_RESPONSE_STICKER.equals(mapEntry.getKey())) {
+                        final int index = mapEntry.getValue().indexOf('=');
 
-                        foundSticker = sticker[VALUE].substring(index + 1);
+                        foundSticker = mapEntry.getValue().substring(index + 1);
                     }
                 }
             }
@@ -308,7 +307,7 @@ public class Sticker {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    private Map<String, Music> getMusicPair(final Collection<String> response)
+    private Map<String, Music> getMusicPair(final CommandResponse response)
             throws IOException, MPDException {
         final CommandResult result = mConnection.submit(getMusicCommand(response)).get();
         final List<Music> musicList = new MusicResponse(result).getList();
@@ -376,23 +375,24 @@ public class Sticker {
         final boolean isAvailable = isAvailable();
 
         if (isAvailable) {
-            final List<String> response = mConnection.send(CMD_ACTION_LIST,
-                    CMD_STICKER_TYPE_SONG, entry.getFullPath());
+            final CommandResponse response = mConnection.submit(CMD_ACTION_LIST,
+                    CMD_STICKER_TYPE_SONG, entry.getFullPath()).get();
 
-            if (response == null) {
+            if (response == null || response.isEmpty()) {
                 if (DEBUG) {
                     Log.debug(TAG, "No responses received from sticker list query. FullPath: " +
                             entry.getFullPath());
                 }
                 stickers = Collections.emptyMap();
             } else {
-                stickers = new HashMap<>(response.size());
+                stickers = new HashMap<>();
 
-                for (final String[] sticker : Tools.splitResponse(response)) {
-                    if (CMD_RESPONSE_STICKER.equals(sticker[KEY])) {
-                        final int delimiterIndex = sticker[VALUE].indexOf('=');
-                        final String stickerKey = sticker[VALUE].substring(0, delimiterIndex);
-                        final String stickerValue = sticker[VALUE].substring(delimiterIndex + 1);
+                for (final Map.Entry<String, String> mapEntry : response.splitListIterator()) {
+                    if (CMD_RESPONSE_STICKER.equals(mapEntry.getKey())) {
+                        final String value = mapEntry.getValue();
+                        final int delimiterIndex = value.indexOf('=');
+                        final String stickerKey = value.substring(0, delimiterIndex);
+                        final String stickerValue = value.substring(delimiterIndex + 1);
 
                         stickers.put(stickerKey, stickerValue);
                     }

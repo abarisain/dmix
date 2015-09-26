@@ -27,11 +27,8 @@
 
 package com.anpmech.mpd;
 
-import com.anpmech.mpd.exception.InvalidResponseException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
@@ -42,17 +39,6 @@ import java.util.concurrent.TimeUnit;
  * Common utilities used by JMPDComm classes.
  */
 public final class Tools {
-
-    /**
-     * This is the value used extract the key from the {@link #splitResponse(String)} return array.
-     */
-    public static final int KEY = 0;
-
-    /**
-     * This is the value used to extract the value from the {@link #splitResponse(String)} return
-     * array.
-     */
-    public static final int VALUE = 1;
 
     /**
      * The MPD protocol {@code key}:{@code value} delimiter.
@@ -534,48 +520,6 @@ public final class Tools {
         }
 
         return ranges;
-    }
-
-    /**
-     * Split the standard MPD protocol response into a three dimensional array consisting of a two
-     * element String array key / value pairs.
-     *
-     * @param list The incoming server response.
-     * @return A three dimensional {@code String} array of two element {@code String arrays}.
-     */
-    public static String[][] splitResponse(final Collection<String> list) {
-        final String[][] results = new String[list.size()][];
-        int iterator = 0;
-
-        for (final String line : list) {
-            results[iterator] = splitResponse(line);
-            iterator++;
-        }
-
-        return results;
-    }
-
-    /**
-     * Split the standard MPD protocol response.
-     *
-     * @param line The MPD response string.
-     * @return A string array with two elements, one the key, the second the value.
-     */
-    public static String[] splitResponse(final String line) {
-        final int delimiterIndex = line.indexOf(':');
-        final String[] result = new String[2];
-
-        if (delimiterIndex == -1) {
-            throw new InvalidResponseException("Failed to parse server response key for line: " +
-                    line);
-        }
-
-        result[0] = line.substring(0, delimiterIndex);
-
-        /** Skip ': ' */
-        result[1] = line.substring(delimiterIndex + 2);
-
-        return result;
     }
 
     /**
