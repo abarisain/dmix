@@ -27,43 +27,91 @@
 
 package com.anpmech.mpd.item;
 
+import com.anpmech.mpd.ResponseObject;
+
+import org.jetbrains.annotations.NotNull;
+
 import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
- * This is the Android backend {@code Genre} item.
- *
- * @see AbstractGenre
+ * This class creates a Genre Item, a item commonly found in the
+ * <A HREF="http://www.musicpd.org/doc/protocol/database.html">Database Subsystem</A> in the
+ * <A HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Android backend.
  */
 public class Genre extends AbstractGenre<Genre> {
 
-    public static final Creator<Genre> CREATOR = new Creator<Genre>() {
-        @Override
-        public Genre createFromParcel(final Parcel source) {
-            return new Genre(source);
+    /**
+     * This field is used to instantiate this class from a {@link Parcel}.
+     */
+    public static final Creator<Genre> CREATOR = new GenreParcelCreator();
+
+    /**
+     * This is a convenience string to use as a Intent extra tag.
+     */
+    public static final String EXTRA = TAG;
+
+    /**
+     * This is the copy constructor.
+     *
+     * @param genre The Genre to copy.
+     */
+    public Genre(@NotNull final Genre genre) {
+        super(genre.mResponseObject);
+    }
+
+    /**
+     * This constructor constructs a Genre from a MPD protocol response.
+     *
+     * @param response A MPD protocol response.
+     */
+    public Genre(@NotNull final String response) {
+        super(new ResponseObject(null, response));
+    }
+
+    /**
+     * This object is used to create a new Genre with a ResponseObject.
+     *
+     * @param object The prepared ResponseObject.
+     */
+    private Genre(@NotNull final ResponseObject object) {
+        super(object);
+    }
+
+    /**
+     * This class is used to instantiate a Genre Object from a {@code Parcel}.
+     */
+    private static final class GenreParcelCreator implements Parcelable.Creator<Genre> {
+
+        /**
+         * Sole constructor.
+         */
+        private GenreParcelCreator() {
+            super();
         }
 
+        /**
+         * Create a new instance of the Parcelable class, instantiating it
+         * from the given Parcel whose data had previously been written by
+         * {@link Parcelable#writeToParcel Parcelable.writeToParcel()}.
+         *
+         * @param source The Parcel to read the object's data from.
+         * @return Returns a new instance of the Parcelable class.
+         */
+        @Override
+        public Genre createFromParcel(final Parcel source) {
+            return new Genre((ResponseObject) source.readParcelable(ResponseObject.LOADER));
+        }
+
+        /**
+         * Create a new array of the Parcelable class.
+         *
+         * @param size Size of the array.
+         * @return Returns an array of the Parcelable class, with every entry initialized to null.
+         */
         @Override
         public Genre[] newArray(final int size) {
             return new Genre[size];
         }
-    };
-
-    public static final String EXTRA = TAG;
-
-    public Genre(final Genre genre) {
-        super(genre);
-    }
-
-    public Genre(final String name) {
-        super(name);
-    }
-
-    protected Genre(final Parcel in) {
-        super(in.readString()); /** name */
-    }
-
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(getName());
     }
 }

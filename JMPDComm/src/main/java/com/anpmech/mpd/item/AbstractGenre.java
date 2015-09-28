@@ -27,81 +27,38 @@
 
 package com.anpmech.mpd.item;
 
-import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.ResponseObject;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This class is the generic base for the Genre items, abstracted for backend.
  *
  * @param <T> The Genre type.
  */
-abstract class AbstractGenre<T extends Genre> extends Item<Genre> {
+abstract class AbstractGenre<T extends Genre> extends ResponseItem<Genre> {
 
+    /**
+     * The class log identifier.
+     */
     protected static final String TAG = AbstractMusic.RESPONSE_GENRE;
 
-    final String mName;
-
-    AbstractGenre(final T genre) {
-        super();
-        mName = genre.mName;
-    }
-
-    AbstractGenre(final String name) {
-        super();
-        mName = name;
+    /**
+     * This object is used to create a new AbstractEntry with a {@link ResponseObject}.
+     *
+     * @param object The prepared {@link ResponseObject}.
+     */
+    protected AbstractGenre(@NotNull final ResponseObject object) {
+        super(object);
     }
 
     /**
-     * Compares a Genre object with a general contract of comparison that is reflexive, symmetric
-     * and transitive.
+     * This is the string representation of this Genre.
      *
-     * @param o The object to compare this instance with.
-     * @return True if the objects are equal with regard to te general contract, false otherwise.
-     * @see Object#equals(Object)
+     * @return A string representation of this Genre.
      */
-    @Override
-    public boolean equals(final Object o) {
-        Boolean isEqual = null;
-
-        if (this == o) {
-            /** This takes care of the reflexive relation part of the general contract. */
-            isEqual = Boolean.TRUE;
-        } else if (o == null || getClass() != o.getClass()) {
-            /** The compared object is null or the same class, obviously not equal. */
-            isEqual = Boolean.FALSE;
-        }
-
-        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
-            /** This has to be the same due to the class check above. */
-            //noinspection unchecked
-            final AbstractGenre<T> genre = (AbstractGenre<T>) o;
-
-            if (Tools.isNotEqual(mName, genre.mName)) {
-                isEqual = Boolean.FALSE;
-            }
-        }
-
-        if (isEqual == null) {
-            isEqual = Boolean.TRUE;
-        }
-
-        return isEqual.booleanValue();
-    }
-
     @Override
     public String getName() {
-        return mName;
-    }
-
-    /**
-     * Returns an integer hash code for this Genre. By contract, any two objects for which {@link
-     * #equals} returns {@code true} must return the same hash code value. This means that
-     * subclasses of {@code Object} usually override both methods or neither method.
-     *
-     * @return This Genre hash code.
-     * @see Object#equals(Object)
-     */
-    @Override
-    public int hashCode() {
-        return mName.hashCode();
+        return findValue(AbstractMusic.RESPONSE_GENRE);
     }
 }

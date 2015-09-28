@@ -27,18 +27,42 @@
 
 package com.anpmech.mpd.item;
 
+import com.anpmech.mpd.ResponseObject;
+
+import org.jetbrains.annotations.NotNull;
+
 /**
- * This is the Java backend {@code Genre} item.
- *
- * @see AbstractGenre
+ * This class creates a Genre Item, a item commonly found in the
+ * <A HREF="http://www.musicpd.org/doc/protocol/database.html">Database Subsystem</A> in the
+ * <A HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Java backend.
  */
 public class Genre extends AbstractGenre<Genre> {
 
-    public Genre(final Genre genre) {
-        super(genre);
+    /**
+     * This is the copy constructor.
+     *
+     * @param genre The Genre to copy.
+     */
+    public Genre(@NotNull final Genre genre) {
+        super(genre.mResponseObject);
     }
 
-    public Genre(final String name) {
-        super(name);
+    /**
+     * This constructor constructs a Genre from a MPD protocol response.
+     *
+     * @param response A MPD protocol response.
+     */
+    public Genre(@NotNull final String response) {
+        super(new ResponseObject(null, response));
     }
+
+    /**
+     * This object is used to create a new Genre with a ResponseObject.
+     *
+     * @param object The prepared ResponseObject.
+     */
+    private Genre(@NotNull final ResponseObject object) {
+        super(object);
+    }
+
 }

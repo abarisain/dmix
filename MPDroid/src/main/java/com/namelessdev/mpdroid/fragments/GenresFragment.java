@@ -65,7 +65,7 @@ public class GenresFragment extends BrowseFragment<Genre> {
     @Override
     protected void asyncUpdate() {
         try {
-            replaceItems(mApp.getMPD().getGenres());
+            replaceItems(mApp.getMPD().getGenreResponse().getList());
             Collections.sort(mItems);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update list of genres.", e);

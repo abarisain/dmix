@@ -29,6 +29,7 @@ package com.anpmech.mpd;
 
 import com.anpmech.mpd.commandresponse.AudioOutputResponse;
 import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.commandresponse.GenreResponse;
 import com.anpmech.mpd.commandresponse.MusicResponse;
 import com.anpmech.mpd.commandresponse.PlaylistFileResponse;
 import com.anpmech.mpd.commandresponse.SplitCommandResponse;
@@ -995,21 +996,18 @@ public class MPD {
         return song;
     }
 
-    public List<Genre> getGenres() throws IOException, MPDException {
-        final List<String> genreNames = listGenres();
-        final List<Genre> genres;
+    /**
+     * This method retrieves a {@link GenreResponse} including all available genres.
+     *
+     * @return A GenreResponse including all available genres.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public GenreResponse getGenreResponse() throws IOException, MPDException {
+        final CommandResult result = mConnection.submit(MPDCommand.MPD_CMD_LIST_TAG,
+                Music.TAG_GENRE).get();
 
-        if (genreNames.isEmpty()) {
-            genres = Collections.emptyList();
-        } else {
-            genres = new ArrayList<>(genreNames.size());
-
-            for (final String genre : genreNames) {
-                genres.add(new Genre(genre));
-            }
-        }
-
-        return genres;
+        return new GenreResponse(result);
     }
 
     public InetAddress getHostAddress() {
@@ -1456,20 +1454,6 @@ public class MPD {
                 Music.TAG_ARTIST, Music.TAG_GENRE, genre.getName()).get();
 
         return response.getValues(Music.RESPONSE_ARTIST);
-    }
-
-    /**
-     * List all genre names from database.
-     *
-     * @return artist names from database.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
-     */
-    public List<String> listGenres() throws IOException, MPDException {
-        final CommandResponse response = mConnection.submit(MPDCommand.MPD_CMD_LIST_TAG,
-                Music.TAG_GENRE).get();
-
-        return response.getValues(Music.RESPONSE_GENRE);
     }
 
     @SuppressWarnings("TypeMayBeWeakened")
