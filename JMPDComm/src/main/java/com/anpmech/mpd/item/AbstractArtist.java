@@ -29,7 +29,8 @@ package com.anpmech.mpd.item;
 
 import com.anpmech.mpd.Tools;
 
-import java.util.Arrays;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Locale;
 
 /**
@@ -43,27 +44,14 @@ abstract class AbstractArtist<T extends Artist> extends Item<Artist> {
 
     final String mName;
 
-    final String mSort;
-
     AbstractArtist(final T artist) {
-        this(artist.mName, artist.mSort);
+        this(artist.mName);
     }
 
     AbstractArtist(final String name) {
         super();
-        mName = name;
-        if (null != name && name.toLowerCase(Locale.getDefault()).startsWith("the ")) {
-            mSort = name.substring(4);
-        } else {
-            mSort = null;
-        }
-    }
-
-    AbstractArtist(final String name, final String sort) {
-        super();
 
         mName = name;
-        mSort = sort;
     }
 
     /**
@@ -89,7 +77,7 @@ abstract class AbstractArtist<T extends Artist> extends Item<Artist> {
             //noinspection unchecked
             final AbstractArtist<T> artist = (AbstractArtist<T>) o;
 
-            if (Tools.isNotEqual(mName, artist.mName) || Tools.isNotEqual(mSort, artist.mSort)) {
+            if (Tools.isNotEqual(mName, artist.mName)) {
                 isEqual = Boolean.FALSE;
             }
         }
@@ -116,19 +104,18 @@ abstract class AbstractArtist<T extends Artist> extends Item<Artist> {
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[]{mName, mSort});
+        return mName.hashCode();
     }
 
     @Override
+    @Nullable
     public String sortName() {
         final String result;
 
-        if (mSort == null && mName == null) {
-            result = "";
-        } else if (mSort == null) {
-            result = super.sortName();
+        if (null != mName && mName.toLowerCase(Locale.getDefault()).startsWith("the ")) {
+            result = mName.substring(4);
         } else {
-            result = mSort;
+            result = mName;
         }
 
         return result;

@@ -41,8 +41,4 @@ public class Artist extends AbstractArtist<Artist> {
     public Artist(final String name) {
         super(name);
     }
-
-    protected Artist(final String name, final String sort) {
-        super(name, sort);
-    }
 }

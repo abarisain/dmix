@@ -60,18 +60,12 @@ public class Artist extends AbstractArtist<Artist> {
         super(name);
     }
 
-    protected Artist(final String name, final String sort) {
-        super(name, sort);
-    }
-
     protected Artist(final Parcel in) {
-        super(in.readString(), /** name */
-                in.readString()); /** sort */
+        super(in.readString());
     }
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(getName());
-        dest.writeString(sortText());
     }
 }
