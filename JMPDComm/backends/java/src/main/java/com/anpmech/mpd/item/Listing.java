@@ -35,73 +35,74 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * This class creates a Directory Item, an abstraction of a filesystem directory in the <A
+ * This class creates a Listing Item, an abstraction of a filesystem directory in the <A
  * HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Java backend.
  *
- * <p>This class is similar to {@link Listing}, but rather than using the
+ * <p>This class is similar to {@link Directory}, but rather than using the
+ * <A HREF="http://www.musicpd.org/doc/protocol/database.html#command_lsinfo">{@code lsinfo}</A>
+ * server command, the
  * <A HREF="http://www.musicpd.org/doc/protocol/database.html#command_listfiles">{@code
  * listfiles}</A>
- * command, the
- * <A HREF="http://www.musicpd.org/doc/protocol/database.html#command_lsinfo">{@code lsinfo}</A>
  * server command is used. When used with the standard MPD implementation, this command provides
- * much more information about the directory listing. Unlike {@link AbstractListing} this command
- * will only list those recognized by the MPD server implementation.</p>
+ * much less information about the directory entries, but provides files which are not recognized
+ * by the MPD server implementation.</p>
  */
-public class Directory extends AbstractDirectory<Directory> {
+public class Listing extends AbstractDirectory<Listing> {
 
     /**
      * The class log identifier.
      */
-    private static final String TAG = "Directory";
+    private static final String TAG = "Listing";
 
     /**
      * The copy constructor for this class.
      *
      * @param entry The {@link Entry} to copy.
      */
-    public Directory(@NotNull final Directory entry) {
+    public Listing(@NotNull final Listing entry) {
         super(entry.mResponseObject, entry.mResult);
     }
 
     /**
-     * This constructor is used to create a new Directory item with a ResponseObject.
+     * This constructor is used to create a new Listing item with a ResponseObject.
      *
-     * @param object The prepared ResponseObject.
-     * @param lsInfo The {@code lsinfo} CommandResult. If null, a {@link #refresh(MPDConnection)}
-     *               will be required to regenerate it.
+     * @param object    The prepared ResponseObject.
+     * @param listFiles The listfiles CommandResult. If null, a {@link #refresh(MPDConnection)}
+     *                  call be required to initialize it.
      * @see #byPath(String)
      * @see #byResponse(String)
      */
-    private Directory(@NotNull final ResponseObject object, @Nullable final CommandResult lsInfo) {
-        super(object, lsInfo);
+    private Listing(@NotNull final ResponseObject object,
+            @Nullable final CommandResult listFiles) {
+        super(object, listFiles);
     }
 
     /**
-     * This method is used to create a new Directory by path.
+     * This method is used to create a new Listing by path.
      *
      * @param path The path of the directory, if null, the {@link #ROOT_DIRECTORY} will be the
      *             path.
-     * @return The new Directory.
+     * @return The new Listing.
      */
-    public static Directory byPath(@Nullable final String path) {
-        final String directory;
+    public static Listing byPath(@Nullable final String path) {
+        final String listing;
 
         if (path == null) {
-            directory = ROOT_DIRECTORY;
+            listing = ROOT_DIRECTORY;
         } else {
-            directory = path;
+            listing = path;
         }
 
-        return new Directory(new ResponseObject(directory, null), null);
+        return new Listing(new ResponseObject(listing, null), null);
     }
 
     /**
-     * This method is used to construct a new Directory by server response.
+     * This method is used to construct a new Listing by server response.
      *
      * @param response The server response.
-     * @return The new Directory.
+     * @return The new Listing.
      */
-    public static Directory byResponse(@NotNull final String response) {
-        return new Directory(new ResponseObject(null, response), null);
+    public static Listing byResponse(@NotNull final String response) {
+        return new Listing(new ResponseObject(null, response), null);
     }
 }

@@ -38,28 +38,29 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * This class creates a Directory Item, an abstraction of a filesystem directory in the <A
+ * This class creates a Listing Item, an abstraction of a filesystem directory in the <A
  * HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Android backend.
  *
- * <p>This class is similar to {@link Listing}, but rather than using the
- * <A HREF="http://www.musicpd.org/doc/protocol/database.html#command_listfiles">{@code
- * listfiles}</A> command, the
+ * <p>This class is similar to {@link Directory}, but rather than using the
  * <A HREF="http://www.musicpd.org/doc/protocol/database.html#command_lsinfo">{@code lsinfo}</A>
+ * server command, the
+ * <A HREF="http://www.musicpd.org/doc/protocol/database.html#command_listfiles">{@code
+ * listfiles}</A>
  * server command is used. When used with the standard MPD implementation, this command provides
- * much more information about the directory listing. Unlike {@link AbstractListing} this command
- * will only list those recognized by the MPD server implementation.</p>
+ * much less information about the directory entries, but provides files which are not recognized
+ * by the MPD server implementation.</p>
  */
-public class Directory extends AbstractDirectory<Directory> {
+public class Listing extends AbstractListing<Listing> {
 
     /**
      * This field is used to instantiate this class from a {@link Parcel}.
      */
-    public static final Creator<Directory> CREATOR = new DirectoryParcelCreator();
+    public static final Creator<Listing> CREATOR = new ListingParcelCreator();
 
     /**
      * The class log identifier.
      */
-    private static final String TAG = "Directory";
+    private static final String TAG = "Listing";
 
     /**
      * This is a convenience string to use as a Intent extra tag.
@@ -71,50 +72,51 @@ public class Directory extends AbstractDirectory<Directory> {
      *
      * @param entry The {@link Entry} to copy.
      */
-    public Directory(@NotNull final Directory entry) {
+    public Listing(@NotNull final Listing entry) {
         super(entry.mResponseObject, entry.mResult);
     }
 
     /**
-     * This constructor is used to create a new Directory item with a ResponseObject.
+     * This constructor is used to create a new Listing item with a ResponseObject.
      *
-     * @param object The prepared ResponseObject.
-     * @param lsInfo The lsinfo CommandResult. If null, a {@link #refresh(MPDConnection)}
-     *               will be required to regenerate it.
+     * @param object    The prepared ResponseObject.
+     * @param listFiles The listfiles CommandResult. If null, a {@link #refresh(MPDConnection)}
+     *                  call be required to initialize it.
      * @see #byPath(String)
      * @see #byResponse(String)
      */
-    private Directory(@NotNull final ResponseObject object, @Nullable final CommandResult lsInfo) {
-        super(object, lsInfo);
+    private Listing(@NotNull final ResponseObject object,
+            @Nullable final CommandResult listFiles) {
+        super(object, listFiles);
     }
 
     /**
-     * This method is used to create a new Directory by path.
+     * This method is used to create a new Listing by path.
      *
      * @param path The path of the directory, if null, the {@link #ROOT_DIRECTORY} will be the
      *             path.
-     * @return The new Directory.
+     * @return The new Listing.
      */
-    public static Directory byPath(@Nullable final String path) {
-        final String directory;
+    public static Listing byPath(@Nullable final String path) {
+        final String listing;
 
         if (path == null) {
-            directory = ROOT_DIRECTORY;
+            listing = ROOT_DIRECTORY;
         } else {
-            directory = path;
+            listing = path;
         }
 
-        return new Directory(new ResponseObject(directory, null), null);
+        return new Listing(new ResponseObject(listing, null), null);
     }
 
     /**
-     * This method is used to construct a new Directory by server response.
+     * This method is used to construct a new Listing by server response.
      *
      * @param response The server response.
-     * @return The new Directory.
+     * @return The new Listing.
      */
-    public static Directory byResponse(@NotNull final String response) {
-        return new Directory(new ResponseObject(null, response), null);
+    public static Listing byResponse(@NotNull final String response) {
+        return new Listing(new ResponseObject(null, response), null);
     }
 
     /**
@@ -132,14 +134,14 @@ public class Directory extends AbstractDirectory<Directory> {
     }
 
     /**
-     * This class is used to instantiate a Directory Object from a {@code Parcel}.
+     * This class is used to instantiate a Listing Object from a {@code Parcel}.
      */
-    private static final class DirectoryParcelCreator implements Parcelable.Creator<Directory> {
+    private static final class ListingParcelCreator implements Creator<Listing> {
 
         /**
          * Sole constructor.
          */
-        private DirectoryParcelCreator() {
+        private ListingParcelCreator() {
             super();
         }
 
@@ -152,11 +154,11 @@ public class Directory extends AbstractDirectory<Directory> {
          * @return Returns a new instance of the Parcelable class.
          */
         @Override
-        public Directory createFromParcel(final Parcel source) {
+        public Listing createFromParcel(final Parcel source) {
             final ResponseObject response = source.readParcelable(ResponseObject.LOADER);
             final CommandResult result = source.readParcelable(CommandResult.LOADER);
 
-            return new Directory(response, result);
+            return new Listing(response, result);
         }
 
         /**
@@ -166,8 +168,8 @@ public class Directory extends AbstractDirectory<Directory> {
          * @return Returns an array of the Parcelable class, with every entry initialized to null.
          */
         @Override
-        public Directory[] newArray(final int size) {
-            return new Directory[size];
+        public Listing[] newArray(final int size) {
+            return new Listing[size];
         }
     }
 }

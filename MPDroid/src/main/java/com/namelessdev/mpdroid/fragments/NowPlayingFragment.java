@@ -1022,14 +1022,8 @@ public class NowPlayingFragment extends Fragment implements
                 intent.putExtra(Artist.EXTRA, mCurrentSong.getArtist());
                 break;
             case POPUP_FOLDER:
-                final String path = mCurrentSong.getFullPath();
-                final String parent = mCurrentSong.getParentDirectory();
-
-                if (path == null || parent == null) {
-                    intent = null;
-                } else {
-                    intent.putExtra(Directory.EXTRA, parent);
-                }
+                final Directory directory = Directory.byPath(mCurrentSong.getParentDirectory());
+                intent.putExtra(Directory.EXTRA, directory);
                 break;
             default:
                 break;

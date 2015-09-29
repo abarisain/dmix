@@ -28,59 +28,67 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.connection.CommandResult;
-import com.anpmech.mpd.item.Entry;
+import com.anpmech.mpd.item.Listing;
+import com.anpmech.mpd.item.Music;
 
 import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * This class contains methods used to process {@link Entry} items from a {@link CommandResult}.
+ * This class contains methods used to process {@link Listing} entries from a {@link
+ * CommandResult}.
+ *
+ * @see DirectoryResponse
  */
-public class EntryResponse extends ObjectResponse<Entry> {
+public class ListingResponse extends ObjectResponse<Listing> {
 
     /**
      * The class log identifier.
      */
-    private static final String TAG = "EntryResponse";
+    private static final String TAG = "ListingResponse";
 
     /**
      * Sole public constructor.
      *
-     * @param response The CommandResponse containing a Entry type MPD response.
+     * @param response The CommandResponse containing a Music type MPD response.
      */
-    public EntryResponse(final CommandResult response) {
+    public ListingResponse(final CommandResult response) {
         super(response);
     }
 
     /**
      * This constructor builds this class from an empty MPD protocol result.
      */
-    public EntryResponse() {
+    public ListingResponse() {
         super();
     }
 
     /**
      * This method returns a iterator, starting at the beginning of the response.
      *
-     * @param position The position to begin the iterator at, typically beginning or end.
      * @return A iterator to return the response.
      * @see #getList()
      */
     @Override
-    protected ListIterator<Entry> listIterator(final int position) {
-        return new EntryIterator(mResult, position);
+    protected ListIterator<Listing> listIterator(final int position) {
+        return new ListingIterator(mResult, position);
     }
 
     /**
-     * This class instantiates an {@link Iterator} to iterate over {@link Entry} entries.
+     * This class instantiates an {@link Iterator} to iterate over {@link Listing} entries.
      */
-    private static final class EntryIterator extends
-            CommandResponse.MultiLineResultIterator<Entry> {
+    private static final class ListingIterator extends
+            CommandResponse.MultiLineResultIterator<Listing> {
+
+        /**
+         * This is the beginning block token to find for this multi-line response.
+         */
+        private static final String[] BLOCK_TOKEN = {Listing.RESPONSE_DIRECTORY};
 
         /**
          * The class log identifier.
          */
-        private static final String TAG = "EntryIterator";
+        private static final String TAG = "ListingIterator";
 
         /**
          * Sole constructor.
@@ -90,20 +98,20 @@ public class EntryResponse extends ObjectResponse<Entry> {
          *                 to.
          * @throws IllegalArgumentException if the position parameter is less than 0.
          */
-        private EntryIterator(final String result, final int position) {
-            super(result, position, ENTRY_BLOCK_TOKENS, ENTRY_BLOCK_TOKENS);
+        private ListingIterator(final String result, final int position) {
+            super(result, position, BLOCK_TOKEN, ENTRY_BLOCK_TOKENS);
         }
 
         /**
-         * This method instantiates the {@link Entry} object with a block from the MPD server
+         * This method instantiates the {@link Music} object with a block from the MPD server
          * response.
          *
-         * @param responseBlock The MPD server response to instantiate the Entry item with.
-         * @return The Entry item.
+         * @param responseBlock The MPD server response to instantiate the Music entry with.
+         * @return The Music entry.
          */
         @Override
-        Entry instantiate(final String responseBlock) {
-            return new Entry(responseBlock);
+        Listing instantiate(final String responseBlock) {
+            return Listing.byResponse(responseBlock);
         }
     }
 }

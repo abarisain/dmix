@@ -91,7 +91,7 @@ public abstract class AbstractEntry<T extends AbstractEntry<T>> extends Response
      * @return A full path value for a Directory response key.
      */
     protected String getDirectoryFullPath() {
-        return findValue(AbstractDirectory.RESPONSE_DIRECTORY);
+        return findValue(AbstractDirectoryBase.RESPONSE_DIRECTORY);
     }
 
     /**
@@ -129,6 +129,7 @@ public abstract class AbstractEntry<T extends AbstractEntry<T>> extends Response
      *
      * @return The last modified time for this entry in Unix time.
      */
+    @Override
     public long getLastModified() {
         final String iso8601LastModified = findValue(RESPONSE_LAST_MODIFIED);
         long result = Long.MIN_VALUE;
@@ -210,6 +211,7 @@ public abstract class AbstractEntry<T extends AbstractEntry<T>> extends Response
      * @return The size of a MPD entry file, {@link Integer#MIN_VALUE} if it doesn't exist in this
      * response.
      */
+    @Override
     public long size() {
         return Tools.parseLong(findValue(RESPONSE_SIZE));
     }

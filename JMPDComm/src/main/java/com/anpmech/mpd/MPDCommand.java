@@ -60,8 +60,6 @@ public class MPDCommand {
 
     public static final String MPD_CMD_LIST_TAG = "list";
 
-    public static final String MPD_CMD_LSDIR = "lsinfo";
-
     public static final char MPD_CMD_NEWLINE = '\n';
 
     public static final String MPD_CMD_OUTPUTDISABLE = "disableoutput";

@@ -27,35 +27,24 @@
 
 package com.anpmech.mpd.item;
 
+import com.anpmech.mpd.connection.MPDConnection;
+import com.anpmech.mpd.exception.MPDException;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+
 /**
- * This Interface represents a filesystem entry ({@link Directory}, {@link Entry}, {@link Music} or
- * {@link PlaylistFile}) for a MPD protocol item.
+ * This interface includes {@link Item} which can be refreshed.
  */
-public interface FilesystemTreeEntry {
+public interface RefreshableItem {
 
     /**
-     * The full path as given by the MPD protocol.
+     * This method refreshes, or updates, the {@link Item} backend.
      *
-     * @return The full path for this entry.
+     * @param connection The connection to use to refresh the Item.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    String getFullPath();
-
-    /**
-     * This method returns the last modified time for this entry in Unix time.
-     *
-     * <p>The Last-Modified response value is expected to be given in ISO8601.</p>
-     *
-     * @return The last modified time for this entry in Unix time.
-     */
-    long getLastModified();
-
-    /**
-     * This returns the size a MPD entry file.
-     *
-     * <p><b>This is only available with some MPD command responses.</b></p>
-     *
-     * @return The size of a MPD entry file, {@link Integer#MIN_VALUE} if it doesn't exist in this
-     * response.
-     */
-    long size();
+    void refresh(@NotNull final MPDConnection connection) throws IOException, MPDException;
 }

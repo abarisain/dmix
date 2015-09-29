@@ -31,7 +31,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.anpmech.mpd.item;
+package com.namelessdev.mpdroid.tools;
 
 import java.text.Collator;
 import java.util.Comparator;
@@ -39,7 +39,7 @@ import java.util.Comparator;
 /**
  * Utility class for common String operations.
  */
-final class StringComparators {
+public final class StringComparators {
 
     /**
      * <p> A string comparator that does case insensitive comparisons and handles embedded numbers

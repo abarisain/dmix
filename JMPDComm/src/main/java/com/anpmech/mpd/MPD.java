@@ -44,12 +44,12 @@ import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.AlbumBuilder;
 import com.anpmech.mpd.item.Artist;
-import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.FilesystemTreeEntry;
 import com.anpmech.mpd.item.Genre;
 import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
+import com.anpmech.mpd.item.RefreshableItem;
 import com.anpmech.mpd.item.Stream;
 import com.anpmech.mpd.subsystem.AudioOutput;
 import com.anpmech.mpd.subsystem.Playback;
@@ -1464,6 +1464,17 @@ public class MPD {
     }
 
     /**
+     * Retrieves a database directory listing of all server recognized entries.
+     *
+     * @param directory The directory to update with a full entry listing.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void refresh(final RefreshableItem directory) throws IOException, MPDException {
+        directory.refresh(mConnection);
+    }
+
+    /**
      * Tells server to refresh database.
      *
      * @throws IOException  Thrown upon a communication error with the server.
@@ -1482,10 +1493,6 @@ public class MPD {
      */
     public void refreshDatabase(final String folder) throws IOException, MPDException {
         mConnection.send(MPDCommand.MPD_CMD_REFRESH, folder);
-    }
-
-    public void refreshDirectory(final Directory directory) throws IOException, MPDException {
-        directory.refresh(mConnection);
     }
 
     /**

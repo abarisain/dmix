@@ -28,9 +28,7 @@
 package com.anpmech.mpd.item;
 
 import com.anpmech.mpd.ResponseObject;
-import com.anpmech.mpd.commandresponse.DirectoryResponse;
-import com.anpmech.mpd.commandresponse.MusicResponse;
-import com.anpmech.mpd.commandresponse.PlaylistFileResponse;
+import com.anpmech.mpd.commandresponse.ListingResponse;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
@@ -41,15 +39,15 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 
 /**
- * This class is the generic base for the Directory items, abstracted for backend.
+ * This class is the generic base for the Listing entries, abstracted for backend.
  *
- * <p>This class is similar to {@link Listing}, but rather than using the <A
- * HREF="http://www.musicpd.org/doc/protocol/database.html#command_listfiles">{@code listfiles}</A>
- * command, the
+ * <p>This class is similar to {@link AbstractDirectory}, but rather than using the
  * <A HREF="http://www.musicpd.org/doc/protocol/database.html#command_lsinfo">{@code lsinfo}</A>
- * server command is used. When used with the standard MPD implementation, this command provides
- * much more information about the directory listing. Unlike {@link AbstractListing} this command
- * will only list those recognized by the MPD server implementation.</p>
+ * server command, the
+ * <A HREF="http://www.musicpd.org/doc/protocol/database.html#command_listfiles">{@code
+ * listfiles}</A> server command is used. When used with the standard MPD implementation, this
+ * command provides much less information about the directory entries, but provides files which
+ * are not recognized by the MPD server implementation.</p>
  *
  * <p>This item is returned from methods of the
  * <A HREF="http://www.musicpd.org/doc/protocol/database.html">database</A>
@@ -59,53 +57,35 @@ import java.io.IOException;
  *
  * @param <T> The Directory type.
  */
-abstract class AbstractDirectory<T extends AbstractDirectory<T>> extends AbstractDirectoryBase<T> {
+class AbstractListing<T extends AbstractListing<T>> extends AbstractDirectoryBase<T> {
 
     /**
-     * This is a command sent to retrieve all MPD recognized files in a directory.
-     */
-    private static final CharSequence CMD_LSDIR = "lsinfo";
-
-    /**
-     * This constructor is used to create a new Directory item with a ResponseObject.
+     * This is the command sent to retrieve all files in a directory.
      *
-     * @param object The prepared {@link ResponseObject}.
-     * @param lsInfo The lsinfo CommandResult. If null, a {@link #refresh(MPDConnection)}
-     *               will be required to regenerate it.
+     * This is <b>only</b> to be used when finding the names of non-music entries is required.
      */
-    protected AbstractDirectory(@NotNull final ResponseObject object,
-            @Nullable final CommandResult lsInfo) {
-        super(object, lsInfo);
+    private static final CharSequence CMD_LISTFILES = "listfiles";
+
+    /**
+     * This constructor is used to create a new Listing item with a ResponseObject.
+     *
+     * @param object    The prepared {@link ResponseObject}.
+     * @param listFiles The {@code listFiles} CommandResult. If null, a
+     *                  {@link #refresh(MPDConnection)}
+     */
+    protected AbstractListing(@NotNull final ResponseObject object,
+            @Nullable final CommandResult listFiles) {
+        super(object, listFiles);
     }
 
     /**
-     * Returns a {@link DirectoryResponse} from this {@link Directory}.
+     * Returns a {@link ListingResponse} from this {@link Listing}.
      *
-     * @return A {@link DirectoryResponse} of this {@link Directory}.
+     * @return A {@link ListingResponse} of this {@link Listing}.
      */
     @NotNull
-    public DirectoryResponse getDirectoryEntries() {
-        return new DirectoryResponse(mResult);
-    }
-
-    /**
-     * Returns a {@link MusicResponse} from this {@link Directory}.
-     *
-     * @return A {@link MusicResponse} of this {@link Directory}.
-     */
-    @NotNull
-    public MusicResponse getMusicEntries() {
-        return new MusicResponse(mResult);
-    }
-
-    /**
-     * Returns a {@link PlaylistFileResponse} from this {@link Directory}.
-     *
-     * @return A {@link PlaylistFileResponse} of this {@link Directory}.
-     */
-    @NotNull
-    public PlaylistFileResponse getPlaylistFileEntries() {
-        return new PlaylistFileResponse(mResult);
+    public ListingResponse getListingEntries() {
+        return new ListingResponse(mResult);
     }
 
     /**
@@ -118,7 +98,7 @@ abstract class AbstractDirectory<T extends AbstractDirectory<T>> extends Abstrac
     @Override
     public void refresh(@NotNull final MPDConnection connection) throws IOException, MPDException {
         synchronized (mLock) {
-            mResult = connection.submit(CMD_LSDIR, getFullPath()).get();
+            mResult = connection.submit(CMD_LISTFILES, getFullPath()).get();
         }
     }
 }
