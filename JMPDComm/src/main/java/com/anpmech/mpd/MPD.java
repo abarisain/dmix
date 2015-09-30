@@ -777,6 +777,28 @@ public class MPD {
         return new MusicResponse(result);
     }
 
+    public List<Artist> getAlbumArtists() throws IOException, MPDException {
+        final List<String> artistNames = listAlbumArtists();
+        final List<Artist> artists = new ArrayList<>(artistNames.size());
+
+        for (final String artist : artistNames) {
+            artists.add(new Artist(artist));
+        }
+
+        return artists;
+    }
+
+    public List<Artist> getAlbumArtists(final Genre genre) throws IOException, MPDException {
+        final List<String> artistNames = listAlbumArtists(genre);
+        final List<Artist> artists = new ArrayList<>(artistNames.size());
+
+        for (final String artist : artistNames) {
+            artists.add(new Artist(artist));
+        }
+
+        return artists;
+    }
+
     public int getAlbumCount(final Artist artist, final boolean useAlbumArtistTag)
             throws IOException, MPDException {
         return listAlbums(artist, useAlbumArtistTag).size();
@@ -864,58 +886,39 @@ public class MPD {
     }
 
     public List<Artist> getArtists() throws IOException, MPDException {
-        final List<Artist> artists = getArtists(true);
+        final List<String> artistNames = listArtists();
+        final List<Artist> artists = new ArrayList<>(artistNames.size());
 
-        Item.merge(artists, getArtists(false));
-
-        return artists;
-    }
-
-    public List<Artist> getArtists(final boolean useAlbumArtist) throws IOException, MPDException {
-        final List<String> artistNames;
-        final List<Artist> artists;
-
-        if (useAlbumArtist) {
-            artistNames = listAlbumArtists();
-        } else {
-            artistNames = listArtists();
-        }
-
-        artists = new ArrayList<>(artistNames.size());
-        if (!artistNames.isEmpty()) {
-            for (final String artist : artistNames) {
-                artists.add(new Artist(artist));
-            }
+        for (final String artist : artistNames) {
+            artists.add(new Artist(artist));
         }
 
         return artists;
     }
 
     public List<Artist> getArtists(final Genre genre) throws IOException, MPDException {
-        final List<Artist> artists = getArtists(genre, true);
+        final List<String> artistNames = listArtists(genre);
+        final List<Artist> artists = new ArrayList<>(artistNames.size());
 
-        Item.merge(artists, getArtists(genre, false));
+        for (final String artist : artistNames) {
+            artists.add(new Artist(artist));
+        }
 
         return artists;
     }
 
-    public List<Artist> getArtists(final Genre genre, final boolean useAlbumArtist)
-            throws IOException, MPDException {
-        final List<String> artistNames;
-        final List<Artist> artists;
+    public List<Artist> getArtistsMerged() throws IOException, MPDException {
+        final List<Artist> artists = getAlbumArtists();
 
-        if (useAlbumArtist) {
-            artistNames = listAlbumArtists(genre);
-        } else {
-            artistNames = listArtists(genre);
-        }
+        Item.merge(artists, getArtists());
 
-        artists = new ArrayList<>(artistNames.size());
-        if (!artistNames.isEmpty()) {
-            for (final String artist : artistNames) {
-                artists.add(new Artist(artist));
-            }
-        }
+        return artists;
+    }
+
+    public List<Artist> getArtistsMerged(final Genre genre) throws IOException, MPDException {
+        final List<Artist> artists = getAlbumArtists(genre);
+
+        Item.merge(artists, getArtists(genre));
 
         return artists;
     }
