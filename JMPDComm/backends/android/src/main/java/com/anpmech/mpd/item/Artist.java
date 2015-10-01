@@ -27,45 +27,104 @@
 
 package com.anpmech.mpd.item;
 
+import com.anpmech.mpd.ResponseObject;
+
+import org.jetbrains.annotations.NotNull;
+
 import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
- * This is the Android backend {@code Artist} item.
- *
- * @see AbstractArtist
+ * This class creates a Artist Item, a item commonly found in the <A
+ * HREF="http://www.musicpd.org/doc/protocol/database.html">Database Subsystem</A> in the <A
+ * HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Android backend.
  */
 public class Artist extends AbstractArtist<Artist> {
 
-    public static final Creator<Artist> CREATOR =
-            new Creator<Artist>() {
+    /**
+     * This field is used to instantiate this class from a {@link Parcel}.
+     */
+    public static final Creator<Artist> CREATOR = new ArtistParcelCreator();
 
-                @Override
-                public Artist createFromParcel(final Parcel source) {
-                    return new Artist(source);
-                }
-
-                @Override
-                public Artist[] newArray(final int size) {
-                    return new Artist[size];
-                }
-            };
-
+    /**
+     * This is a convenience string to use as a Intent extra tag.
+     */
     public static final String EXTRA = AbstractArtist.TAG;
 
-    public Artist(final Artist artist) {
-        super(artist);
+    /**
+     * The copy constructor for this class.
+     *
+     * @param entry The AbstractResponseItem to copy.
+     */
+    public Artist(@NotNull final Artist entry) {
+        super(entry.mResponseObject);
     }
 
-    public Artist(final String name) {
-        super(name);
+    /**
+     * This constructor is used to create a new Artist item with a ResponseObject.
+     *
+     * @param object The prepared ResponseObject.
+     * @see #byName(String)
+     * @see #byResponse(String)
+     */
+    private Artist(@NotNull final ResponseObject object) {
+        super(object);
     }
 
-    protected Artist(final Parcel in) {
-        super(in.readString());
+    /**
+     * This method is used to create a new Artist by name.
+     *
+     * @param name The name of the Artist.
+     * @return The new Artist.
+     */
+    public static Artist byName(@NotNull final String name) {
+        return new Artist(new ResponseObject(name, null));
     }
 
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(getName());
+    /**
+     * This method is used to construct a new PlaylistFile by server response.
+     *
+     * @param response The server response.
+     * @return The new PlaylistFile.
+     */
+    public static Artist byResponse(@NotNull final String response) {
+        return new Artist(new ResponseObject(null, response));
+    }
+
+    /**
+     * This class is used to instantiate a Artist Object from a {@code Parcel}.
+     */
+    private static final class ArtistParcelCreator implements Parcelable.Creator<Artist> {
+
+        /**
+         * Sole constructor.
+         */
+        private ArtistParcelCreator() {
+            super();
+        }
+
+        /**
+         * Create a new instance of the Parcelable class, instantiating it
+         * from the given Parcel whose data had previously been written by
+         * {@link Parcelable#writeToParcel Parcelable.writeToParcel()}.
+         *
+         * @param source The Parcel to read the object's data from.
+         * @return Returns a new instance of the Parcelable class.
+         */
+        @Override
+        public Artist createFromParcel(final Parcel source) {
+            return new Artist((ResponseObject) source.readParcelable(ResponseObject.LOADER));
+        }
+
+        /**
+         * Create a new array of the Parcelable class.
+         *
+         * @param size Size of the array.
+         * @return Returns an array of the Parcelable class, with every entry initialized to null.
+         */
+        @Override
+        public Artist[] newArray(final int size) {
+            return new Artist[size];
+        }
     }
 }

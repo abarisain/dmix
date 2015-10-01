@@ -27,8 +27,9 @@
 
 package com.anpmech.mpd.item;
 
-import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.ResponseObject;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -38,84 +39,47 @@ import java.util.Locale;
  *
  * @param <T> The Artist type.
  */
-abstract class AbstractArtist<T extends Artist> extends Item<Artist> {
+abstract class AbstractArtist<T extends AbstractArtist<T>> extends ResponseItem<T> {
 
+    /**
+     * The class log identifier.
+     */
     protected static final String TAG = AbstractMusic.RESPONSE_ARTIST;
 
-    final String mName;
-
-    AbstractArtist(final T artist) {
-        this(artist.mName);
-    }
-
-    AbstractArtist(final String name) {
-        super();
-
-        mName = name;
+    /**
+     * This constructor is used to create a new Artist item with a ResponseObject.
+     *
+     * @param object The prepared ResponseObject.
+     */
+    AbstractArtist(@NotNull final ResponseObject object) {
+        super(object);
     }
 
     /**
-     * Compares an Artist object with a general contract of comparison that is reflexive, symmetric
-     * and transitive.
+     * This is the string representation of this Artist.
      *
-     * @param o The object to compare this instance with.
-     * @return True if the objects are equal with regard to te general contract, false otherwise.
-     * @see Object#equals(Object)
+     * @return A string representation of this Artist.
      */
-    @Override
-    public boolean equals(final Object o) {
-        Boolean isEqual = null;
-
-        if (this == o) {
-            isEqual = Boolean.TRUE;
-        } else if (o == null || getClass() != o.getClass()) {
-            isEqual = Boolean.FALSE;
-        }
-
-        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
-            /** This has to be the same due to the class check above. */
-            //noinspection unchecked
-            final AbstractArtist<T> artist = (AbstractArtist<T>) o;
-
-            if (Tools.isNotEqual(mName, artist.mName)) {
-                isEqual = Boolean.FALSE;
-            }
-        }
-
-        if (isEqual == null) {
-            isEqual = Boolean.TRUE;
-        }
-
-        return isEqual.booleanValue();
-    }
-
     @Override
     public String getName() {
-        return mName;
+        return findValue(AbstractMusic.RESPONSE_ARTIST, AbstractMusic.RESPONSE_ALBUM_ARTIST);
     }
 
     /**
-     * Returns an integer hash code for this Artist. By contract, any two objects for which {@link
-     * #equals} returns {@code true} must return the same hash code value. This means that
-     * subclasses of {@code Object} usually override both methods or neither method.
+     * This returns the name of the Artist name, with a appended "the" removed.
      *
-     * @return This Artist hash code.
-     * @see Object#equals(Object)
+     * @return The Artist name, with a appended "the" removed.
      */
-    @Override
-    public int hashCode() {
-        return mName.hashCode();
-    }
-
     @Override
     @Nullable
     public String sortName() {
+        final String name = getName();
         final String result;
 
-        if (null != mName && mName.toLowerCase(Locale.getDefault()).startsWith("the ")) {
-            result = mName.substring(4);
+        if (null != name && name.toLowerCase(Locale.getDefault()).startsWith("the ")) {
+            result = name.substring(4);
         } else {
-            result = mName;
+            result = name;
         }
 
         return result;

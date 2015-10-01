@@ -27,6 +27,8 @@
 
 package com.anpmech.mpd.item;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * This is the builder for {@code Album} objects.
  */
@@ -131,7 +133,7 @@ public final class AlbumBuilder {
      * @see #setAlbumArtist(Artist)
      */
     public void setAlbumArtist(final String albumArtistName) {
-        setArtist(new Artist(albumArtistName), true);
+        setArtist(Artist.byName(albumArtistName), true);
     }
 
     /**
@@ -163,8 +165,8 @@ public final class AlbumBuilder {
      *
      * @param artistName The name of the artist of this album.
      */
-    public void setArtist(final String artistName) {
-        setArtist(new Artist(artistName), false);
+    public void setArtist(@NotNull final String artistName) {
+        setArtist(Artist.byName(artistName), false);
     }
 
     /**
@@ -200,7 +202,7 @@ public final class AlbumBuilder {
      */
     public void setBase(final String albumName, final String artistName,
             final boolean isAlbumArtist) {
-        setBase(albumName, new Artist(artistName), isAlbumArtist);
+        setBase(albumName, Artist.byName(artistName), isAlbumArtist);
     }
 
     /**

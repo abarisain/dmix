@@ -27,18 +27,54 @@
 
 package com.anpmech.mpd.item;
 
+import com.anpmech.mpd.ResponseObject;
+
+import org.jetbrains.annotations.NotNull;
+
 /**
- * This is the Java backend {@code Artist} item.
- *
- * @see AbstractArtist
+ * This class creates a Artist Item, a item commonly found in the <A
+ * HREF="http://www.musicpd.org/doc/protocol/database.html">Database Subsystem</A> in the <A
+ * HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Java backend.
  */
 public class Artist extends AbstractArtist<Artist> {
 
-    public Artist(final Artist artist) {
-        super(artist);
+    /**
+     * The copy constructor for this class.
+     *
+     * @param entry The AbstractResponseItem to copy.
+     */
+    public Artist(@NotNull final Artist entry) {
+        super(entry.mResponseObject);
     }
 
-    public Artist(final String name) {
-        super(name);
+    /**
+     * This constructor is used to create a new Artist item with a ResponseObject.
+     *
+     * @param object The prepared ResponseObject.
+     * @see #byName(String)
+     * @see #byResponse(String)
+     */
+    private Artist(@NotNull final ResponseObject object) {
+        super(object);
+    }
+
+    /**
+     * This method is used to create a new Artist by name.
+     *
+     * @param name The name of the Artist.
+     * @return The new Artist.
+     */
+    public static Artist byName(@NotNull final String name) {
+        return new Artist(new ResponseObject(name, null));
+    }
+
+    /**
+     * This method is used to construct a new PlaylistFile by server response.
+     *
+     * @param response The server response.
+     * @return The new PlaylistFile.
+     */
+    public static Artist byResponse(@NotNull final String response) {
+        return new Artist(new ResponseObject(null, response));
     }
 }

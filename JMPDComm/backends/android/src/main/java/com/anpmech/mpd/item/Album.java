@@ -57,7 +57,7 @@ public class Album extends AbstractAlbum<Album> {
 
     protected Album(final Parcel in) {
         super(in.readString(), /** name */
-                new Artist(in.readString()), /** artist */
+                Artist.byName(in.readString()), /** artist */
                 in.readInt() > 0, /** hasAlbumArtist */
                 in.readLong(), /** songCount */
                 in.readLong(), /** duration */

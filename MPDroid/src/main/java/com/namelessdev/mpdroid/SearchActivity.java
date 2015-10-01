@@ -467,7 +467,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 if (selectedItem instanceof Music) {
                     final Music music = (Music) selectedItem;
                     final Intent intent = new Intent(this, SimpleLibraryActivity.class);
-                    final Parcelable artist = new Artist(music.getAlbumArtistOrArtist());
+                    final Parcelable artist = Artist.byName(music.getAlbumArtistOrArtist());
                     intent.putExtra(Artist.EXTRA, artist);
                     intent.putExtra(Album.EXTRA, music.getAlbum());
                     startActivityForResult(intent, -1);

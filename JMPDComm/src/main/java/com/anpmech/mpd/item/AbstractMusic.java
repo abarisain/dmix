@@ -389,7 +389,11 @@ abstract class AbstractMusic<T extends Music> extends AbstractEntry<Music> {
         if (isAlbumArtist) {
             albumBuilder.setAlbumArtist(albumArtistName);
         } else {
-            albumBuilder.setArtist(getArtistName());
+            final String artistName = getArtistName();
+
+            if (artistName != null) {
+                albumBuilder.setArtist(artistName);
+            }
         }
 
         albumBuilder.setSongDetails(getDate(), findValue(RESPONSE_FILE));
@@ -398,7 +402,7 @@ abstract class AbstractMusic<T extends Music> extends AbstractEntry<Music> {
     }
 
     public Artist getAlbumArtist() {
-        return new Artist(getAlbumArtistName());
+        return Artist.byName(getAlbumArtistName());
     }
 
     /**
@@ -446,8 +450,16 @@ abstract class AbstractMusic<T extends Music> extends AbstractEntry<Music> {
      *
      * @return An {@link Artist} item for this object.
      */
+    @Nullable
     public Artist getArtist() {
-        return new Artist(getArtistName());
+        final String artistName = getArtistName();
+        Artist artist = null;
+
+        if (artistName != null) {
+            artist = Artist.byName(artistName);
+        }
+
+        return artist;
     }
 
     /**

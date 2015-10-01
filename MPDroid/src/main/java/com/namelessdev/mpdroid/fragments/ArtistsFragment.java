@@ -93,16 +93,16 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
                     PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
                 case PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
                     if (mGenre == null) {
-                        replaceItems(mApp.getMPD().getAlbumArtists());
+                        replaceItems(mApp.getMPD().getAlbumArtists().getList());
                     } else {
-                        replaceItems(mApp.getMPD().getArtists(mGenre));
+                        replaceItems(mApp.getMPD().getAlbumArtists(mGenre).getList());
                     }
                     break;
                 case PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
                     if (mGenre == null) {
-                        replaceItems(mApp.getMPD().getArtists());
+                        replaceItems(mApp.getMPD().getArtists().getList());
                     } else {
-                        replaceItems(mApp.getMPD().getArtists(mGenre));
+                        replaceItems(mApp.getMPD().getArtists(mGenre).getList());
                     }
                     break;
                 case PREFERENCE_ARTIST_TAG_TO_USE_BOTH:

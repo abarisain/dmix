@@ -86,7 +86,7 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
 
     @Override
     protected Artist getArtist(final Music item) {
-        return new Artist(item.getAlbumArtistOrArtist());
+        return Artist.byName(item.getAlbumArtistOrArtist());
     }
 
     @Override
