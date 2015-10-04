@@ -114,6 +114,8 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
         final MenuItem addAndReplaceItem = menu.add(Menu.NONE, DELETE, 0,
                 R.string.deletePlaylist);
         addAndReplaceItem.setOnMenuItemClickListener(this);
+
+        menu.setGroupEnabled(PLAYLIST_ADD_GROUP, false);
     }
 
     @Override

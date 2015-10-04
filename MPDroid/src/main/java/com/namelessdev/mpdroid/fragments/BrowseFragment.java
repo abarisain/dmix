@@ -57,6 +57,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.SubMenu;
@@ -100,6 +101,11 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     public static final int POPUP_COVER_BLACKLIST = 10;
 
     public static final int POPUP_COVER_SELECTIVE_CLEAN = 11;
+
+    /**
+     * This is the group number used to enable or disable the playlist add group.
+     */
+    protected static final int PLAYLIST_ADD_GROUP = 1;
 
     private static final String ARGUMENT_EMBEDDED = "embedded";
 
@@ -467,11 +473,10 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
                 addAndPlayItem.setOnMenuItemClickListener(this);
             }
 
-            if (R.string.addPlaylist != mIrAdd && R.string.addStream != mIrAdd &&
-                    mApp.getMPD().isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS)) {
-
+            if (mApp.getMPD().isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS)) {
                 int id = 0;
-                final SubMenu playlistMenu = menu.addSubMenu(R.string.addToPlaylist);
+                final SubMenu playlistMenu = menu.addSubMenu(PLAYLIST_ADD_GROUP, Menu.NONE,
+                        Menu.NONE, R.string.addToPlaylist);
                 MenuItem menuItem = playlistMenu.add(ADD_TO_PLAYLIST, id++, index,
                         R.string.newPlaylist);
                 menuItem.setOnMenuItemClickListener(this);

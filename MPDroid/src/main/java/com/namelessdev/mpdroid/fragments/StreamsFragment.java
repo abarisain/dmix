@@ -217,6 +217,8 @@ public class StreamsFragment extends BrowseFragment<Stream> {
                     menu.add(Menu.NONE, DELETE, 0, R.string.deleteStream);
             addAndReplaceItem.setOnMenuItemClickListener(this);
         }
+
+        menu.setGroupEnabled(PLAYLIST_ADD_GROUP, false);
     }
 
     @Override
