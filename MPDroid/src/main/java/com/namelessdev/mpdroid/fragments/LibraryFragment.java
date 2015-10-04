@@ -20,7 +20,7 @@ import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.LibraryTabsUtil;
 import com.namelessdev.mpdroid.ui.ToolbarHelper;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -56,10 +56,10 @@ public class LibraryFragment extends Fragment {
     private ViewPager mViewPager;
 
     @Override
-    public void onAttach(final Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(final Context context) {
+        super.onAttach(context);
 
-        mSectionsPagerAdapter = new SectionsPagerAdapter(activity, getChildFragmentManager());
+        mSectionsPagerAdapter = new SectionsPagerAdapter(context, getChildFragmentManager());
         if (mViewPager != null) {
             mViewPager.setAdapter(mSectionsPagerAdapter);
         }
@@ -113,18 +113,18 @@ public class LibraryFragment extends Fragment {
 
         private static final List<String> CURRENT_TABS = LibraryTabsUtil.getCurrentLibraryTabs();
 
-        private final Activity mActivity;
+        private final Context mContext;
 
         /**
          * Sole constructor.
          *
-         * @param activity The current activity for context.
-         * @param fm       The fragment manager as required by the {@link FragmentPagerAdapter}.
+         * @param context The current context for context.
+         * @param fm      The fragment manager as required by the {@link FragmentPagerAdapter}.
          */
-        private SectionsPagerAdapter(final Activity activity, final FragmentManager fm) {
+        private SectionsPagerAdapter(final Context context, final FragmentManager fm) {
             super(fm);
 
-            mActivity = activity;
+            mContext = context;
         }
 
         @Override
@@ -141,7 +141,7 @@ public class LibraryFragment extends Fragment {
          */
         private <T extends BrowseFragment<?>> Fragment getFragment(final Class<T> tClass) {
             final BrowseFragment<?> fragment =
-                    (BrowseFragment<?>) Fragment.instantiate(mActivity, tClass.getName());
+                    (BrowseFragment<?>) Fragment.instantiate(mContext, tClass.getName());
 
             fragment.setEmbedded(true);
 
@@ -156,7 +156,7 @@ public class LibraryFragment extends Fragment {
             switch (tab) {
                 case LibraryTabsUtil.TAB_ALBUMS:
                     final SharedPreferences settings =
-                            PreferenceManager.getDefaultSharedPreferences(mActivity);
+                            PreferenceManager.getDefaultSharedPreferences(mContext);
 
                     if (settings.getBoolean(ArtistsFragment.PREFERENCE_ALBUM_LIBRARY, true)) {
                         fragment = getFragment(AlbumsGridFragment.class);
@@ -190,7 +190,7 @@ public class LibraryFragment extends Fragment {
         public CharSequence getPageTitle(final int position) {
             final String tab = CURRENT_TABS.get(position);
 
-            return mActivity.getString(LibraryTabsUtil.getTabTitleResId(tab));
+            return mContext.getString(LibraryTabsUtil.getTabTitleResId(tab));
         }
     }
 }

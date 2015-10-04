@@ -113,11 +113,6 @@ public class NowPlayingSmallFragment extends Fragment implements
     public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
     }
 
-    @Override
-    public void onAttach(final Activity activity) {
-        super.onAttach(activity);
-    }
-
     /**
      * This is called when cover art needs to be updated due to server information change.
      *

@@ -49,7 +49,7 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
         final ViewPager nowPlayingPager = (ViewPager) findViewById(R.id.pager);
         if (nowPlayingPager != null) {
             nowPlayingPager.setAdapter(new NowPlayingPagerAdapter(this));
-            nowPlayingPager.setOnPageChangeListener(
+            nowPlayingPager.addOnPageChangeListener(
                     new ViewPager.SimpleOnPageChangeListener() {
                         @Override
                         public void onPageSelected(final int position) {

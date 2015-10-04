@@ -40,6 +40,7 @@ import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -690,10 +691,9 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     @Override
-    public void onAttach(final Activity activity) {
-        super.onAttach(activity);
-        mActivity = (FragmentActivity) activity;
-
+    public void onAttach(final Context context) {
+        super.onAttach(context);
+        mActivity = getActivity();
     }
 
     /**

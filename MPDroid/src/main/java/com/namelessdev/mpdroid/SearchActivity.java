@@ -301,7 +301,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(adapter);
-        mPager.setOnPageChangeListener(
+        mPager.addOnPageChangeListener(
                 new ViewPager.SimpleOnPageChangeListener() {
                     @Override
                     public void onPageSelected(final int position) {

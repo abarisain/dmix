@@ -23,8 +23,8 @@ import com.namelessdev.mpdroid.cover.CoverManager;
 import com.namelessdev.mpdroid.cover.retriever.CachedCover;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
@@ -81,8 +81,8 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     @Override
-    public void onAttach(final Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(final Context context) {
+        super.onAttach(context);
         refreshDynamicFields();
     }
 
