@@ -40,6 +40,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -229,25 +230,26 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 mSongResults.add(music);
             }
             valueFound = false;
-            Artist artist = music.getAlbumArtist();
-            if (artist == null || artist.isUnknown()) {
-                artist = music.getArtist();
+
+            String artistName = music.getAlbumArtistName();
+            if (TextUtils.isEmpty(artistName)) {
+                artistName = music.getArtistName();
             }
-            if (artist != null) {
-                final String name = artist.getName();
-                if (name != null) {
-                    tmpValue = name.toLowerCase();
-                    if (tmpValue.contains(finalSearch)) {
-                        for (final Artist artistItem : mArtistResults) {
-                            final String artistItemName = artistItem.getName();
-                            if (artistItemName != null &&
-                                    artistItemName.equalsIgnoreCase(tmpValue)) {
-                                valueFound = true;
-                            }
+
+            if (artistName != null) {
+                final Artist artist = Artist.byName(artistName);
+
+                tmpValue = artistName.toLowerCase();
+                if (tmpValue.contains(finalSearch)) {
+                    for (final Artist artistItem : mArtistResults) {
+                        final String artistItemName = artistItem.getName();
+                        if (artistItemName != null &&
+                                artistItemName.equalsIgnoreCase(tmpValue)) {
+                            valueFound = true;
                         }
-                        if (!valueFound) {
-                            mArtistResults.add(artist);
-                        }
+                    }
+                    if (!valueFound) {
+                        mArtistResults.add(artist);
                     }
                 }
             }
