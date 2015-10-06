@@ -38,6 +38,7 @@ import android.net.Network;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -179,6 +180,7 @@ public final class CoverManager {
                 statusCode == HttpURLConnection.HTTP_MOVED_TEMP;
     }
 
+    @Nullable
     private static String getCoverFolder() {
         final File cacheDir = APP.getExternalCacheDir();
         final String coverFolder;
@@ -207,7 +209,9 @@ public final class CoverManager {
         if (!file.exists()) {
             final File parent = file.getParentFile();
 
-            if (!parent.exists()) {
+            if (parent == null) {
+                Log.e(TAG, "Parent directory doesn't exist for file: " + file);
+            } else if (!parent.exists()) {
                 if (!parent.mkdirs()) {
                     Log.e(TAG, "Failed to create parent directories.");
                 }
