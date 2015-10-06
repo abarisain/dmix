@@ -28,6 +28,7 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.connection.AbstractCommandResult;
 import com.anpmech.mpd.connection.CommandResult;
 
 import java.util.ArrayList;
@@ -275,7 +276,7 @@ public class CommandResponse extends CommandResult implements Iterable<String> {
          *
          * @param response The MPD protocol command response.
          * @param position The position relative to the response to initiate the
-         *                 {@link CommandResult.AbstractResultIterator#mPosition} to.
+         *                 {@link AbstractCommandResult.AbstractResultIterator#mPosition} to.
          */
         private ResponseIterator(final String response, final int position) {
             super(response, position);

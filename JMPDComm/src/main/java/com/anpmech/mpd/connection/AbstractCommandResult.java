@@ -44,12 +44,12 @@ import java.util.StringTokenizer;
  * <p>This class is subclassed to process any MPD protocol server responses. This class is
  * immutable, thus, thread-safe.</p>
  */
-public class CommandResult {
+public class AbstractCommandResult {
 
     /**
      * The class log identifier.
      */
-    private static final String TAG = "CommandResult";
+    private static final String TAG = "AbstractCommandResult";
 
     /**
      * The result of the connection initiation.
@@ -73,24 +73,16 @@ public class CommandResult {
     protected int mListSize = 16;
 
     /**
-     * This class is used to subclass a CommandResult.
-     *
-     * @param result The result to subclass.
-     */
-    protected CommandResult(final CommandResult result) {
-        this(result.mConnectionResult, result.mResult, result.mExcludeResponses);
-    }
-
-    /**
      * This constructor is used to create a new core result from the MPD protocol.
      *
      * @param connectionResult The result of the connection initiation.
      * @param result           The MPD protocol command result.
      * @param excludeResponses This is used to manually exclude responses from split
      *                         CommandResponse inclusion.
+     * @param listSize         This is the size to initialize this object to.
      */
-    protected CommandResult(final String connectionResult, final String result,
-            final int[] excludeResponses) {
+    protected AbstractCommandResult(final String connectionResult, final String result,
+            final int[] excludeResponses, final int listSize) {
         super();
 
         mConnectionResult = connectionResult;
@@ -102,6 +94,8 @@ public class CommandResult {
             //noinspection AssignmentToCollectionOrArrayFieldFromParameter
             mExcludeResponses = excludeResponses;
         }
+
+        mListSize = listSize;
     }
 
     /**
