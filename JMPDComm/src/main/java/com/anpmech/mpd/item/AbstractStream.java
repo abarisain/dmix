@@ -34,9 +34,7 @@ import java.net.URL;
 import java.util.Arrays;
 
 /**
- * This class is the generic base for the Stream items, abstracted for backend.
- *
- * @param <T> The Stream type.
+ * This class creates a Stream, a derivative of {@link PlaylistFile}.
  */
 abstract class AbstractStream<T extends Stream> extends Item<Stream> {
 

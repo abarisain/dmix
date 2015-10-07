@@ -28,9 +28,9 @@
 package com.anpmech.mpd.item;
 
 /**
- * This is the Java backend {@code Album} item.
- *
- * @see AbstractAlbum
+ * This class creates a Album Item, a item commonly found in the
+ * <A HREF="http://www.musicpd.org/doc/protocol/database.html">Database Subsystem</A> in the
+ * <A HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Android backend.
  */
 public class Album extends AbstractAlbum<Album> {
 

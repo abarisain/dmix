@@ -30,7 +30,7 @@ package com.anpmech.mpd.item;
 /**
  * This is the Java backend Item abstraction.
  *
- * @param <T> The Item type.
+ * @param <T> The type of Item to be created from this class.
  */
 public abstract class Item<T extends Item<T>> extends AbstractItem<T> {
 

@@ -28,27 +28,25 @@
 package com.anpmech.mpd.item;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
- * This is the Android backend {@code Album} item.
- *
- * @see AbstractAlbum
+ * This class creates a Album Item, a item commonly found in the
+ * <A HREF="http://www.musicpd.org/doc/protocol/database.html">Database Subsystem</A> in the
+ * <A HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Android backend.
  */
 public class Album extends AbstractAlbum<Album> {
 
-    public static final Creator<Album> CREATOR = new Creator<Album>() {
-        @Override
-        public Album createFromParcel(final Parcel source) {
-            return new Album(source);
-        }
+    /**
+     * This field is used to instantiate this class from a {@link Parcel}.
+     */
+    public static final Creator<Album> CREATOR = new AlbumParcelCreator();
 
-        @Override
-        public Album[] newArray(final int size) {
-            return new Album[size];
-        }
-    };
-
+    /**
+     * This is a convenience string to use as a Intent extra tag.
+     */
     public static final String EXTRA = AbstractAlbum.TAG;
+
 
     protected Album(final String name, final Artist artist, final boolean hasAlbumArtist,
             final long songCount, final long duration, final long year, final String path) {
@@ -65,6 +63,13 @@ public class Album extends AbstractAlbum<Album> {
                 in.readString()); /** path */
     }
 
+    /**
+     * Flatten this object in to a Parcel.
+     *
+     * @param dest  The Parcel in which the object should be written.
+     * @param flags Additional flags about how the object should be written.
+     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
+     */
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         final String artistName;
@@ -90,5 +95,42 @@ public class Album extends AbstractAlbum<Album> {
         dest.writeLong(getDuration());
         dest.writeLong(getDate());
         dest.writeString(getPath());
+    }
+
+    /**
+     * This class is used to instantiate a Album from a {@code Parcel}.
+     */
+    private static final class AlbumParcelCreator implements Parcelable.Creator<Album> {
+
+        /**
+         * Sole constructor.
+         */
+        private AlbumParcelCreator() {
+            super();
+        }
+
+        /**
+         * Create a new instance of the Parcelable class, instantiating it
+         * from the given Parcel whose data had previously been written by
+         * {@link Parcelable#writeToParcel Parcelable.writeToParcel()}.
+         *
+         * @param source The Parcel to read the object's data from.
+         * @return Returns a new instance of the Parcelable class.
+         */
+        @Override
+        public Album createFromParcel(final Parcel source) {
+            return new Album(source);
+        }
+
+        /**
+         * Create a new array of the Parcelable class.
+         *
+         * @param size Size of the array.
+         * @return Returns an array of the Parcelable class, with every entry initialized to null.
+         */
+        @Override
+        public Album[] newArray(final int size) {
+            return new Album[size];
+        }
     }
 }

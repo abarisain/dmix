@@ -92,7 +92,7 @@ public class PlaylistFile extends AbstractPlaylistFile<PlaylistFile> {
     }
 
     /**
-     * This class is used to instantiate a PlaylistFile Object from a {@code Parcel}.
+     * This class is used to instantiate a PlaylistFile from a {@code Parcel}.
      */
     private static final class PlaylistFileParcelCreator
             implements Parcelable.Creator<PlaylistFile> {

@@ -28,9 +28,7 @@
 package com.anpmech.mpd.item;
 
 /**
- * This is the Java backend {@code Stream} item.
- *
- * @see AbstractStream
+ * This class creates a Stream, a derivative of {@link PlaylistFile}, for the Java backend.
  */
 public class Stream extends AbstractStream<Stream> {
 

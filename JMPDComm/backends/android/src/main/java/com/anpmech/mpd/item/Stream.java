@@ -28,36 +28,75 @@
 package com.anpmech.mpd.item;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
- * This is the Android backend {@code Stream} item.
- *
- * @see AbstractStream
+ * This class creates a Stream, a derivative of {@link PlaylistFile}, for the Android backend.
  */
 public class Stream extends AbstractStream<Stream> {
 
-    public static final Creator<Stream> CREATOR = new Creator<Stream>() {
-        @Override
-        public Stream createFromParcel(final Parcel source) {
-            return new Stream(source.readString(), source.readString(), source.readInt());
-        }
+    /**
+     * This field is used to instantiate this class from a {@link Parcel}.
+     */
+    public static final Creator<Stream> CREATOR = new StreamParcelCreator();
 
-        @Override
-        public Stream[] newArray(final int size) {
-            return new Stream[size];
-        }
-    };
-
+    /**
+     * This is a convenience string to use as a Intent extra tag.
+     */
     public static final String EXTRA = AbstractStream.TAG;
 
     public Stream(final String name, final String url, final int pos) {
         super(name, url, pos);
     }
 
+    /**
+     * Flatten this object in to a Parcel.
+     *
+     * @param dest  The Parcel in which the object should be written.
+     * @param flags Additional flags about how the object should be written.
+     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
+     */
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(mName);
         dest.writeString(mUrl);
         dest.writeInt(mPos);
+    }
+
+    /**
+     * This class is used to instantiate a Stream from a {@code Parcel}.
+     */
+    private static final class StreamParcelCreator implements Parcelable.Creator<Stream> {
+
+        /**
+         * Sole constructor.
+         */
+        private StreamParcelCreator() {
+            super();
+        }
+
+        /**
+         * Create a new instance of the Parcelable class, instantiating it
+         * from the given Parcel whose data had previously been written by
+         * {@link Parcelable#writeToParcel Parcelable.writeToParcel()}.
+         *
+         * @param source The Parcel to read the object's data from.
+         * @return Returns a new instance of the Parcelable class.
+         */
+        @Override
+        public Stream createFromParcel(final Parcel source) {
+            return new Stream(source.readString(), source.readString(), source.readInt());
+        }
+
+        /**
+         * Create a new array of the Parcelable class.
+         *
+         * @param size Size of the array.
+         * @return Returns an array of the Parcelable class, with every entry initialized to null.
+         */
+        @Override
+        public Stream[] newArray(final int size) {
+            return new Stream[size];
+        }
     }
 }

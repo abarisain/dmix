@@ -32,10 +32,17 @@ import android.os.Parcelable;
 /**
  * This is the Android backend Item abstraction.
  *
- * @param <T> The Item type.
+ * @param <T> The type of Item to be created from this class.
  */
 public abstract class Item<T extends Item<T>> extends AbstractItem<T> implements Parcelable {
 
+    /**
+     * Describes the kinds of special objects contained in this Parcelable's
+     * marshalled representation.
+     *
+     * @return a bitmask indicating the set of special object types marshalled
+     * by the Parcelable.
+     */
     @Override
     public int describeContents() {
         return 0;
