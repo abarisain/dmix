@@ -41,7 +41,6 @@ import com.anpmech.mpd.item.Music;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -310,10 +309,9 @@ public class Sticker {
     private Map<String, Music> getMusicPair(final CommandResponse response)
             throws IOException, MPDException {
         final CommandResult result = mConnection.submit(getMusicCommand(response)).get();
-        final List<Music> musicList = new MusicResponse(result).getList();
-        final Map<String, Music> musicPair = new HashMap<>(musicList.size());
+        final Map<String, Music> musicPair = new HashMap<>();
 
-        for (final Music music : musicList) {
+        for (final Music music : new MusicResponse(result)) {
             musicPair.put(music.getFullPath(), music);
         }
 
