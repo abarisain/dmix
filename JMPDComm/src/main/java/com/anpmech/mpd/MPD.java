@@ -30,6 +30,7 @@ package com.anpmech.mpd;
 import com.anpmech.mpd.commandresponse.AudioOutputResponse;
 import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.MusicResponse;
+import com.anpmech.mpd.commandresponse.PlaylistFileResponse;
 import com.anpmech.mpd.commandresponse.SplitCommandResponse;
 import com.anpmech.mpd.concurrent.MPDFuture;
 import com.anpmech.mpd.connection.CommandResult;
@@ -68,9 +69,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-
-import static com.anpmech.mpd.Tools.KEY;
-import static com.anpmech.mpd.Tools.VALUE;
 
 /**
  * This is a class containing instantiations of commonly used objects and uses for convenience of
@@ -1093,34 +1091,34 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<PlaylistFile> getPlaylists()
-            throws IOException, MPDException {
-        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LISTPLAYLISTS);
-        final List<PlaylistFile> result = new ArrayList<>(response.size());
-        for (final String[] pair : Tools.splitResponse(response)) {
-            if ("playlist".equals(pair[KEY])) {
-                if (null != pair[VALUE] && !STREAMS_PLAYLIST.equals(pair[VALUE])) {
-                    result.add(new PlaylistFile(pair[VALUE]));
-                }
+    public List<PlaylistFile> getPlaylists() throws IOException, MPDException {
+        final CommandResult result = mConnection.submit(MPDCommand.MPD_CMD_LISTPLAYLISTS).get();
+        final List<PlaylistFile> playlistFiles = new ArrayList<>();
+
+        for (final PlaylistFile playlistFile : new PlaylistFileResponse(result)) {
+            if (!STREAMS_PLAYLIST.equals(playlistFile.getFullPath())) {
+                playlistFiles.add(playlistFile);
             }
         }
 
-        return result;
+        return playlistFiles;
     }
 
-    public List<Music> getSavedStreams() throws IOException, MPDException {
-        final List<String> response = mConnection.send(MPDCommand.MPD_CMD_LISTPLAYLISTS);
-        List<Music> savedStreams = Collections.emptyList();
+    public MusicResponse getSavedStreams() throws IOException, MPDException {
+        final CommandResult result = mConnection.submit(MPDCommand.MPD_CMD_LISTPLAYLISTS).get();
+        MusicResponse savedStreams = null;
 
-        for (final String[] pair : Tools.splitResponse(response)) {
-            if ("playlist".equals(pair[KEY])) {
-                if (STREAMS_PLAYLIST.equals(pair[VALUE])) {
-                    final String[] args = {pair[VALUE]};
+        for (final PlaylistFile playlistFile : new PlaylistFileResponse(result)) {
+            final String fullPath = playlistFile.getFullPath();
 
-                    savedStreams = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args).getList();
-                    break;
-                }
+            if (STREAMS_PLAYLIST.equals(fullPath)) {
+                savedStreams = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, fullPath);
+                break;
             }
+        }
+
+        if (savedStreams == null) {
+            savedStreams = new MusicResponse();
         }
 
         return savedStreams;

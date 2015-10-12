@@ -385,8 +385,8 @@ abstract class AbstractDirectory<T extends Directory> extends Item<Directory>
                     fileEntries.put(music.getFullPath(), music);
                     lineCache.setLength(0);
                     break;
-                case AbstractPlaylistFile.RESPONSE_PLAYLIST:
-                    final PlaylistFile playlistFile = new PlaylistFile(entry.getValue());
+                case AbstractPlaylistFile.RESPONSE_PLAYLIST_FILE:
+                    final PlaylistFile playlistFile = PlaylistFile.byResponse(entry.toString());
 
                     playlistEntries.put(playlistFile.getName(), playlistFile);
 

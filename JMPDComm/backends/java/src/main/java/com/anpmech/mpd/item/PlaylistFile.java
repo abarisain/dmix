@@ -27,14 +27,54 @@
 
 package com.anpmech.mpd.item;
 
+import com.anpmech.mpd.ResponseObject;
+
+import org.jetbrains.annotations.NotNull;
+
 /**
- * This is the Java backend {@code PlaylistFile} item.
- *
- * @see AbstractPlaylistFile
+ * This class creates a PlaylistFile Item, an abstraction of a playlist file in the <A
+ * HREF="http://www.musicpd.org/doc/protocol/playlist_files.html">Stored Playlists</A> <A
+ * HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A> subsystem, for the Java backend.
  */
 public class PlaylistFile extends AbstractPlaylistFile<PlaylistFile> {
 
-    public PlaylistFile(final String path) {
-        super(path);
+    /**
+     * The copy constructor for this class.
+     *
+     * @param entry The {@link Entry} to copy.
+     */
+    public PlaylistFile(@NotNull final PlaylistFile entry) {
+        super(entry.mResponseObject);
+    }
+
+    /**
+     * This constructor is used to create a new PlaylistFile item with a ResponseObject.
+     *
+     * @param object The prepared ResponseObject.
+     * @see #byPath(String)
+     * @see #byResponse(String)
+     */
+    private PlaylistFile(@NotNull final ResponseObject object) {
+        super(object);
+    }
+
+    /**
+     * This method is used to create a new PlaylistFile by path.
+     *
+     * @param path The path of the PlaylistFile.
+     * @return The new PlaylistFile.
+     */
+    public static PlaylistFile byPath(final String path) {
+        return new PlaylistFile(new ResponseObject(path, null));
+    }
+
+    /**
+     * This method is used to construct a new PlaylistFile by server response.
+     *
+     * @param response The server response.
+     * @return The new PlaylistFile.
+     */
+    public static PlaylistFile byResponse(final String response) {
+        return new PlaylistFile(new ResponseObject(null, response));
     }
 }

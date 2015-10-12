@@ -531,7 +531,7 @@ public class CommandResponse extends ObjectResponse<String> {
          * This is a list of all tokens which begin a new block.
          */
         protected static final String[] ENTRY_BLOCK_TOKENS = {Directory.RESPONSE_DIRECTORY,
-                Music.RESPONSE_FILE, PlaylistFile.RESPONSE_PLAYLIST};
+                Music.RESPONSE_FILE, PlaylistFile.RESPONSE_PLAYLIST_FILE};
 
         /**
          * The block tokens to tokenize for the beginning of the iteration for this iterator.

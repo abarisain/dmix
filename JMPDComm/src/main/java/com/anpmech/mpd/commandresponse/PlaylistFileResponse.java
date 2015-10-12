@@ -28,67 +28,65 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.connection.CommandResult;
-import com.anpmech.mpd.item.Entry;
-import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 
 import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * This class contains methods used to process {@link Entry} items from a {@link CommandResult}.
+ * This class contains methods used to process {@link PlaylistFile} entries from a {@link
+ * CommandResult}.
  */
-public class EntryResponse extends ObjectResponse<Entry> {
+public class PlaylistFileResponse extends ObjectResponse<PlaylistFile> {
 
     /**
      * The class log identifier.
      */
-    private static final String TAG = "EntryResponse";
+    private static final String TAG = "PlaylistFileResponse";
 
     /**
      * Sole public constructor.
      *
-     * @param response The CommandResponse containing a Entry type MPD response.
+     * @param response The CommandResponse containing a PlaylistFile type or mixed entry MPD
+     *                 response.
      */
-    public EntryResponse(final CommandResult response) {
+    public PlaylistFileResponse(final CommandResult response) {
         super(response);
     }
 
     /**
      * This constructor builds this class from an empty MPD protocol result.
      */
-    public EntryResponse() {
+    public PlaylistFileResponse() {
         super();
     }
 
     /**
      * This method returns a iterator, starting at the beginning of the response.
      *
-     * @param position The position to begin the iterator at, typically beginning or end.
      * @return A iterator to return the response.
      * @see #getList()
      */
     @Override
-    protected ListIterator<Entry> listIterator(final int position) {
-        return new EntryIterator(mResult, position);
+    protected ListIterator<PlaylistFile> listIterator(final int position) {
+        return new PlaylistFileIterator(mResult, position);
     }
 
     /**
-     * This class instantiates an {@link Iterator} to iterate over {@link Entry} entries.
+     * This class instantiates an {@link Iterator} to iterate over {@link PlaylistFile} entries.
      */
-    private static final class EntryIterator extends
-            CommandResponse.MultiLineResultIterator<Entry> {
+    private static final class PlaylistFileIterator extends
+            CommandResponse.SingleLineResultIterator<PlaylistFile> {
 
         /**
-         * These tokens match the beginning of a response block.
+         * This is the beginning block token to find for this multi-line response.
          */
-        private static final String[] BEGIN_BLOCK_TOKENS = {Music.RESPONSE_FILE,
-                PlaylistFile.RESPONSE_PLAYLIST_FILE};
+        private static final String[] BLOCK_TOKEN = {PlaylistFile.RESPONSE_PLAYLIST_FILE};
 
         /**
          * The class log identifier.
          */
-        private static final String TAG = "EntryIterator";
+        private static final String TAG = "PlaylistFileIterator";
 
         /**
          * Sole constructor.
@@ -98,20 +96,20 @@ public class EntryResponse extends ObjectResponse<Entry> {
          *                 to.
          * @throws IllegalArgumentException if the position parameter is less than 0.
          */
-        private EntryIterator(final String result, final int position) {
-            super(result, position, BEGIN_BLOCK_TOKENS, ENTRY_BLOCK_TOKENS);
+        private PlaylistFileIterator(final String result, final int position) {
+            super(result, position, BLOCK_TOKEN);
         }
 
         /**
-         * This method instantiates the {@link Entry} object with a block from the MPD server
-         * response.
+         * This method instantiates the {@link PlaylistFile} object with a block from the MPD
+         * server response.
          *
-         * @param responseBlock The MPD server response to instantiate the Entry item with.
-         * @return The Entry item.
+         * @param responseBlock The MPD server response to instantiate the Music entry with.
+         * @return The PlaylistFile entry.
          */
         @Override
-        Entry instantiate(final String responseBlock) {
-            return new Entry(responseBlock);
+        PlaylistFile instantiate(final String responseBlock) {
+            return PlaylistFile.byResponse(responseBlock);
         }
     }
 }

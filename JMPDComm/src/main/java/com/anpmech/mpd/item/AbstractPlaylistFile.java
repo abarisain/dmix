@@ -27,6 +27,11 @@
 
 package com.anpmech.mpd.item;
 
+import com.anpmech.mpd.ResponseObject;
+import com.anpmech.mpd.exception.InvalidResponseException;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,13 +44,12 @@ import java.util.regex.Pattern;
  *
  * @param <T> The PlaylistFile type.
  */
-abstract class AbstractPlaylistFile<T extends PlaylistFile> extends Item<PlaylistFile>
-        implements FilesystemTreeEntry {
+abstract class AbstractPlaylistFile<T extends PlaylistFile> extends AbstractEntry<PlaylistFile> {
 
     /**
-     * The media server response key returned for a Directory filesystem entry.
+     * The media server response key returned for a Playlist value.
      */
-    public static final String RESPONSE_PLAYLIST = "playlist";
+    public static final String RESPONSE_PLAYLIST_FILE = "playlist";
 
     /**
      * The class log identifier.
@@ -54,75 +58,49 @@ abstract class AbstractPlaylistFile<T extends PlaylistFile> extends Item<Playlis
 
     private static final Pattern PLAYLIST_FILE_REGEXP = Pattern.compile("^.*/(.+)\\.(\\w+)$");
 
-    protected final String mFullPath;
-
-    protected AbstractPlaylistFile(final String path) {
-        super();
-        mFullPath = path;
+    /**
+     * This constructor is used to create a new PlaylistFile item with a ResponseObject.
+     *
+     * @param object The prepared ResponseObject.
+     */
+    AbstractPlaylistFile(@NotNull final ResponseObject object) {
+        super(object);
     }
 
     /**
-     * Compares a PlaylistFile object with a general contract of comparison that is reflexive,
-     * symmetric and transitive.
+     * The full path as given by the MPD protocol.
      *
-     * @param o The object to compare this instance with.
-     * @return True if the objects are equal with regard to te general contract, false otherwise.
+     * @return The full path for this entry.
      */
     @Override
-    public boolean equals(final Object o) {
-        Boolean isEqual = null;
-
-        if (this == o) {
-            isEqual = Boolean.TRUE;
-        } else if (o == null || getClass() != o.getClass()) {
-            isEqual = Boolean.FALSE;
-        }
-
-        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
-            /** This has to be the same due to the class check above. */
-            //noinspection unchecked
-            final T directory = (T) o;
-
-            isEqual = Boolean.valueOf(mFullPath.equals(directory.mFullPath));
-        }
-
-        if (isEqual == null) {
-            isEqual = Boolean.TRUE;
-        }
-
-        return isEqual.booleanValue();
-    }
-
-    @Override
+    @NotNull
     public String getFullPath() {
-        return mFullPath;
+        final String fullPath = getPlaylistFileFullPath();
+
+        if (fullPath == null) {
+            throw new InvalidResponseException(pathNotFoundError());
+        }
+
+        return fullPath;
     }
 
     @Override
     public String getName() {
-        String result = "";
+        final String name = super.getName();
+        final String result;
 
-        if (mFullPath != null) {
-            final Matcher matcher = PLAYLIST_FILE_REGEXP.matcher(mFullPath);
-            if (matcher.matches()) {
-                result = matcher.replaceAll("[$2] $1.$2");
-            } else {
-                result = mFullPath;
-            }
+        final Matcher matcher = PLAYLIST_FILE_REGEXP.matcher(name);
+        if (matcher.matches()) {
+            result = matcher.replaceAll("[$2] $1.$2");
+        } else {
+            result = name;
         }
+
         return result;
     }
 
-    /**
-     * Returns an integer hash code for this PlaylistFile. By contract, any two objects for which
-     * {@link #equals} returns {@code true} must return the same hash code value. This means that
-     * subclasses of {@code Object} usually override both methods or neither method.
-     *
-     * @return This PlaylistFile hash code.
-     * @see Object#equals(Object)
-     */
     @Override
-    public int hashCode() {
-        return mFullPath.hashCode();
+    public String toString() {
+        return getName();
     }
 }

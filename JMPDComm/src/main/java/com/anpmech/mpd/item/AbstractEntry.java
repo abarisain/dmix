@@ -188,7 +188,7 @@ public abstract class AbstractEntry<T extends AbstractEntry<T>> extends Response
      * @return A full path value for a PlaylistFile response key.
      */
     protected String getPlaylistFileFullPath() {
-        return findValue(AbstractPlaylistFile.RESPONSE_PLAYLIST);
+        return findValue(AbstractPlaylistFile.RESPONSE_PLAYLIST_FILE);
     }
 
     /**

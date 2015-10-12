@@ -262,14 +262,14 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
                                         final int which) {
                                     final String name = input.getText().toString().trim();
                                     if (!name.isEmpty()) {
-                                        addToPlaylistFile(new PlaylistFile(name), id);
+                                        addToPlaylistFile(PlaylistFile.byPath(name), id);
                                     }
                                 }
                             })
                     .setNegativeButton(android.R.string.cancel, Tools.NOOP_CLICK_LISTENER)
                     .show();
         } else {
-            add(mItems.get(id), new PlaylistFile(item.getTitle().toString()));
+            add(mItems.get(id), PlaylistFile.byPath(item.getTitle().toString()));
         }
     }
 
@@ -541,7 +541,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
                 }
                 break;
             default:
-                final PlaylistFile playlist = new PlaylistFile(item.getTitle().toString());
+                final PlaylistFile playlist = PlaylistFile.byPath(item.getTitle().toString());
                 addToPlaylistFile(playlist, item.getOrder());
                 break;
         }

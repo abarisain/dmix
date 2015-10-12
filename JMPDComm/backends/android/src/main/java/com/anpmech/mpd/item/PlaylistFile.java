@@ -27,39 +27,105 @@
 
 package com.anpmech.mpd.item;
 
+import com.anpmech.mpd.ResponseObject;
+
+import org.jetbrains.annotations.NotNull;
+
 import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
- * This is the Android backend {@code PlaylistFile} item.
- *
- * @see AbstractPlaylistFile
+ * This class creates a PlaylistFile Item, an abstraction of a playlist file in the <A
+ * HREF="http://www.musicpd.org/doc/protocol/playlist_files.html">Stored Playlists</A> <A
+ * HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A> subsystem, for the Android backend.
  */
 public class PlaylistFile extends AbstractPlaylistFile<PlaylistFile> {
 
-    public static final Creator<PlaylistFile> CREATOR = new Creator<PlaylistFile>() {
-        @Override
-        public PlaylistFile createFromParcel(final Parcel source) {
-            return new PlaylistFile(source);
+    /**
+     * This field is used to instantiate this class from a {@link Parcel}.
+     */
+    public static final Creator<PlaylistFile> CREATOR = new PlaylistFileParcelCreator();
+
+    /**
+     * This is a convenience string to use as a Intent extra tag.
+     */
+    public static final String EXTRA = TAG;
+
+    /**
+     * The copy constructor for this class.
+     *
+     * @param entry The {@link Entry} to copy.
+     */
+    public PlaylistFile(@NotNull final PlaylistFile entry) {
+        super(entry.mResponseObject);
+    }
+
+    /**
+     * This constructor is used to create a new PlaylistFile item with a ResponseObject.
+     *
+     * @param object The prepared ResponseObject.
+     * @see #byPath(String)
+     * @see #byResponse(String)
+     */
+    private PlaylistFile(@NotNull final ResponseObject object) {
+        super(object);
+    }
+
+    /**
+     * This method is used to create a new PlaylistFile by path.
+     *
+     * @param path The path of the PlaylistFile.
+     * @return The new PlaylistFile.
+     */
+    public static PlaylistFile byPath(final String path) {
+        return new PlaylistFile(new ResponseObject(path, null));
+    }
+
+    /**
+     * This method is used to construct a new PlaylistFile by server response.
+     *
+     * @param response The server response.
+     * @return The new PlaylistFile.
+     */
+    public static PlaylistFile byResponse(final String response) {
+        return new PlaylistFile(new ResponseObject(null, response));
+    }
+
+    /**
+     * This class is used to instantiate a PlaylistFile Object from a {@code Parcel}.
+     */
+    private static final class PlaylistFileParcelCreator
+            implements Parcelable.Creator<PlaylistFile> {
+
+        /**
+         * Sole constructor.
+         */
+        private PlaylistFileParcelCreator() {
+            super();
         }
 
+        /**
+         * Create a new instance of the Parcelable class, instantiating it
+         * from the given Parcel whose data had previously been written by
+         * {@link Parcelable#writeToParcel Parcelable.writeToParcel()}.
+         *
+         * @param source The Parcel to read the object's data from.
+         * @return Returns a new instance of the Parcelable class.
+         */
+        @Override
+        public PlaylistFile createFromParcel(final Parcel source) {
+            return new PlaylistFile((ResponseObject) source.readParcelable(ResponseObject.LOADER));
+        }
+
+        /**
+         * Create a new array of the Parcelable class.
+         *
+         * @param size Size of the array.
+         * @return Returns an array of the Parcelable class, with every entry initialized to null.
+         */
         @Override
         public PlaylistFile[] newArray(final int size) {
             return new PlaylistFile[size];
         }
-    };
-
-    public static final String EXTRA = TAG;
-
-    protected PlaylistFile(final Parcel in) {
-        super(in.readString());
-    }
-
-    public PlaylistFile(final String path) {
-        super(path);
-    }
-
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(mFullPath);
     }
 }
