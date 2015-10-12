@@ -177,7 +177,7 @@ public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
         trackList.setDropListener(mDropListener);
 
         final DragSortController controller = new DragSortController(trackList);
-        controller.setDragHandleId(R.id.icon);
+        controller.setDragHandleId(R.id.drag_handle_icon);
         controller.setRemoveEnabled(false);
         controller.setSortEnabled(true);
         controller.setDragInitMode(1);

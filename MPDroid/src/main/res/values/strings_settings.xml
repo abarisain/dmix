@@ -41,8 +41,6 @@
     <string-array name="libraries_array">
         <item>JMPDComm - Heavily modified core MPD interface</item>
         <item>DragSortListView</item>
-        <item>ActionBar-PullToRefresh</item>
-        <item>AndroidSlidingUpPanel</item>
     </string-array>
 
     <string-array name="setting_artist_tag_array">

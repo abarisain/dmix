@@ -69,7 +69,7 @@ public class AboutActivity extends AppCompatActivity {
         final ListView listView = (ListView) findViewById(android.R.id.list);
 
         final LayoutInflater inflater = LayoutInflater.from(this);
-        final View headerView = inflater.inflate(R.layout.about_header, null, false);
+        final View headerView = inflater.inflate(R.layout.about_header, listView, false);
         final TextView versionInfo = (TextView) headerView.findViewById(R.id.text_version);
         versionInfo.setText(R.string.version);
         versionInfo.append(": " + getVersionName(Activity.class));

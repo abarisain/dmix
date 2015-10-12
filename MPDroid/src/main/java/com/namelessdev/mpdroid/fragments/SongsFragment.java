@@ -359,7 +359,7 @@ public class SongsFragment extends BrowseFragment<Music> {
         mNoResultView = view.findViewById(R.id.noResultLayout);
         mLoadingTextView.setText(getLoadingText());
 
-        final View headerView = inflater.inflate(R.layout.song_header, null, false);
+        final View headerView = inflater.inflate(R.layout.song_header, mList, false);
         mCoverArt = (ImageView) view.findViewById(R.id.albumCover);
         if (mCoverArt != null) {
             populateViews(view);

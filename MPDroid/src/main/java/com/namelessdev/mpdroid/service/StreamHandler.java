@@ -24,6 +24,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
+import android.annotation.TargetApi;
 import android.content.res.Resources;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -708,6 +709,7 @@ public final class StreamHandler implements
      * This happens at the beginning of beginStreaming() to populate all necessary resources for
      * handling the MediaPlayer stream.
      */
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void windUpResources() {
         if (DEBUG) {
             Log.d(TAG, "Winding up resources.");

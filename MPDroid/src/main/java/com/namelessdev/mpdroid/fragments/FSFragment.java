@@ -210,12 +210,12 @@ public class FSFragment extends BrowseFragment {
     @Override
     protected ListAdapter getCustomListAdapter() {
         return new ArrayAdapter<FilesystemTreeEntry>(getActivity(), R.layout.fs_list_item,
-                R.id.text1, mItems) {
+                R.id.name_metadata, mItems) {
             @Override
             public View getView(final int position, final View convertView,
                     final ViewGroup parent) {
                 final View v = super.getView(position, convertView, parent);
-                final TextView subtext = (TextView) v.findViewById(R.id.text2);
+                final TextView subtext = (TextView) v.findViewById(R.id.full_path);
                 final FilesystemTreeEntry item = (FilesystemTreeEntry) mItems.get(position);
                 final String filename;
                 if (item instanceof Music) {

@@ -93,7 +93,7 @@ public class LibraryTabsSettings extends PreferenceActivity {
         mList.setDropListener(mDropListener);
 
         final DragSortController controller = new DragSortController(mList);
-        controller.setDragHandleId(R.id.text1);
+        controller.setDragHandleId(R.id.name_metadata);
         controller.setRemoveEnabled(false);
         controller.setSortEnabled(true);
         controller.setDragInitMode(1);

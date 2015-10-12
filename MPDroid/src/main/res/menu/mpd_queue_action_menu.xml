@@ -15,19 +15,20 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <item
         android:id="@+id/menu_crop"
         android:icon="@drawable/ic_action_crop"
-        android:showAsAction="always"
         android:title="@string/cropSongs"
+        app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
     <item
         android:id="@+id/menu_delete"
         android:icon="@drawable/ic_action_delete"
-        android:showAsAction="always"
         android:title="@string/removeSongs"
+        app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
 
 </menu>

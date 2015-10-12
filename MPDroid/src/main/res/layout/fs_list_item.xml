@@ -22,7 +22,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/text1"
+        android:id="@+id/name_metadata"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_marginLeft="16dip"
@@ -34,7 +34,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
-        android:id="@+id/text2"
+        android:id="@+id/full_path"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_marginLeft="16dip"

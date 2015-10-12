@@ -103,6 +103,7 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
      * @param context The context required to build the Notification.
      * @return Returns a notification builder object.
      */
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static NotificationCompat.Builder
     buildCollapsedNotification(final MPDroidService context) {
         final Intent musicPlayerActivity = new Intent(context, MainMenuActivity.class);

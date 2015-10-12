@@ -59,8 +59,8 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
     @Override
     public void onDataBind(final Context context, final View targetView, final List<?> items,
             final Object item, final int position) {
-        final TextView text1 = (TextView) targetView.findViewById(R.id.line1);
-        final TextView text2 = (TextView) targetView.findViewById(R.id.line2);
+        final TextView text1 = (TextView) targetView.findViewById(R.id.upper_line);
+        final TextView text2 = (TextView) targetView.findViewById(R.id.lower_line);
         String formattedResult1 = null;
         String formattedResult2 = null;
 
