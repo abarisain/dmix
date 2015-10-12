@@ -101,7 +101,7 @@ public class SplitCommandResponse extends CommandResult implements Iterable<Comm
          * This is an array of positions indexes to exclude from the list. This can be used to
          * exclude things from the end user, such as a password response.
          */
-        private final int[] mExcludeResponses;
+        private final int[] mExcludeResults;
 
         /**
          * This is the response from the outer class.
@@ -128,20 +128,20 @@ public class SplitCommandResponse extends CommandResult implements Iterable<Comm
          *
          * @param connectionResponse The connection response related to this iterator.
          * @param response           The response to be separated into new CommandResponses.
-         * @param excludeResponses   A list of responses to skip.
+         * @param excludeResults     A list of responses to skip.
          */
         protected SeparatedResponseIterator(final String connectionResponse,
-                final String response, final int[] excludeResponses) {
+                final String response, final int[] excludeResults) {
             super();
             mConnectionResponse = connectionResponse;
             mResponse = response;
 
-            if (excludeResponses != null) {
-                Arrays.sort(excludeResponses);
+            if (excludeResults != null) {
+                Arrays.sort(excludeResults);
             }
 
             //noinspection AssignmentToCollectionOrArrayFieldFromParameter
-            mExcludeResponses = excludeResponses;
+            mExcludeResults = excludeResults;
         }
 
         /**
@@ -163,8 +163,7 @@ public class SplitCommandResponse extends CommandResult implements Iterable<Comm
                     beginPosition = nextPosition;
                     nextPosition = mResponse.indexOf(MPDConnection.MPD_CMD_BULK_SEP,
                             nextPosition) + OK_LENGTH;
-                } while (mExcludeResponses != null &&
-                        Arrays.binarySearch(mExcludeResponses, positionIndex) >= 0);
+                } while (!shouldIncludeResponse(positionIndex));
 
                 mCachedPositions =
                         new int[]{positionIndex, beginPosition, nextPosition - OK_LENGTH};
@@ -193,8 +192,8 @@ public class SplitCommandResponse extends CommandResult implements Iterable<Comm
          * false} otherwise.
          */
         private boolean isSingularCommand() {
-            return mPosition == 0 && !mResponse.isEmpty() &&
-                    !mResponse.contains(MPDConnection.MPD_CMD_BULK_SEP);
+            return mPosition == 0 && !mResponse.contains(MPDConnection.MPD_CMD_BULK_SEP) &&
+                    shouldIncludeResponse(0);
         }
 
         /**
@@ -234,6 +233,18 @@ public class SplitCommandResponse extends CommandResult implements Iterable<Comm
         @Override
         public void remove() {
             throw new UnsupportedOperationException(AbstractResultIterator.UNSUPPORTED);
+        }
+
+        /**
+         * This method checks {@link #mExcludeResults} to ensure that the current
+         * {@code responsePosition} should be included in iteration.
+         *
+         * @param resultPosition The current result position.
+         * @return True if the current result should be included in iteration, false otherwise.
+         */
+        private boolean shouldIncludeResponse(final int resultPosition) {
+            return mExcludeResults == null ||
+                    Arrays.binarySearch(mExcludeResults, resultPosition) < 0;
         }
 
         @Override
