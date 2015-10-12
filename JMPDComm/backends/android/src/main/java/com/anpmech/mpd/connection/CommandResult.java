@@ -54,6 +54,11 @@ public class CommandResult extends AbstractCommandResult implements Parcelable {
     protected static final Creator<CommandResult> CREATOR = new CommandResultCreator();
 
     /**
+     * This is an empty no-op CommandResult.
+     */
+    protected static final CommandResult EMPTY = new CommandResult();
+
+    /**
      * This constructor is used to subclass a CommandResult.
      *
      * @param result The result to subclass.
@@ -88,6 +93,15 @@ public class CommandResult extends AbstractCommandResult implements Parcelable {
     private CommandResult(final String connectionResult, final String result,
             final int[] excludeResponses, final int listSize) {
         super(connectionResult, result, excludeResponses, listSize);
+    }
+
+    /**
+     * This constructor is used to create a new empty CommandResult.
+     *
+     * @see #EMPTY
+     */
+    private CommandResult() {
+        super();
     }
 
     /**

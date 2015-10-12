@@ -31,6 +31,8 @@ import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.SplitCommandResponse;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -54,6 +56,7 @@ public class AbstractCommandResult {
     /**
      * The result of the connection initiation.
      */
+    @Nullable
     protected final String mConnectionResult;
 
     /**
@@ -70,7 +73,7 @@ public class AbstractCommandResult {
     /**
      * This is a mutable hint for list size.
      */
-    protected int mListSize = 16;
+    protected int mListSize;
 
     /**
      * This constructor is used to create a new core result from the MPD protocol.
@@ -81,7 +84,7 @@ public class AbstractCommandResult {
      *                         CommandResponse inclusion.
      * @param listSize         This is the size to initialize this object to.
      */
-    protected AbstractCommandResult(final String connectionResult, final String result,
+    protected AbstractCommandResult(@Nullable final String connectionResult, final String result,
             final int[] excludeResponses, final int listSize) {
         super();
 
@@ -96,6 +99,13 @@ public class AbstractCommandResult {
         }
 
         mListSize = listSize;
+    }
+
+    /**
+     * This constructor is used to create a empty CommandResult.
+     */
+    protected AbstractCommandResult() {
+        this(null, "", new int[]{}, 0);
     }
 
     /**
@@ -136,6 +146,10 @@ public class AbstractCommandResult {
      * @return Returns the MPD version retained from the connection result.
      */
     public int[] getMPDVersion() {
+        if (mConnectionResult == null) {
+            throw new IllegalStateException("Cannot retrieve version when invalid.");
+        }
+
         final int subHeaderLength = (MPDConnection.CMD_RESPONSE_OK + " MPD ").length();
         final String formatResponse = mConnectionResult.substring(subHeaderLength);
 

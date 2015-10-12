@@ -42,6 +42,11 @@ import com.anpmech.mpd.commandresponse.CommandResponse;
 public class CommandResult extends AbstractCommandResult {
 
     /**
+     * This is an empty no-op CommandResult.
+     */
+    protected static final CommandResult EMPTY = new CommandResult();
+
+    /**
      * This constructor is used to subclass a CommandResult.
      *
      * @param result The result to subclass.
@@ -60,6 +65,15 @@ public class CommandResult extends AbstractCommandResult {
     protected CommandResult(final String connectionResult, final String result,
             final int[] excludeResponses) {
         this(connectionResult, result, excludeResponses, 16);
+    }
+
+    /**
+     * This constructor is used to create a new empty CommandResult.
+     *
+     * @see #EMPTY
+     */
+    private CommandResult() {
+        super();
     }
 
     /**
