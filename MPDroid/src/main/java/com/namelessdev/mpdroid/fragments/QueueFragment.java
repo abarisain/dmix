@@ -25,6 +25,7 @@ import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
@@ -51,6 +52,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.LayoutRes;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
@@ -168,6 +170,45 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
         return song;
     }
 
+    /**
+     * This method returns a drawable corresponding to the server status play state and client
+     * theme.
+     *
+     * @return A drawable resource for corresponding to the current server status.
+     */
+    @DrawableRes
+    public int getStateDrawable() {
+        final int newPlay;
+
+        if (mLightTheme) {
+            switch (mMPDStatus.getState()) {
+                case MPDStatusMap.STATE_PLAYING:
+                    newPlay = R.drawable.ic_media_play_light;
+                    break;
+                case MPDStatusMap.STATE_PAUSED:
+                    newPlay = R.drawable.ic_media_pause_light;
+                    break;
+                default:
+                    newPlay = R.drawable.ic_media_stop_light;
+                    break;
+            }
+        } else {
+            switch (mMPDStatus.getState()) {
+                case MPDStatusMap.STATE_PLAYING:
+                    newPlay = R.drawable.ic_media_play;
+                    break;
+                case MPDStatusMap.STATE_PAUSED:
+                    newPlay = R.drawable.ic_media_pause;
+                    break;
+                default:
+                    newPlay = R.drawable.ic_media_stop;
+                    break;
+            }
+        }
+
+        return newPlay;
+    }
+
     protected boolean isFiltered(final String item) {
         final String processedItem;
 
@@ -182,6 +223,30 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
 
     @Override
     public void libraryStateChanged(final boolean updating, final boolean dbChanged) {
+    }
+
+    /**
+     * This method marks the current song with the state of the player and the corresponding client
+     * theme.
+     */
+    private void markRunningTrack() {
+        if (mSongList != null) {
+            // Mark running track...
+            for (final AbstractPlaylistMusic song : mSongList) {
+                final int newPlay;
+
+                if (song.getSongId() == mMPDStatus.getSongId()) {
+                    newPlay = getStateDrawable();
+                } else {
+                    newPlay = 0;
+                }
+
+                if (song.getCurrentSongIconRefID() != newPlay) {
+                    song.setCurrentSongIconRefID(newPlay);
+                    refreshPlaylistItemView(song);
+                }
+            }
+        }
     }
 
     @Override
@@ -599,6 +664,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
 
     @Override
     public void stateChanged(final int oldState) {
+        markRunningTrack();
     }
 
     @Override
@@ -614,25 +680,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
 
     @Override
     public void trackChanged(final int oldTrack) {
-        if (mSongList != null) {
-            // Mark running track...
-            for (final AbstractPlaylistMusic song : mSongList) {
-                final int newPlay;
-                if (song.getSongId() == mMPDStatus.getSongId()) {
-                    if (mLightTheme) {
-                        newPlay = R.drawable.ic_media_play_light;
-                    } else {
-                        newPlay = R.drawable.ic_media_play;
-                    }
-                } else {
-                    newPlay = 0;
-                }
-                if (song.getCurrentSongIconRefID() != newPlay) {
-                    song.setCurrentSongIconRefID(newPlay);
-                    refreshPlaylistItemView(song);
-                }
-            }
-        }
+        markRunningTrack();
     }
 
     void update() {
@@ -678,11 +726,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             }
 
             if (item.getSongId() == mLastPlayingID) {
-                if (mLightTheme) {
-                    item.setCurrentSongIconRefID(R.drawable.ic_media_play_light);
-                } else {
-                    item.setCurrentSongIconRefID(R.drawable.ic_media_play);
-                }
+                item.setCurrentSongIconRefID(getStateDrawable());
 
                 /**
                  * Lie a little. Scroll to the previous song than the one playing.
