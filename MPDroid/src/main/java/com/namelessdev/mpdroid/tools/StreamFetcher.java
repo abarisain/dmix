@@ -177,7 +177,7 @@ public class StreamFetcher {
 
             if (connection == null) {
                 Log.e(TAG, "Failed to open a connection to the stream due to null connection.");
-            } else {
+            } else if (connection.getResponseCode() == HttpURLConnection.HTTP_ACCEPTED) {
                 final InputStream in = new BufferedInputStream(connection.getInputStream(), 8192);
                 final byte[] buffer = new byte[8192];
                 final int read = in.read(buffer);
@@ -189,6 +189,9 @@ public class StreamFetcher {
 
                     checkedUrl = parse(new String(buffer), mHandlers);
                 }
+            } else {
+                Log.e(TAG, "URL did not accept a connection. Code: " + connection.getResponseCode()
+                        + " Message: " + connection.getResponseMessage());
             }
         } catch (final IOException e) {
             Log.e(TAG, "Failed to check and parse an incoming playlist.", e);
