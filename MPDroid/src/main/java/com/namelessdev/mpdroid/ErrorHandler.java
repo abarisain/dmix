@@ -34,6 +34,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -258,8 +259,10 @@ public class ErrorHandler implements IdleSubsystemMonitor.Error,
      * This method launches MPD if a MPD server is setup for the localhost.
      */
     private void launchMPD() {
-        if ("127.0.0.1".equals(mApp.getConnectionSettings().server) && !isMPDRunning() &&
-                Tools.isPackageInstalled(MPD_PACKAGE_NAME)) {
+        final boolean shouldLaunch = "127.0.0.1".equals(mApp.getConnectionSettings().server) &&
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
+
+        if (shouldLaunch && !isMPDRunning() && Tools.isPackageInstalled(MPD_PACKAGE_NAME)) {
             /**
              * No delay; no matter the time given, this takes a bit.
              */
