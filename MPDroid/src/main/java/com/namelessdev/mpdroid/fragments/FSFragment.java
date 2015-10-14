@@ -25,6 +25,7 @@ import com.anpmech.mpd.item.FilesystemTreeEntry;
 import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.StringComparators;
@@ -156,24 +157,34 @@ public class FSFragment extends BrowseFragment {
 
     @Override
     protected void asyncUpdate() {
+        final List<FilesystemTreeEntry> newItems;
         refreshDirectory();
-        final Collection<Directory> directories =
-                getOrderedEntries(mDirectory.getDirectoryEntries());
-        final Collection<Music> files = getOrderedEntries(mDirectory.getMusicEntries());
-        final int size = directories.size() + files.size();
-        final ArrayList<FilesystemTreeEntry> newItems = new ArrayList<>(size);
-        final boolean rootDirectory = mDirectory.getFullPath().isEmpty();
 
-        // Hack to add the two dot leader for parent directory
-        if (!rootDirectory) {
-            newItems.add(Directory.byPath("‥"));
-        }
-        newItems.addAll(directories);
-        mNumSubDirs = newItems.size(); // store number if subdirectory
-        newItems.addAll(files);
-        // Do not show play lists for root directory
-        if (!rootDirectory) {
-            newItems.addAll(getOrderedEntries(mDirectory.getPlaylistFileEntries()));
+        /**
+         * This should not happen, unless, there's a connection problem.
+         */
+        if (mDirectory.isEmpty()) {
+            Log.e(TAG, "Directory failed to update. Displaying blank directory.");
+            newItems = Collections.emptyList();
+        } else {
+            final Collection<Directory> directories =
+                    getOrderedEntries(mDirectory.getDirectoryEntries());
+            final Collection<Music> files = getOrderedEntries(mDirectory.getMusicEntries());
+            final int size = directories.size() + files.size();
+            final boolean rootDirectory = mDirectory.getFullPath().isEmpty();
+
+            newItems = new ArrayList<>(size);
+            // Hack to add the two dot leader for parent directory
+            if (!rootDirectory) {
+                newItems.add(Directory.byPath("‥"));
+            }
+            newItems.addAll(directories);
+            mNumSubDirs = newItems.size(); // store number if subdirectory
+            newItems.addAll(files);
+            // Do not show play lists for root directory
+            if (!rootDirectory) {
+                newItems.addAll(getOrderedEntries(mDirectory.getPlaylistFileEntries()));
+            }
         }
         replaceItems(newItems);
     }
@@ -209,30 +220,7 @@ public class FSFragment extends BrowseFragment {
     // Disable the indexer for FSFragment
     @Override
     protected ListAdapter getCustomListAdapter() {
-        return new ArrayAdapter<FilesystemTreeEntry>(getActivity(), R.layout.fs_list_item,
-                R.id.name_metadata, mItems) {
-            @Override
-            public View getView(final int position, final View convertView,
-                    final ViewGroup parent) {
-                final View v = super.getView(position, convertView, parent);
-                final TextView subtext = (TextView) v.findViewById(R.id.full_path);
-                final FilesystemTreeEntry item = (FilesystemTreeEntry) mItems.get(position);
-                final String filename;
-                if (item instanceof Music) {
-                    filename = item.getFullPath();
-                    if (TextUtils.isEmpty(filename) || item.toString().equals(filename)) {
-                        subtext.setVisibility(View.GONE);
-                    } else {
-                        subtext.setVisibility(View.VISIBLE);
-                        subtext.setText(filename);
-                    }
-                } else {
-                    subtext.setVisibility(View.GONE);
-                }
-
-                return v;
-            }
-        };
+        return new FSTreeEntryArrayAdapter(getActivity(), mItems);
     }
 
     /**
@@ -294,23 +282,7 @@ public class FSFragment extends BrowseFragment {
         if (position > mNumSubDirs - 1 || mNumSubDirs == 0) {
 
             final FilesystemTreeEntry item = (FilesystemTreeEntry) mItems.get(position);
-            mApp.getAsyncHelper().execAsync(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        if (item instanceof Music) {
-                            mApp.getMPD().add(item, mApp.isInSimpleMode(), mApp.isInSimpleMode());
-                            if (!mApp.isInSimpleMode()) {
-                                Tools.notifyUser(R.string.songAdded, item);
-                            }
-                        } else if (item instanceof PlaylistFile) {
-                            mApp.getMPD().getPlaylist().load(item.getFullPath());
-                        }
-                    } catch (final IOException | MPDException e) {
-                        Log.e(TAG, "Failed to add.", e);
-                    }
-                }
-            });
+            mApp.getAsyncHelper().execAsync(new AddFSItem(item));
         } else {
             final String path = ((FilesystemTreeEntry) mItems.get(position)).getFullPath();
 
@@ -343,22 +315,17 @@ public class FSFragment extends BrowseFragment {
 
     @Override
     protected boolean onToolbarMenuItemClick(final MenuItem item) {
+        final boolean itemConsumed;
+
         // Menu actions...
         if (item.getItemId() == R.id.menu_update) {
-            mApp.getAsyncHelper().execAsync(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        mApp.getMPD().refreshDatabase(mDirectory.getFullPath());
-                    } catch (final IOException | MPDException e) {
-                        Log.e(TAG, "Failed to refresh database.", e);
-                    }
-                }
-            });
-            return true;
+            mApp.getAsyncHelper().execAsync(new RefreshDatabase(mDirectory));
+            itemConsumed = true;
+        } else {
+            itemConsumed = super.onToolbarMenuItemClick(item);
         }
 
-        return super.onToolbarMenuItemClick(item);
+        return itemConsumed;
     }
 
     private void refreshDirectory() {
@@ -391,6 +358,47 @@ public class FSFragment extends BrowseFragment {
     }
 
     /**
+     * This class adds an item.
+     */
+    private static final class AddFSItem implements Runnable {
+
+        /**
+         * The item to add.
+         */
+        private final FilesystemTreeEntry mItem;
+
+        /**
+         * Sole constructor.
+         *
+         * @param item Item to add.
+         */
+        private AddFSItem(final FilesystemTreeEntry item) {
+            super();
+
+            mItem = item;
+        }
+
+        @Override
+        public void run() {
+            final MPDApplication app = MPDApplication.getInstance();
+
+            try {
+                if (mItem instanceof Music) {
+                    final boolean inSimpleMode = app.isInSimpleMode();
+                    app.getMPD().add(mItem, inSimpleMode, inSimpleMode);
+                    if (!inSimpleMode) {
+                        Tools.notifyUser(R.string.songAdded, mItem);
+                    }
+                } else if (mItem instanceof PlaylistFile) {
+                    app.getMPD().getPlaylist().load(mItem.getFullPath());
+                }
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Failed to add item: " + mItem, e);
+            }
+        }
+    }
+
+    /**
      * This is the comparator used to sort entries in accordance to their natural order.
      *
      * @param <T> The AbstractEntry to sort.
@@ -418,6 +426,77 @@ public class FSFragment extends BrowseFragment {
         @Override
         public int compare(final T lhs, final T rhs) {
             return StringComparators.compareNatural(lhs.getName(), rhs.getName());
+        }
+    }
+
+    /**
+     * This class is a custom ArrayAdapter for this class.
+     */
+    private static final class FSTreeEntryArrayAdapter extends ArrayAdapter<FilesystemTreeEntry> {
+
+        /**
+         * Sole constructor.
+         *
+         * @param activity The current activity.
+         * @param items    The items for this ArrayAdapter.
+         */
+        private FSTreeEntryArrayAdapter(final Activity activity,
+                final List<FilesystemTreeEntry> items) {
+            super(activity, R.layout.fs_list_item, R.id.name_metadata, items);
+        }
+
+        @Override
+        public View getView(final int position, final View convertView,
+                final ViewGroup parent) {
+            final View v = super.getView(position, convertView, parent);
+            final TextView subtext = (TextView) v.findViewById(R.id.full_path);
+            final FilesystemTreeEntry item = getItem(position);
+
+            if (item instanceof Music) {
+                final String filename = item.getFullPath();
+                if (TextUtils.isEmpty(filename) || item.toString().equals(filename)) {
+                    subtext.setVisibility(View.GONE);
+                } else {
+                    subtext.setVisibility(View.VISIBLE);
+                    subtext.setText(filename);
+                }
+            } else {
+                subtext.setVisibility(View.GONE);
+            }
+
+            return v;
+        }
+    }
+
+    /**
+     * This class implements a {@link Runnable} to refresh the database of a specific {@link
+     * Directory}.
+     */
+    private static final class RefreshDatabase implements Runnable {
+
+        /**
+         * The {@link Directory} to refresh.
+         */
+        private final Directory mDirectory;
+
+        /**
+         * Sole constructor.
+         *
+         * @param directory The directory to refresh.
+         */
+        private RefreshDatabase(final Directory directory) {
+            super();
+
+            mDirectory = directory;
+        }
+
+        @Override
+        public void run() {
+            try {
+                MPDApplication.getInstance().getMPD().refreshDatabase(mDirectory.getFullPath());
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Failed to refresh database.", e);
+            }
         }
     }
 }
