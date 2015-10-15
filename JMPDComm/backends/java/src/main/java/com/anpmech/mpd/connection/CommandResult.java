@@ -52,7 +52,7 @@ public class CommandResult extends AbstractCommandResult {
      * @param result The result to subclass.
      */
     protected CommandResult(final CommandResult result) {
-        this(result.mConnectionResult, result.mResult, result.mExcludeResponses, result.mListSize);
+        this(result.mConnectionResult, result.mResult, result.mListSize);
     }
 
     /**
@@ -60,11 +60,9 @@ public class CommandResult extends AbstractCommandResult {
      *
      * @param connectionResult The result of the connection initiation.
      * @param result           The MPD protocol command result.
-     * @param excludeResponses This is used to manually exclude responses from a split iterator.
      */
-    protected CommandResult(final String connectionResult, final String result,
-            final int[] excludeResponses) {
-        this(connectionResult, result, excludeResponses, 16);
+    protected CommandResult(final String connectionResult, final String result) {
+        this(connectionResult, result, 16);
     }
 
     /**
@@ -81,14 +79,11 @@ public class CommandResult extends AbstractCommandResult {
      *
      * @param connectionResult The result of the connection initiation.
      * @param result           The MPD protocol command result.
-     * @param excludeResponses This is used to manually exclude responses from a split iterator.
      * @param listSize         This is the size of this object if it is created as a {@link
      *                         java.util.List}; which is to say how many newlines + 1 which can be
      *                         found in the {@link #mResult} field. This value is simply a helper,
-     *                         and, is typically, generated during first iteration.
      */
-    private CommandResult(final String connectionResult, final String result,
-            final int[] excludeResponses, final int listSize) {
-        super(connectionResult, result, excludeResponses, listSize);
+    private CommandResult(final String connectionResult, final String result, final int listSize) {
+        super(connectionResult, result, listSize);
     }
 }

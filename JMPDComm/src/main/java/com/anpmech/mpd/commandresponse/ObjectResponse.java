@@ -59,7 +59,7 @@ public abstract class ObjectResponse<T> extends CommandResult implements Iterabl
      */
     protected ObjectResponse(final String connectionResult, final String response,
             final int[] excludeResponses) {
-        super(connectionResult, response, null);
+        super(connectionResult, response);
     }
 
     /**

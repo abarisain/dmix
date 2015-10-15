@@ -64,7 +64,7 @@ public class CommandResult extends AbstractCommandResult implements Parcelable {
      * @param result The result to subclass.
      */
     protected CommandResult(final CommandResult result) {
-        this(result.mConnectionResult, result.mResult, result.mExcludeResponses, result.mListSize);
+        this(result.mConnectionResult, result.mResult, result.mListSize);
     }
 
     /**
@@ -72,11 +72,9 @@ public class CommandResult extends AbstractCommandResult implements Parcelable {
      *
      * @param connectionResult The result of the connection initiation.
      * @param result           The MPD protocol command result.
-     * @param excludeResponses This is used to manually exclude responses from a split iterator.
      */
-    protected CommandResult(final String connectionResult, final String result,
-            final int[] excludeResponses) {
-        this(connectionResult, result, excludeResponses, 16);
+    protected CommandResult(final String connectionResult, final String result) {
+        this(connectionResult, result, 16);
     }
 
     /**
@@ -84,15 +82,12 @@ public class CommandResult extends AbstractCommandResult implements Parcelable {
      *
      * @param connectionResult The result of the connection initiation.
      * @param result           The MPD protocol command result.
-     * @param excludeResponses This is used to manually exclude responses from a split iterator.
      * @param listSize         This is the size of this object if it is created as a {@link
      *                         java.util.List}; which is to say how many newlines + 1 which can be
      *                         found in the {@link #mResult} field. This value is simply a helper,
-     *                         and, is typically, generated during first iteration.
      */
-    private CommandResult(final String connectionResult, final String result,
-            final int[] excludeResponses, final int listSize) {
-        super(connectionResult, result, excludeResponses, listSize);
+    private CommandResult(final String connectionResult, final String result, final int listSize) {
+        super(connectionResult, result, listSize);
     }
 
     /**
@@ -127,7 +122,6 @@ public class CommandResult extends AbstractCommandResult implements Parcelable {
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(mConnectionResult);
         dest.writeString(mResult);
-        dest.writeIntArray(mExcludeResponses);
         dest.writeInt(mListSize);
     }
 
@@ -153,8 +147,7 @@ public class CommandResult extends AbstractCommandResult implements Parcelable {
          */
         @Override
         public CommandResult createFromParcel(final Parcel source) {
-            return new CommandResult(source.readString(), source.readString(),
-                    source.createIntArray(), source.readInt());
+            return new CommandResult(source.readString(), source.readString(), source.readInt());
         }
 
         /**

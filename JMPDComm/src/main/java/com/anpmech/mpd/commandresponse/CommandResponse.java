@@ -67,11 +67,8 @@ public class CommandResponse extends ObjectResponse<String> {
      *
      * @param connectionResult The result of the connection initiation.
      * @param result           The MPD protocol command result.
-     * @param excludeResults   This is used to manually exclude results from
-     *                         {@link SplitCommandResponse} inclusion. Unused for this class.
      */
-    protected CommandResponse(final String connectionResult, final String result,
-            final int[] excludeResults) {
+    protected CommandResponse(final String connectionResult, final String result) {
         super(connectionResult, result, null);
     }
 
@@ -248,7 +245,6 @@ public class CommandResponse extends ObjectResponse<String> {
                 "mResult='" + mResult + '\'' +
                 ", mConnectionResult='" + mConnectionResult + '\'' +
                 ", mListSize=" + mListSize +
-                ", mExcludeResponses=" + Arrays.toString(mExcludeResponses) +
                 '}';
     }
 

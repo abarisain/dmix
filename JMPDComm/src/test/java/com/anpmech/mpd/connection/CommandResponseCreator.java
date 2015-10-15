@@ -42,7 +42,7 @@ public enum CommandResponseCreator {
 
     public static CommandResponse getCommandResponse(final String filePath) throws IOException {
         final String rawResult = TestTools.readFile(filePath);
-        final CommandResult result = new CommandResult(null, rawResult, null);
+        final CommandResult result = new CommandResult(null, rawResult);
 
         return new CommandResponse(result);
     }

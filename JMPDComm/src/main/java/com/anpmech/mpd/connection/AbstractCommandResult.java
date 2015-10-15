@@ -29,12 +29,10 @@ package com.anpmech.mpd.connection;
 
 import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.commandresponse.CommandResponse;
-import com.anpmech.mpd.commandresponse.SplitCommandResponse;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -61,12 +59,6 @@ public class AbstractCommandResult {
     protected final String mConnectionResult;
 
     /**
-     * This is used to exclude specific responses when utilizing the
-     * {@link SplitCommandResponse}.
-     */
-    protected final int[] mExcludeResponses;
-
-    /**
      * The MPD protocol command response.
      */
     protected final String mResult;
@@ -81,24 +73,14 @@ public class AbstractCommandResult {
      *
      * @param connectionResult The result of the connection initiation.
      * @param result           The MPD protocol command result.
-     * @param excludeResponses This is used to manually exclude responses from split
-     *                         CommandResponse inclusion.
      * @param listSize         This is the size to initialize this object to.
      */
     protected AbstractCommandResult(@Nullable final String connectionResult, final String result,
-            final int[] excludeResponses, final int listSize) {
+            final int listSize) {
         super();
 
         mConnectionResult = connectionResult;
         mResult = result;
-
-        if (excludeResponses == null) {
-            mExcludeResponses = null;
-        } else {
-            //noinspection AssignmentToCollectionOrArrayFieldFromParameter
-            mExcludeResponses = excludeResponses;
-        }
-
         mListSize = listSize;
     }
 
@@ -106,7 +88,7 @@ public class AbstractCommandResult {
      * This constructor is used to create a empty CommandResult.
      */
     protected AbstractCommandResult() {
-        this(null, "", new int[]{}, 0);
+        this(null, "", 0);
     }
 
     /**
@@ -291,7 +273,6 @@ public class AbstractCommandResult {
     public String toString() {
         return "CommandResult{" +
                 "mConnectionResult='" + mConnectionResult + '\'' +
-                ", mExcludeResponses=" + Arrays.toString(mExcludeResponses) +
                 ", mResult='" + mResult + '\'' +
                 ", mListSize=" + mListSize +
                 '}';

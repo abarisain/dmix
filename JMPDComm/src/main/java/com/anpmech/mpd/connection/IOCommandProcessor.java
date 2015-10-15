@@ -38,6 +38,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.CharBuffer;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -194,7 +195,7 @@ abstract class IOCommandProcessor implements Callable<CommandResult> {
 
                 final IOSocketSet socketSet = popSocketSet();
                 write(socketSet);
-                commandResult = new CommandResult(mHeader, read(socketSet), mExcludeResponses);
+                commandResult = new CommandResult(mHeader, read(socketSet));
                 pushSocketSet(socketSet);
                 break;
             } catch (final IOException e) {
@@ -313,7 +314,40 @@ abstract class IOCommandProcessor implements Callable<CommandResult> {
             mConnectionStatus.setNotBlocked();
         }
 
+        removeExcludedResponses(stringBuilder);
         return stringBuilder.toString();
+    }
+
+    private void removeExcludedResponses(final StringBuilder stringBuilder) {
+        if (mExcludeResponses != null) {
+            final int length = mExcludeResponses.length;
+            int excludedPosition = 0;
+            int stringPosition = 0;
+            int positionsExcluded = 0;
+
+            Arrays.sort(mExcludeResponses);
+
+            while (positionsExcluded < length) {
+                final int currentPosition =
+                        stringBuilder.indexOf(MPDConnection.MPD_CMD_BULK_SEP, stringPosition);
+
+                if (currentPosition == -1 && length == 1 && mExcludeResponses[0] == 0) {
+                    // Not sure why someone would do this, but, for correctness.
+                    stringBuilder.setLength(0);
+                    positionsExcluded++;
+                    excludedPosition++;
+                } else {
+                    if (Arrays.binarySearch(mExcludeResponses, excludedPosition) >= 0) {
+                        final int endPosition = currentPosition +
+                                MPDConnection.MPD_CMD_BULK_SEP.length() + 1;
+                        stringBuilder.delete(stringPosition, endPosition);
+                        positionsExcluded++;
+                    }
+                    excludedPosition++;
+                    stringPosition = currentPosition;
+                }
+            }
+        }
     }
 
     /**
