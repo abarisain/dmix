@@ -27,7 +27,7 @@
 
 package com.anpmech.mpd.concurrent;
 
-import com.anpmech.mpd.commandresponse.SplitCommandResponse;
+import com.anpmech.mpd.commandresponse.SeparatedResponse;
 import com.anpmech.mpd.exception.MPDException;
 
 import java.io.IOException;
@@ -36,16 +36,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * This class returns a {@link SplitCommandResponse} in the future.
+ * This class returns a {@link SeparatedResponse} in the future.
  */
-public class SplitResponseFuture extends MPDFuture {
+public class SeparatedFuture extends MPDFuture {
 
     /**
      * The sole constructor.
      *
      * @param future The MPDFuture used to construct this instance.
      */
-    public SplitResponseFuture(final MPDFuture future) {
+    public SeparatedFuture(final MPDFuture future) {
         super(future);
     }
 
@@ -62,9 +62,9 @@ public class SplitResponseFuture extends MPDFuture {
      * @throws TimeoutException      If the wait timed out.
      */
     @Override
-    public SplitCommandResponse get(final long timeout, final TimeUnit unit)
+    public SeparatedResponse get(final long timeout, final TimeUnit unit)
             throws IOException, MPDException, TimeoutException {
-        return new SplitCommandResponse(super.get(timeout, unit));
+        return new SeparatedResponse(super.get(timeout, unit));
     }
 
     /**
@@ -76,7 +76,7 @@ public class SplitResponseFuture extends MPDFuture {
      * @throws MPDException          Thrown if an error occurs as a result of command execution.
      */
     @Override
-    public SplitCommandResponse get() throws IOException, MPDException {
-        return new SplitCommandResponse(super.get());
+    public SeparatedResponse get() throws IOException, MPDException {
+        return new SeparatedResponse(super.get());
     }
 }

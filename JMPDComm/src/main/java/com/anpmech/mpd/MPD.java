@@ -33,7 +33,7 @@ import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.GenreResponse;
 import com.anpmech.mpd.commandresponse.MusicResponse;
 import com.anpmech.mpd.commandresponse.PlaylistFileResponse;
-import com.anpmech.mpd.commandresponse.SplitCommandResponse;
+import com.anpmech.mpd.commandresponse.SeparatedResponse;
 import com.anpmech.mpd.concurrent.MPDFuture;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.connection.MPDConnection;
@@ -439,7 +439,7 @@ public class MPD {
             commandQueue.add(getAlbumDetailsCommand(album));
         }
 
-        final SplitCommandResponse responses = mConnection.submitSeparated(commandQueue).get();
+        final SeparatedResponse responses = mConnection.submitSeparated(commandQueue).get();
 
         final AlbumBuilder albumBuilder = new AlbumBuilder();
         int i = 0;

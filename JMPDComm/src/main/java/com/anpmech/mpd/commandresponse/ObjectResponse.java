@@ -54,11 +54,8 @@ public abstract class ObjectResponse<T> extends CommandResult implements Iterabl
      *
      * @param connectionResult The result of the connection initiation.
      * @param response         The MPD protocol command response.
-     * @param excludeResponses This is used to manually exclude responses from split
-     *                         CommandResponse inclusion. Unused for this class.
      */
-    protected ObjectResponse(final String connectionResult, final String response,
-            final int[] excludeResponses) {
+    protected ObjectResponse(final String connectionResult, final String response) {
         super(connectionResult, response);
     }
 

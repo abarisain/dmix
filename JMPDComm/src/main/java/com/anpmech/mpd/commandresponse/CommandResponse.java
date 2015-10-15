@@ -69,7 +69,7 @@ public class CommandResponse extends ObjectResponse<String> {
      * @param result           The MPD protocol command result.
      */
     protected CommandResponse(final String connectionResult, final String result) {
-        super(connectionResult, result, null);
+        super(connectionResult, result);
     }
 
     /**

@@ -31,11 +31,11 @@ import com.anpmech.mpd.CommandQueue;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.commandresponse.CommandResponse;
-import com.anpmech.mpd.commandresponse.SplitCommandResponse;
+import com.anpmech.mpd.commandresponse.SeparatedResponse;
 import com.anpmech.mpd.concurrent.MPDExecutor;
 import com.anpmech.mpd.concurrent.MPDFuture;
 import com.anpmech.mpd.concurrent.ResponseFuture;
-import com.anpmech.mpd.concurrent.SplitResponseFuture;
+import com.anpmech.mpd.concurrent.SeparatedFuture;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.Reflection;
 
@@ -649,9 +649,9 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * {@link CommandResponse}.
      *
      * @param commandQueue The CommandQueue to send.
-     * @return A {@link SplitResponseFuture}, which will return a {@link SplitCommandResponse}.
+     * @return A {@link SeparatedFuture}, which will return a {@link SeparatedResponse}.
      */
-    public SplitResponseFuture submitSeparated(final CommandQueue commandQueue) {
-        return new SplitResponseFuture(processCommandSeparated(commandQueue));
+    public SeparatedFuture submitSeparated(final CommandQueue commandQueue) {
+        return new SeparatedFuture(processCommandSeparated(commandQueue));
     }
 }
