@@ -28,6 +28,7 @@
 package com.anpmech.mpd.connection;
 
 import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.SplitCommandResponse;
 
@@ -129,6 +130,47 @@ public class AbstractCommandResult {
     }
 
     /**
+     * Compares this instance with the specified object and indicates if they are equal. In order
+     * to
+     * be equal, {@code o} must represent the same object as this instance using a class-specific
+     * comparison. The general contract is that this comparison should be reflexive, symmetric, and
+     * transitive. Also, no object reference other than null is equal to null.
+     *
+     * @param o the object to compare this instance with.
+     * @return {@code true} if the specified object is equal to this {@code Object}; {@code false}
+     * otherwise.
+     * @see #hashCode
+     */
+    @Override
+    public boolean equals(final Object o) {
+        Boolean isEqual = null;
+
+        if (this == o) {
+            isEqual = Boolean.TRUE;
+        } else if (o == null || getClass() != o.getClass()) {
+            isEqual = Boolean.FALSE;
+        }
+
+        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
+            /** This has to be the same due to the class check above. */
+            //noinspection unchecked
+            final AbstractCommandResult result = (AbstractCommandResult) o;
+
+            //noinspection ConstantConditions
+            if (Tools.isNotEqual(mResult, result.mResult) ||
+                    Tools.isNotEqual(mConnectionResult, result.mConnectionResult)) {
+                isEqual = Boolean.FALSE;
+            }
+        }
+
+        if (isEqual == null) {
+            isEqual = Boolean.TRUE;
+        }
+
+        return isEqual.booleanValue();
+    }
+
+    /**
      * Returns the first string response from the media server after connection. This method is
      * mainly for debugging.
      *
@@ -163,6 +205,32 @@ public class AbstractCommandResult {
         }
 
         return version;
+    }
+
+    /**
+     * Returns an integer hash code for this object. By contract, any two objects for which {@link
+     * #equals} returns {@code true} must return the same hash code value. This means that
+     * subclasses of {@code Object} usually override both methods or neither method.
+     *
+     * <p>Note that hash values must not change over time unless information used in equals
+     * comparisons also changes.</p>
+     *
+     * @return this object's hash code.
+     * @see #equals
+     */
+    @Override
+    public int hashCode() {
+        int result;
+
+        if (mConnectionResult != null) {
+            result = mConnectionResult.hashCode();
+        } else {
+            result = 0;
+        }
+
+        result = 31 * result + mResult.hashCode();
+
+        return result;
     }
 
     /**
