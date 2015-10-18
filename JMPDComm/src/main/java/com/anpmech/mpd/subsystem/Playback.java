@@ -27,8 +27,8 @@
 
 package com.anpmech.mpd.subsystem;
 
-import com.anpmech.mpd.concurrent.MPDFuture;
 import com.anpmech.mpd.concurrent.ResponseFuture;
+import com.anpmech.mpd.concurrent.ResultFuture;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.subsystem.status.MPDStatus;
@@ -228,10 +228,10 @@ public class Playback {
     /**
      * Toggle the consume state.
      *
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      * @throws IllegalStateException If the status state is invalid.
      */
-    public MPDFuture consume() {
+    public ResultFuture consume() {
         return toggleState(CMD_ACTION_CONSUME, getStatus().isConsume());
     }
 
@@ -239,9 +239,9 @@ public class Playback {
      * Sets the cross fade to the number given in the parameter.
      *
      * @param seconds The seconds to set the cross fade to.
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture crossfade(final int seconds) {
+    public ResultFuture crossfade(final int seconds) {
         return mConnection.submit(CMD_ACTION_CROSS_FADE, Integer.toString(seconds));
     }
 
@@ -271,9 +271,9 @@ public class Playback {
     /**
      * Plays the next track in the playlist queue.
      *
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture next() {
+    public ResultFuture next() {
         return mConnection.submit(CMD_ACTION_NEXT);
     }
 
@@ -291,12 +291,12 @@ public class Playback {
     /**
      * If the current playback state is playing, this method will pause it.
      *
-     * @return Returns a MPDFuture for any required error handling. Null if no action was taken.
+     * @return Returns a ResultFuture for any required error handling. Null if no action was taken.
      * @throws IllegalStateException If the status state is invalid.
      * @see #togglePlayback()
      */
-    public MPDFuture pause() {
-        final MPDFuture future;
+    public ResultFuture pause() {
+        final ResultFuture future;
 
         if (getStatus().getState() == MPDStatusMap.STATE_PLAYING) {
             future = mConnection.submit(CMD_ACTION_PAUSE, STATE_ON);
@@ -310,9 +310,9 @@ public class Playback {
     /**
      * Changes the play state to playing.
      *
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture play() {
+    public ResultFuture play() {
         return mConnection.submit(CMD_ACTION_PLAY);
     }
 
@@ -322,9 +322,9 @@ public class Playback {
      * <p>This requires the {@link Music} item be populated with a song id.</p>
      *
      * @param track The track to play.
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture play(final Music track) {
+    public ResultFuture play(final Music track) {
         return mConnection.submit(CMD_ACTION_PLAY_ID, Integer.toString(track.getSongId()));
     }
 
@@ -333,38 +333,38 @@ public class Playback {
      * {@code queuePosition} parameter.
      *
      * @param queuePosition The playlist queue position to play.
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture play(final int queuePosition) {
+    public ResultFuture play(final int queuePosition) {
         return mConnection.submit(CMD_ACTION_PLAY, Integer.toString(queuePosition));
     }
 
     /**
      * Plays the previous track in the playlist queue.
      *
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture previous() {
+    public ResultFuture previous() {
         return mConnection.submit(CMD_ACTION_PREVIOUS);
     }
 
     /**
      * Toggles the random playback state.
      *
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      * @throws IllegalStateException If the status state is invalid.
      */
-    public MPDFuture random() {
+    public ResultFuture random() {
         return toggleState(CMD_ACTION_RANDOM, getStatus().isRandom());
     }
 
     /**
      * Toggles the repeat playback state.
      *
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      * @throws IllegalStateException If the status state is invalid.
      */
-    public MPDFuture repeat() {
+    public ResultFuture repeat() {
         return toggleState(CMD_ACTION_REPEAT, getStatus().isRepeat());
     }
 
@@ -372,9 +372,9 @@ public class Playback {
      * Seeks to a {@code position} in the current playing {@code track}.
      *
      * @param position The position to seek to in the current playing track, in seconds.
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture seek(final long position) {
+    public ResultFuture seek(final long position) {
         return mConnection.submit(CMD_ACTION_SEEK_CURRENT_TRACK, Long.toString(position));
     }
 
@@ -383,9 +383,9 @@ public class Playback {
      *
      * @param queuePosition The queue position to seek to.
      * @param position      The position in the track to seek to.
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture seek(final int queuePosition, final long position) {
+    public ResultFuture seek(final int queuePosition, final long position) {
         return mConnection.submit(CMD_ACTION_SEEK, Integer.toString(queuePosition),
                 Long.toString(position));
     }
@@ -395,9 +395,9 @@ public class Playback {
      *
      * @param trackToSeek The track to seek in.
      * @param position    The position to seek to in the {@code trackToSeek} parameter, in seconds.
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture seek(final Music trackToSeek, final long position) {
+    public ResultFuture seek(final Music trackToSeek, final long position) {
         return mConnection.submit(CMD_ACTION_SEEK_ID, Integer.toString(trackToSeek.getSongId()),
                 Long.toString(position));
     }
@@ -406,9 +406,9 @@ public class Playback {
      * Sets the MixRamp decibel setting.
      *
      * @param decibels The decibels to set the MixRamp settings to.
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture setMixRampDecibels(final float decibels) {
+    public ResultFuture setMixRampDecibels(final float decibels) {
         return mConnection.submit(CMD_ACTION_MIX_RAMP_DECIBELS, Float.toString(decibels));
     }
 
@@ -419,10 +419,10 @@ public class Playback {
      * to crossfading.</p>
      *
      * @param delay The delay to set MixRamp to.
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture setMixRampDelay(final int delay) {
-        final MPDFuture future;
+    public ResultFuture setMixRampDelay(final int delay) {
+        final ResultFuture future;
 
         if (delay == MIX_RAMP_DELAY_DISABLE) {
             future = mConnection.submit(CMD_ACTION_MIX_RAMP_DELAY,
@@ -438,9 +438,9 @@ public class Playback {
      * Sets volume to an absolute volume defined in the parameter.
      *
      * @param volume Sets the volume, this volume will be normalized between 0 and 100.
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture setVolume(final int volume) {
+    public ResultFuture setVolume(final int volume) {
         final int vol = normalizeVolume(volume);
 
         return mConnection.submit(CMD_ACTION_SET_VOLUME, Integer.toString(vol));
@@ -449,10 +449,10 @@ public class Playback {
     /**
      * Toggles the {@code single} state.
      *
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      * @throws IllegalStateException If the status state is invalid.
      */
-    public MPDFuture single() {
+    public ResultFuture single() {
         return toggleState(CMD_ACTION_SINGLE, getStatus().isSingle());
     }
 
@@ -462,10 +462,10 @@ public class Playback {
      *
      * @param volume The amount to step the volume up or down. This volume will be normalized to
      *               between 0 and 100.
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      * @throws IllegalStateException If the status state is invalid.
      */
-    public MPDFuture stepVolume(final int volume) {
+    public ResultFuture stepVolume(final int volume) {
         final int steppedVolume = normalizeVolume(getStatus().getVolume() + volume);
 
         return mConnection.submit(CMD_ACTION_SET_VOLUME, Integer.toString(steppedVolume));
@@ -474,20 +474,20 @@ public class Playback {
     /**
      * Stops the playback.
      *
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    public MPDFuture stop() {
+    public ResultFuture stop() {
         return mConnection.submit(CMD_ACTION_STOP);
     }
 
     /**
      * Switches playback state playing to paused and visa versa. Otherwise, no action.
      *
-     * @return Returns a MPDFuture for any required error handling. Null if no action was taken.
+     * @return Returns a ResultFuture for any required error handling. Null if no action was taken.
      * @throws IllegalStateException If the status state is invalid.
      */
-    public MPDFuture togglePlayback() {
-        final MPDFuture future;
+    public ResultFuture togglePlayback() {
+        final ResultFuture future;
 
         switch (getStatus().getState()) {
             case MPDStatusMap.STATE_PLAYING:
@@ -511,10 +511,10 @@ public class Playback {
      * @param command    The MPD protocol command to toggle.
      * @param toggleFrom Toggle from the argument. If {@code true}, toggle to {@code false} or
      *                   {@code off}. If {@code false}, toggle to {@code true} or {@code on}.
-     * @return Returns a MPDFuture for any required error handling.
+     * @return Returns a ResultFuture for any required error handling.
      */
-    private MPDFuture toggleState(final CharSequence command, final boolean toggleFrom) {
-        final MPDFuture future;
+    private ResultFuture toggleState(final CharSequence command, final boolean toggleFrom) {
+        final ResultFuture future;
 
         if (toggleFrom) {
             future = mConnection.submit(command, STATE_OFF);

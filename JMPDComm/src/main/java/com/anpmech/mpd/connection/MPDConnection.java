@@ -33,8 +33,8 @@ import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.SeparatedResponse;
 import com.anpmech.mpd.concurrent.MPDExecutor;
-import com.anpmech.mpd.concurrent.MPDFuture;
 import com.anpmech.mpd.concurrent.ResponseFuture;
+import com.anpmech.mpd.concurrent.ResultFuture;
 import com.anpmech.mpd.concurrent.SeparatedFuture;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.Reflection;
@@ -291,7 +291,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
             /**
              * This should not happen. If it does, it is a programmatic error in the
              * CommandProcessor. MPDConnectionStatus.statusChangeDisconnected() should have been
-             * called prior to the MPDFuture task completion (and the result from MPDFuture.get()).
+             * called prior to the ResultFuture task completion (and the result from ResultFuture.get()).
              */
             if (mConnectionStatus.isConnected()) {
                 throw new IllegalStateException("IOException thrown as result of successful" +
@@ -482,7 +482,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @param commandQueue The CommandQueue to process.
      * @return The response to the CommandQueue.
      */
-    private MPDFuture processCommand(final CommandQueue commandQueue) {
+    private ResultFuture processCommand(final CommandQueue commandQueue) {
         if (commandQueue.isEmpty()) {
             throw new IllegalStateException(NO_EMPTY_COMMAND_QUEUE);
         }
@@ -501,7 +501,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @param mpdCommand The command to be processed.
      * @return The response from the command.
      */
-    private MPDFuture processCommand(final MPDCommand mpdCommand) {
+    private ResultFuture processCommand(final MPDCommand mpdCommand) {
         final String commandString;
 
         if (mPassword == null) {
@@ -513,7 +513,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
         return processCommand(commandString);
     }
 
-    private MPDFuture processCommand(final String command) {
+    private ResultFuture processCommand(final String command) {
         return processCommand(command, null);
     }
 
@@ -525,7 +525,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      *                         {@link CommandResponse} inclusion.
      * @return The response to the processed command.
      */
-    private MPDFuture processCommand(final String command, final int[] excludeResponses) {
+    private ResultFuture processCommand(final String command, final int[] excludeResponses) {
         debug("processCommand() command: " + command);
 
         final Callable<CommandResult> callable = getCommandProcessor(command, excludeResponses);
@@ -540,7 +540,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @param commandQueue The CommandQueue to process.
      * @return The response to the CommandQueue.
      */
-    private MPDFuture processCommandSeparated(final CommandQueue commandQueue) {
+    private ResultFuture processCommandSeparated(final CommandQueue commandQueue) {
         if (commandQueue.isEmpty()) {
             throw new IllegalStateException(NO_EMPTY_COMMAND_QUEUE);
         }
@@ -618,7 +618,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      *
      * @param command The command to be sent to the server.
      * @param args    Arguments to the command to be sent to the server.
-     * @return A {@link MPDFuture} for tracking and response processing.
+     * @return A {@link ResultFuture} for tracking and response processing.
      */
     public ResponseFuture submit(final CharSequence command, final CharSequence... args) {
         return submit(MPDCommand.create(command, args));
@@ -628,7 +628,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * Submits the command to the {@link MPDExecutor}.
      *
      * @param command The command to be sent to the server.
-     * @return A {@link MPDFuture} for tracking and response processing.
+     * @return A {@link ResultFuture} for tracking and response processing.
      */
     public ResponseFuture submit(final MPDCommand command) {
         return new ResponseFuture(processCommand(command));
@@ -638,7 +638,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * Submits this CommandQueue to the {@link MPDExecutor}.
      *
      * @param commandQueue The The CommandQueue to send to the server.
-     * @return A {@link MPDFuture} for tracking and response processing.
+     * @return A {@link ResultFuture} for tracking and response processing.
      */
     public ResponseFuture submit(final CommandQueue commandQueue) {
         return new ResponseFuture(processCommand(commandQueue));

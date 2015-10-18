@@ -40,7 +40,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * This class returns a {@link CommandResult} in the future.
  */
-public class MPDFuture {
+public class ResultFuture {
 
     /**
      * The message given when a connection has been lost.
@@ -57,7 +57,7 @@ public class MPDFuture {
      *
      * @param future The future to be subclassed.
      */
-    MPDFuture(final MPDFuture future) {
+    ResultFuture(final ResultFuture future) {
         super();
 
         mFuture = future.mFuture;
@@ -68,7 +68,7 @@ public class MPDFuture {
      *
      * @param future The future to wrap.
      */
-    MPDFuture(final Future<?> future) {
+    ResultFuture(final Future<?> future) {
         super();
 
         mFuture = future;
@@ -229,7 +229,7 @@ public class MPDFuture {
 
     @Override
     public String toString() {
-        return "MPDFuture{" +
+        return "ResultFuture{" +
                 "mFuture=" + mFuture +
                 '}';
     }

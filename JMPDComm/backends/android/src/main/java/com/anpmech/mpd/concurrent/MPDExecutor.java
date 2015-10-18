@@ -74,8 +74,9 @@ public final class MPDExecutor {
      * Returns false on failure, usually because the looper processing the message queue is
      * exiting.
      */
-    public static MPDFuture schedule(final Runnable task, final long delay, final TimeUnit unit) {
-        return new MPDFuture(EXECUTOR.schedule(task, delay, unit));
+    public static ResultFuture schedule(final Runnable task, final long delay,
+            final TimeUnit unit) {
+        return new ResultFuture(EXECUTOR.schedule(task, delay, unit));
     }
 
     /**
@@ -98,9 +99,9 @@ public final class MPDExecutor {
      * @throws RejectedExecutionException If the task cannot be scheduled for execution.
      * @throws NullPointerException       If the task is null.
      */
-    public static <T extends CommandResult> MPDFuture schedule(final Callable<T> task,
+    public static <T extends CommandResult> ResultFuture schedule(final Callable<T> task,
             final long delay, final TimeUnit unit) {
-        return new MPDFuture(EXECUTOR.schedule(task, delay, unit));
+        return new ResultFuture(EXECUTOR.schedule(task, delay, unit));
     }
 
     /**
@@ -128,8 +129,8 @@ public final class MPDExecutor {
      * @throws RejectedExecutionException If the task cannot be scheduled for execution.
      * @throws NullPointerException       If the task is null.
      */
-    public static <T extends CommandResult> MPDFuture submit(final Callable<T> task) {
-        return new MPDFuture(EXECUTOR.submit(task));
+    public static <T extends CommandResult> ResultFuture submit(final Callable<T> task) {
+        return new ResultFuture(EXECUTOR.submit(task));
     }
 
     /**
@@ -137,12 +138,12 @@ public final class MPDExecutor {
      * Future's <tt>get</tt> method will return <tt>null</tt> upon <em>successful</em> completion.
      *
      * @param task the task to submit
-     * @return A MPDFuture without a get() payload.
+     * @return A ResultFuture without a get() payload.
      * @throws RejectedExecutionException if the task cannot be scheduled for execution
      * @throws NullPointerException       if the task is null
      */
-    public static MPDFuture submit(final Runnable task) {
-        return new MPDFuture(EXECUTOR.submit(task));
+    public static ResultFuture submit(final Runnable task) {
+        return new ResultFuture(EXECUTOR.submit(task));
     }
 
     /**

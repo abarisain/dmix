@@ -30,7 +30,7 @@ package com.anpmech.mpd.connection;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.commandresponse.CommandResponse;
-import com.anpmech.mpd.concurrent.MPDFuture;
+import com.anpmech.mpd.concurrent.ResultFuture;
 import com.anpmech.mpd.exception.MPDException;
 
 import java.io.BufferedReader;
@@ -236,7 +236,7 @@ abstract class IOCommandProcessor implements Callable<CommandResult> {
      * @throws IOException Thrown upon a communication error with the server.
      */
     protected void innerConnect(final IOSocketSet socketSet) throws IOException {
-        final MPDFuture future = socketSet.startTimeout(STREAM_TIMEOUT, TimeUnit.SECONDS);
+        final ResultFuture future = socketSet.startTimeout(STREAM_TIMEOUT, TimeUnit.SECONDS);
         mHeader = socketSet.getReader().readLine();
         future.cancel(true);
 

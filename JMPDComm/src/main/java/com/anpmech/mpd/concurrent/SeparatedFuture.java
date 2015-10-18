@@ -38,14 +38,14 @@ import java.util.concurrent.TimeoutException;
 /**
  * This class returns a {@link SeparatedResponse} in the future.
  */
-public class SeparatedFuture extends MPDFuture {
+public class SeparatedFuture extends ResultFuture {
 
     /**
      * The sole constructor.
      *
-     * @param future The MPDFuture used to construct this instance.
+     * @param future The ResultFuture used to construct this instance.
      */
-    public SeparatedFuture(final MPDFuture future) {
+    public SeparatedFuture(final ResultFuture future) {
         super(future);
     }
 

@@ -17,7 +17,7 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.anpmech.mpd.MPD;
-import com.anpmech.mpd.concurrent.MPDFuture;
+import com.anpmech.mpd.concurrent.ResultFuture;
 import com.anpmech.mpd.subsystem.Playback;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
@@ -146,9 +146,9 @@ public final class MPDControl {
      * @param userCommand The command to be run.
      * @param l           A long primitive argument for the {@code userCommand}.
      */
-    public static MPDFuture run(@ControlType final String userCommand, final long l) {
+    public static ResultFuture run(@ControlType final String userCommand, final long l) {
         final Playback playback = APP.getMPD().getPlayback();
-        MPDFuture future = null;
+        ResultFuture future = null;
 
         switch (userCommand) {
             case ACTION_CONSUME:

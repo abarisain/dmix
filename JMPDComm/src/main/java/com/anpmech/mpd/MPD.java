@@ -34,7 +34,7 @@ import com.anpmech.mpd.commandresponse.GenreResponse;
 import com.anpmech.mpd.commandresponse.MusicResponse;
 import com.anpmech.mpd.commandresponse.PlaylistFileResponse;
 import com.anpmech.mpd.commandresponse.SeparatedResponse;
-import com.anpmech.mpd.concurrent.MPDFuture;
+import com.anpmech.mpd.concurrent.ResultFuture;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
@@ -692,7 +692,7 @@ public class MPD {
         saveStream(url, name);
     }
 
-    public MPDFuture enableOutput(final int id) {
+    public ResultFuture enableOutput(final int id) {
         return mConnection.submit(MPDCommand.MPD_CMD_OUTPUTENABLE, Integer.toString(id));
     }
 

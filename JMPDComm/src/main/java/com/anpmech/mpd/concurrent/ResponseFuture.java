@@ -38,14 +38,14 @@ import java.util.concurrent.TimeoutException;
 /**
  * This class returns a {@link CommandResponse} in the future.
  */
-public class ResponseFuture extends MPDFuture {
+public class ResponseFuture extends ResultFuture {
 
     /**
      * The sole constructor.
      *
-     * @param future The MPDFuture to wrap with the {@link CommandResponse} future.
+     * @param future The ResultFuture to wrap with the {@link CommandResponse} future.
      */
-    public ResponseFuture(final MPDFuture future) {
+    public ResponseFuture(final ResultFuture future) {
         super(future);
     }
 

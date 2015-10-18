@@ -28,7 +28,7 @@
 package com.anpmech.mpd.connection;
 
 import com.anpmech.mpd.concurrent.MPDExecutor;
-import com.anpmech.mpd.concurrent.MPDFuture;
+import com.anpmech.mpd.concurrent.ResultFuture;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -70,8 +70,8 @@ class IOSocketSet {
     private final Socket mSocket;
 
     /**
-     * This {@link Runnable} implementation will close the socket, unless the {@link MPDFuture} is
-     * cancelled.
+     * This {@link Runnable} implementation will close the socket, unless the {@link ResultFuture}
+     * is cancelled.
      */
     private final Runnable mStreamTimeout = new Timeout(this);
 
@@ -153,9 +153,9 @@ class IOSocketSet {
      *
      * @param delay The delay to timeout this stream.
      * @param unit  The {@link TimeUnit} for the delay.
-     * @return A {@link MPDFuture} to use to cancel the timeout.
+     * @return A {@link ResultFuture} to use to cancel the timeout.
      */
-    public MPDFuture startTimeout(final long delay, final TimeUnit unit) {
+    public ResultFuture startTimeout(final long delay, final TimeUnit unit) {
         return MPDExecutor.schedule(mStreamTimeout, delay, unit);
     }
 
