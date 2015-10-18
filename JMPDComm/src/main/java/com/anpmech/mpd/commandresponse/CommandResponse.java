@@ -35,14 +35,9 @@ import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
@@ -89,109 +84,6 @@ public class CommandResponse extends ObjectResponse<String> {
     }
 
     /**
-     * Converts a Iterator&lt;Map.Entry&lt;T, S&gt;&gt; to a List&lt;String&gt; of values where
-     * the {@code key} parameter matches the Map Entry.
-     *
-     * @param list     The list to add the matching entries to.
-     * @param iterator The iterator with Map.Entry&lt;T, S&gt; entries.
-     * @param key      The key to match. If {@code null}, all will match.
-     * @param <T>      The first Map.Entry type.
-     * @param <S>      The second Map.Entry type.
-     * @return True if the list was modified, false otherwise.
-     */
-    private static <T, S> boolean addAllMatching(final Collection<S> list,
-            final Iterator<Map.Entry<T, S>> iterator, final T key) {
-        final int hash = list.hashCode();
-
-        while (iterator.hasNext()) {
-            final Map.Entry<T, S> entry = iterator.next();
-
-            if (key == null || entry.getKey().equals(key)) {
-                list.add(entry.getValue());
-            }
-        }
-
-        return hash != list.hashCode();
-    }
-
-    /**
-     * Converts a Iterator&lt;Map.Entry&lt;T, S&gt;&gt; to a Map&lt;Map.Entry&lt;T, S&gt;&gt;.
-     *
-     * @param map      The map to add the entries from the iterator to.
-     * @param iterator The iterator with Map.Entry&lt;T, S&gt; entries.
-     * @param <T>      The first Map.Entry type.
-     * @param <S>      The second Map.Entry type.
-     * @return True if the list was modified, false otherwise.
-     */
-    private static <T, S> boolean putAll(final Map<T, S> map,
-            final Iterator<Map.Entry<T, S>> iterator) {
-        final int hash = map.hashCode();
-
-        while (iterator.hasNext()) {
-            final Map.Entry<T, S> entry = iterator.next();
-
-            map.put(entry.getKey(), entry.getValue());
-        }
-
-        return hash != map.hashCode();
-    }
-
-    /**
-     * This method creates a key value map from this response.
-     *
-     * @return A {@code Map<Key, Value>}.
-     */
-    public Map<String, String> getKeyValueMap() {
-        final Map<String, String> map = new HashMap<>(mListSize);
-        putAll(map, splitListIterator());
-
-        return map;
-    }
-
-    /**
-     * This method returns a list of {@code key}:{@code value} pairs.
-     *
-     * <p>An error will be produced if this is called on a non-{@code key}:{@code value} MPD server
-     * response.</p>
-     *
-     * @return A list of {@code key}:{@code value} pairs.
-     * @see #splitListIterator()
-     */
-    public List<Map.Entry<String, String>> getSplitList() {
-        final List<Map.Entry<String, String>> list = new ArrayList<>(mListSize);
-        addAll(list, splitListIterator());
-
-        return list;
-    }
-
-    /**
-     * This method returns a list of values from a {@code key}:{@code value} pair MPD protocol
-     * response.
-     *
-     * <p>Care should be taken to only call this method with a {@code key}:{@code value} pair MPD
-     * protocol response.</p>
-     *
-     * @return A list of values from a {@code key}:{@code value} pair MPD protocol response.
-     */
-    public List<String> getValues() {
-        return getValues(null);
-    }
-
-    /**
-     * This method returns a list of values with keys equal to the {@code key} parameter from a
-     * {@code key}:{@code value} MPD protocol response.
-     *
-     * @param key The key to find matching values for.
-     * @return A list of values with keys matching the {@code key} parameter.
-     */
-    public List<String> getValues(final String key) {
-        final List<String> values = new ArrayList<>(mListSize);
-        addAllMatching(values, splitListIterator(), key);
-
-        return values;
-    }
-
-    /**
      * This method returns a iterator, starting at the beginning of the response.
      *
      * @param position The position to begin the iterator at, typically beginning or end.
@@ -201,37 +93,6 @@ public class CommandResponse extends ObjectResponse<String> {
     @Override
     protected ListIterator<String> listIterator(final int position) {
         return new ResultIterator(mResult, position);
-    }
-
-    /**
-     * This method returns a iterator of {@code key}:{@code value} pairs, starting at the end of
-     * the list.
-     *
-     * <p>The expectation of this iterator is to use previous() and previousIndex().</p>
-     *
-     * @return A iterator to return key/value pairs.
-     */
-    public ListIterator<Map.Entry<String, String>> reverseSplitListIterator() {
-        int lastIndex = mResult.lastIndexOf(MPDCommand.MPD_CMD_NEWLINE);
-
-        /**
-         * If the last index is -1, the position will be wrongly calculated.
-         */
-        if (lastIndex == -1) {
-            lastIndex = 0;
-        }
-
-        return new ResultSplitIterator(mResult, lastIndex);
-    }
-
-    /**
-     * This method returns a iterator of {@code key}:{@code value} pairs.
-     *
-     * @return A iterator to return key/value pairs.
-     * @see #getSplitList()
-     */
-    public ResultSplitIterator splitListIterator() {
-        return new ResultSplitIterator(mResult, 0);
     }
 
     /**
@@ -688,111 +549,6 @@ public class CommandResponse extends ObjectResponse<String> {
         @Override
         String instantiate(final String responseBlock) {
             return responseBlock;
-        }
-    }
-
-    /**
-     * This class is used to create an {@link Iterator} to iterate over each {@code key}:{@code
-     * value} of an MPD
-     * command response.
-     *
-     * <b>This class requires a {@code key}:{@code value} MPD response.</b>
-     */
-    public static final class ResultSplitIterator
-            extends FullBlockResultIterator<Map.Entry<String, String>> {
-
-        /**
-         * Sole constructor.
-         *
-         * @param response The MPD protocol command response.
-         * @param position The position relative to the response to initiate the
-         *                 {@link AbstractResultIterator#mPosition} to.
-         */
-        private ResultSplitIterator(final String response, final int position) {
-            super(response, position);
-        }
-
-        /**
-         * Override this to create the Object using the response block.
-         *
-         * @param responseBlock The response block to create the Object from.
-         * @return The object created from the response block.
-         */
-        @Override
-        Map.Entry<String, String> instantiate(final String responseBlock) {
-            return new SimplerImmutableEntry(responseBlock);
-        }
-    }
-
-    /**
-     * This creates a simple map entry for {@code key}:{@code value} entries.
-     */
-    private static final class SimplerImmutableEntry implements Map.Entry<String, String> {
-
-        /**
-         * The index of the delimiter in the {@link #mEntry}.
-         */
-        private final int mDelimiter;
-
-        /**
-         * The {@code key}:{@code value} response line.
-         */
-        private final String mEntry;
-
-        /**
-         * Sole constructor.
-         *
-         * @param entry The line to make a Map.Entry&lt;CharSequence, String&gt;.
-         */
-        private SimplerImmutableEntry(final String entry) {
-            super();
-
-            mEntry = entry;
-            mDelimiter = entry.indexOf(MPD_KV_DELIMITER);
-
-            if (mDelimiter == -1) {
-                throw new IllegalArgumentException(
-                        "Failed to parse line for delimiter.\n" + "Failed iterator information: "
-                                + toString());
-            }
-        }
-
-        /**
-         * The MPD response key for this entry.
-         *
-         * @return The key for this entry.
-         */
-        @Override
-        public String getKey() {
-            return mEntry.substring(0, mDelimiter);
-        }
-
-        /**
-         * The MPD response value for this entry.
-         *
-         * @return The value for this entry.
-         */
-        @Override
-        public String getValue() {
-            return mEntry.substring(mDelimiter + 2);
-        }
-
-        /**
-         * Calling this method will throw a {@link UnsupportedOperationException}.
-         */
-        @Override
-        public String setValue(final String object) {
-            throw new UnsupportedOperationException("Setting a value not supported.");
-        }
-
-        /**
-         * This returns the entire entry.
-         *
-         * @return The entire (unsplit) entry.
-         */
-        @Override
-        public String toString() {
-            return mEntry;
         }
     }
 

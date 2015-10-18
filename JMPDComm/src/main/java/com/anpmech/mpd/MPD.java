@@ -31,6 +31,7 @@ import com.anpmech.mpd.commandresponse.ArtistResponse;
 import com.anpmech.mpd.commandresponse.AudioOutputResponse;
 import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.GenreResponse;
+import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.commandresponse.MusicResponse;
 import com.anpmech.mpd.commandresponse.PlaylistFileResponse;
 import com.anpmech.mpd.commandresponse.SeparatedResponse;
@@ -449,7 +450,7 @@ public class MPD {
             albumBuilder.setAlbum(albums.get(i));
 
             /** First, extract the album specifics from the response. */
-            for (final Map.Entry<String, String> entry : response.splitListIterator()) {
+            for (final Map.Entry<String, String> entry : new KeyValueResponse(response)) {
                 switch (entry.getKey()) {
                     case "songs":
                         albumBuilder.setSongCount(Long.parseLong(entry.getValue()));
@@ -1258,7 +1259,7 @@ public class MPD {
 
         List<List<String>> responses = new ArrayList<>();
         for (final CommandResponse response : mConnection.submitSeparated(commandQueue).get()) {
-            responses.add(response.getValues(Music.RESPONSE_ALBUM_ARTIST));
+            responses.add(new KeyValueResponse(response).getValues(Music.RESPONSE_ALBUM_ARTIST));
         }
 
         if (responses.size() != albums.size()) {
@@ -1299,7 +1300,7 @@ public class MPD {
             command = listAlbumsCommand(artist.getName(), useAlbumArtist);
         }
 
-        final CommandResponse response = mConnection.submit(command).get();
+        final KeyValueResponse response = new KeyValueResponse(mConnection.submit(command).get());
 
         return response.getValues(Music.RESPONSE_ALBUM);
     }
@@ -1349,8 +1350,9 @@ public class MPD {
         final AlbumBuilder albumBuilder = new AlbumBuilder();
         final String albumResponse = Music.RESPONSE_ALBUM;
         final String artistResponse;
-        final CommandResponse response =
-                mConnection.submit(listAllAlbumsGroupedCommand(useAlbumArtist)).get();
+        final KeyValueResponse response =
+                new KeyValueResponse(
+                        mConnection.submit(listAllAlbumsGroupedCommand(useAlbumArtist)).get());
         final List<Album> result = new ArrayList<>();
         String currentAlbum = null;
 
@@ -1360,7 +1362,7 @@ public class MPD {
             artistResponse = Music.RESPONSE_ARTIST;
         }
 
-        for (final Map.Entry<String, String> entry : response.splitListIterator()) {
+        for (final Map.Entry<String, String> entry : response) {
             if (artistResponse.equals(entry.getKey())) {
                 if (currentAlbum != null) {
                     albumBuilder.setBase(currentAlbum, entry.getValue(), useAlbumArtist);

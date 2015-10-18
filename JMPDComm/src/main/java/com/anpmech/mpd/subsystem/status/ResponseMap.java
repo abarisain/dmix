@@ -28,7 +28,7 @@
 package com.anpmech.mpd.subsystem.status;
 
 import com.anpmech.mpd.Tools;
-import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.commandresponse.KeyValueResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -114,7 +114,7 @@ class ResponseMap {
     /**
      * This constructs a {@link Map} backed ResponseMap, this is useful for immutable or
      * for an alternative subclass mapping. The map given <b>will</b> be modified if {@link
-     * #update(CommandResponse)} is called.
+     * #update(KeyValueResponse)} is called.
      *
      * @param map The alternate mapping to use for backend storage.
      */
@@ -233,7 +233,7 @@ class ResponseMap {
      *
      * @param commandResponse The response from the server.
      */
-    public void update(final CommandResponse commandResponse) {
+    public void update(final KeyValueResponse commandResponse) {
         final Map<String, String> map = commandResponse.getKeyValueMap();
 
         /**

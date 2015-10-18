@@ -27,6 +27,8 @@
 
 package com.anpmech.mpd.subsystem.status;
 
+import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 
@@ -220,6 +222,8 @@ public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
      * @see IdleSubsystemMonitor
      */
     public void update() throws IOException, MPDException {
-        update(mConnection.submit(CMD_ACTION_STATISTICS).get());
+        final CommandResponse response = mConnection.submit(CMD_ACTION_STATISTICS).get();
+
+        update(new KeyValueResponse(response));
     }
 }

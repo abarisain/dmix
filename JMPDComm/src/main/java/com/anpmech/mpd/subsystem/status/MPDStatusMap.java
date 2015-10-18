@@ -29,7 +29,7 @@ package com.anpmech.mpd.subsystem.status;
 
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.Tools;
-import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.concurrent.ResponseFuture;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
@@ -755,7 +755,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
     public void update() throws IOException, MPDException {
         final ResponseFuture future = mConnection.submit(CMD_ACTION_STATUS);
 
-        update(future.get());
+        update(new KeyValueResponse(future.get()));
     }
 
     /**
@@ -764,7 +764,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * @param commandResponse The response from the server.
      */
     @Override
-    public void update(final CommandResponse commandResponse) {
+    public void update(final KeyValueResponse commandResponse) {
         super.update(commandResponse);
         mUpdateTime = new Date().getTime();
     }

@@ -31,6 +31,7 @@ import com.anpmech.mpd.CommandQueue;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.commandresponse.MusicResponse;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.connection.MPDConnection;
@@ -149,10 +150,10 @@ public class Sticker {
      * @param response The media server response from which to retrieve the music list.
      * @return A command queue to retrieve a media server response for a list of music.
      */
-    private static CommandQueue getMusicCommand(final CommandResponse response) {
+    private static CommandQueue getMusicCommand(final KeyValueResponse response) {
         final CommandQueue commandQueue = new CommandQueue();
 
-        for (final Map.Entry<String, String> entry : response.splitListIterator()) {
+        for (final Map.Entry<String, String> entry : response) {
             if (CMD_RESPONSE_FILE.equals(entry.getKey())) {
                 commandQueue.add(MPDCommand.MPD_CMD_LISTALL, entry.getValue());
             }
@@ -214,8 +215,9 @@ public class Sticker {
 
         final Map<Music, Map<String, String>> foundStickers;
         if (isAvailable()) {
-            final CommandResponse response =
+            final CommandResponse result =
                     mConnection.submit(CMD_ACTION_FIND, entry.getFullPath(), name).get();
+            final KeyValueResponse response = new KeyValueResponse(result);
 
             /** Generate a map used to create the result. */
             final Map<String, Music> musicPair = getMusicPair(response);
@@ -223,7 +225,7 @@ public class Sticker {
             final Map<String, String> currentTrackStickers = new HashMap<>();
             Music currentMusic = null;
 
-            for (final Map.Entry<String, String> mapEntry : response.splitListIterator()) {
+            for (final Map.Entry<String, String> mapEntry : response) {
                 final String key = mapEntry.getKey();
 
                 if (CMD_RESPONSE_FILE.equals(key)) {
@@ -285,7 +287,7 @@ public class Sticker {
                             entry.getFullPath());
                 }
             } else {
-                for (final Map.Entry<String, String> mapEntry : response.splitListIterator()) {
+                for (final Map.Entry<String, String> mapEntry : new KeyValueResponse(response)) {
                     if (CMD_RESPONSE_STICKER.equals(mapEntry.getKey())) {
                         final int index = mapEntry.getValue().indexOf('=');
 
@@ -306,7 +308,7 @@ public class Sticker {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    private Map<String, Music> getMusicPair(final CommandResponse response)
+    private Map<String, Music> getMusicPair(final KeyValueResponse response)
             throws IOException, MPDException {
         final CommandResult result = mConnection.submit(getMusicCommand(response)).get();
         final Map<String, Music> musicPair = new HashMap<>();
@@ -385,7 +387,7 @@ public class Sticker {
             } else {
                 stickers = new HashMap<>();
 
-                for (final Map.Entry<String, String> mapEntry : response.splitListIterator()) {
+                for (final Map.Entry<String, String> mapEntry : new KeyValueResponse(response)) {
                     if (CMD_RESPONSE_STICKER.equals(mapEntry.getKey())) {
                         final String value = mapEntry.getValue();
                         final int delimiterIndex = value.indexOf('=');

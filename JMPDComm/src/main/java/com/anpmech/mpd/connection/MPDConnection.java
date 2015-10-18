@@ -31,6 +31,7 @@ import com.anpmech.mpd.CommandQueue;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.commandresponse.SeparatedResponse;
 import com.anpmech.mpd.concurrent.MPDExecutor;
 import com.anpmech.mpd.concurrent.ResponseFuture;
@@ -280,10 +281,10 @@ public abstract class MPDConnection implements MPDConnectionListener {
     @Override
     public void connectionConnected(final int zero) {
         int commandErrorCode = 0;
-        CommandResponse commandResponse = null;
+        KeyValueResponse response = null;
 
         try {
-            commandResponse = mConnectionResponse.get();
+            response = new KeyValueResponse(mConnectionResponse.get());
         } catch (final MPDException e) {
             commandErrorCode = e.mErrorCode;
             Log.error(TAG, "Exception during connection.", e);
@@ -309,11 +310,11 @@ public abstract class MPDConnection implements MPDConnectionListener {
              * Don't worry too much about it if we didn't get a connection header. Sometimes,
              * we'll have been told we disconnected when we had not.
              */
-            if (commandResponse != null && commandResponse.isHeaderValid()) {
+            if (response != null && response.isHeaderValid()) {
                 mAvailableCommands.clear();
-                mAvailableCommands.addAll(commandResponse.getValues());
+                mAvailableCommands.addAll(response.getValues());
 
-                mMPDVersion = commandResponse.getMPDVersion();
+                mMPDVersion = response.getMPDVersion();
             }
 
             debug("Releasing connection lock upon successful connection.");

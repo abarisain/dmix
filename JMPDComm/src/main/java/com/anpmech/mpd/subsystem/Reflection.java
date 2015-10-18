@@ -29,6 +29,7 @@ package com.anpmech.mpd.subsystem;
 
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 
@@ -189,7 +190,7 @@ public class Reflection {
             throws IOException, MPDException {
         final CommandResponse response = mConnection.submit(command).get();
 
-        return response.getValues(element);
+        return new KeyValueResponse(response).getValues(element);
     }
 
     /**

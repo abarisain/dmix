@@ -28,6 +28,7 @@
 package com.anpmech.mpd;
 
 import com.anpmech.mpd.commandresponse.CommandResponse;
+import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.connection.CommandResponseCreator;
 
 import org.junit.Rule;
@@ -35,6 +36,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -73,10 +75,11 @@ public class ResponseObjectTest {
     public ResponseObjectTest() throws IOException {
         super();
 
-        final CommandResponse response = CommandResponseCreator.getCommandResponse(
+        final CommandResponse result = CommandResponseCreator.getCommandResponse(
                 TestTools.FILE_SINGULAR_TRACK_FILE);
-        final String responseLine = response.iterator().next() + '\n';
-        final String name = response.splitListIterator().next().getValue();
+        final Iterable<Map.Entry<String, String>> response = new KeyValueResponse(result);
+        final String responseLine = result.iterator().next() + '\n';
+        final String name = response.iterator().next().getValue();
 
         mSampleResponseLine = responseLine;
         mSampleName = name;

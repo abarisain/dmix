@@ -31,6 +31,7 @@ import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.MPDPlaylist;
+import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.concurrent.MPDExecutor;
 import com.anpmech.mpd.concurrent.ResponseFuture;
 import com.anpmech.mpd.concurrent.ResultFuture;
@@ -365,7 +366,7 @@ public class IdleSubsystemMonitor implements Runnable {
                  */
                 try {
                     final Iterator<Map.Entry<String, String>> changes =
-                            mIdleTracker.get().splitListIterator();
+                            new KeyValueResponse(mIdleTracker.get()).iterator();
 
                     oldStatus = status.getImmutableStatus();
                     status.update();
