@@ -1,0 +1,6 @@
+outputid: 0
+outputname: Local Streaming
+outputenabled: 1
+outputid: 1
+outputname: My Pulse Output
+outputenabled: 1

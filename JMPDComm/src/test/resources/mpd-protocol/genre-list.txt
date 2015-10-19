@@ -1,0 +1,444 @@
+Genre:
+Genre: 1973
+Genre: 1979
+Genre: 1982
+Genre: 1983
+Genre: 1984
+Genre: 1985
+Genre: 1986
+Genre: 1987
+Genre: 1988
+Genre: 1989
+Genre: 1991
+Genre: 1992
+Genre: 1993
+Genre: 1994
+Genre: 1995
+Genre: 1996
+Genre: 1998
+Genre: 1998_Rock And Roll
+Genre: 1999
+Genre: 2000
+Genre: 2002
+Genre: 2004
+Genre: 2006
+Genre: 2007
+Genre: 2009
+Genre: 2015
+Genre: 255
+Genre: 3
+Genre: 368
+Genre: 808 S And Heartbreak
+Genre: 90 S R B
+Genre: Abstract
+Genre: Acid Rock
+Genre: Acoustic
+Genre: Acoustic Pop
+Genre: Adult Alternative Pop/Rock
+Genre: Adult Contemporary
+Genre: Album Rock
+Genre: Alt
+Genre: Alt Rock
+Genre: Alternative
+Genre: Alternative And Punk
+Genre: Alternative Country
+Genre: Alternative Hip-Hop
+Genre: Alternative Metal
+Genre: Alternative Punk
+Genre: Alternative Rock
+Genre: Alternative Singer/Songwriter
+Genre: Alternative/Indie Rock
+Genre: Alternrock
+Genre: Amazing
+Genre: Amazing Song
+Genre: Ambient
+Genre: Ambient_Rock
+Genre: American
+Genre: American Popular Song
+Genre: American Underground
+Genre: Among The 5 Best Of 2015
+Genre: Américain
+Genre: Anti-Folk
+Genre: Aor Classic Rock
+Genre: Art Rock
+Genre: Artist-Session1_Track1
+Genre: Atlantic
+Genre: Avantgarde
+Genre: Ballad
+Genre: Beats
+Genre: Beautiful
+Genre: Best Of 2015
+Genre: Best Of The Album
+Genre: Best Song On The Album So Far
+Genre: Beyoncé
+Genre: Big Band
+Genre: Big Beat
+Genre: Black Metal
+Genre: Blind Mp3
+Genre: Blue
+Genre: Blues
+Genre: Blues Rock
+Genre: Blues-Rock
+Genre: Books And Spoken
+Genre: Books Spoken
+Genre: Bowie
+Genre: Breakbeat
+Genre: Breaks
+Genre: Brit Pop
+Genre: Britannique
+Genre: British
+Genre: British Psychedelia
+Genre: Britpop
+Genre: Broken Beat
+Genre: Brought Me To Tears
+Genre: Calm
+Genre: Canadian
+Genre: Canadien
+Genre: Caraleo
+Genre: Celtic
+Genre: Celtique
+Genre: Chamber Jazz
+Genre: Chill Out
+Genre: Christmas
+Genre: Classic Hardcore Punk
+Genre: Classic Pop And Rock
+Genre: Classic Pop And Rock_1973_Classic Pop And Rock_1973_Metal
+Genre: Classic Pop And Rock_1973_Metal
+Genre: Classic Pop Punk
+Genre: Classic Rock
+Genre: Classic Soul R B
+Genre: Classical
+Genre: Club-House
+Genre: Club/Dance
+Genre: Comedy
+Genre: Comedy Rock
+Genre: Conscious
+Genre: Contemporary Folk
+Genre: Contemporary Jazz
+Genre: Contemporary Pop/Rock
+Genre: Contemporary Singer/Songwriter
+Genre: Cool
+Genre: Corporal Elements
+Genre: Country
+Genre: Covered By 11
+Genre: Covered By 4
+Genre: Covered By 6
+Genre: Creative Commons
+Genre: Crossover Thrash
+Genre: Dad-Rock
+Genre: Dance
+Genre: Dance Pop
+Genre: Death Metal
+Genre: Deep House
+Genre: Disco
+Genre: Discoth Que
+Genre: Dixieland
+Genre: Donné
+Genre: Downtempo
+Genre: Downtempo - vocal/lounge
+Genre: Dr4
+Genre: Dr5
+Genre: Dr6
+Genre: Drama
+Genre: Drsaunde
+Genre: Drum And Bass
+Genre: Dub
+Genre: Dubstep
+Genre: Eargasm
+Genre: Electro
+Genre: Electronic
+Genre: Electronic And Space Music
+Genre: Electronic_Trance
+Genre: Electronica Dance
+Genre: Electropop
+Genre: Emo
+Genre: Epic
+Genre: Epitaph
+Genre: Ethereal
+Genre: Excelent
+Genre: Experimental
+Genre: Experimental Rock
+Genre: Familiarity
+Genre: Female Vocal
+Genre: Female Vocalists
+Genre: Film
+Genre: Fleetwood Mac Vibes
+Genre: Folk
+Genre: Folk Rock
+Genre: Folk-Rock
+Genre: Format-K2Hd
+Genre: Funk
+Genre: Funk / Soul
+Genre: Funk Metal
+Genre: Funk Soul
+Genre: Fusion
+Genre: Future Jazz
+Genre: Gangsta
+Genre: Garage Rock
+Genre: General Alternative Rock
+Genre: General Club Dance
+Genre: General Film Music
+Genre: General Pop Vocal
+Genre: General Punk
+Genre: General R B
+Genre: Genre
+Genre: Girls Name
+Genre: Glam
+Genre: Glam Metal
+Genre: Glitch
+Genre: Goosebumps
+Genre: Goth Rock
+Genre: Gothic Rock
+Genre: Gratuitous Heavy Metal Umlaut
+Genre: Great Lyrics
+Genre: Groove Metal
+Genre: Grunge
+Genre: Hard Rock
+Genre: Hard Trance
+Genre: Hardcore
+Genre: Hardcore Punk
+Genre: Hardnheavy
+Genre: Harmony
+Genre: Hawaii
+Genre: Hbhbhb
+Genre: Heavy Alternative
+Genre: Heavy Metal
+Genre: Heavy Metalunknown
+Genre: Heavymetal
+Genre: Hidden Track
+Genre: Hino Das Bruxas
+Genre: Hip Hop Rap
+Genre: Hip Hop Rnb And Dance Hall
+Genre: Hip-Hop
+Genre: Hip-Hop Groove
+Genre: Hip-Hop Progressive
+Genre: Hip-Hop Rap
+Genre: Hip-Hop Urban
+Genre: Hip-Hop_Hip-Hop
+Genre: Hip-Hop_Hip-Hop_Hip-Hop
+Genre: Holidays
+Genre: House
+Genre: Humour
+Genre: Icelandic
+Genre: Idm
+Genre: Incredible
+Genre: Indie
+Genre: Indie Pop
+Genre: Indie Rock
+Genre: Industrial
+Genre: Industrial Metal
+Genre: Industrial Rock
+Genre: Instant Favorite
+Genre: Instrumental
+Genre: Instrumental Rock
+Genre: Instrumental_Electronic_Trance
+Genre: Instrumental_New Age
+Genre: International
+Genre: Jazz
+Genre: Jazz Fusion
+Genre: Jazz Hop
+Genre: Jazz Vocals
+Genre: Jesus Christ This Is Good
+Genre: Jesus Come Back
+Genre: Latin
+Genre: Latin Jazz
+Genre: Leftfield
+Genre: Liste De Courses Jpn
+Genre: Live
+Genre: Lo-Fi
+Genre: Lounge
+Genre: Love At First Listen
+Genre: Love It
+Genre: Lovely
+Genre: Magic
+Genre: Magnatune
+Genre: Makes Me Cry
+Genre: Makes Me Shiver
+Genre: Male Vocal
+Genre: Masternumber
+Genre: Melancholic Uptempo
+Genre: Mellow
+Genre: Melodic Death Metal
+Genre: Metal
+Genre: Metal rock black death deathmetal blackmetal franc
+Genre: Misc
+Genre: Miscellaneous
+Genre: Modern
+Genre: Modern Classical
+Genre: Modern Country
+Genre: Mos
+Genre: Music
+Genre: Musical
+Genre: Musique Concrète
+Genre: Musique du monde 
+Genre: Neo-Prog
+Genre: New Age
+Genre: New Age Christmassongs
+Genre: New Age Christmassongs_New Age_Soundtrack
+Genre: New Wave
+Genre: Newage
+Genre: No Genre Info
+Genre: No Wave
+Genre: Noise
+Genre: Non-Music
+Genre: Nu Metal
+Genre: Nu-Metal
+Genre: Old School
+Genre: Oldies
+Genre: Oldies 50 S
+Genre: Oldies 60 S
+Genre: Opeth
+Genre: Orchestral
+Genre: Other Punk
+Genre: Parody
+Genre: Patrick Swayze - Dirty Dancing
+Genre: Peaceful
+Genre: Peel Sessions
+Genre: Perfect Song
+Genre: Phonetic Phail
+Genre: Piano Rock
+Genre: Pisou
+Genre: Pkg-Jewel Case
+Genre: Podcast
+Genre: Polka
+Genre: Pop
+Genre: Pop And Chart
+Genre: Pop Rap
+Genre: Pop Rock
+Genre: Pop-Folk
+Genre: Pop-Rock
+Genre: Pop/Rock
+Genre: Post Grunge
+Genre: Post-Grunge
+Genre: Post-Punk Revival
+Genre: Post-Rock
+Genre: Pouring Down
+Genre: Power Pop
+Genre: Powerful
+Genre: Pregaptrack
+Genre: Prog Rock
+Genre: Prog-Rock
+Genre: Progressive Death Metal
+Genre: Progressive House
+Genre: Progressive Metal
+Genre: Progressive Rock
+Genre: Progressive Rock_Alternative Rock
+Genre: Progressive Trance
+Genre: Promo
+Genre: Psychedelic Rock
+Genre: Psychedelic/Garage
+Genre: Punk
+Genre: Punk Blues
+Genre: Punk Revival
+Genre: Punk Rock
+Genre: Punk/New Wave
+Genre: Queen Of Pisz
+Genre: Quiet Storm
+Genre: R B
+Genre: R B Pop
+Genre: R B_Blues
+Genre: R B_Blues_R B
+Genre: R B_R B_Blues
+Genre: R&B
+Genre: Rap
+Genre: Rap And Hip Hop
+Genre: Rap And Hip-Hop
+Genre: Rap Hip Hop
+Genre: Rap Hip-Hop
+Genre: Rap-Metal
+Genre: Rap/Hip-Hop
+Genre: Reggae
+Genre: Rel-Yr:2015
+Genre: Remix
+Genre: Rhythm And Blues
+Genre: Rnb Swing
+Genre: Rock
+Genre: Rock & Roll
+Genre: Rock And Indie
+Genre: Rock And Indie_Hip-Hop_1998
+Genre: Rock And Roll
+Genre: Rock And Roll_Rock_Heavy Metal
+Genre: Rock N Roll
+Genre: Rock Pop
+Genre: Rock Roll
+Genre: Rock_17 Rock
+Genre: Rock_Hard Rock
+Genre: Rock_Hard Rock_Alternative Metal
+Genre: Rock_Hard Rock_Rock_Hard Rock
+Genre: Rock_Heavy Metal_Covered By 3_Rock_Blues Rock
+Genre: Rock_Heavy Metal_Hard Rock
+Genre: Rock_Nu Metal_Hard Rock
+Genre: Rock_Rnb Swing_Pop Rap
+Genre: Roots Reggae
+Genre: Roots Rock
+Genre: Rough Guide
+Genre: SIRIUS/XM Satellite Radio
+Genre: Safe
+Genre: Sangrar
+Genre: Score
+Genre: Shoegazefan
+Genre: Should Be Public Domain
+Genre: Single
+Genre: Ska
+Genre: Slaying Vocals
+Genre: Smooth Jazz
+Genre: Smooth Soul
+Genre: Soft Rock
+Genre: Songs That Are Important To Me
+Genre: Songs That I Will Still Be Listening To In A Billion Years
+Genre: Songs With Feeling
+Genre: Soul
+Genre: Soul And R B
+Genre: Soul And Reggae
+Genre: Soundtrac
+Genre: Soundtrack
+Genre: Soundtrack_New Age Christmassongs_New Age
+Genre: Southern Rock
+Genre: Space
+Genre: Speed
+Genre: Speed Metal
+Genre: Standards
+Genre: Stoner Rock
+Genre: Stoner.Rock
+Genre: Strings
+Genre: Suddenly The World Seems Such A Perfect Place
+Genre: Supernova
+Genre: Swing
+Genre: Symphonic Rock
+Genre: Synthpop
+Genre: Tech House
+Genre: Techno
+Genre: The Best On The Album
+Genre: This Demo Is Beautiful
+Genre: Thrash
+Genre: Thrash Metal
+Genre: Timj
+Genre: Top 40
+Genre: Trance
+Genre: Trance_Electronic_Downtempo
+Genre: Trance_Electronic_Electronic_Trance
+Genre: Trance_Electronic_Instrumental
+Genre: Trance_Instrumental_Electronic
+Genre: Tribal
+Genre: Tribal House
+Genre: Trip Hop
+Genre: Uk
+Genre: Uk Single Cd1
+Genre: Uk Single Cd2
+Genre: Unplugged
+Genre: Urban
+Genre: Usa
+Genre: Vendu
+Genre: Victorious Hymns
+Genre: Vocal
+Genre: Vocal Dance
+Genre: Vocal Trance
+Genre: Vocals For Days
+Genre: Which Witch
+Genre: Why On Earth Is This Just A Bonus Track
+Genre: Witchcraft Indie
+Genre: Wonderful
+Genre: Words Can Not Explain
+Genre: World
+Genre: World Music
+Genre: rock

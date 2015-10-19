@@ -25,8 +25,13 @@ package com.anpmech.mpd;/*
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import com.anpmech.mpd.commandresponse.ObjectResponse;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Scanner;
 
 /**
@@ -36,7 +41,52 @@ public enum TestTools {
     ;
 
     /**
-     * This file contains a single playlistinfo entry.
+     * This is the filename of a file which contains a "genre" command result.
+     */
+    public static final String FILE_GENRE_LIST = "mpd-protocol/genre-list.txt";
+
+    public static final String FILE_LISTFILES = "mpd-protocol/listfiles.txt";
+
+    /**
+     * This is the filename of a file which contains multiple playlistinfo entries.
+     */
+    public static final String FILE_MULTIPLE_PLAYLISTINFO
+            = "mpd-protocol/playlistinfo/multiple_playlistinfo.txt";
+
+    /**
+     * This file contains a outputs response.
+     */
+    public static final String FILE_OUTPUTS = "mpd-protocol/outputs.txt";
+
+    /**
+     * This file contains a root lsinfo entry with the varying directory entry types.
+     */
+    public static final String FILE_ROOT_LSINFO = "mpd-protocol/lsinfo/root_lsinfo.txt";
+
+    /**
+     * This file contains a separated command result.
+     *
+     * <p>This result was created with the following commands:
+     * <li>
+     * command_list_ok_begin
+     * password (password omitted)
+     * list genres
+     * list artist
+     * command_list_end
+     * </li>
+     * </p>
+     */
+    public static final String FILE_SEPARATED_COMMAND_RESPONSE
+            = "mpd-protocol/separated-responses/separated-password-listgenre-listartist.txt";
+
+    /**
+     * This file includes a few empty results.
+     */
+    public static final String FILE_SEPARATED_EMPTY_SEPARATED_RESPONSES
+            = "mpd-protocol/separated-responses/empty_results.txt";
+
+    /**
+     * This directory contains all playlistinfo directory tests.
      */
     public static final String FILE_SINGULAR_PLAYLISTINFO
             = "mpd-protocol/playlistinfo/singular_playlistinfo.txt";
@@ -59,7 +109,9 @@ public enum TestTools {
     public static final String[] TEST_FILE_PATHS = {
             FILE_SINGULAR_TRACK_FILE,
             FILE_SINGULAR_TRACK_STREAM,
-            FILE_SINGULAR_PLAYLISTINFO
+            FILE_SINGULAR_PLAYLISTINFO,
+            FILE_MULTIPLE_PLAYLISTINFO,
+            FILE_ROOT_LSINFO
     };
 
     public static String getMatchMsg(final String message, final String filePath) {
@@ -87,5 +139,16 @@ public enum TestTools {
         }
 
         return fileContents.toString();
+    }
+
+    public static <T> List<T> reverseList(final ObjectResponse<T> response) {
+        final ListIterator<T> iterator = response.reverseListIterator();
+        final List<T> list = new ArrayList<>();
+
+        while (iterator.hasPrevious()) {
+            list.add(iterator.previous());
+        }
+
+        return list;
     }
 }

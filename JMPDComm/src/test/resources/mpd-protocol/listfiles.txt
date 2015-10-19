@@ -1,0 +1,39 @@
+directory: Albums
+Last-Modified: 2015-08-04T01:27:34Z
+directory: Christmas
+Last-Modified: 2009-12-10T04:42:55Z
+directory: Comedy
+Last-Modified: 2011-06-10T13:34:09Z
+directory: Dad
+Last-Modified: 2012-05-23T12:51:55Z
+directory: Individuals
+Last-Modified: 2014-10-25T14:15:05Z
+directory: Jamendo
+Last-Modified: 2008-08-02T18:33:51Z
+directory: Live
+Last-Modified: 2015-06-29T21:06:53Z
+directory: Mods
+Last-Modified: 2010-01-27T04:16:50Z
+directory: Queues
+Last-Modified: 2015-07-19T01:09:07Z
+directory: Vocal
+Last-Modified: 2015-08-20T12:45:33Z
+Last-Modified: 2007-03-11T19:37:33Z
+file: Jim Croce - Bad, Bad Leroy Brown.flac
+size: 20921294
+Last-Modified: 2007-03-11T19:40:12Z
+file: Jim Croce - Operator (That's Not the Way It Feels).flac
+size: 24721476
+Last-Modified: 2007-03-11T19:40:12Z
+file: Jim Croce - Time in a Bottle.flac
+size: 14944878
+Last-Modified: 2007-03-11T19:40:18Z
+file: Joe - Stutter.flac
+size: 27481218
+Last-Modified: 2007-03-11T19:34:55Z
+file: John Lennon - Imagine.flac
+size: 17058782
+Last-Modified: 2007-03-11T19:40:22Z
+file: John Mellencamp - Wild Night.flac
+size: 25830913
+Last-Modified: 2007-03-11T19:40:25Z

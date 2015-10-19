@@ -1,0 +1,469 @@
+file: Albums/The Allman Brothers Band/Eat a Peach/01 Ain't Wastin' Time No More.flac
+Last-Modified: 2012-05-20T17:02:11Z
+Title: Ain’t Wastin’ Time No More
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Composer: Gregg Allman
+Date: 1984
+Disc: 1
+AlbumArtistSort: Allman Brothers Band, The
+MUSICBRAINZ_ALBUMID: 3f83f431-2352-466c-98c7-38d4ff668020
+AlbumArtist: The Allman Brothers Band
+Album: Eat a Peach
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: 5e823095-1612-4b66-8250-de168455adb3
+ArtistSort: Allman Brothers Band, The
+Genre: Rock
+Track: 1
+Time: 222
+Pos: 1
+Id: 536
+file: Albums/The Allman Brothers Band/Eat a Peach/02 Les Brers in A Minor.flac
+Last-Modified: 2012-05-20T17:02:12Z
+Title: Les Brers in A Minor
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Composer: Dickey Betts
+Date: 1984
+Disc: 1
+AlbumArtistSort: Allman Brothers Band, The
+MUSICBRAINZ_ALBUMID: 3f83f431-2352-466c-98c7-38d4ff668020
+AlbumArtist: The Allman Brothers Band
+Album: Eat a Peach
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: ba52d916-8230-4da7-a2db-ee5e583b0892
+ArtistSort: Allman Brothers Band, The
+Genre: Rock
+Track: 2
+Time: 547
+Pos: 2
+Id: 537
+file: Albums/The Allman Brothers Band/Eat a Peach/03 Melissa.flac
+Last-Modified: 2012-05-20T17:02:13Z
+Title: Melissa
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Composer: Gregg Allman
+Date: 1984
+Disc: 1
+AlbumArtistSort: Allman Brothers Band, The
+MUSICBRAINZ_ALBUMID: 3f83f431-2352-466c-98c7-38d4ff668020
+AlbumArtist: The Allman Brothers Band
+Album: Eat a Peach
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: d2382ea3-03f0-46a4-baf4-20a5eab892e8
+ArtistSort: Allman Brothers Band, The
+Genre: Rock
+Track: 3
+Time: 238
+Pos: 3
+Id: 538
+file: Albums/The Allman Brothers Band/Eat a Peach/04 Mountain Jam.flac
+Last-Modified: 2012-05-20T17:02:14Z
+Title: Mountain Jam
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Composer: Jai Johanny Johanson
+Composer: Gregg Allman
+Composer: Duane Allman
+Composer: Donovan Philips Leitch
+Composer: Butch Trucks
+Composer: Dickey Betts
+Composer: Berry Oakley
+Date: 1984
+Disc: 1
+AlbumArtistSort: Allman Brothers Band, The
+MUSICBRAINZ_ALBUMID: 3f83f431-2352-466c-98c7-38d4ff668020
+AlbumArtist: The Allman Brothers Band
+Album: Eat a Peach
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: 42058401-0188-4bc3-9d6a-3e70a0e56a84
+ArtistSort: Allman Brothers Band, The
+Genre: Rock
+Track: 4
+Time: 2021
+Pos: 4
+Id: 539
+file: Albums/The Allman Brothers Band/Eat a Peach/05 One Way Out.flac
+Last-Modified: 2012-05-20T17:02:20Z
+Title: One Way Out
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1984
+Disc: 1
+AlbumArtistSort: Allman Brothers Band, The
+MUSICBRAINZ_ALBUMID: 3f83f431-2352-466c-98c7-38d4ff668020
+AlbumArtist: The Allman Brothers Band
+Album: Eat a Peach
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Performer: Berry Oakley (bass)
+Performer: Gregg Allman (organ and piano)
+Performer: Duane Allman (acoustic guitar and slide guitar)
+Performer: Gregg Allman (vocal)
+Performer: Jai Johanny Johanson (drums and percussion)
+Performer: Butch Trucks (drums and percussion)
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: ef9bd359-a7ef-4c32-8e04-dd58c1ac2838
+ArtistSort: Allman Brothers Band, The
+Genre: Rock
+Track: 5
+Time: 298
+Pos: 5
+Id: 540
+file: Albums/The Allman Brothers Band/Eat a Peach/06 Trouble No More.flac
+Last-Modified: 2012-05-20T17:02:21Z
+Title: Trouble No More
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Composer: Sleepy John Estes
+Date: 1984
+Disc: 1
+AlbumArtistSort: Allman Brothers Band, The
+MUSICBRAINZ_ALBUMID: 3f83f431-2352-466c-98c7-38d4ff668020
+AlbumArtist: The Allman Brothers Band
+Album: Eat a Peach
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: eb91195a-2bcd-4c4e-8edc-d0b51fc2b601
+ArtistSort: Allman Brothers Band, The
+Genre: Rock
+Track: 6
+Time: 226
+Pos: 6
+Id: 541
+file: Albums/The Allman Brothers Band/Eat a Peach/07 Stand Back.flac
+Last-Modified: 2012-05-20T17:02:22Z
+Title: Stand Back
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1984
+Disc: 1
+AlbumArtistSort: Allman Brothers Band, The
+MUSICBRAINZ_ALBUMID: 3f83f431-2352-466c-98c7-38d4ff668020
+AlbumArtist: The Allman Brothers Band
+Album: Eat a Peach
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: 860b141d-9fd2-4e7c-8a13-b1ed780fec0c
+ArtistSort: Allman Brothers Band, The
+Genre: Rock
+Track: 7
+Time: 208
+Pos: 7
+Id: 542
+file: Albums/The Allman Brothers Band/Eat a Peach/08 Blue Sky.flac
+Last-Modified: 2012-05-20T17:02:22Z
+Title: Blue Sky
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Composer: Dickey Betts
+Date: 1984
+Disc: 1
+AlbumArtistSort: Allman Brothers Band, The
+MUSICBRAINZ_ALBUMID: 3f83f431-2352-466c-98c7-38d4ff668020
+AlbumArtist: The Allman Brothers Band
+Album: Eat a Peach
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Performer: Berry Oakley (bass)
+Performer: Gregg Allman (organ and piano)
+Performer: Duane Allman (acoustic guitar and slide guitar)
+Performer: Gregg Allman (vocal)
+Performer: Jai Johanny Johanson (drums and percussion)
+Performer: Butch Trucks (drums and percussion)
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: e9d1d205-4acf-4cd4-b1ea-fb095d065c32
+ArtistSort: Allman Brothers Band, The
+Genre: Rock
+Track: 8
+Time: 312
+Pos: 8
+Id: 543
+file: Albums/The Allman Brothers Band/Eat a Peach/09 Little Martha.flac
+Last-Modified: 2012-05-20T17:02:24Z
+Title: Little Martha
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Composer: Duane Allman
+Date: 1984
+Disc: 1
+AlbumArtistSort: Allman Brothers Band, The
+MUSICBRAINZ_ALBUMID: 3f83f431-2352-466c-98c7-38d4ff668020
+AlbumArtist: The Allman Brothers Band
+Album: Eat a Peach
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Performer: Berry Oakley (bass)
+Performer: Duane Allman (acoustic guitar and slide guitar)
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: c0fc36ae-d091-4c59-96fd-d63d16b32689
+ArtistSort: Allman Brothers Band, The
+Genre: Rock
+Track: 9
+Time: 127
+Pos: 9
+Id: 544
+file: Albums/The Allman Brothers Band/Idlewild South/01 Revival.flac
+Last-Modified: 2011-01-09T06:45:42Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1970-06-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: Revival
+MUSICBRAINZ_ALBUMID: e0c4a7df-c955-4b2c-ba4c-01541eb83311
+AlbumArtist: The Allman Brothers Band
+Album: Idlewild South
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: caaa7590-a6cb-497a-a3b8-a1b193c14c7d
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Track: 1
+Time: 245
+Pos: 10
+Id: 545
+file: Albums/The Allman Brothers Band/Idlewild South/02 Don't Keep Me Wonderin'.flac
+Last-Modified: 2011-01-09T06:45:43Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1970-06-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: Don't Keep Me Wonderin'
+MUSICBRAINZ_ALBUMID: e0c4a7df-c955-4b2c-ba4c-01541eb83311
+AlbumArtist: The Allman Brothers Band
+Album: Idlewild South
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: d539a759-e12c-4d7a-bdcc-b461ad914c9e
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Track: 2
+Time: 210
+Pos: 11
+Id: 546
+file: Albums/The Allman Brothers Band/Idlewild South/03 Midnight Rider.flac
+Last-Modified: 2011-01-09T06:45:44Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1970-06-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: Midnight Rider
+MUSICBRAINZ_ALBUMID: e0c4a7df-c955-4b2c-ba4c-01541eb83311
+AlbumArtist: The Allman Brothers Band
+Album: Idlewild South
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: a46883a5-be72-4422-a65d-aa5fab6b3406
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Track: 3
+Time: 180
+Pos: 12
+Id: 547
+file: Albums/The Allman Brothers Band/Idlewild South/04 In Memory of Elizabeth Reed.flac
+Last-Modified: 2011-01-09T06:45:47Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1970-06-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: In Memory of Elizabeth Reed
+MUSICBRAINZ_ALBUMID: e0c4a7df-c955-4b2c-ba4c-01541eb83311
+AlbumArtist: The Allman Brothers Band
+Album: Idlewild South
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: f345210b-bc6a-4f3c-b082-df078a350d7d
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Track: 4
+Time: 418
+Pos: 13
+Id: 548
+file: Albums/The Allman Brothers Band/Idlewild South/05 Hoochie Coochie Man.flac
+Last-Modified: 2011-01-09T06:45:49Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1970-06-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: Hoochie Coochie Man
+MUSICBRAINZ_ALBUMID: e0c4a7df-c955-4b2c-ba4c-01541eb83311
+AlbumArtist: The Allman Brothers Band
+Album: Idlewild South
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: 9452754e-fb75-4e7a-a72d-303528f96243
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Track: 5
+Time: 299
+Pos: 14
+Id: 549
+file: Albums/The Allman Brothers Band/Idlewild South/06 Please Call Home.flac
+Last-Modified: 2011-01-09T06:45:50Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1970-06-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: Please Call Home
+MUSICBRAINZ_ALBUMID: e0c4a7df-c955-4b2c-ba4c-01541eb83311
+AlbumArtist: The Allman Brothers Band
+Album: Idlewild South
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: 1002e2ca-4889-4337-adf0-04c34e8cc4b4
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Track: 6
+Time: 244
+Pos: 15
+Id: 550
+file: Albums/The Allman Brothers Band/Idlewild South/07 Leave My Blues at Home.flac
+Last-Modified: 2011-01-09T06:45:52Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1970-06-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: Leave My Blues at Home
+MUSICBRAINZ_ALBUMID: e0c4a7df-c955-4b2c-ba4c-01541eb83311
+AlbumArtist: The Allman Brothers Band
+Album: Idlewild South
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: c28d0b2b-dd07-42b7-a90e-472d23a6fde6
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Track: 7
+Time: 258
+Pos: 16
+Id: 551
+file: Albums/The Allman Brothers Band/The Allman Brothers Band/01 Don't Want You No More.flac
+Last-Modified: 2011-01-09T06:45:30Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1969-04-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: Don't Want You No More
+MUSICBRAINZ_ALBUMID: f4f33a6a-e65d-40a9-8cd4-4172baf7d8e4
+AlbumArtist: The Allman Brothers Band
+Album: The Allman Brothers Band
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: 5ef1a13e-6094-49ff-b405-85efb484ed79
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Genre: Rock
+Genre: Classic Rock
+Genre: Blues Rock
+Track: 1
+Time: 145
+Pos: 17
+Id: 552
+file: Albums/The Allman Brothers Band/The Allman Brothers Band/02 It's Not My Cross to Bear.flac
+Last-Modified: 2011-01-09T06:45:32Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1969-04-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: It's Not My Cross to Bear
+MUSICBRAINZ_ALBUMID: f4f33a6a-e65d-40a9-8cd4-4172baf7d8e4
+AlbumArtist: The Allman Brothers Band
+Album: The Allman Brothers Band
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: 92274213-4324-46c9-a7ca-615916367daf
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Genre: Rock
+Genre: Classic Rock
+Genre: Blues Rock
+Track: 2
+Time: 304
+Pos: 18
+Id: 553
+file: Albums/The Allman Brothers Band/The Allman Brothers Band/03 Black Hearted Woman.flac
+Last-Modified: 2011-01-09T06:45:33Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1969-04-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: Black Hearted Woman
+MUSICBRAINZ_ALBUMID: f4f33a6a-e65d-40a9-8cd4-4172baf7d8e4
+AlbumArtist: The Allman Brothers Band
+Album: The Allman Brothers Band
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: e7554687-02e6-45f6-a9cf-968f8b6b4800
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Genre: Rock
+Genre: Classic Rock
+Genre: Blues Rock
+Track: 3
+Time: 311
+Pos: 19
+Id: 554
+file: Albums/The Allman Brothers Band/The Allman Brothers Band/04 Trouble No More.flac
+Last-Modified: 2011-01-09T06:45:34Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1969-04-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: Trouble No More
+MUSICBRAINZ_ALBUMID: f4f33a6a-e65d-40a9-8cd4-4172baf7d8e4
+AlbumArtist: The Allman Brothers Band
+Album: The Allman Brothers Band
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: 850b229e-45fb-480e-a093-6ecdcb369a03
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Genre: Rock
+Genre: Classic Rock
+Genre: Blues Rock
+Track: 4
+Time: 228
+Pos: 20
+Id: 555
+file: Albums/The Allman Brothers Band/The Allman Brothers Band/05 Every Hungry Woman.flac
+Last-Modified: 2011-01-09T06:45:36Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1969-04-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: Every Hungry Woman
+MUSICBRAINZ_ALBUMID: f4f33a6a-e65d-40a9-8cd4-4172baf7d8e4
+AlbumArtist: The Allman Brothers Band
+Album: The Allman Brothers Band
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: 3ec853c2-7a2d-42bd-a9bb-3ec98680b202
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Genre: Rock
+Genre: Classic Rock
+Genre: Blues Rock
+Track: 5
+Time: 256
+Pos: 21
+Id: 556
+file: Albums/The Allman Brothers Band/The Allman Brothers Band/06 Dreams.flac
+Last-Modified: 2011-01-09T06:45:38Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1969-04-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: Dreams
+MUSICBRAINZ_ALBUMID: f4f33a6a-e65d-40a9-8cd4-4172baf7d8e4
+AlbumArtist: The Allman Brothers Band
+Album: The Allman Brothers Band
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: 1a9e077c-10d9-44a2-a21b-d170cd8b6719
+ArtistSort: Allman Brothers Band, The
+Genre: Southern Rock
+Genre: Rock
+Genre: Classic Rock
+Genre: Blues Rock
+Track: 6
+Time: 441
+Pos: 22
+Id: 557
+file: Albums/The Allman Brothers Band/The Allman Brothers Band/07 Whipping Post.flac
+Last-Modified: 2011-01-09T06:45:40Z
+MUSICBRAINZ_ALBUMARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Date: 1969-04-01
+AlbumArtistSort: Allman Brothers Band, The
+Title: Whipping Post
+MUSICBRAINZ_ALBUMID: f4f33a6a-e65d-40a9-8cd4-4172baf7d8e4
+AlbumArtist: The Allman Brothers Band
+Album: The Allman Brothers Band
+MUSICBRAINZ_ARTISTID: 72359492-22be-4ed9-aaa0-efa434fb2b01
+Artist: The Allman Brothers Band
+MUSICBRAINZ_TRACKID: 7a1b8f15-823b-4e6e-a411-0b87de9867f4
+ArtistSort: Allman Brothers Band, The
+Genre: Classic Rock
+Track: 7
+Time: 317
+Pos: 23
+Id: 558
+OK
