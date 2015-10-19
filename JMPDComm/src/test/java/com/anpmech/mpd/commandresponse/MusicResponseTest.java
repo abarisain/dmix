@@ -28,8 +28,8 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.TestTools;
-import com.anpmech.mpd.connection.CommandResponseCreator;
 import com.anpmech.mpd.connection.CommandResult;
+import com.anpmech.mpd.connection.CommandResultCreator;
 import com.anpmech.mpd.item.Music;
 
 import org.junit.Test;
@@ -182,7 +182,7 @@ public class MusicResponseTest extends ObjectResponseTest<Music, MusicResponse> 
      */
     @Test
     public void musicIteratorPlaylistinfoConsistencyTest() throws IOException {
-        final CommandResponse response = getResponse();
+        final CommandResponse response = new CommandResponse(getResult());
         final List<Music> musicList = buildMusicFromList(response.getList());
         final List<Music> musicResponseList = instantiate(response).getList();
 
@@ -198,7 +198,7 @@ public class MusicResponseTest extends ObjectResponseTest<Music, MusicResponse> 
      */
     @Test
     public void musicIteratorRootLsinfoConsistencyTest() throws IOException {
-        final CommandResult result = CommandResponseCreator.getCommandResponse(
+        final CommandResult result = CommandResultCreator.generate(
                 TestTools.FILE_ROOT_LSINFO);
         final List<Music> list = instantiate(result).getList();
 
@@ -218,7 +218,7 @@ public class MusicResponseTest extends ObjectResponseTest<Music, MusicResponse> 
      */
     @Test
     public void reverseMusicIteratorConsistencyTest() throws IOException {
-        final ListIterator<Music> iterator = instantiate(getResponse()).reverseListIterator();
+        final ListIterator<Music> iterator = instantiate(getResult()).reverseListIterator();
         int position = Integer.MIN_VALUE;
         boolean testPassed = false;
 

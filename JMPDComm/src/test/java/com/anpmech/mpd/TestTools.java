@@ -103,17 +103,6 @@ public enum TestTools {
     public static final String FILE_SINGULAR_TRACK_STREAM
             = "mpd-protocol/lsinfo/singular_track_stream.txt";
 
-    /**
-     * This array contains all resource files.
-     */
-    public static final String[] TEST_FILE_PATHS = {
-            FILE_SINGULAR_TRACK_FILE,
-            FILE_SINGULAR_TRACK_STREAM,
-            FILE_SINGULAR_PLAYLISTINFO,
-            FILE_MULTIPLE_PLAYLISTINFO,
-            FILE_ROOT_LSINFO
-    };
-
     public static String getMatchMsg(final String message, final String filePath) {
         return message + " failed to match for filepath: " + filePath + '.';
     }

@@ -57,7 +57,7 @@ public class EntryResponseTest extends ObjectResponseTest<Entry, EntryResponse> 
      */
     @Test
     public void entryIteratorRootLsinfoConsistencyTest() throws IOException {
-        final EntryResponse response = instantiate(getResponse());
+        final EntryResponse response = instantiate(getResult());
 
         assertEquals("EntryResponse failed fixed size consistency test", 11L,
                 (long) response.getList().size());

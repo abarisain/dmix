@@ -91,12 +91,12 @@ public class GenreResponseTest extends ObjectResponseTest<Genre, GenreResponse> 
     @Test
     public void singleLineFirstElementConsistencyTest() throws IOException {
         assertEquals("Failed to get known fixed value from first line of Genre response.", "",
-                instantiate(getResponse()).iterator().next().getName());
+                instantiate(getResult()).iterator().next().getName());
     }
 
     @Test
     public void singleLineIteratorReverseTest() throws IOException {
-        final GenreResponse response = instantiate(getResponse());
+        final GenreResponse response = instantiate(getResult());
         final List<Genre> reversedList = TestTools.reverseList(response);
 
         assertEquals("Single line reverse Iterator failed due to incorrect size.",
@@ -110,7 +110,7 @@ public class GenreResponseTest extends ObjectResponseTest<Genre, GenreResponse> 
          */
         final long genreListSize = 444L;
 
-        assertEquals(genreListSize, (long) instantiate(getResponse()).getList().size());
+        assertEquals(genreListSize, (long) instantiate(getResult()).getList().size());
     }
 
     /**
@@ -121,7 +121,7 @@ public class GenreResponseTest extends ObjectResponseTest<Genre, GenreResponse> 
      */
     @Test
     public void singleLineLastElementConsistencyTest() throws IOException {
-        final ListIterator<Genre> iterator = instantiate(getResponse()).reverseListIterator();
+        final ListIterator<Genre> iterator = instantiate(getResult()).reverseListIterator();
 
         assertEquals("Failed to get known fixed value from last line of Genre response.", "rock",
                 iterator.previous().getName());

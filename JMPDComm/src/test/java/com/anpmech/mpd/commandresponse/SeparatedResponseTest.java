@@ -28,8 +28,8 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.TestTools;
-import com.anpmech.mpd.connection.CommandResponseCreator;
 import com.anpmech.mpd.connection.CommandResult;
+import com.anpmech.mpd.connection.CommandResultCreator;
 
 import org.junit.Test;
 
@@ -80,8 +80,8 @@ public class SeparatedResponseTest
      * @throws IOException Thrown if there is a issue retrieving the result file.
      */
     private SeparatedResponse getNonSeparatedResult() throws IOException {
-        final CommandResult result = CommandResponseCreator
-                .getCommandResponse(TestTools.FILE_SINGULAR_TRACK_FILE);
+        final CommandResult result = CommandResultCreator
+                .generate(TestTools.FILE_SINGULAR_TRACK_FILE);
 
         return instantiate(result);
     }
@@ -114,7 +114,7 @@ public class SeparatedResponseTest
      */
     @Test
     public void multipleEmptyResultSizeConsistency() throws IOException {
-        final CommandResult result = CommandResponseCreator.getCommandResponse(
+        final CommandResult result = CommandResultCreator.generate(
                 TestTools.FILE_SEPARATED_EMPTY_SEPARATED_RESPONSES);
         final SeparatedResponse response = instantiate(result);
         final long size = (long) new CommandResponse(result).getList().size();
@@ -129,7 +129,7 @@ public class SeparatedResponseTest
      */
     @Test
     public void multipleEmptyResultsSizeConsistency() throws IOException {
-        final CommandResult result = CommandResponseCreator.getCommandResponse(
+        final CommandResult result = CommandResultCreator.generate(
                 TestTools.FILE_SEPARATED_EMPTY_SEPARATED_RESPONSES);
         final SeparatedResponse response = instantiate(result);
         final CommandResponse commandResponse = new CommandResponse(result);

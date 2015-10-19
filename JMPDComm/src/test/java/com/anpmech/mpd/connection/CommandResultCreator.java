@@ -31,31 +31,14 @@ import com.anpmech.mpd.TestTools;
 import com.anpmech.mpd.commandresponse.CommandResponse;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * This class creates {@link CommandResponse}s from the various test resources.
  */
-public enum CommandResponseCreator {
+public enum CommandResultCreator {
     ;
 
-    public static CommandResponse getCommandResponse(final String filePath) throws IOException {
-        final String rawResult = TestTools.readFile(filePath);
-        final CommandResult result = new CommandResult(null, rawResult);
-
-        return new CommandResponse(result);
+    public static CommandResult generate(final String filePath) throws IOException {
+        return new CommandResult(null, TestTools.readFile(filePath));
     }
-
-    public static Collection<CommandResponse> getCommandResponses() throws IOException {
-        final Collection<CommandResponse> results =
-                new ArrayList<>(TestTools.TEST_FILE_PATHS.length);
-
-        for (final String file : TestTools.TEST_FILE_PATHS) {
-            results.add(getCommandResponse(file));
-        }
-
-        return results;
-    }
-
 }

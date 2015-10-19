@@ -148,7 +148,7 @@ public final class QueueControl {
                 }
 
                 try {
-                    MPD.getPlayback().play(track).getExceptions();
+                    MPD.getPlayback().play(track).get();
                 } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to add track to play.", e);
                 }

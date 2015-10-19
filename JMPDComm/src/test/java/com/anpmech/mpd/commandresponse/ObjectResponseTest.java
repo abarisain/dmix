@@ -28,8 +28,8 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.TestTools;
-import com.anpmech.mpd.connection.CommandResponseCreator;
 import com.anpmech.mpd.connection.CommandResult;
+import com.anpmech.mpd.connection.CommandResultCreator;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -104,7 +104,7 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
      */
     @Test
     public void forwardReverseConsistencyTest() throws IOException {
-        final S response = instantiate(getResponse());
+        final S response = instantiate(getResult());
         final List<T> list = response.getList();
         final List<T> reverseIterated = TestTools.reverseList(response);
 
@@ -121,22 +121,22 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
     protected abstract S getEmptyResponse();
 
     /**
-     * This method simply creates a {@link CommandResponse} with the path from {@link
-     * #getResponsePath()}.
-     *
-     * @return A CommandResponse.
-     * @throws IOException Thrown if there is a issue retrieving the result file.
-     */
-    protected CommandResponse getResponse() throws IOException {
-        return CommandResponseCreator.getCommandResponse(getResponsePath());
-    }
-
-    /**
      * This returns a path to a test sample file to construct a CommandResult from.
      *
      * @return A path to a test sample file.
      */
     protected abstract String getResponsePath();
+
+    /**
+     * This method simply creates a {@link CommandResponse} with the path from {@link
+     * #getResponsePath()}.
+     *
+     * @return A CommandResult.
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    protected CommandResult getResult() throws IOException {
+        return CommandResultCreator.generate(getResponsePath());
+    }
 
     /**
      * This method instantiates the ObjectResponse type from the {@code CommandResult} parameter.
@@ -157,7 +157,7 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
         mException.expect(NoSuchElementException.class);
         mException.reportMissingExceptionWithMessage(LOWER_BOUNDS_ERROR);
 
-        final ListIterator<T> iterator = instantiate(getResponse()).listIterator();
+        final ListIterator<T> iterator = instantiate(getResult()).listIterator();
         iterator.previous();
     }
 
@@ -174,7 +174,7 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
 
     @Test
     public void lowerIteratorHasBounds() throws IOException {
-        final ListIterator<T> iterator = instantiate(getResponse()).listIterator();
+        final ListIterator<T> iterator = instantiate(getResult()).listIterator();
 
         assertFalse(LOWER_BOUNDS_ERROR, iterator.hasPrevious());
     }
@@ -190,7 +190,7 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
         mException.expect(NoSuchElementException.class);
         mException.reportMissingExceptionWithMessage("Iterator must fail at upper bounds.");
 
-        final ListIterator<T> iterator = instantiate(getResponse()).reverseListIterator();
+        final ListIterator<T> iterator = instantiate(getResult()).reverseListIterator();
 
         iterator.next();
     }
@@ -213,7 +213,7 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
      */
     @Test
     public void upperIteratorHasBounds() throws IOException {
-        final Iterator<T> iterator = instantiate(getResponse()).reverseListIterator();
+        final Iterator<T> iterator = instantiate(getResult()).reverseListIterator();
 
         assertFalse(UPPER_BOUNDS_ERROR, iterator.hasNext());
     }

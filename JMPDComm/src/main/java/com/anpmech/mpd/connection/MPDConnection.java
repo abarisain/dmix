@@ -34,7 +34,6 @@ import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.commandresponse.SeparatedResponse;
 import com.anpmech.mpd.concurrent.MPDExecutor;
-import com.anpmech.mpd.concurrent.ResponseFuture;
 import com.anpmech.mpd.concurrent.ResultFuture;
 import com.anpmech.mpd.concurrent.SeparatedFuture;
 import com.anpmech.mpd.exception.MPDException;
@@ -145,7 +144,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * This is a holder for a connection {@link CommandResponse} while waiting for the connected
      * callback to occur.
      */
-    private ResponseFuture mConnectionResponse;
+    private ResultFuture mConnectionResponse;
 
     /**
      * Current media server's major/minor/micro version.
@@ -568,7 +567,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      */
     @Deprecated
     public List<String> send(final MPDCommand command) throws IOException, MPDException {
-        return submit(command).get().getList();
+        return new CommandResponse(submit(command).get()).getList();
     }
 
     /**
@@ -584,7 +583,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
     @Deprecated
     public List<String> send(final CharSequence command, final CharSequence... args)
             throws IOException, MPDException {
-        return submit(command, args).get().getList();
+        return new CommandResponse(submit(command, args).get()).getList();
     }
 
     /**
@@ -598,7 +597,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      */
     @Deprecated
     public List<String> send(final CommandQueue commandQueue) throws IOException, MPDException {
-        return submit(commandQueue).get().getList();
+        return new CommandResponse(submit(commandQueue).get()).getList();
     }
 
     /**
@@ -621,7 +620,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @param args    Arguments to the command to be sent to the server.
      * @return A {@link ResultFuture} for tracking and response processing.
      */
-    public ResponseFuture submit(final CharSequence command, final CharSequence... args) {
+    public ResultFuture submit(final CharSequence command, final CharSequence... args) {
         return submit(MPDCommand.create(command, args));
     }
 
@@ -631,8 +630,8 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @param command The command to be sent to the server.
      * @return A {@link ResultFuture} for tracking and response processing.
      */
-    public ResponseFuture submit(final MPDCommand command) {
-        return new ResponseFuture(processCommand(command));
+    public ResultFuture submit(final MPDCommand command) {
+        return processCommand(command);
     }
 
     /**
@@ -641,8 +640,8 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @param commandQueue The The CommandQueue to send to the server.
      * @return A {@link ResultFuture} for tracking and response processing.
      */
-    public ResponseFuture submit(final CommandQueue commandQueue) {
-        return new ResponseFuture(processCommand(commandQueue));
+    public ResultFuture submit(final CommandQueue commandQueue) {
+        return processCommand(commandQueue);
     }
 
     /**

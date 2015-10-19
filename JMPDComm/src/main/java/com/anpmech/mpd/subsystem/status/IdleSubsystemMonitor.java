@@ -33,7 +33,6 @@ import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.MPDPlaylist;
 import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.concurrent.MPDExecutor;
-import com.anpmech.mpd.concurrent.ResponseFuture;
 import com.anpmech.mpd.concurrent.ResultFuture;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.connection.MonoIOMPDConnection;
@@ -164,7 +163,7 @@ public class IdleSubsystemMonitor implements Runnable {
     /**
      * This Future tracks the status of the Idle command.
      */
-    private ResponseFuture mIdleTracker;
+    private ResultFuture mIdleTracker;
 
     /**
      * This Future tracks the status of this monitor.

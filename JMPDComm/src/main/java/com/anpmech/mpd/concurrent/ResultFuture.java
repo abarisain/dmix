@@ -122,7 +122,7 @@ public class ResultFuture {
      * @throws IOException           Thrown upon a communication error with the server.
      * @throws MPDException          Thrown if an error occurs as a result of command execution.
      */
-    protected CommandResult get() throws IOException, MPDException {
+    public CommandResult get() throws IOException, MPDException {
         CommandResult result = null;
 
         try {
@@ -152,7 +152,7 @@ public class ResultFuture {
      * @throws MPDException          Thrown if an error occurs as a result of command execution.
      * @throws TimeoutException      If the wait timed out.
      */
-    protected CommandResult get(final long timeout, final TimeUnit unit)
+    public CommandResult get(final long timeout, final TimeUnit unit)
             throws IOException, MPDException, TimeoutException {
         CommandResult result = null;
 
@@ -170,40 +170,6 @@ public class ResultFuture {
         }
 
         return result;
-    }
-
-    /**
-     * Waits if necessary for the computation to complete, allowing an Exception to be thrown,
-     * if applicable.
-     *
-     * <p>This is identical to {@link #get()}, without the return. <b>For a more in depth
-     * response, a subclass of this Future should be used.</b></p>
-     *
-     * @throws CancellationException If the computation was cancelled.
-     * @throws IOException           Thrown upon a communication error with the server.
-     * @throws MPDException          Thrown if an error occurs as a result of command execution.
-     */
-    public final void getExceptions() throws IOException, MPDException {
-        get();
-    }
-
-    /**
-     * Waits if necessary for the computation to complete, up to the timeout, allowing an
-     * Exception to be thrown, if applicable.
-     *
-     * <p>This is identical to {@link #get(long, TimeUnit)}, without the return. <b>For a more in
-     * depth response, a subclass of this Future should be used.</b></p>
-     *
-     * @param timeout The maximum time to wait.
-     * @param unit    The time unit of the timeout argument.
-     * @throws CancellationException If the computation was cancelled.
-     * @throws IOException           Thrown upon a communication error with the server.
-     * @throws MPDException          Thrown if an error occurs as a result of command execution.
-     * @throws TimeoutException      If the wait timed out.
-     */
-    public final void getExceptions(final long timeout, final TimeUnit unit)
-            throws IOException, MPDException, TimeoutException {
-        get(timeout, unit);
     }
 
     /**
@@ -234,4 +200,3 @@ public class ResultFuture {
                 '}';
     }
 }
-

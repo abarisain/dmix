@@ -251,7 +251,7 @@ public class Playback {
      * @return The ReplayGain status.
      */
     public ResponseFuture getReplayGainStatus() {
-        return mConnection.submit(CMD_ACTION_REPLAY_GAIN_STATUS);
+        return new ResponseFuture(mConnection.submit(CMD_ACTION_REPLAY_GAIN_STATUS));
     }
 
     /**

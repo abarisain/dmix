@@ -28,8 +28,8 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.TestTools;
-import com.anpmech.mpd.connection.CommandResponseCreator;
 import com.anpmech.mpd.connection.CommandResult;
+import com.anpmech.mpd.connection.CommandResultCreator;
 import com.anpmech.mpd.item.PlaylistFile;
 
 import org.junit.Test;
@@ -90,7 +90,7 @@ public class PlaylistFileResponseTest extends
      */
     @Test
     public void playlistFileIteratorRootConsistencyTest() throws IOException {
-        final CommandResult result = CommandResponseCreator.getCommandResponse(
+        final CommandResult result = CommandResultCreator.generate(
                 TestTools.FILE_ROOT_LSINFO);
         final PlaylistFileResponse response = instantiate(result);
 

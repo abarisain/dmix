@@ -30,7 +30,7 @@ package com.anpmech.mpd.subsystem.status;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.commandresponse.KeyValueResponse;
-import com.anpmech.mpd.concurrent.ResponseFuture;
+import com.anpmech.mpd.concurrent.ResultFuture;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 
@@ -753,7 +753,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * @see IdleSubsystemMonitor
      */
     public void update() throws IOException, MPDException {
-        final ResponseFuture future = mConnection.submit(CMD_ACTION_STATUS);
+        final ResultFuture future = mConnection.submit(CMD_ACTION_STATUS);
 
         update(new KeyValueResponse(future.get()));
     }

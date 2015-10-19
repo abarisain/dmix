@@ -51,6 +51,17 @@ public final class MusicTest {
      */
     private static final String TAG = "MusicTest";
 
+    /**
+     * This array contains all resource files.
+     */
+    private static final String[] TEST_FILE_PATHS = {
+            TestTools.FILE_SINGULAR_TRACK_FILE,
+            TestTools.FILE_SINGULAR_TRACK_STREAM,
+            TestTools.FILE_SINGULAR_PLAYLISTINFO,
+            TestTools.FILE_MULTIPLE_PLAYLISTINFO,
+            TestTools.FILE_ROOT_LSINFO
+    };
+
     private final Map<String, Music> mMusicList = new HashMap<>();
 
     private final Map<String, String> mRawMusic = new HashMap<>();
@@ -132,7 +143,7 @@ public final class MusicTest {
     public void loadFiles() throws IOException {
         final ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 
-        for (final String filePath : TestTools.TEST_FILE_PATHS) {
+        for (final String filePath : TEST_FILE_PATHS) {
             final URL path = classLoader.getResource(filePath);
             if (path == null) {
                 throw new FileNotFoundException("File not found: " + filePath);

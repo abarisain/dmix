@@ -30,7 +30,6 @@ package com.anpmech.mpd.subsystem;
 import com.anpmech.mpd.CommandQueue;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPDCommand;
-import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.commandresponse.MusicResponse;
 import com.anpmech.mpd.connection.CommandResult;
@@ -215,7 +214,7 @@ public class Sticker {
 
         final Map<Music, Map<String, String>> foundStickers;
         if (isAvailable()) {
-            final CommandResponse result =
+            final CommandResult result =
                     mConnection.submit(CMD_ACTION_FIND, entry.getFullPath(), name).get();
             final KeyValueResponse response = new KeyValueResponse(result);
 
@@ -270,9 +269,9 @@ public class Sticker {
         String foundSticker = null;
 
         if (isAvailable()) {
-            CommandResponse response = null;
+            CommandResult result = null;
             try {
-                response = mConnection.submit(CMD_ACTION_GET, CMD_STICKER_TYPE_SONG,
+                result = mConnection.submit(CMD_ACTION_GET, CMD_STICKER_TYPE_SONG,
                         entry.getFullPath(), name).get();
             } catch (final MPDException e) {
                 /** Do not throw exception when attempting to retrieve a non-existent sticker. */
@@ -281,13 +280,13 @@ public class Sticker {
                 }
             }
 
-            if (response == null || response.isEmpty()) {
+            if (result == null || result.isEmpty()) {
                 if (DEBUG) {
                     Log.debug(TAG, "No responses received from sticker get query. FullPath: " +
                             entry.getFullPath());
                 }
             } else {
-                for (final Map.Entry<String, String> mapEntry : new KeyValueResponse(response)) {
+                for (final Map.Entry<String, String> mapEntry : new KeyValueResponse(result)) {
                     if (CMD_RESPONSE_STICKER.equals(mapEntry.getKey())) {
                         final int index = mapEntry.getValue().indexOf('=');
 
@@ -375,10 +374,10 @@ public class Sticker {
         final boolean isAvailable = isAvailable();
 
         if (isAvailable) {
-            final CommandResponse response = mConnection.submit(CMD_ACTION_LIST,
+            final CommandResult result = mConnection.submit(CMD_ACTION_LIST,
                     CMD_STICKER_TYPE_SONG, entry.getFullPath()).get();
 
-            if (response == null || response.isEmpty()) {
+            if (result == null || result.isEmpty()) {
                 if (DEBUG) {
                     Log.debug(TAG, "No responses received from sticker list query. FullPath: " +
                             entry.getFullPath());
@@ -387,7 +386,7 @@ public class Sticker {
             } else {
                 stickers = new HashMap<>();
 
-                for (final Map.Entry<String, String> mapEntry : new KeyValueResponse(response)) {
+                for (final Map.Entry<String, String> mapEntry : new KeyValueResponse(result)) {
                     if (CMD_RESPONSE_STICKER.equals(mapEntry.getKey())) {
                         final String value = mapEntry.getValue();
                         final int delimiterIndex = value.indexOf('=');

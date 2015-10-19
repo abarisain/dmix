@@ -28,8 +28,8 @@
 package com.anpmech.mpd.subsystem;
 
 import com.anpmech.mpd.MPDCommand;
-import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.KeyValueResponse;
+import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 
@@ -188,9 +188,9 @@ public class Reflection {
      */
     private Collection<String> getList(final CharSequence command, final String element)
             throws IOException, MPDException {
-        final CommandResponse response = mConnection.submit(command).get();
+        final CommandResult result = mConnection.submit(command).get();
 
-        return new KeyValueResponse(response).getValues(element);
+        return new KeyValueResponse(result).getValues(element);
     }
 
     /**
