@@ -44,14 +44,14 @@ import android.os.Parcelable;
 public class CommandResult extends AbstractCommandResult implements Parcelable {
 
     /**
+     * This field is used to instantiate this class from a {@link Parcel}.
+     */
+    public static final Creator<CommandResult> CREATOR = new CommandResultCreator();
+
+    /**
      * This is the ClassLoader to use when unparceling this class.
      */
     public static final ClassLoader LOADER = CommandResult.class.getClassLoader();
-
-    /**
-     * This field is used to instantiate this class from a {@link Parcel}.
-     */
-    protected static final Creator<CommandResult> CREATOR = new CommandResultCreator();
 
     /**
      * This is an empty no-op CommandResult.
