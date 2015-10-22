@@ -67,13 +67,24 @@ android {
     }
 
     productFlavors {
-        closedbits {
+        all {
+            // Disable Crashlytics by default.
+            ext.enableCrashlytics = false;
+        }
+
+        crashlytics {
             versionName defaultConfig.versionName + "-c"
+            ext.enableCrashlytics = true;
+
+            dependencies {
+                compile('com.crashlytics.sdk.android:crashlytics:2.4.0@aar') {
+                    transitive = true
+                }
+            }
         }
 
         foss {
             versionName defaultConfig.versionName + "-f"
-            ext.enableCrashlytics = false
         }
     }
 
@@ -126,9 +137,6 @@ dependencies {
     compile project(':JMPDCommAndroid')
     // Libraries from maven
     compile 'asia.ivity.android:drag-sort-listview:1.0'
-    closedbitsCompile('com.crashlytics.sdk.android:crashlytics:2.4.0@aar') {
-        transitive = true
-    }
 }
 
 class BrowseJavadoc implements TaskExecutionListener {

@@ -29,7 +29,6 @@ import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
-import com.namelessdev.mpdroid.closedbits.FabricWrapper;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.helpers.MPDAsyncWorker;
@@ -78,7 +77,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class BrowseFragment<T extends Item<T>> extends Fragment implements
+abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
         OnMenuItemClickListener, AsyncExecListener, OnItemClickListener, StatusChangeListener,
         MPDConnectionListener {
 
@@ -107,6 +106,8 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
      */
     protected static final int PLAYLIST_ADD_GROUP = 1;
 
+    protected static final String TAG = "BrowseFragment";
+
     private static final String ARGUMENT_EMBEDDED = "embedded";
 
     /**
@@ -116,8 +117,6 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     private static final CharSequence ASYNC_UPDATE_TOKEN = "ASYNC_UPDATE";
 
     private static final int MIN_ITEMS_BEFORE_FASTSCROLL = 50;
-
-    private static final String TAG = "BrowseFragment";
 
     protected final MPDApplication mApp = MPDApplication.getInstance();
 
@@ -161,7 +160,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
      */
     private long mLastDBUpdate;
 
-    protected BrowseFragment(@StringRes final int rAdd, @StringRes final int rAdded) {
+    protected BrowseFragmentBase(@StringRes final int rAdd, @StringRes final int rAdded) {
         super();
 
         mIrAdd = rAdd;
@@ -198,15 +197,7 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         }
 
         if (parent == null || adapter == null || track == null) {
-            Tools.notifyUser(R.string.generalAddingError);
-            final String errorMessage = "Failed to add track. parent: " + parent + " adapter: "
-                    + adapter + " track: " + null;
-
-            /** Temporary, I want to find out exactly what's null. */
-            FabricWrapper.log(Log.ERROR, TAG, errorMessage);
-
-            /** Track will always be null here. */
-            Log.e(TAG, errorMessage);
+            reportTrackFailure(parent, adapter);
         } else {
             mApp.getAsyncHelper().execAsync(new Runnable() {
                 @Override
@@ -707,6 +698,18 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
     }
 
     /**
+     * This method is used to report a strange exception that has occurred.
+     *
+     * @param parent  The parent AdapterView to log.
+     * @param adapter The Adapter to log.
+     */
+    protected void reportTrackFailure(final View parent, final Adapter adapter) {
+        Tools.notifyUser(R.string.generalAddingError);
+
+        Log.e(TAG, trackFailureString(parent, adapter));
+    }
+
+    /**
      * Set whether the fragment is embedded or not. An embedded BrowseFragment will not show a
      * toolbar.
      *
@@ -798,6 +801,17 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
      */
     @Override
     public void trackChanged(final int oldTrack) {
+    }
+
+    /**
+     * This method is used to report a strange exception that has occurred.
+     *
+     * @param parent  The parent AdapterView to log.
+     * @param adapter The Adapter to log.
+     */
+    protected String trackFailureString(final View parent, final Adapter adapter) {
+        return "Failed to add track. parent: " + parent + " adapter: " + adapter + " track: "
+                + null;
     }
 
     /**

@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.closedbits;
+package com.namelessdev.mpdroid;
 
-import android.content.Context;
+public class MPDApplication extends MPDApplicationBase {
 
-@SuppressWarnings("ALL")
-public class FabricWrapper {
+    protected static MPDApplication sInstance;
 
-    public static void log(final int priority, final String tag, final String message) {
-        // Stub
+    public static MPDApplication getInstance() {
+        return sInstance;
     }
 
-    public static void logException(final Exception exception) {
-        // Stub
-    }
+    @Override
+    public void onCreate() {
+        sInstance = this;
 
-    public static void start(final Context context) {
-        // Stub
+        super.onCreate();
     }
 }

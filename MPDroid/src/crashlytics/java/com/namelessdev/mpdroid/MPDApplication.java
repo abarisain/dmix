@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2015 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.closedbits;
+package com.namelessdev.mpdroid;
 
 import com.crashlytics.android.Crashlytics;
 
-import android.content.Context;
-
 import io.fabric.sdk.android.Fabric;
 
-public class FabricWrapper {
+public class MPDApplication extends MPDApplicationBase {
 
-    public static void log(final int priority, final String tag, final String message) {
-        Crashlytics.log(priority, tag, message);
+    protected static MPDApplication sInstance;
+
+    @Override
+    public void onCreate() {
+        sInstance = this;
+
+        super.onCreate();
+
+        Fabric.with(sInstance, new Crashlytics());
     }
 
-    public static void logException(final Exception exception) {
-        Crashlytics.logException(exception);
-    }
-
-    public static void start(Context context) {
-        Fabric.with(context, new Crashlytics());
+    public static MPDApplication getInstance() {
+        return sInstance;
     }
 }

@@ -13,10 +13,14 @@ android:
     - extra-android-m2repository
     - extra-android-support
 
+before_script:
+    ## We need to be able to test the compile.
+    sed -ie 's%Get_your_own_key_ugh%0%g' MPDroid/src/crashlytics/AndroidManifest.xml
+
 # This project doesn't support checkConnected, which is
 #  the default script label for the Android plugin.
 script:
     ## Build the standard MPDroid distribution and check to
     ### make sure the plain Java build didn't break.
 
-    ./gradlew assembleFossDebug JMPDCommAndroid:debugJavadoc JMPDCommAndroid:test JMPDCommJava:Build JMPDCommJava:javadoc JMPDCommJava:test
+    ./gradlew assembleCrashlytics assembleFossDebug JMPDCommAndroid:debugJavadoc JMPDCommAndroid:test JMPDCommJava:Build JMPDCommJava:javadoc JMPDCommJava:test

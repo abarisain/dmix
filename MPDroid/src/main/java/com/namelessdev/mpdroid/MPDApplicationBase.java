@@ -20,7 +20,6 @@ import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.anpmech.mpd.subsystem.status.TrackPositionListener;
-import com.namelessdev.mpdroid.closedbits.FabricWrapper;
 import com.namelessdev.mpdroid.helpers.CachedMPD;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
@@ -48,7 +47,7 @@ import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MPDApplication extends Application implements
+class MPDApplicationBase extends Application implements
         Handler.Callback,
         MPDAsyncHelper.ConnectionInfoListener {
 
@@ -61,8 +60,6 @@ public class MPDApplication extends Application implements
     private static final long DISCONNECT_TIMER = 15000L;
 
     private static final String TAG = "MPDApplication";
-
-    private static MPDApplication sInstance;
 
     private final Collection<Object> mConnectionLocks =
             Collections.synchronizedCollection(new LinkedList<>());
@@ -110,10 +107,6 @@ public class MPDApplication extends Application implements
         if (DEBUG) {
             Log.d(TAG, line);
         }
-    }
-
-    public static MPDApplication getInstance() {
-        return sInstance;
     }
 
     /**
@@ -390,13 +383,9 @@ public class MPDApplication extends Application implements
     }
 
     @Override
-    public final void onCreate() {
+    public void onCreate() {
         super.onCreate();
-        sInstance = this;
         debug("onCreate Application");
-
-        // Don't worry FOSS guys, crashlytics is not included in the "foss" flavour
-        FabricWrapper.start(this);
 
         mSettings = PreferenceManager.getDefaultSharedPreferences(this);
 
