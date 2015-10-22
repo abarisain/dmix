@@ -328,6 +328,7 @@ public class ErrorHandler implements IdleSubsystemMonitor.Error,
 
     public void stop() {
         dismissAlertDialog();
+        sAlertDialog = null;
         mApp.getMPD().getConnectionStatus().removeListener(this);
         mApp.removeConnectionLock(mActivity);
         mApp.removeIdleSubsystemErrorListener(this);
