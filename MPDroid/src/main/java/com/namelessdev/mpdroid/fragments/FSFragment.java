@@ -62,6 +62,11 @@ public class FSFragment extends BrowseFragment {
     private static final String EXTRA_USE_BACK_STACK = "USE_BACK_STACK";
 
     /**
+     * This field is the error message given if the parent or current directory fails to refresh.
+     */
+    private static final String FAILED_TO_REFRESH_ERROR = "Failed to refresh current directory: ";
+
+    /**
      * This is the descriptor for a subdirectory count entry in a {@link Bundle}.
      */
     private static final String SUBDIRECTORY_COUNT = "SUBDIRECTORY_COUNT";
@@ -328,32 +333,26 @@ public class FSFragment extends BrowseFragment {
         return itemConsumed;
     }
 
+    /**
+     * This method refreshes the directory, if available, otherwise, pops and clears the back
+     * stack.
+     */
     private void refreshDirectory() {
-        boolean successfulRefresh = false;
-
         try {
             mApp.getMPD().refresh(mDirectory);
-            successfulRefresh = true;
-        } catch (final IOException | MPDException e) {
-            Log.e(TAG, "Failed to refresh current directory: " + mDirectory, e);
-        }
+        } catch (final MPDException e) {
+            if (e.mErrorCode == MPDException.ACK_ERROR_NO_EXIST) {
+                Tools.notifyUser("Directory disappeared, reloading.");
+                final FragmentManager fragmentManager = getFragmentManager();
 
-        if (!successfulRefresh) {
-            final Directory directory = Directory.byPath(Directory.ROOT_DIRECTORY);
-
-            /**
-             * The current directory disappeared. Perhaps the server changed, or an update
-             * completed.
-             */
-            try {
-                mApp.getMPD().refresh(directory);
-                successfulRefresh = true;
-            } catch (final IOException | MPDException ignore) {
+                if (fragmentManager != null) {
+                    fragmentManager.popBackStack(0, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                }
+            } else {
+                Log.e(TAG, FAILED_TO_REFRESH_ERROR + mDirectory, e);
             }
-
-            if (successfulRefresh) {
-                mDirectory = directory;
-            }
+        } catch (final IOException e) {
+            Log.e(TAG, FAILED_TO_REFRESH_ERROR + mDirectory, e);
         }
     }
 
