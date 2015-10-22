@@ -16,16 +16,31 @@
 
 package com.namelessdev.mpdroid;
 
-import com.crashlytics.android.Crashlytics;
+import com.squareup.leakcanary.LeakCanary;
+import com.squareup.leakcanary.RefWatcher;
 
-import io.fabric.sdk.android.Fabric;
+import android.support.v4.app.Fragment;
 
 public class MPDApplication extends MPDApplicationBase {
 
     protected static MPDApplication sInstance;
 
+    /**
+     * This is a RefWatcher for this Application instance.
+     */
+    private RefWatcher mRefWatcher;
+
     public static MPDApplication getInstance() {
         return sInstance;
+    }
+
+    /**
+     * This is the {@link RefWatcher} used to watch {@link Fragment}s.
+     *
+     * @return A RefWatcher.
+     */
+    public static RefWatcher getRefWatcher() {
+        return sInstance.mRefWatcher;
     }
 
     @Override
@@ -34,6 +49,6 @@ public class MPDApplication extends MPDApplicationBase {
 
         super.onCreate();
 
-        Fabric.with(sInstance, new Crashlytics());
+        mRefWatcher = LeakCanary.install(this);
     }
 }

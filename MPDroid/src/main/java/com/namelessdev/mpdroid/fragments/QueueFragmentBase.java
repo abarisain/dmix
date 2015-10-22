@@ -95,7 +95,7 @@ import static android.text.TextUtils.isEmpty;
 /**
  * A fragment for showing the media player's current playlist queue.
  */
-public class QueueFragment extends ListFragment implements StatusChangeListener,
+abstract class QueueFragmentBase extends ListFragment implements StatusChangeListener,
         OnMenuItemClickListener {
 
     protected static final boolean DEBUG = false;
@@ -157,7 +157,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             if (track != null && track.isStream()) {
                 popupMenu.getMenu().findItem(R.id.PLCX_goto).setVisible(false);
             }
-            popupMenu.setOnMenuItemClickListener(QueueFragment.this);
+            popupMenu.setOnMenuItemClickListener(QueueFragmentBase.this);
             popupMenu.show();
         }
     };

@@ -53,7 +53,7 @@ import android.widget.TextView;
 
 import java.util.concurrent.TimeUnit;
 
-public class NowPlayingSmallFragment extends Fragment implements
+abstract class NowPlayingSmallFragmentBase extends Fragment implements
         MPDConnectionListener, StatusChangeListener,
         UpdateTrackInfo.TrackInfoUpdate {
 

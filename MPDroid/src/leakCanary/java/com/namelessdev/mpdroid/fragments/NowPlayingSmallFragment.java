@@ -14,26 +14,20 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid;
+package com.namelessdev.mpdroid.fragments;
 
-import com.crashlytics.android.Crashlytics;
+import com.namelessdev.mpdroid.MPDApplication;
 
-import io.fabric.sdk.android.Fabric;
+public class NowPlayingSmallFragment extends NowPlayingSmallFragmentBase {
 
-public class MPDApplication extends MPDApplicationBase {
-
-    protected static MPDApplication sInstance;
-
-    public static MPDApplication getInstance() {
-        return sInstance;
-    }
-
+    /**
+     * Called when the fragment is no longer in use.  This is called
+     * after {@link #onStop()} and before {@link #onDetach()}.
+     */
     @Override
-    public void onCreate() {
-        sInstance = this;
+    public void onDestroy() {
+        super.onDestroy();
 
-        super.onCreate();
-
-        Fabric.with(sInstance, new Crashlytics());
+        MPDApplication.getRefWatcher().watch(this);
     }
 }

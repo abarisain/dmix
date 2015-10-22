@@ -80,7 +80,7 @@ import java.util.TimerTask;
 
 import static com.namelessdev.mpdroid.tools.Tools.notifyUser;
 
-public class NowPlayingFragment extends Fragment implements
+abstract class NowPlayingFragmentBase extends Fragment implements
         MPDConnectionListener, StatusChangeListener,
         TrackPositionListener, OnSharedPreferenceChangeListener, OnMenuItemClickListener,
         UpdateTrackInfo.FullTrackInfoUpdate {
@@ -1258,7 +1258,8 @@ public class NowPlayingFragment extends Fragment implements
         mVolumeSeekBar.setProgress(volume);
     }
 
-    private static class ButtonEventHandler extends NowPlayingSmallFragment.OnClickControlListener
+    private static class ButtonEventHandler
+            extends NowPlayingSmallFragmentBase.OnClickControlListener
             implements View.OnLongClickListener {
 
         @Override

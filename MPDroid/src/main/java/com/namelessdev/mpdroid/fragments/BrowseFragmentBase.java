@@ -808,6 +808,7 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
      *
      * @param parent  The parent AdapterView to log.
      * @param adapter The Adapter to log.
+     * @return A string detailing the failure.
      */
     protected String trackFailureString(final View parent, final Adapter adapter) {
         return "Failed to add track. parent: " + parent + " adapter: " + adapter + " track: "

@@ -14,26 +14,8 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid;
+package com.namelessdev.mpdroid.fragments;
 
-import com.crashlytics.android.Crashlytics;
+public class NowPlayingFragment extends NowPlayingFragmentBase {
 
-import io.fabric.sdk.android.Fabric;
-
-public class MPDApplication extends MPDApplicationBase {
-
-    protected static MPDApplication sInstance;
-
-    public static MPDApplication getInstance() {
-        return sInstance;
-    }
-
-    @Override
-    public void onCreate() {
-        sInstance = this;
-
-        super.onCreate();
-
-        Fabric.with(sInstance, new Crashlytics());
-    }
 }

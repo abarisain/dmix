@@ -39,7 +39,7 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-public class LibraryFragment extends Fragment {
+abstract class LibraryFragmentBase extends Fragment {
 
     /**
      * The {@link PagerAdapter} that will provide fragments for each of the sections. We use a

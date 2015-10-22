@@ -23,4 +23,4 @@ script:
     ## Build the standard MPDroid distribution and check to
     ### make sure the plain Java build didn't break.
 
-    ./gradlew assembleCrashlytics assembleFossDebug JMPDCommAndroid:debugJavadoc JMPDCommAndroid:test JMPDCommJava:Build JMPDCommJava:javadoc JMPDCommJava:test
+    ./gradlew assembleCrashlytics assembleFoss assembleLeakCanary JMPDCommAndroid:debugJavadoc JMPDCommAndroid:test JMPDCommJava:Build JMPDCommJava:javadoc JMPDCommJava:test
