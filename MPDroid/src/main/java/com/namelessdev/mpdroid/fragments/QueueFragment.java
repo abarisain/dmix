@@ -458,11 +458,11 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                 break;
             case R.id.PLCX_goToFolder:
                 music = getPlaylistItemSong(mPopupSongID);
-                if (music == null || isEmpty(music.getFullPath())) {
+                if (music == null) {
                     break;
                 }
                 intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra(Directory.EXTRA, music.getParentDirectory());
+                intent.putExtra(Directory.EXTRA, Directory.byPath(music.getParentDirectory()));
                 startActivityForResult(intent, -1);
                 break;
             default:
