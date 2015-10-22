@@ -283,6 +283,17 @@ public class IdleSubsystemMonitor implements Runnable {
     }
 
     /**
+     * Removes a {@code Error} listener.
+     *
+     * @param listener a {@code Error} listener.
+     */
+    public void removeIdleSubsystemErrorListener(final Error listener) {
+        if (mErrorListeners.contains(listener)) {
+            mErrorListeners.remove(listener);
+        }
+    }
+
+    /**
      * Removes a {@code StatusChangeListener}.
      *
      * @param listener a {@code StatusChangeListener}.

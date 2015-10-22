@@ -330,6 +330,7 @@ public class ErrorHandler implements IdleSubsystemMonitor.Error,
         dismissAlertDialog();
         mApp.getMPD().getConnectionStatus().removeListener(this);
         mApp.removeConnectionLock(mActivity);
+        mApp.removeIdleSubsystemErrorListener(this);
     }
 
     private static class DialogClickListener implements DialogInterface.OnClickListener {

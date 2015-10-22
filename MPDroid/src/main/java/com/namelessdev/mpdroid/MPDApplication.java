@@ -429,6 +429,15 @@ public class MPDApplication extends Application implements
     }
 
     /**
+     * Removes a {@link IdleSubsystemMonitor.Error} listener.
+     *
+     * @param listener A IdleSubsystemMonitor error listener.
+     */
+    public void removeIdleSubsystemErrorListener(final IdleSubsystemMonitor.Error listener) {
+        mIdleSubsystemMonitor.removeIdleSubsystemErrorListener(listener);
+    }
+
+    /**
      * Removes a {@link StatusChangeListener} from the associated
      * {@link IdleSubsystemMonitor}.
      *
