@@ -35,11 +35,9 @@ import java.util.LinkedList;
  *
  * @author Stefan Agner
  */
-public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
+public class CoverAsyncHelper implements CoverDownloadListener, Handler.Callback {
 
     public static final int EVENT_COVER_NOT_FOUND = 2;
-
-    private static final Message COVER_NOT_FOUND_MESSAGE;
 
     private static final int EVENT_COVER_DOWNLOADED = 1;
 
@@ -51,14 +49,11 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
 
     private final Collection<CoverDownloadListener> mCoverDownloadListeners;
 
+    private final Handler mHandler = new Handler(this);
+
     private int mCachedCoverMaxSize = MAX_SIZE;
 
     private int mCoverMaxSize = MAX_SIZE;
-
-    static {
-        COVER_NOT_FOUND_MESSAGE = new Message();
-        COVER_NOT_FOUND_MESSAGE.what = EVENT_COVER_NOT_FOUND;
-    }
 
     public CoverAsyncHelper() {
         super();
@@ -93,25 +88,26 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
 
     public void downloadCover(final AlbumInfo albumInfo, final boolean priority) {
         final CoverInfo info = new CoverInfo(albumInfo);
-        info.setCoverMaxSize(mCoverMaxSize);
-        info.setCachedCoverMaxSize(mCachedCoverMaxSize);
-        info.setPriority(priority);
-        info.setListener(this);
-        tagListenerCovers(albumInfo);
 
         if (albumInfo.isValid()) {
+            info.setCoverMaxSize(mCoverMaxSize);
+            info.setCachedCoverMaxSize(mCachedCoverMaxSize);
+            info.setPriority(priority);
+            info.setListener(this);
+            tagListenerCovers(albumInfo);
+
             CoverManager.getInstance().addCoverRequest(info);
         } else {
-            COVER_NOT_FOUND_MESSAGE.obj = info;
-            handleMessage(COVER_NOT_FOUND_MESSAGE);
+            final Message msg = Message.obtain(mHandler, EVENT_COVER_NOT_FOUND);
+            msg.obj = info;
+            mHandler.sendMessage(msg);
         }
-
     }
 
     @Override
-    public void handleMessage(final Message msg) {
-        super.handleMessage(msg);
+    public boolean handleMessage(final Message msg) {
         final CoverInfo coverInfo = (CoverInfo) msg.obj;
+        boolean messageHandled = true;
 
         switch (msg.what) {
             case EVENT_COVER_DOWNLOADED:
@@ -141,27 +137,38 @@ public class CoverAsyncHelper extends Handler implements CoverDownloadListener {
                 }
                 break;
             default:
+                messageHandled = false;
                 break;
         }
+
+        return messageHandled;
     }
 
     @Override
     public void onCoverDownloadStarted(final AlbumInfo albumInfo) {
-        obtainMessage(EVENT_COVER_DOWNLOAD_STARTED, albumInfo).sendToTarget();
+        Message.obtain(mHandler, EVENT_COVER_DOWNLOAD_STARTED, albumInfo).sendToTarget();
     }
 
     @Override
     public void onCoverDownloaded(final AlbumInfo albumInfo, final Collection<Bitmap> bitmaps) {
-        obtainMessage(EVENT_COVER_DOWNLOADED, albumInfo).sendToTarget();
+        Message.obtain(mHandler, EVENT_COVER_DOWNLOADED, albumInfo).sendToTarget();
     }
 
     @Override
     public void onCoverNotFound(final AlbumInfo albumInfo) {
-        obtainMessage(EVENT_COVER_NOT_FOUND, albumInfo).sendToTarget();
+        Message.obtain(mHandler, EVENT_COVER_NOT_FOUND, albumInfo).sendToTarget();
     }
 
     public void removeCoverDownloadListener(final CoverDownloadListener listener) {
         mCoverDownloadListeners.remove(listener);
+    }
+
+    /**
+     * This method calls the {@link CoverDownloadListener#onCoverNotFound(AlbumInfo)} callback
+     * with a {@code null} parameter.
+     */
+    public void resetCover() {
+        Message.obtain(mHandler, EVENT_COVER_NOT_FOUND).sendToTarget();
     }
 
     /*

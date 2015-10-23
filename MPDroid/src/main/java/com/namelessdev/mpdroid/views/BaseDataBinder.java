@@ -64,7 +64,7 @@ abstract class BaseDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
             coverHelper.setCoverMaxSize(height);
         }
 
-        loadPlaceholder(coverHelper);
+        coverHelper.resetCover();
 
         return coverHelper;
     }
@@ -72,10 +72,6 @@ abstract class BaseDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
     protected static void loadArtwork(final CoverAsyncHelper coverHelper,
             final AlbumInfo albumInfo) {
         coverHelper.downloadCover(albumInfo);
-    }
-
-    private static void loadPlaceholder(final CoverAsyncHelper coverHelper) {
-        coverHelper.obtainMessage(CoverAsyncHelper.EVENT_COVER_NOT_FOUND).sendToTarget();
     }
 
     protected static CoverDownloadListener setCoverListener(final AlbumCoverHolder holder,
