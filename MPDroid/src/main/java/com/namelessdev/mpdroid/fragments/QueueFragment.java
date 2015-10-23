@@ -45,6 +45,7 @@ import com.namelessdev.mpdroid.models.PlaylistStream;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.PlayQueueViewHolder;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -52,7 +53,9 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
@@ -158,6 +161,47 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             popupMenu.show();
         }
     };
+
+    /**
+     * This method starts the {@link SimpleLibraryActivity} if given appropriate resources.
+     *
+     * @param gotoResource The resource from {@link #onMenuItemClick(MenuItem)}
+     * @return True if given a {@link SimpleLibraryActivity} resource, false otherwise.
+     */
+    private boolean canStartSimpleLibraryActivity(@IdRes final int gotoResource) {
+        final Music music = getPlaylistItemSong(mPopupSongID);
+        boolean isConsumed = true;
+
+        switch (gotoResource) {
+            case R.id.PLCX_goToAlbum:
+                if (music != null && !isEmpty(music.getArtistName()) &&
+                        !isEmpty(music.getAlbumName())) {
+                    startSimpleLibraryActivity(mActivity, Album.EXTRA, music.getAlbum());
+                }
+                break;
+            case R.id.PLCX_goToAlbumArtist:
+                if (music != null && !isEmpty(music.getAlbumArtistName())) {
+                    startSimpleLibraryActivity(mActivity, Artist.EXTRA, music.getAlbumArtist());
+                }
+                break;
+            case R.id.PLCX_goToArtist:
+                if (music != null && !isEmpty(music.getArtistName())) {
+                    startSimpleLibraryActivity(mActivity, Artist.EXTRA, music.getArtist());
+                }
+                break;
+            case R.id.PLCX_goToFolder:
+                if (music != null) {
+                    final Directory directory = Directory.byPath(music.getParentDirectory());
+                    startSimpleLibraryActivity(mActivity, Directory.EXTRA, directory);
+                }
+                break;
+            default:
+                isConsumed = false;
+                break;
+        }
+
+        return isConsumed;
+    }
 
     protected AbstractPlaylistMusic getPlaylistItemSong(final int songID) {
         AbstractPlaylistMusic song = null;
@@ -407,10 +451,10 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
 
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
-        final Intent intent;
-        final AbstractPlaylistMusic music;
+        final int itemId = item.getItemId();
+        boolean isConsumed = true;
 
-        switch (item.getItemId()) {
+        switch (itemId) {
             case R.id.PLCX_playNext:
                 QueueControl.run(QueueControl.MOVE_TO_NEXT, mPopupSongID);
                 Tools.notifyUser("Song moved to next in list");
@@ -434,41 +478,12 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             case R.id.PLCX_removeAlbumFromPlaylist:
                 removeAlbumById();
                 break;
-            case R.id.PLCX_goToArtist:
-                music = getPlaylistItemSong(mPopupSongID);
-                if (music == null || isEmpty(music.getArtistName())) {
-                    break;
-                }
-
-                intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra(Artist.EXTRA, music.getArtist());
-                startActivityForResult(intent, -1);
-                break;
-            case R.id.PLCX_goToAlbum:
-                music = getPlaylistItemSong(mPopupSongID);
-
-                if (music == null || isEmpty(music.getArtistName()) ||
-                        isEmpty(music.getAlbumName())) {
-                    break;
-                }
-
-                intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra(Album.EXTRA, music.getAlbum());
-                startActivityForResult(intent, -1);
-                break;
-            case R.id.PLCX_goToFolder:
-                music = getPlaylistItemSong(mPopupSongID);
-                if (music == null) {
-                    break;
-                }
-                intent = new Intent(mActivity, SimpleLibraryActivity.class);
-                intent.putExtra(Directory.EXTRA, Directory.byPath(music.getParentDirectory()));
-                startActivityForResult(intent, -1);
-                break;
             default:
+                isConsumed = canStartSimpleLibraryActivity(itemId);
                 break;
         }
-        return true;
+
+        return isConsumed;
     }
 
     @Override
@@ -660,6 +675,20 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
             listView.setSelection(songPos);
             listView.clearFocus();
         }
+    }
+
+    /**
+     * Starts a {@link SimpleLibraryActivity}.
+     *
+     * @param activity   The {@link Activity} used to start the SimpleLibraryActivity.
+     * @param extra      The {@link Intent#putExtra(String, boolean)} name.
+     * @param parcelable the {@link Intent#putExtra(String, boolean)} parcelable.
+     */
+    private void startSimpleLibraryActivity(final Activity activity, final String extra,
+            final Parcelable parcelable) {
+        final Intent intent = new Intent(activity, SimpleLibraryActivity.class);
+        intent.putExtra(extra, parcelable);
+        startActivityForResult(intent, -1);
     }
 
     @Override
