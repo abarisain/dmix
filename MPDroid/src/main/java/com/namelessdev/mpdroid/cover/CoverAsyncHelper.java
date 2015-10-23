@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.cover;
 
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -26,9 +25,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
 
 /**
  * Download Covers Asynchronous with Messages
@@ -37,28 +36,32 @@ import java.util.LinkedList;
  */
 public class CoverAsyncHelper implements CoverDownloadListener, Handler.Callback {
 
-    public static final int EVENT_COVER_NOT_FOUND = 2;
-
     private static final int EVENT_COVER_DOWNLOADED = 1;
 
     private static final int EVENT_COVER_DOWNLOAD_STARTED = 3;
 
+    private static final int EVENT_COVER_NOT_FOUND = 2;
+
+    private static final int EVENT_COVER_TAG = 4;
+
     private static final int MAX_SIZE = 0;
 
-    private final MPDApplication mApp = MPDApplication.getInstance();
+    private final Collection<CoverDownloadListener> mCoverDownloadListeners = new ArrayList<>();
 
-    private final Collection<CoverDownloadListener> mCoverDownloadListeners;
-
+    /**
+     * The Handler for this class.
+     */
     private final Handler mHandler = new Handler(this);
 
-    private int mCachedCoverMaxSize = MAX_SIZE;
+    private int mCachedCoverMaxSize;
 
-    private int mCoverMaxSize = MAX_SIZE;
+    private int mCoverMaxSize;
 
+    /**
+     * Sole constructor.
+     */
     public CoverAsyncHelper() {
         super();
-
-        mCoverDownloadListeners = new LinkedList<>();
     }
 
     private static void displayCoverRetrieverName(final CoverInfo coverInfo) {
@@ -78,6 +81,25 @@ public class CoverAsyncHelper implements CoverDownloadListener, Handler.Callback
         CoverManager.getInstance().setCoverRetrieversFromPreferences();
     }
 
+    /*
+     * If you want cached images to be read as a different size than the
+     * downloaded ones. If this equals MAX_SIZE, it will use the coverMaxSize
+     * (if not also MAX_SIZE) Example : useful for NowPlayingSmallFragment,
+     * where it's useless to read a big image, but since downloading one will
+     * fill the cache, download it at a bigger size.
+     */
+    private static int setMaxSize(final int size) {
+        final int result;
+
+        if (size < 0) {
+            result = MAX_SIZE;
+        } else {
+            result = size;
+        }
+
+        return result;
+    }
+
     public void addCoverDownloadListener(final CoverDownloadListener listener) {
         mCoverDownloadListeners.add(listener);
     }
@@ -94,7 +116,9 @@ public class CoverAsyncHelper implements CoverDownloadListener, Handler.Callback
             info.setCachedCoverMaxSize(mCachedCoverMaxSize);
             info.setPriority(priority);
             info.setListener(this);
-            tagListenerCovers(albumInfo);
+            final Message msg = Message.obtain(mHandler, EVENT_COVER_TAG);
+            msg.obj = info;
+            mHandler.sendMessage(msg);
 
             CoverManager.getInstance().addCoverRequest(info);
         } else {
@@ -104,6 +128,13 @@ public class CoverAsyncHelper implements CoverDownloadListener, Handler.Callback
         }
     }
 
+    /**
+     * Callback interface you can use when instantiating a Handler to avoid
+     * having to implement your own subclass of Handler.
+     *
+     * @param msg A {@link Message Message} object
+     * @return True if no further handling is desired
+     */
     @Override
     public boolean handleMessage(final Message msg) {
         final CoverInfo coverInfo = (CoverInfo) msg.obj;
@@ -171,27 +202,12 @@ public class CoverAsyncHelper implements CoverDownloadListener, Handler.Callback
         Message.obtain(mHandler, EVENT_COVER_NOT_FOUND).sendToTarget();
     }
 
-    /*
-     * If you want cached images to be read as a different size than the
-     * downloaded ones. If this equals MAX_SIZE, it will use the coverMaxSize
-     * (if not also MAX_SIZE) Example : useful for NowPlayingSmallFragment,
-     * where it's useless to read a big image, but since downloading one will
-     * fill the cache, download it at a bigger size.
-     */
     public void setCachedCoverMaxSize(final int size) {
-        if (size < 0) {
-            mCachedCoverMaxSize = MAX_SIZE;
-        } else {
-            mCachedCoverMaxSize = size;
-        }
+        mCachedCoverMaxSize = setMaxSize(size);
     }
 
     public void setCoverMaxSize(final int size) {
-        if (size < 0) {
-            mCoverMaxSize = MAX_SIZE;
-        } else {
-            mCoverMaxSize = size;
-        }
+        mCoverMaxSize = setMaxSize(size);
     }
 
     public void setCoverMaxSizeFromScreen(final Activity activity) {
