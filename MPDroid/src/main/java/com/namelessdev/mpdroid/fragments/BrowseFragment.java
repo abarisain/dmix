@@ -523,6 +523,22 @@ public abstract class BrowseFragment<T extends Item<T>> extends Fragment impleme
         return view;
     }
 
+    /**
+     * Called when the view previously created by {@link #onCreateView} has
+     * been detached from the fragment.  The next time the fragment needs
+     * to be displayed, a new view will be created.  This is called
+     * after {@link #onStop()} and before {@link #onDestroy()}.  It is called
+     * <em>regardless</em> of whether {@link #onCreateView} returned a
+     * non-null view.  Internally it is called after the view's state has
+     * been saved but before it has been removed from its parent.
+     */
+    @Override
+    public void onDestroyView() {
+        mList.setOnItemClickListener(null);
+
+        super.onDestroyView();
+    }
+
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
         switch (item.getGroupId()) {
