@@ -71,7 +71,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 
-public class SongsFragment extends BrowseFragment<Music> {
+public class SongsFragment extends BrowseFragment<Music> implements
+        ViewTreeObserver.OnPreDrawListener {
 
     public static final String COVER_THUMBNAIL_BUNDLE_KEY = "CoverThumbnailBundle";
 
@@ -398,16 +399,7 @@ public class SongsFragment extends BrowseFragment<Music> {
 
         mCoverHelper = new CoverAsyncHelper();
         mCoverHelper.setCoverMaxSizeFromScreen(getActivity());
-        final ViewTreeObserver vto = mCoverArt.getViewTreeObserver();
-        vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                if (mCoverHelper != null) {
-                    mCoverHelper.setCachedCoverMaxSize(mCoverArt.getMeasuredHeight());
-                }
-                return true;
-            }
-        });
+        mCoverArt.getViewTreeObserver().addOnPreDrawListener(this);
         mCoverHelper.addCoverDownloadListener(mCoverArtListener);
 
         //((TextView) headerView.findViewById(R.id.separator_title)).setText(R.string.songs);
@@ -545,10 +537,22 @@ public class SongsFragment extends BrowseFragment<Music> {
         return view;
     }
 
+    /**
+     * Called when the view previously created by {@link #onCreateView} has
+     * been detached from the fragment.  The next time the fragment needs
+     * to be displayed, a new view will be created.  This is called
+     * after {@link #onStop()} and before {@link #onDestroy()}.  It is called
+     * <em>regardless</em> of whether {@link #onCreateView} returned a
+     * non-null view.  Internally it is called after the view's state has
+     * been saved but before it has been removed from its parent.
+     */
     @Override
-    public void onDetach() {
+    public void onDestroyView() {
+        mCoverArt.getViewTreeObserver().removeOnPreDrawListener(this);
+        mCoverArtListener.freeCoverDrawable();
         mCoverHelper = null;
-        super.onDetach();
+
+        super.onDestroyView();
     }
 
     @Override
@@ -576,6 +580,15 @@ public class SongsFragment extends BrowseFragment<Music> {
             addAdapterItem(parent, position);
         }
 
+    }
+
+    @Override
+    public boolean onPreDraw() {
+        if (mCoverHelper != null) {
+            mCoverHelper.setCachedCoverMaxSize(mCoverArt.getMeasuredHeight());
+        }
+
+        return true;
     }
 
     @Override
