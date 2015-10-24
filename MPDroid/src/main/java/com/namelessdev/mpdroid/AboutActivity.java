@@ -20,45 +20,32 @@ import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-public class AboutActivity extends AppCompatActivity {
-
-    private static final MPDApplication APP = MPDApplication.getInstance();
+public class AboutActivity extends Activity {
 
     private static final String TAG = "AboutActivity";
 
-    public static String getVersionName(final Class<Activity> cls) {
-        String versionName = null;
-
-        try {
-            final ComponentName comp = new ComponentName(APP, cls);
-            final PackageManager packageManager = APP.getPackageManager();
-
-            if (packageManager != null) {
-                final PackageInfo packageInfo = packageManager
-                        .getPackageInfo(comp.getPackageName(), 0);
-                versionName = packageInfo.versionName + " (" + packageInfo.versionCode + ')';
-            }
-        } catch (final PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Failed to get the version name.", e);
+    /**
+     * This wraps all the strings of an array in a {@link AboutListItem}.
+     *
+     * @param from The object to convert.
+     * @param to   The collection to put the converted objects into.
+     */
+    private static void getAboutItems(final String[] from, final Collection<Object> to) {
+        for (final String item : from) {
+            to.add(new AboutListItem(item));
         }
-
-        return versionName;
     }
 
     @Override
@@ -72,7 +59,8 @@ public class AboutActivity extends AppCompatActivity {
         final View headerView = inflater.inflate(R.layout.about_header, listView, false);
         final TextView versionInfo = (TextView) headerView.findViewById(R.id.text_version);
         versionInfo.setText(R.string.version);
-        versionInfo.append(": " + getVersionName(Activity.class));
+        versionInfo.append(": ");
+        versionInfo.append(BuildConfig.VERSION_NAME);
 
         listView.setHeaderDividersEnabled(false);
         listView.addHeaderView(headerView);
@@ -84,32 +72,43 @@ public class AboutActivity extends AppCompatActivity {
                 new ArrayList<>(authorsArray.length + librariesArray.length + 2);
 
         listItems.add(getString(R.string.about_libraries));
-        for (final String libraryLine : librariesArray) {
-            listItems.add(new AboutListItem(libraryLine));
-        }
+        getAboutItems(librariesArray, listItems);
 
         listItems.add(getString(R.string.about_authors));
-        for (final String authorsLine : authorsArray) {
-            listItems.add(new AboutListItem(authorsLine));
-        }
+        getAboutItems(authorsArray, listItems);
 
         listView.setAdapter(new SeparatedListAdapter(this, android.R.layout.simple_list_item_1,
-                R.layout.list_separator, new SeparatedListDataBinder() {
-            @Override
-            public boolean isEnabled(final int position, final List<?> items, final Object item) {
-                return false;
-            }
-
-            @Override
-            public void onDataBind(final Context context, final View targetView,
-                    final List<?> items,
-                    final Object item, final int position) {
-                ((TextView) targetView.findViewById(android.R.id.text1)).setText(item.toString());
-            }
-        }, listItems));
+                R.layout.list_separator, new AboutDataBinder(), listItems));
     }
 
-    private static class AboutListItem {
+    /**
+     * This is the DataBinder to use with the {@link SeparatedListAdapter}.
+     */
+    private static final class AboutDataBinder implements SeparatedListDataBinder {
+
+        /**
+         * Sole constructor.
+         */
+        private AboutDataBinder() {
+            super();
+        }
+
+        @Override
+        public boolean isEnabled(final int position, final List<?> items, final Object item) {
+            return false;
+        }
+
+        @Override
+        public void onDataBind(final Context context, final View targetView, final List<?> items,
+                final Object item, final int position) {
+            ((TextView) targetView.findViewById(android.R.id.text1)).setText(item.toString());
+        }
+    }
+
+    /**
+     * This is a wrapper for a String to chane the instanceof for the {@link SeparatedListAdapter}.
+     */
+    private static final class AboutListItem {
 
         private final String mText;
 
@@ -123,5 +122,4 @@ public class AboutActivity extends AppCompatActivity {
             return mText;
         }
     }
-
 }
