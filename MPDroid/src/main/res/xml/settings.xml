@@ -69,7 +69,7 @@
 
         <intent
             android:action="android.intent.action.MAIN"
-            android:targetClass="com.namelessdev.mpdroid.WifiConnectionSettings"
+            android:targetClass="com.namelessdev.mpdroid.preferences.ConnectionSettings"
             android:targetPackage="com.namelessdev.mpdroid" />
     </PreferenceScreen>
 

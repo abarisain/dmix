@@ -39,10 +39,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.support.annotation.StringRes;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * StreamHandler hooks Android's audio framework to the user's MPD streaming server to allow local
@@ -239,14 +243,14 @@ public final class StreamHandler implements
         }
 
         mServiceHandler.sendEmptyMessage(BUFFERING_BEGIN);
-        final String streamSource = getStreamSource();
+        final String streamSource = mConnectionInfo.getStream().toString();
         mPreparingStream = true;
         mServiceHandler.removeMessages(STOP);
 
         mMediaPlayer.reset();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
-            mMediaPlayer.setDataSource(streamSource);
+            mMediaPlayer.setDataSource(mServiceContext, mConnectionInfo.getStream());
         } catch (final IOException e) {
             final Resources resources = mServiceContext.getResources();
             final String error = resources.getString(R.string.streamSourceError, streamSource);
@@ -281,13 +285,25 @@ public final class StreamHandler implements
     }
 
     /**
-     * Retrieves the currently configured streaming server URL.
+     * This method calculates HTTP basic auth headers, if required.
      *
-     * @return The currently configured streaming server URL.
+     * @return A {@link Map} with HTTP basic auth headers, if required; an empty Map, otherwise.
      */
-    private String getStreamSource() {
-        return "http://" + mConnectionInfo.streamServer + ':'
-                + mConnectionInfo.streamPort + '/' + mConnectionInfo.streamSuffix;
+    private Map<String, String> getAuthHeaders() {
+        final String userInfo = mConnectionInfo.getStream().getUserInfo();
+        Map<String, String> result = Collections.emptyMap();
+
+        if (userInfo != null) {
+            try {
+                final String encoded =
+                        Base64.encodeToString(userInfo.getBytes("UTF-8"), Base64.DEFAULT);
+                result = Collections.singletonMap("Authorization", "Basic " + encoded);
+            } catch (final UnsupportedEncodingException e) {
+                Log.e(TAG, "UTF-8 is unsupported?", e);
+            }
+        }
+
+        return result;
     }
 
     /**

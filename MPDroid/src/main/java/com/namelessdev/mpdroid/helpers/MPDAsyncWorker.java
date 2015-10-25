@@ -17,9 +17,9 @@
 package com.namelessdev.mpdroid.helpers;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
-import com.namelessdev.mpdroid.ConnectionSettings;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.cover.retriever.GracenoteCover;
+import com.namelessdev.mpdroid.preferences.ConnectionModifier;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 
 import android.content.SharedPreferences;
@@ -49,7 +49,7 @@ public class MPDAsyncWorker implements Handler.Callback,
     /** A handler for the MPDAsyncHelper object. */
     private final Handler mHelperHandler;
 
-    private ConnectionInfo mConnectionInfo = new ConnectionInfo();
+    private ConnectionInfo mConnectionInfo = ConnectionInfo.EMPTY;
 
     MPDAsyncWorker(final Handler helperHandler) {
         super();
@@ -107,13 +107,11 @@ public class MPDAsyncWorker implements Handler.Callback,
 
         if (key != null && currentSSID != null && key.startsWith(currentSSID)) {
             switch (key.substring(currentSSID.length())) {
-                case ConnectionSettings.KEY_HOSTNAME:
-                case ConnectionSettings.KEY_HOSTNAME_STREAMING:
-                case ConnectionSettings.KEY_PASSWORD:
-                case ConnectionSettings.KEY_PERSISTENT_NOTIFICATION:
-                case ConnectionSettings.KEY_PORT:
-                case ConnectionSettings.KEY_PORT_STREAMING:
-                case ConnectionSettings.KEY_SUFFIX_STREAMING:
+                case ConnectionModifier.KEY_HOSTNAME:
+                case ConnectionModifier.KEY_PASSWORD:
+                case ConnectionModifier.KEY_PERSISTENT_NOTIFICATION:
+                case ConnectionModifier.KEY_PORT:
+                case ConnectionModifier.KEY_STREAM_URL:
                     mHelperHandler.sendEmptyMessage(UPDATE_CONNECTION_INFO);
                     break;
                 case MPDApplication.USE_LOCAL_ALBUM_CACHE_KEY:
@@ -138,9 +136,9 @@ public class MPDAsyncWorker implements Handler.Callback,
      * @param connectionInfo A current {@code ConnectionInfo} object.
      */
     private final void setConnectionSettings(final ConnectionInfo connectionInfo) {
-        if (connectionInfo.serverInfoChanged || connectionInfo.streamingServerInfoChanged
-                || connectionInfo.wasNotificationPersistent !=
-                connectionInfo.isNotificationPersistent) {
+        if (connectionInfo.hasServerChanged() || connectionInfo.hasStreamInfoChanged()
+                || connectionInfo.wasNotificationPersistent() !=
+                connectionInfo.isNotificationPersistent()) {
             mConnectionInfo = connectionInfo;
             mHelperHandler.obtainMessage(EVENT_CONNECTION_CONFIG, connectionInfo).sendToTarget();
         }

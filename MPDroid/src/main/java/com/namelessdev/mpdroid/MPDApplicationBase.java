@@ -195,8 +195,8 @@ class MPDApplicationBase extends Application implements
      */
     public void connect() throws UnknownHostException {
         mConnectionInfo = mMPDAsyncHelper.updateConnectionSettings();
-        mMPD.setDefaultPassword(mConnectionInfo.password);
-        mMPD.connect(mConnectionInfo.server, mConnectionInfo.port);
+        mMPD.setDefaultPassword(mConnectionInfo.getPassword());
+        mMPD.connect(mConnectionInfo.getServer(), mConnectionInfo.getPort());
     }
 
     public final void disconnect() {
@@ -323,7 +323,7 @@ class MPDApplicationBase extends Application implements
     public final boolean isNotificationPersistent() {
         final boolean result;
 
-        if (mConnectionInfo.isNotificationPersistent && !mIsNotificationOverridden) {
+        if (mConnectionInfo.isNotificationPersistent() && !mIsNotificationOverridden) {
             result = true;
         } else {
             result = false;
@@ -377,7 +377,7 @@ class MPDApplicationBase extends Application implements
         if (mServiceBinder != null && mServiceBinder.isServiceBound()) {
             final Bundle bundle = new Bundle();
             bundle.setClassLoader(ConnectionInfo.class.getClassLoader());
-            bundle.putParcelable(ConnectionInfo.BUNDLE_KEY, connectionInfo);
+            bundle.putParcelable(ConnectionInfo.EXTRA, connectionInfo);
             mServiceBinder.sendMessageToService(MPDroidService.CONNECTION_INFO_CHANGED, bundle);
         }
     }

@@ -95,7 +95,7 @@ public class LocalCover implements ICoverRetriever {
             // load URL parts from settings
             final String musicPath = mSettings.getString("musicPath", "music/");
             FILENAMES[0] = mSettings.getString("coverFileName", null);
-            final String serverName = mApp.getConnectionSettings().server;
+            final String serverName = mApp.getConnectionSettings().getServer();
 
             String url;
             coverUrls = new ArrayList<>();

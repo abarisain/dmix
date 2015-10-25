@@ -18,8 +18,8 @@ package com.namelessdev.mpdroid.tools;
 
 import com.anpmech.mpd.MPDCommand;
 import com.namelessdev.mpdroid.ConnectionInfo;
-import com.namelessdev.mpdroid.ConnectionSettings;
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.preferences.ConnectionModifier;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -35,8 +35,6 @@ public final class SettingsHelper {
     private static final MPDApplication APP = MPDApplication.getInstance();
 
     private static final Pattern COMPILE = Pattern.compile("\"", Pattern.LITERAL);
-
-    private static final int DEFAULT_STREAMING_PORT = 8000;
 
     /**
      * This is the code used when there is no SSID, from WifiSsid, which cannot be linked.
@@ -55,33 +53,25 @@ public final class SettingsHelper {
     private static ConnectionInfo getConnectionSettings(final String wifiSSID,
             final ConnectionInfo previousInfo) {
         final String server = getStringSetting(
-                getStringWithSSID(ConnectionSettings.KEY_HOSTNAME, wifiSSID));
-        final int port = getIntegerSetting(getStringWithSSID(ConnectionSettings.KEY_PORT, wifiSSID),
+                getStringWithSSID(ConnectionModifier.KEY_HOSTNAME, wifiSSID));
+        final int port = getIntegerSetting(getStringWithSSID(ConnectionModifier.KEY_PORT, wifiSSID),
                 MPDCommand.DEFAULT_MPD_PORT);
         final String password = getStringSetting(
-                getStringWithSSID(ConnectionSettings.KEY_PASSWORD, wifiSSID));
+                getStringWithSSID(ConnectionModifier.KEY_PASSWORD, wifiSSID));
         final ConnectionInfo.Builder connectionInfo =
                 new ConnectionInfo.Builder(server, port, password);
-
-        final String streamServer =
-                getStringSetting(
-                        getStringWithSSID(ConnectionSettings.KEY_HOSTNAME_STREAMING, wifiSSID));
-        final int streamPort = getIntegerSetting(
-                getStringWithSSID(ConnectionSettings.KEY_PORT_STREAMING, wifiSSID),
-                DEFAULT_STREAMING_PORT);
-        String streamSuffix =
-                getStringSetting(
-                        getStringWithSSID(ConnectionSettings.KEY_SUFFIX_STREAMING, wifiSSID));
-        if (streamSuffix == null) {
-            streamSuffix = "";
-        }
-        connectionInfo.setStreamingServer(streamServer, streamPort, streamSuffix);
+        connectionInfo.setStreamingServer(getStream(server, wifiSSID));
 
         final boolean persistentNotification =
                 SETTINGS.getBoolean(
-                        getStringWithSSID(ConnectionSettings.KEY_PERSISTENT_NOTIFICATION, wifiSSID),
+                        getStringWithSSID(ConnectionModifier.KEY_PERSISTENT_NOTIFICATION, wifiSSID),
                         false);
-        connectionInfo.setPersistentNotification(persistentNotification);
+
+        if (persistentNotification) {
+            connectionInfo.setNotificationPersistent();
+        } else {
+            connectionInfo.setNotificationNotPersistent();
+        }
 
         connectionInfo.setPreviousConnectionInfo(previousInfo);
 
@@ -92,7 +82,7 @@ public final class SettingsHelper {
         final String wifiSSID = getCurrentSSID();
         final ConnectionInfo connectionInfo;
 
-        if (getStringSetting(getStringWithSSID(ConnectionSettings.KEY_HOSTNAME, wifiSSID))
+        if (getStringSetting(getStringWithSSID(ConnectionModifier.KEY_HOSTNAME, wifiSSID))
                 != null) {
             // an empty SSID should be null
             if (wifiSSID != null && wifiSSID.isEmpty()) {
@@ -100,7 +90,7 @@ public final class SettingsHelper {
             } else {
                 connectionInfo = getConnectionSettings(wifiSSID, previousInfo);
             }
-        } else if (getStringSetting(ConnectionSettings.KEY_HOSTNAME) != null) {
+        } else if (getStringSetting(ConnectionModifier.KEY_HOSTNAME) != null) {
             connectionInfo = getConnectionSettings(null, previousInfo);
         } else {
             connectionInfo = null;
@@ -143,6 +133,20 @@ public final class SettingsHelper {
         }
 
         return setting;
+    }
+
+    private static String getStream(final String server, final String ssid) {
+        String streamServer =
+                getStringSetting(getStringWithSSID(ConnectionModifier.KEY_STREAM_URL, ssid));
+
+        /**
+         * If the stream server is not available, try to choose a sane default.
+         */
+        if (streamServer == null) {
+            streamServer = "http://" + server + ':' + ConnectionModifier.DEFAULT_STREAMING_PORT;
+        }
+
+        return streamServer;
     }
 
     private static String getStringSetting(final String name) {

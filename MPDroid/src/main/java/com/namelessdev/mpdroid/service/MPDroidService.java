@@ -328,7 +328,7 @@ public final class MPDroidService extends Service implements
      * @return True if the notification should be persistent, false otherwise.
      */
     private boolean isNotificationPersistent() {
-        return !mIsPersistentOverridden && mConnectionInfo.isNotificationPersistent;
+        return !mIsPersistentOverridden && mConnectionInfo.isNotificationPersistent();
     }
 
     /**
@@ -401,11 +401,11 @@ public final class MPDroidService extends Service implements
     public void onConnectionConfigChange(final ConnectionInfo connectionInfo) {
         mConnectionInfo = connectionInfo;
 
-        if (connectionInfo.streamingServerInfoChanged && mIsStreamStarted) {
+        if (connectionInfo.hasStreamInfoChanged() && mIsStreamStarted) {
             Log.d(TAG, "Streaming information changed, resetting.");
             windDownHandlers(false);
             startStream();
-        } else if (connectionInfo.serverInfoChanged && mIsNotificationStarted) {
+        } else if (connectionInfo.hasServerChanged() && mIsNotificationStarted) {
             Log.d(TAG, "Notification information changed, resetting.");
             windDownHandlers(false);
             startNotification();
@@ -1174,7 +1174,7 @@ public final class MPDroidService extends Service implements
                 final ClassLoader classLoader = ConnectionInfo.class.getClassLoader();
                 bundle.setClassLoader(classLoader);
 
-                mConnectionInfo = bundle.getParcelable(ConnectionInfo.BUNDLE_KEY);
+                mConnectionInfo = bundle.getParcelable(ConnectionInfo.EXTRA);
             }
         }
 

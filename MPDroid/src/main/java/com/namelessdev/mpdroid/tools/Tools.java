@@ -136,7 +136,7 @@ public final class Tools {
     }
 
     public static boolean isServerLocalhost() {
-        return "127.0.0.1".equals(APP.getConnectionSettings().server);
+        return "127.0.0.1".equals(APP.getConnectionSettings().getServer());
     }
 
     public static boolean isStringEmptyOrNull(final String str) {

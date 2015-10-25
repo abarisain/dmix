@@ -18,6 +18,7 @@
     <!-- Unused strings, commented for possible for later use.
     <string name="aboutDescription">Acerca de MPDroid</string>
     <string name="albumGridWifiUnavailable">Wi-Fi no disponible. Las carátulas no serán descargadas</string>
+    <string name="chooseWLAN">Seleccione una red inalámbrica</string>
     <string name="clientSettings">Ajustes del cliente</string>
     <string name="configurationName">Nombre de configuración</string>
     <string name="connect">Conectar</string>
@@ -28,12 +29,17 @@
     <string name="edit">Editar</string>
     <string name="enableLightNowPlayingTheme">Usar el tema claro para la Reproducción en curso</string>
     <string name="enableLightNowPlayingThemeDescription">Reiniciar la aplicación para ver los cambios</string>
+    <string name="hostStreaming">Servidor de transmisión</string>
+    <string name="hostStreamingDescription">Nombre o IP del servidor de transmisión</string>
     <string name="libraryTabActivity">Librería</string>
     <string name="manage">Administrar</string>
+    <string name="musicPathDescription">Directorio de la música en el servidor MPD, ej.: files/mp3 (music/ para usuarios de vortexbox)</string>
     <string name="outputsDescription">Activar/Desactivar Salidas de MPD</string>
     <string name="paused">En pausa</string>
     <string name="playlistNameEditTitle">Nombre de la lista de reproducción</string>
     <string name="playlistSave">Guardar lista de reproducción</string>
+    <string name="portStreaming">Puerto de transmisión</string>
+    <string name="portStreamingDescription">Puerto de transmisión MPD (Por defecto: 8000)</string>
     <string name="random">Aleatorio</string>
     <string name="randomDescription">Activar/Desactivar aleatoriedad</string>
     <string name="removeSong">Eliminar canción</string>
@@ -51,6 +57,8 @@
     <string name="streamPauseBattery">Para ahorar batería, detenga la transmisión cuando no la está usando</string>
     <string name="streamStopped">Transmisión detenida</string>
     <string name="streamingURLDescription">URL de la transmisión (con http://)</string>
+    <string name="suffixStreaming">Sufijo de la URL de la transmisión</string>
+    <string name="suffixStreamingDescription">Sufijo a anexar a la URL de la transmisión (ej. mpd.mp3)</string>
     <string name="track">Pista</string>
     <string name="updateDB">Actualizar</string>
     <string name="volume">Volumen</string>
@@ -58,7 +66,7 @@
     <string name="whatsNew">¿Qué hay de nuevo?</string>
     <string name="whatsNewDescription">Ver el registro de cambios (abre una página web externa)</string>
     <string name="widget_initial_text">Toque para seleccionar la música</string>
-    <string name="musicPathDescription">Directorio de la música en el servidor MPD, ej.: files/mp3 (music/ para usuarios de vortexbox)</string>
+    <string name="wlanBasedSettingsDescription">Establecer la dirección, puerto y contraseña del servidor MPD según la red inalámbrica</string>
     -->
 
     <string name="app_name">MPDroid</string>
@@ -102,8 +110,6 @@
     <string name="artistAdded">Artista %s añadido</string>
     <string name="host">Servidor</string>
     <string name="hostDescription">Nombre o IP del servidor MPD</string>
-    <string name="hostStreaming">Servidor de transmisión</string>
-    <string name="hostStreamingDescription">Nombre o IP del servidor de transmisión</string>
     <string name="port">Puerto</string>
     <string name="portDescription">Puerto del servidor MPD (Por defecto: 6600)</string>
     <string name="password">Contraseña</string>
@@ -131,17 +137,11 @@
     <string name="deletePlaylist">Borrar lista de reproducción</string>
     <string name="defaultConnection">Conexión por defecto</string>
     <string name="preferredConnection">Conexión preferida</string>
-    <string name="chooseWLAN">Seleccione una red inalámbrica</string>
     <string name="wlanBasedSettings">Conexión basada en la red inalámbrica</string>
     <string name="defaultSettings">Ajustes de conexión por defecto</string>
-    <string name="wlanBasedSettingsDescription">Establecer la dirección, puerto y contraseña del servidor MPD según la red inalámbrica</string>
     <string name="defaultSettingsDescription">Establecer la dirección, puerto y contraseña del servidor MPD por defecto</string>
     <string name="stream">Streaming</string>
     <string name="buffering">Almacenando en buffer…</string>
-    <string name="portStreaming">Puerto de transmisión</string>
-    <string name="portStreamingDescription">Puerto de transmisión MPD (Por defecto: 8000)</string>
-    <string name="suffixStreaming">Sufijo de la URL de la transmisión</string>
-    <string name="suffixStreamingDescription">Sufijo a anexar a la URL de la transmisión (ej. mpd.mp3)</string>
     <string name="aboutText1">MPDroid es software open-source. Visita http://github.com/abarisain/dmix para obtener el código fuente !</string>
     <string name="aboutText2">MPDroid es un fork de PMix (http://code.google.com/p/pmix/). Gracias a ellos !</string>
     <string name="search">Buscar</string>

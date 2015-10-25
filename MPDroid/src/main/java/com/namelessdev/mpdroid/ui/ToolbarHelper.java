@@ -19,8 +19,8 @@ package com.namelessdev.mpdroid.ui;
 import com.anpmech.mpd.subsystem.AudioOutput;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.SettingsActivity;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
+import com.namelessdev.mpdroid.preferences.SettingsActivity;
 
 import android.app.Activity;
 import android.app.SearchManager;

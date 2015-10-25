@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid;
+package com.namelessdev.mpdroid.preferences;
 
 import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.status.StatusChangeListener;
+import com.namelessdev.mpdroid.ErrorHandler;
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

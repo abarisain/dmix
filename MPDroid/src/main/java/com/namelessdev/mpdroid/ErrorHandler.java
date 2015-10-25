@@ -20,6 +20,8 @@ import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
+import com.namelessdev.mpdroid.preferences.ConnectionSettings;
+import com.namelessdev.mpdroid.preferences.SettingsActivity;
 import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -80,7 +82,7 @@ public class ErrorHandler implements IdleSubsystemMonitor.Error,
         mApp = (MPDApplication) mActivity.getApplication();
 
         if (SettingsHelper.getConnectionSettings(null) == null) {
-            final Intent intent = new Intent(mActivity, WifiConnectionSettings.class);
+            final Intent intent = new Intent(mActivity, ConnectionSettings.class);
 
             // Absolutely no settings defined! Open Settings!
             mActivity.startActivityForResult(intent, SETTINGS);
@@ -259,8 +261,8 @@ public class ErrorHandler implements IdleSubsystemMonitor.Error,
      * This method launches MPD if a MPD server is setup for the localhost.
      */
     private void launchMPD() {
-        final boolean shouldLaunch = "127.0.0.1".equals(mApp.getConnectionSettings().server) &&
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
+        final boolean shouldLaunch = "127.0.0.1".equals(mApp.getConnectionSettings().getServer())
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
 
         if (shouldLaunch && !isMPDRunning() && Tools.isPackageInstalled(MPD_PACKAGE_NAME)) {
             /**
@@ -308,7 +310,7 @@ public class ErrorHandler implements IdleSubsystemMonitor.Error,
      */
     @Override
     public void onMPDError(final MPDException e) {
-        final Intent intent = new Intent(mActivity, WifiConnectionSettings.class);
+        final Intent intent = new Intent(mActivity, ConnectionSettings.class);
 
         switch (e.mErrorCode) {
             case MPDException.ACK_ERROR_PASSWORD:
@@ -347,7 +349,7 @@ public class ErrorHandler implements IdleSubsystemMonitor.Error,
         public final void onClick(final DialogInterface dialog, final int which) {
             switch (which) {
                 case DialogInterface.BUTTON_NEUTRAL:
-                    final Intent intent = new Intent(mActivity, WifiConnectionSettings.class);
+                    final Intent intent = new Intent(mActivity, ConnectionSettings.class);
                     // Show Settings
                     mActivity.startActivityForResult(intent, SETTINGS);
                     break;

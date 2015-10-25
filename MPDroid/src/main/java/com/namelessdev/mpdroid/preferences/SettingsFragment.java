@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid;
+package com.namelessdev.mpdroid.preferences;
 
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.status.MPDStatistics;
+import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.SearchRecentProvider;
 import com.namelessdev.mpdroid.cover.CoverManager;
 import com.namelessdev.mpdroid.cover.retriever.CachedCover;
 import com.namelessdev.mpdroid.tools.Tools;

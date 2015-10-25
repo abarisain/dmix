@@ -17,12 +17,15 @@
 <resources>
     <!-- Unused strings, commented for possible for later use.
     <string name="aboutDescription">Информация о MPDroid</string>
+    <string name="chooseWLAN">Выберите WLAN сеть</string>
     <string name="configurationName">Название конфигурации</string>
     <string name="connect">Подключиться</string>
     <string name="coverSettings">Настройки обложек</string>
     <string name="clientSettings">Настройки клиента</string>
     <string name="deleteServer">Удалить эту страницу</string>
     <string name="edit">Редактировать</string>
+    <string name="hostStreaming">Сервер потокового воспроизведения</string>
+    <string name="hostStreamingDescription">Адрес или имя сервера потокового воспроизведения</string>
     <string name="libraryTabActivity">Библиотека</string>
     <string name="manage">Управление</string>
     <string name="musicPathDescription">Путь к директории с музыкой на сервере MPD</string>
@@ -30,6 +33,8 @@
     <string name="paused">Приостановлено</string>
     <string name="playlistNameEditTitle">Название списка воспроизведения</string>
     <string name="playlistSave">Сохранить список воспроизведения</string>
+    <string name="portStreaming">Порт потокового воспроизведения</string>
+    <string name="portStreamingDescription">Порт потокового воспроизведения (По умолчанию: 8000)</string>
     <string name="random">Случайный режим</string>
     <string name="randomDescription">Вкл/выкл случайный режим</string>
     <string name="repeat">Повтор</string>
@@ -47,6 +52,8 @@
     <string name="streamPaused">Потоковое воспроизведение приостановлено</string>
     <string name="streamPauseBattery">Для сохранения заряда батареи останавливайте потоковое воспроизведение, если не используете его</string>
     <string name="streamStopped">Потоковое воспроизведение остановлено</string>
+    <string name="suffixStreaming">Окончание URL</string>
+    <string name="suffixStreamingDescription">Окончание, добавляемое к URL (напр. mpd.mp3)</string>
     <string name="track">Дорожка</string>
     <string name="updateDB">Обновить БД</string>
     <string name="volume">Громкость</string>
@@ -54,6 +61,7 @@
     <string name="whatsNew">Что нового?</string>
     <string name="whatsNewDescription">Смотреть список изменений (Открывает внешнюю web-страницу)</string>
     <string name="widget_initial_text">Нажмите, чтобы выбрать музыку.</string>
+    <string name="wlanBasedSettingsDescription">Указать IP-адрес, порт и пароль индивидуально для каждой сети</string>
     -->
 
     <string name="app_name">MPDroid</string>
@@ -96,8 +104,6 @@
     <string name="artistAdded">Исполнитель %s добавлен</string>
     <string name="host">Сервер</string>
     <string name="hostDescription">Имя или IP-адрес MPD-сервера </string>
-    <string name="hostStreaming">Сервер потокового воспроизведения</string>
-    <string name="hostStreamingDescription">Адрес или имя сервера потокового воспроизведения</string>
     <string name="port">Порт</string>
     <string name="portDescription">Порт MPD-cервера (Default: 6600)</string>
     <string name="password">Пароль</string>
@@ -124,17 +130,11 @@
     <string name="playlistDeleted">Список воспроизведения %s удалён</string>
     <string name="deletePlaylist">Удалить список воспроизведения</string>
     <string name="preferredConnection">Предпочитаемое соединение</string>
-    <string name="chooseWLAN">Выберите WLAN сеть</string>
     <string name="wlanBasedSettings">Настройки основанные на WLAN</string>
     <string name="defaultSettings">Стандартные настройки соединения</string>
-    <string name="wlanBasedSettingsDescription">Указать IP-адрес, порт и пароль индивидуально для каждой сети</string>
     <string name="defaultSettingsDescription">Указать используемый по умолчанию IP-адрес, порт и пароль</string>
     <string name="stream">Потоковое воспроизведение</string>
     <string name="buffering">Буферизация …</string>
-    <string name="portStreaming">Порт потокового воспроизведения</string>
-    <string name="portStreamingDescription">Порт потокового воспроизведения (По умолчанию: 8000)</string>
-    <string name="suffixStreaming">Окончание URL</string>
-    <string name="suffixStreamingDescription">Окончание, добавляемое к URL (напр. mpd.mp3)</string>
     <string name="aboutText1">MPDroid является свободным ПО. Вы можете получить исходный код по адресу http://github.com/abarisain/dmix !</string>
     <string name="aboutText2">MPDroid является форком PMix (http://code.google.com/p/pmix/). Спасибо им!\nЗамечания по переводу можно присылать по адресу kzudov.esp@gmail.com</string>
     <string name="search">Поиск</string>
