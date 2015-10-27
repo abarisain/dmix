@@ -85,6 +85,11 @@ android {
 
         foss {
             versionName defaultConfig.versionName + "-f"
+
+            dependencies {
+                testCompile 'junit:junit:4.12'
+                testCompile "org.robolectric:robolectric:3.0"
+            }
         }
 
         leakCanary {
