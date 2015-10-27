@@ -33,6 +33,9 @@ import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,7 +94,7 @@ public class WifiConnectionSettings extends PreferenceActivity {
         Intent intent;
         final PreferenceCategory preferenceCategory =
                 (PreferenceCategory) preferenceScreen.findPreference(KEY_WIFI_BASED_CATEGORY);
-        final Collection<WifiConfiguration> wifiList = new ArrayList<>();
+        final List<WifiConfiguration> wifiList = new ArrayList<>();
 
         if (preferenceCategory == null) {
             Log.e(TAG, "Failed to find PreferenceCategory: " + KEY_WIFI_BASED_CATEGORY);
@@ -117,6 +120,7 @@ public class WifiConnectionSettings extends PreferenceActivity {
                 }
             }
 
+            Collections.sort(wifiList, new WifiComparator());
             for (final WifiConfiguration wifi : wifiList) {
                 if (wifi != null && wifi.SSID != null) {
                     // Friendly SSID-Name
@@ -147,5 +151,72 @@ public class WifiConnectionSettings extends PreferenceActivity {
         }
 
         return false;
+    }
+
+    /**
+     * This comparator sorts {@link WifiConfiguration} entries.
+     *
+     * The WifiConfiguration entries are sorted in order of:
+     * <ol>
+     * <li>If wifi network is connected.</li>
+     * <li>If wifi network has the ability to connect.</li>
+     * <li>By Set Service Identifier.</li>
+     * </ol>
+     */
+    private static final class WifiComparator implements Comparator<WifiConfiguration> {
+
+        /**
+         * Sole constructor.
+         */
+        private WifiComparator() {
+            super();
+        }
+
+        /**
+         * Compares the two specified objects to determine their relative ordering. The ordering
+         * implied by the return value of this method for all possible pairs of
+         * {@code (lhs, rhs)} should form an <i>equivalence relation</i>.
+         * This means that
+         * <ul>
+         * <li>{@code compare(a,a)} returns zero for all {@code a}</li>
+         * <li>the sign of {@code compare(a,b)} must be the opposite of the sign of {@code
+         * compare(b,a)} for all pairs of (a,b)</li>
+         * <li>From {@code compare(a,b) > 0} and {@code compare(b,c) > 0} it must
+         * follow {@code compare(a,c) > 0} for all possible combinations of {@code
+         * (a,b,c)}</li>
+         * </ul>
+         *
+         * @param lhs an {@code Object}.
+         * @param rhs a second {@code Object} to compare with {@code lhs}.
+         * @return an integer < 0 if {@code lhs} is less than {@code rhs}, 0 if they are
+         * equal, and > 0 if {@code lhs} is greater than {@code rhs}.
+         * @throws ClassCastException if objects are not of the correct type.
+         */
+        @Override
+        public int compare(final WifiConfiguration lhs, final WifiConfiguration rhs) {
+            int result = 0;
+
+            if (lhs.status != rhs.status) {
+                if (lhs.status == WifiConfiguration.Status.CURRENT) {
+                    result--;
+                } else if (rhs.status == WifiConfiguration.Status.CURRENT) {
+                    result++;
+                }
+
+                if (result == 0) {
+                    if (lhs.status == WifiConfiguration.Status.ENABLED) {
+                        result--;
+                    } else if (rhs.status == WifiConfiguration.Status.ENABLED) {
+                        result++;
+                    }
+                }
+            }
+
+            if (result == 0) {
+                result = String.CASE_INSENSITIVE_ORDER.compare(lhs.SSID, rhs.SSID);
+            }
+
+            return result;
+        }
     }
 }
