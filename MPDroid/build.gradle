@@ -77,7 +77,7 @@ android {
             ext.enableCrashlytics = true;
 
             dependencies {
-                compile('com.crashlytics.sdk.android:crashlytics:2.4.0@aar') {
+                compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
                     transitive = true
                 }
             }
