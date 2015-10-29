@@ -58,8 +58,6 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     /** A key to hold the pause during phone call user configuration setting. */
     public static final String PAUSE_DURING_CALL = "pauseOnPhoneStateChange";
 
-    private static final MPDApplication APP = MPDApplication.getInstance();
-
     /** The debug flag, if set to true, debug output will emit in the logcat. */
     private static final boolean DEBUG = false;
 
@@ -72,12 +70,11 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     /** A key to hold the play after phone call user configuration setting. */
     private static final String PLAY_AFTER_CALL = "playOnPhoneStateChange";
 
-    /** The settings to store the persistent markers in. */
-    private static final SharedPreferences SETTINGS = PreferenceManager
-            .getDefaultSharedPreferences(MPDApplication.getInstance());
-
     /** The class log identifier. */
     private static final String TAG = "PhoneStateReceiver";
+
+    /** The settings to store the persistent markers in. */
+    private SharedPreferences mSettings;
 
     /**
      * This method is used to output to the log.
@@ -91,23 +88,14 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     }
 
     /**
-     * This is a simple shortening settings retrieval method.
-     *
-     * @param key The key to get, if it doesn't exist, defaulting to {@code false}.
-     * @return True if the key exists and is true, false otherwise.
-     */
-    private static boolean get(final String key) {
-        return SETTINGS.getBoolean(key, false);
-    }
-
-    /**
      * Checks to see if the local network is connected.
      *
+     * @param context The Context in which the receiver is running.
      * @return True if the local network is connected, false otherwise.
      */
-    private static boolean isLocalNetworkConnected() {
+    private static boolean isLocalNetworkConnected(final Context context) {
         final ConnectivityManager cm =
-                (ConnectivityManager) APP.getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         boolean isLocalNetwork = false;
 
         if (cm != null) {
@@ -127,44 +115,34 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     }
 
     /**
-     * Sets a persistent marker.
+     * This is a simple shortening settings retrieval method.
      *
-     * @param marker The marker to set.
+     * @param key The key to get, if it doesn't exist, defaulting to {@code false}.
+     * @return True if the key exists and is true, false otherwise.
      */
-    private static void setMarker(final String marker) {
-        if (!get(marker)) {
-            SETTINGS.edit().putBoolean(marker, true).commit();
-        }
-    }
-
-    /**
-     * Unsets a persistent marker.
-     *
-     * @param marker The marker to unset.
-     */
-    private static void unsetMarker(final String marker) {
-        if (get(marker)) {
-            SETTINGS.edit().remove(marker).commit();
-        }
+    private boolean get(final String key) {
+        return mSettings.getBoolean(key, false);
     }
 
     /**
      * This method handles any incoming call actions.
+     *
+     * @param context The Context in which the receiver is running.
      */
-    private void handleCall() {
+    private void handleCall(final Context context) {
         debug("Telephony active, attempting to pause call.");
 
         /**
          * If we have to wait for a connection or status validity, open a thread to
          * prevent UI blocking.
          */
-        final MPD mpd = APP.getMPD();
+        final MPD mpd = ((MPDApplicationBase) context.getApplicationContext()).getMPD();
         if (mpd.isConnected() && mpd.getStatus().isValid()) {
             debug("Running runnable.");
-            new PauseForCall().run();
+            new PauseForCall(context).run();
         } else {
             debug("Running threaded.");
-            new Thread(new PauseForCall(goAsync())).start();
+            new Thread(new PauseForCall(context, goAsync())).start();
         }
     }
 
@@ -177,16 +155,19 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     @Override
     public final void onReceive(final Context context, final Intent intent) {
         final String telephonyState = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+        mSettings = PreferenceManager.getDefaultSharedPreferences(context);
 
         if (telephonyState == null) {
             debug("Received broadcast for telephony state change with no change information.");
         } else {
+            final boolean isLocalAudible =
+                    ((MPDApplicationBase) context.getApplicationContext()).isLocalAudible();
+
             /**
              * If we're connected to a local network or it's audible on the local device
              * (we force the call stop).
              */
-            if (isLocalNetworkConnected() && get(PAUSE_DURING_CALL) ||
-                    APP.isLocalAudible()) {
+            if (isLocalNetworkConnected(context) && get(PAUSE_DURING_CALL) || isLocalAudible) {
                 final boolean alreadyActive = get(PAUSED_MARKER) || get(PAUSING_MARKER);
 
                 debug("Telephony State: " + telephonyState + " Already active: " + alreadyActive);
@@ -194,7 +175,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                 if ((telephonyState.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_RINGING) ||
                         telephonyState.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_OFFHOOK)) &&
                         !alreadyActive) {
-                    handleCall();
+                    handleCall(context);
                 } else if (telephonyState.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_IDLE)) {
                     final boolean playAfterCall = get(PLAY_AFTER_CALL);
 
@@ -221,9 +202,25 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     }
 
     /**
+     * Unsets a persistent marker.
+     *
+     * @param marker The marker to unset.
+     */
+    private void unsetMarker(final String marker) {
+        if (get(marker)) {
+            mSettings.edit().remove(marker).commit();
+        }
+    }
+
+    /**
      * This class is called upon a device telephony state change to ringing or off hook.
      */
     private static final class PauseForCall implements Runnable {
+
+        /**
+         * The current context.
+         */
+        private final Context mContext;
 
         /**
          * The PendingResult, required for the new thread.
@@ -231,39 +228,97 @@ public class PhoneStateReceiver extends BroadcastReceiver {
         private final BroadcastReceiver.PendingResult mResult;
 
         /**
-         * This constructor is used when running in a runnable.
+         * This field are the default shared preferences.
          */
-        private PauseForCall() {
-            this(null);
+        private final SharedPreferences mSettings;
+
+        /**
+         * This constructor is used when running in a runnable.
+         *
+         * @param context The Context in which the receiver is running.
+         */
+        private PauseForCall(final Context context) {
+            this(context, null);
         }
 
         /**
          * This constructor is used when calling from a BroadcastReceiver and running in another
          * thread.
          *
-         * @param result The PendingResult used to finalize the parent BroadcastReceiver.
+         * @param context The Context in which the receiver is running.
+         * @param result  The PendingResult used to finalize the parent BroadcastReceiver.
          */
-        private PauseForCall(final PendingResult result) {
+        private PauseForCall(final Context context, final PendingResult result) {
             super();
 
+            mContext = context;
             mResult = result;
+            mSettings = PreferenceManager.getDefaultSharedPreferences(context);
+        }
+
+        /**
+         * This is a simple shortening settings retrieval method.
+         *
+         * @param key The key to get, if it doesn't exist, defaulting to {@code false}.
+         * @return True if the key exists and is true, false otherwise.
+         */
+        private boolean get(final String key) {
+            return mSettings.getBoolean(key, false);
+        }
+
+        @Override
+        public void run() {
+            final MPDApplication app = (MPDApplication) mContext;
+
+            try {
+                setMarker(PAUSING_MARKER);
+                app.addConnectionLock(this);
+
+                if (shouldPauseForCall(mContext)) {
+                    app.getMPD().getPlayback().pause().get();
+                    setMarker(PAUSED_MARKER);
+                }
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Failed to send a simple MPD command.", e);
+            } catch (final InterruptedException e) {
+                Log.e(TAG, "Interrupted by other thread.", e);
+            } finally {
+                app.removeConnectionLock(this);
+                unsetMarker(PAUSING_MARKER);
+
+                if (mResult != null) {
+                    mResult.finish();
+                }
+            }
+        }
+
+        /**
+         * Sets a persistent marker.
+         *
+         * @param marker The marker to set.
+         */
+        private void setMarker(final String marker) {
+            if (!get(marker)) {
+                mSettings.edit().putBoolean(marker, true).commit();
+            }
         }
 
         /**
          * This method factors in several circumstances to whether
          * or not to pause the media server for a telephony activity.
          *
+         * @param context The Context in which the receiver is running.
          * @return True if the media server should be paused, false otherwise.
          * @throws InterruptedException If the current thread is interrupted.
          */
-        private static boolean shouldPauseForCall()
-                throws InterruptedException {
+        private boolean shouldPauseForCall(final Context context) throws InterruptedException {
             /**
              * No need to worry about setting a timeout for the wait stuff, the
              * {@link BroadcastReceiver} times out after 10s anyhow.
              */
-            final MPDStatus status = APP.getMPD().getStatus();
-            APP.getMPD().getConnectionStatus().waitForConnection();
+            final MPDApplication app = (MPDApplication) context.getApplicationContext();
+            final MPDStatus status = app.getMPD().getStatus();
+            app.getMPD().getConnectionStatus().waitForConnection();
             status.waitForValidity();
 
             /**
@@ -272,11 +327,11 @@ public class PhoneStateReceiver extends BroadcastReceiver {
              */
             final boolean result;
             final TelephonyManager telephonyManager =
-                    (TelephonyManager) APP.getSystemService(Context.TELEPHONY_SERVICE);
+                    (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
             if (status.isState(MPDStatusMap.STATE_PLAYING) &&
                     telephonyManager.getCallState() != TelephonyManager.CALL_STATE_IDLE) {
-                if (APP.isLocalAudible()) {
+                if (app.isLocalAudible()) {
                     debug("App is local audible.");
 
                     result = true;
@@ -292,27 +347,14 @@ public class PhoneStateReceiver extends BroadcastReceiver {
             return result;
         }
 
-        @Override
-        public void run() {
-            try {
-                setMarker(PAUSING_MARKER);
-                APP.addConnectionLock(this);
-
-                if (shouldPauseForCall()) {
-                    APP.getMPD().getPlayback().pause().get();
-                    setMarker(PAUSED_MARKER);
-                }
-            } catch (final IOException | MPDException e) {
-                Log.e(TAG, "Failed to send a simple MPD command.", e);
-            } catch (final InterruptedException e) {
-                Log.e(TAG, "Interrupted by other thread.", e);
-            } finally {
-                APP.removeConnectionLock(this);
-                unsetMarker(PAUSING_MARKER);
-
-                if (mResult != null) {
-                    mResult.finish();
-                }
+        /**
+         * Unsets a persistent marker.
+         *
+         * @param marker The marker to unset.
+         */
+        private void unsetMarker(final String marker) {
+            if (get(marker)) {
+                mSettings.edit().remove(marker).commit();
             }
         }
     }
