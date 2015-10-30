@@ -338,7 +338,7 @@ public class IdleSubsystemMonitor implements Runnable {
 
                 if (connectionStatus.isConnected()) {
                     try {
-                        oldStatus = status.getImmutableStatus();
+                        oldStatus = status.getImmutable();
                         statistics.update();
                         status.update();
                         playlist.update(status);
@@ -378,7 +378,7 @@ public class IdleSubsystemMonitor implements Runnable {
                     final Iterator<Map.Entry<String, String>> changes =
                             new KeyValueResponse(mIdleTracker.get()).iterator();
 
-                    oldStatus = status.getImmutableStatus();
+                    oldStatus = status.getImmutable();
                     status.update();
 
                     while (changes.hasNext()) {

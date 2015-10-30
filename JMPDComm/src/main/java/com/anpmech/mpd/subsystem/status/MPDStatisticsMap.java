@@ -34,6 +34,7 @@ import com.anpmech.mpd.exception.MPDException;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,14 +44,9 @@ import java.util.concurrent.TimeUnit;
 public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
 
     /**
-     * This is the value given if there was no long in the map with the given key.
-     */
-    public static final long DEFAULT_LONG = ResponseMap.LONG_DEFAULT;
-
-    /**
      * Command text required to generate a command to retrieve the statistics for this map.
      */
-    private static final CharSequence CMD_ACTION_STATISTICS = "stats";
+    public static final String CMD_ACTION_STATISTICS = "stats";
 
     /**
      * The default number of statistic response entries.
@@ -59,45 +55,50 @@ public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
      * Unlike the status command, the statistics entry response count is much less likely to
      * fluctuate.</p>
      */
-    private static final int DEFAULT_ENTRY_COUNT = 7;
+    public static final int DEFAULT_ENTRY_COUNT = 7;
+
+    /**
+     * This is the value given if there was no long in the map with the given key.
+     */
+    public static final long DEFAULT_LONG = ResponseMap.LONG_DEFAULT;
 
     /**
      * The key from the statistics command for the value of a count of all albums in the database.
      */
-    private static final CharSequence RESPONSE_ALBUM_COUNT = "albums";
+    public static final String RESPONSE_ALBUM_COUNT = "albums";
 
     /**
      * The key from the statistics command for the value of a count of all artists in the database.
      */
-    private static final CharSequence RESPONSE_ARTIST_COUNT = "artists";
+    public static final String RESPONSE_ARTIST_COUNT = "artists";
 
     /**
      * The key from the statistics command for the value of the time required to play all tracks in
      * the database.
      */
-    private static final CharSequence RESPONSE_DATABASE_PLAY_TIME = "db_playtime";
+    public static final String RESPONSE_DATABASE_PLAY_TIME = "db_playtime";
 
     /**
      * The key from the statistics command for the value of last database update in UNIX time.
      */
-    private static final CharSequence RESPONSE_LAST_UPDATE_TIME = "db_update";
+    public static final String RESPONSE_LAST_UPDATE_TIME = "db_update";
 
     /**
      * The key from the statistics command for the value of length of time the connected media
      * player has been playing.
      */
-    private static final CharSequence RESPONSE_PLAYTIME = "playtime";
+    public static final String RESPONSE_PLAYTIME = "playtime";
 
     /**
      * The key from the statistics command for the value of the uptime in seconds.
      */
-    private static final CharSequence RESPONSE_SERVER_UPTIME = "uptime";
+    public static final String RESPONSE_SERVER_UPTIME = "uptime";
 
     /**
      * The key from the statistics command for the value of the total number of songs in the
      * database.
      */
-    private static final CharSequence RESPONSE_SONG_COUNT = "songs";
+    public static final String RESPONSE_SONG_COUNT = "songs";
 
     /**
      * The class log identifier.
@@ -118,6 +119,18 @@ public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
         super(DEFAULT_ENTRY_COUNT);
 
         mConnection = connection;
+    }
+
+    /**
+     * This constructor is used to create a immutable copy of this class.
+     *
+     * @param responseMap The response map backend storage map.
+     * @see #getImmutable()
+     */
+    private MPDStatisticsMap(final Map<String, String> responseMap) {
+        super(responseMap);
+
+        mConnection = null;
     }
 
     /**
@@ -162,6 +175,25 @@ public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
         final long date = TimeUnit.SECONDS.toMillis(parseMapLong(RESPONSE_LAST_UPDATE_TIME));
 
         return new Date(date);
+    }
+
+    /**
+     * Gets an immutable copy of this object.
+     *
+     * @return An immutable copy of this object.
+     */
+    public final MPDStatistics getImmutable() {
+        return new MPDStatisticsMap(getMap());
+    }
+
+    /**
+     * This method returns a {@link MPDStatus} constructed by response.
+     *
+     * @param response The response used to create the MPDStatus.
+     * @return The MPDStatus created by response.
+     */
+    public MPDStatistics getImmutable(final KeyValueResponse response) {
+        return new MPDStatisticsMap(response.getKeyValueMap());
     }
 
     /**

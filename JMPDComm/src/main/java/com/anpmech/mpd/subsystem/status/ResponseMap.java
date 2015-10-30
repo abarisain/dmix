@@ -30,6 +30,7 @@ package com.anpmech.mpd.subsystem.status;
 import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.commandresponse.KeyValueResponse;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -84,7 +85,7 @@ class ResponseMap {
     /**
      * The storage map for the &lt;Key, Value&gt; pairs from the response.
      */
-    private final Map<CharSequence, String> mResponseMap;
+    private final Map<String, String> mResponseMap;
 
     /**
      * This constructs the {@link ConcurrentHashMap} backed ResponseMap.
@@ -118,11 +119,11 @@ class ResponseMap {
      *
      * @param map The alternate mapping to use for backend storage.
      */
-    protected ResponseMap(final Map<CharSequence, String> map) {
+    protected ResponseMap(final Map<String, String> map) {
         super();
 
         //noinspection AssignmentToCollectionOrArrayFieldFromParameter
-        mResponseMap = map;
+        mResponseMap = Collections.unmodifiableMap(map);
     }
 
     /**
@@ -130,7 +131,7 @@ class ResponseMap {
      *
      * @return A copy of the backend storage for this class.
      */
-    protected Map<CharSequence, String> getMap() {
+    protected Map<String, String> getMap() {
         return new HashMap<>(mResponseMap);
     }
 
@@ -141,7 +142,7 @@ class ResponseMap {
      * @return The value assigned to the key passed in the parameter, {@link #STRING_DEFAULT} if not
      * found.
      */
-    protected String getMapValue(final CharSequence key) {
+    protected String getMapValue(final String key) {
         final String value;
 
         if (mResponseMap.containsKey(key)) {
@@ -188,7 +189,7 @@ class ResponseMap {
      * @return The value assigned to the key as a {@code float}, or {@link #FLOAT_DEFAULT} if the
      * conversion failed.
      */
-    protected float parseMapFloat(final CharSequence key) {
+    protected float parseMapFloat(final String key) {
         return Tools.parseFloat(getMapValue(key));
     }
 
@@ -200,7 +201,7 @@ class ResponseMap {
      * @return The value assigned to the key as a {@code int}, or {@link #INTEGER_DEFAULT} if the
      * conversion failed.
      */
-    protected int parseMapInteger(final CharSequence key) {
+    protected int parseMapInteger(final String key) {
         return Tools.parseInteger(getMapValue(key));
     }
 
@@ -212,7 +213,7 @@ class ResponseMap {
      * @return The value assigned to the key as a {@code long}, or {@link #LONG_DEFAULT} if the
      * conversion failed.
      */
-    protected long parseMapLong(final CharSequence key) {
+    protected long parseMapLong(final String key) {
         return Tools.parseLong(getMapValue(key));
     }
 

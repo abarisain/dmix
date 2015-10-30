@@ -35,7 +35,6 @@ import com.anpmech.mpd.connection.MPDConnection;
 import com.anpmech.mpd.exception.MPDException;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +45,11 @@ import java.util.concurrent.TimeUnit;
  * target="_top">MPD protocol</A>.
  */
 public class MPDStatusMap extends ResponseMap implements MPDStatus {
+
+    /**
+     * Command text required to generate a command to retrieve the status information for this map.
+     */
+    public static final String CMD_ACTION_STATUS = "status";
 
     /**
      * This is the value given if there was no float in the map with the given key in the map.
@@ -66,6 +70,150 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * This is the value given if there was no String in the map with the given key in the map.
      */
     public static final String DEFAULT_STRING = ResponseMap.STRING_DEFAULT;
+
+    /**
+     * The key from the status command for the value of various times related to the currently
+     * playing track.
+     */
+    public static final String RESPONSE_AUDIO = "audio";
+
+    /**
+     * The key from the status command for the value of the bit rate of the currently playing
+     * track.
+     */
+    public static final String RESPONSE_BIT_RATE = "bitrate";
+
+    /**
+     * The key from the status command for the value of the status of the consume option, 1 for
+     * enabled, 0 for disabled.
+     */
+    public static final String RESPONSE_CONSUME = "consume";
+
+    /**
+     * The key from the status command for the value in seconds the crossfade option.
+     */
+    public static final String RESPONSE_CROSS_FADE = "xfade";
+
+    /**
+     * The key from the status command for the value of the job id of the database update.
+     */
+    public static final String RESPONSE_DATABASE_UPDATING = "updating_db";
+
+    /**
+     * The key from the status command for the value of the duration of the current track
+     * represented by a float.
+     */
+    public static final String RESPONSE_DURATION = "duration";
+
+    /**
+     * The key from the status command for the value of the elapsed time of the current track
+     * represented by a float.
+     */
+    public static final String RESPONSE_ELAPSED_HIGH_RESOLUTION = "elapsed";
+
+    /**
+     * The key from the status command for the value of the last error message.
+     *
+     * <p>This is one way to get retrieve an error message, though, it is better parsed from the
+     * error code given by the {@link MPDException}.</p>
+     */
+    public static final String RESPONSE_ERROR = "error";
+
+    /**
+     * The key from the status command for the value of the MixRamp threshold in dB.
+     */
+    public static final String RESPONSE_MIX_RAMP_DB = "mixrampdb";
+
+    /**
+     * The key from the status command for the value of the MixRamp delay in seconds.
+     */
+    public static final String RESPONSE_MIX_RAMP_DELAY = "mixrampdelay";
+
+    /**
+     * The key from the status command for the value of the next playlist queue song ID.
+     */
+    public static final String RESPONSE_NEXT_SONG_ID = "nextsongid";
+
+    /**
+     * The key from the status command for the value of the next playlist queue position.
+     */
+    public static final String RESPONSE_NEXT_SONG_POSITION = "nextsong";
+
+    /**
+     * The key from the status command for the value of a invalid float.
+     */
+    public static final String RESPONSE_NOT_A_NUMBER = "nan";
+
+    /**
+     * The key from the status command for the value of the length of the current playlist queue.
+     */
+    public static final String RESPONSE_PLAYLIST_LENGTH = "playlistlength";
+
+    /**
+     * The key from the status command for the value of the version of the current playlist queue.
+     */
+    public static final String RESPONSE_PLAYLIST_VERSION = "playlist";
+
+    /**
+     * The key from the status command for the value of the status of the random option.
+     */
+    public static final String RESPONSE_RANDOM = "random";
+
+    /**
+     * The key from the status command for the value of the status of the repeat option.
+     */
+    public static final String RESPONSE_REPEAT = "repeat";
+
+    /**
+     * The key from the status command for the value of the status of the single option.
+     */
+    public static final String RESPONSE_SINGLE = "single";
+
+    /**
+     * The key from the status command for the value of the current track song ID.
+     */
+    public static final String RESPONSE_SONG_ID = "songid";
+
+    /**
+     * The key from the status command for the value of the current track song playlist queue
+     * position.
+     */
+    public static final String RESPONSE_SONG_POSITION = "song";
+
+    /**
+     * The key from the status command for the value of the current playing status of the server.
+     *
+     * @see #RESPONSE_STATE_PAUSED
+     * @see #RESPONSE_STATE_PLAYING
+     * @see #RESPONSE_STATE_STOPPED
+     */
+    public static final String RESPONSE_STATE = "state";
+
+    /**
+     * A MPD protocol server response value for the play state paused.
+     */
+    public static final String RESPONSE_STATE_PAUSED = "pause";
+
+    /**
+     * A MPD protocol server response value for the play state playing.
+     */
+    public static final String RESPONSE_STATE_PLAYING = "play";
+
+    /**
+     * A MPD protocol server response value for the play state stopped.
+     */
+    public static final String RESPONSE_STATE_STOPPED = "stop";
+
+    /**
+     * The key from the status command for the value total time elapsed (of current playing/paused
+     * song).
+     */
+    public static final String RESPONSE_TIME = "time";
+
+    /**
+     * The key from the status command for the value of the media server's mixer state.
+     */
+    public static final String RESPONSE_VOLUME = "volume";
 
     /**
      * The media server play state interface representation for RESPONSE_STATE_PAUSED.
@@ -111,161 +259,12 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
     public static final int VOLUME_UNAVAILABLE = -1;
 
     /**
-     * Command text required to generate a command to retrieve the status information for this map.
-     */
-    private static final CharSequence CMD_ACTION_STATUS = "status";
-
-    /**
      * The default number of MPDStatus entries.
      *
      * <p>The status command responds with ~20 entries during play as of standard MPD
      * implementation 0.19.</p>
      */
     private static final int DEFAULT_ENTRY_COUNT = 20;
-
-    /**
-     * The key from the status command for the value of various times related to the currently
-     * playing track.
-     */
-    private static final CharSequence RESPONSE_AUDIO = "audio";
-
-    /**
-     * The key from the status command for the value of the bit rate of the currently playing
-     * track.
-     */
-    private static final CharSequence RESPONSE_BIT_RATE = "bitrate";
-
-    /**
-     * The key from the status command for the value of the status of the consume option, 1 for
-     * enabled, 0 for disabled.
-     */
-    private static final CharSequence RESPONSE_CONSUME = "consume";
-
-    /**
-     * The key from the status command for the value in seconds the crossfade option.
-     */
-    private static final CharSequence RESPONSE_CROSS_FADE = "xfade";
-
-    /**
-     * The key from the status command for the value of the job id of the database update.
-     */
-    private static final CharSequence RESPONSE_DATABASE_UPDATING = "updating_db";
-
-    /**
-     * The key from the status command for the value of the duration of the current track
-     * represented by a float.
-     */
-    private static final CharSequence RESPONSE_DURATION = "duration";
-
-    /**
-     * The key from the status command for the value of the elapsed time of the current track
-     * represented by a float.
-     */
-    private static final CharSequence RESPONSE_ELAPSED_HIGH_RESOLUTION = "elapsed";
-
-    /**
-     * The key from the status command for the value of the last error message.
-     *
-     * <p>This is one way to get retrieve an error message, though, it is better parsed from the
-     * error code given by the {@link MPDException}.</p>
-     */
-    private static final CharSequence RESPONSE_ERROR = "error";
-
-    /**
-     * The key from the status command for the value of the MixRamp threshold in dB.
-     */
-    private static final CharSequence RESPONSE_MIX_RAMP_DB = "mixrampdb";
-
-    /**
-     * The key from the status command for the value of the MixRamp delay in seconds.
-     */
-    private static final CharSequence RESPONSE_MIX_RAMP_DELAY = "mixrampdelay";
-
-    /**
-     * The key from the status command for the value of the next playlist queue song ID.
-     */
-    private static final CharSequence RESPONSE_NEXT_SONG_ID = "nextsongid";
-
-    /**
-     * The key from the status command for the value of the next playlist queue position.
-     */
-    private static final CharSequence RESPONSE_NEXT_SONG_POSITION = "nextsong";
-
-    /**
-     * The key from the status command for the value of a invalid float.
-     */
-    private static final String RESPONSE_NOT_A_NUMBER = "nan";
-
-    /**
-     * The key from the status command for the value of the length of the current playlist queue.
-     */
-    private static final CharSequence RESPONSE_PLAYLIST_LENGTH = "playlistlength";
-
-    /**
-     * The key from the status command for the value of the version of the current playlist queue.
-     */
-    private static final CharSequence RESPONSE_PLAYLIST_VERSION = "playlist";
-
-    /**
-     * The key from the status command for the value of the status of the random option.
-     */
-    private static final CharSequence RESPONSE_RANDOM = "random";
-
-    /**
-     * The key from the status command for the value of the status of the repeat option.
-     */
-    private static final CharSequence RESPONSE_REPEAT = "repeat";
-
-    /**
-     * The key from the status command for the value of the status of the single option.
-     */
-    private static final CharSequence RESPONSE_SINGLE = "single";
-
-    /**
-     * The key from the status command for the value of the current track song ID.
-     */
-    private static final CharSequence RESPONSE_SONG_ID = "songid";
-
-    /**
-     * The key from the status command for the value of the current track song playlist queue
-     * position.
-     */
-    private static final CharSequence RESPONSE_SONG_POSITION = "song";
-
-    /**
-     * The key from the status command for the value of the current playing status of the server.
-     *
-     * @see #RESPONSE_STATE_PAUSED
-     * @see #RESPONSE_STATE_PLAYING
-     * @see #RESPONSE_STATE_STOPPED
-     */
-    private static final CharSequence RESPONSE_STATE = "state";
-
-    /**
-     * A MPD protocol server response value for the play state paused.
-     */
-    private static final String RESPONSE_STATE_PAUSED = "pause";
-
-    /**
-     * A MPD protocol server response value for the play state playing.
-     */
-    private static final String RESPONSE_STATE_PLAYING = "play";
-
-    /**
-     * A MPD protocol server response value for the play state stopped.
-     */
-    private static final String RESPONSE_STATE_STOPPED = "stop";
-
-    /**
-     * The key from the status command for the value total time elapsed (of current playing/paused
-     * song).
-     */
-    private static final CharSequence RESPONSE_TIME = "time";
-
-    /**
-     * The key from the status command for the value of the media server's mixer state.
-     */
-    private static final CharSequence RESPONSE_VOLUME = "volume";
 
     /**
      * The class log identifier.
@@ -297,9 +296,9 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * This constructor is used to create a immutable copy of this class.
      *
      * @param responseMap The response map backend storage map.
-     * @see #getImmutableStatus()
+     * @see #getImmutable()
      */
-    private MPDStatusMap(final Map<CharSequence, String> responseMap) {
+    private MPDStatusMap(final Map<String, String> responseMap) {
         super(responseMap);
 
         mConnection = null;
@@ -427,8 +426,18 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      *
      * @return An immutable copy of this object.
      */
-    public final MPDStatus getImmutableStatus() {
-        return new MPDStatusMap(Collections.unmodifiableMap(getMap()));
+    public final MPDStatus getImmutable() {
+        return new MPDStatusMap(getMap());
+    }
+
+    /**
+     * This method returns a {@link MPDStatus} constructed by response.
+     *
+     * @param response The response used to create the MPDStatus.
+     * @return The MPDStatus created by response.
+     */
+    public MPDStatus getImmutable(final KeyValueResponse response) {
+        return new MPDStatusMap(response.getKeyValueMap());
     }
 
     /**
