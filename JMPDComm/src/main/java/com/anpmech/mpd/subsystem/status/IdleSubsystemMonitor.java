@@ -27,10 +27,12 @@
 
 package com.anpmech.mpd.subsystem.status;
 
+import com.anpmech.mpd.CommandQueue;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.MPDPlaylist;
+import com.anpmech.mpd.commandresponse.CommandResponse;
 import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.concurrent.MPDExecutor;
 import com.anpmech.mpd.concurrent.ResultFuture;
@@ -338,9 +340,15 @@ public class IdleSubsystemMonitor implements Runnable {
 
                 if (connectionStatus.isConnected()) {
                     try {
+                        final CommandQueue queue = new CommandQueue(2);
+                        queue.add(MPDStatisticsMap.CMD_ACTION_STATISTICS);
+                        queue.add(MPDStatusMap.CMD_ACTION_STATUS);
+                        final Iterator<CommandResponse> responses =
+                                connection.submitSeparated(queue).get().iterator();
+
                         oldStatus = status.getImmutable();
-                        statistics.update();
-                        status.update();
+                        statistics.update(new KeyValueResponse(responses.next()));
+                        status.update(new KeyValueResponse(responses.next()));
                         playlist.update(status);
                     } catch (final IOException e) {
                         emitError(STATUS_UPDATE_FAILURE, e);
