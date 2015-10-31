@@ -96,6 +96,11 @@ public class SettingsFragment extends PreferenceFragment {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    try {
+                        mpd.getStatistics().waitForValidity();
+                    } catch (final InterruptedException ignored) {
+                    }
+
                     final String versionText = mpd.getMpdVersion();
                     final MPDStatistics mpdStatistics = mpd.getStatistics();
 
