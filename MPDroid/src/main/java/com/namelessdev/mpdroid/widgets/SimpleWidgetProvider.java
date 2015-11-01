@@ -44,6 +44,9 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
     /**
      * Check against {@link AppWidgetManager} if there are any instances of this widget.
+     *
+     * @param context The current context.
+     * @return True if an instance already exists, false otherwise.
      */
     private boolean hasInstances(final Context context) {
         final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
@@ -54,6 +57,9 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
     /**
      * Link up various button actions using {@link PendingIntent}.
+     *
+     * @param context The current context.
+     * @param views   The button views.
      */
     protected void linkButtons(final Context context, final RemoteViews views) {
         Intent intent;
@@ -85,6 +91,8 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
     /**
      * Handle a change notification coming over from {@link android.media.RemoteControlClient}
+     *
+     * @param service The WidgetHelperService related to this provider.
      */
     void notifyChange(final WidgetHelperService service) {
         if (hasInstances(service)) {
@@ -131,6 +139,8 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
     /**
      * Update all active widget instances by pushing changes
+     *
+     * @param service The WidgetHelperService related to this provider.
      */
     protected void performUpdate(final WidgetHelperService service) {
         final RemoteViews views = new RemoteViews(service.getPackageName(), R.layout.widget_simple);
@@ -140,6 +150,9 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
     /**
      * Set the RemoteViews to use for all AppWidget instances
+     *
+     * @param context The current context.
+     * @param views   The button views.
      */
     protected void pushUpdate(final Context context, final RemoteViews views) {
         final AppWidgetManager gm = AppWidgetManager.getInstance(context);

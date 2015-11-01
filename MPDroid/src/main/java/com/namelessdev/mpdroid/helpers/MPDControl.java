@@ -145,6 +145,7 @@ public final class MPDControl {
      *
      * @param userCommand The command to be run.
      * @param l           A long primitive argument for the {@code userCommand}.
+     * @return A {@link ResultFuture} for interested callers.
      */
     public static ResultFuture run(@ControlType final String userCommand, final long l) {
         final Playback playback = APP.getMPD().getPlayback();

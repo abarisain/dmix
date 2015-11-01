@@ -205,6 +205,7 @@ public class UpdateTrackInfo {
         /**
          * This method retrieves the current rating sticker from the connected media server.
          *
+         * @param currentTrack The current playing {@link Music} item.
          * @return Returns the current rating sticker from the connected media server.
          */
         private float getTrackRating(final FilesystemTreeEntry currentTrack) {
@@ -267,6 +268,8 @@ public class UpdateTrackInfo {
 
         /**
          * If not a stream, this sets up the mArtistName based on artist and album information.
+         *
+         * @param currentTrack The current playing {@link Music} item.
          */
         private void setArtist(final Music currentTrack) {
             final boolean showAlbumArtist = mSettings.getBoolean("showAlbumArtist", true);
