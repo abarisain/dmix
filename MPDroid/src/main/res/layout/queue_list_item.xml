@@ -52,7 +52,6 @@
             android:layout_marginBottom="5dip"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="Fooooooo"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
         <LinearLayout
@@ -70,7 +69,6 @@
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="Fooooooo"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="?attr/listItemSecondaryTextColor" />
 
