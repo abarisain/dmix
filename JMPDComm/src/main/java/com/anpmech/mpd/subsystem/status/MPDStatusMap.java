@@ -296,12 +296,25 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * This constructor is used to create a immutable copy of this class.
      *
      * @param responseMap The response map backend storage map.
+     * @param updateTime  The time the update for this responseMap took place.
      * @see #getImmutable()
      */
-    private MPDStatusMap(final Map<String, String> responseMap) {
+    private MPDStatusMap(final Map<String, String> responseMap, final long updateTime) {
         super(responseMap);
 
         mConnection = null;
+        mUpdateTime = updateTime;
+    }
+
+    /**
+     * This method returns a {@link MPDStatus} Object constructed by response.
+     *
+     * @param response   The response used to create the MPDStatus.
+     * @param updateTime The {@link Date#getTime()} this response was created.
+     * @return The MPDStatus created by response.
+     */
+    public static MPDStatus getImmutable(final KeyValueResponse response, final long updateTime) {
+        return new MPDStatusMap(response.getKeyValueMap(), updateTime);
     }
 
     /**
@@ -427,17 +440,7 @@ public class MPDStatusMap extends ResponseMap implements MPDStatus {
      * @return An immutable copy of this object.
      */
     public final MPDStatus getImmutable() {
-        return new MPDStatusMap(getMap());
-    }
-
-    /**
-     * This method returns a {@link MPDStatus} constructed by response.
-     *
-     * @param response The response used to create the MPDStatus.
-     * @return The MPDStatus created by response.
-     */
-    public MPDStatus getImmutable(final KeyValueResponse response) {
-        return new MPDStatusMap(response.getKeyValueMap());
+        return new MPDStatusMap(getMap(), mUpdateTime);
     }
 
     /**

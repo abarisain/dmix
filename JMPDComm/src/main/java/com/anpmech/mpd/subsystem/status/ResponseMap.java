@@ -168,7 +168,7 @@ class ResponseMap {
      * @param key The key value to check for boolean.
      * @return True if the value is "1" (MPD protocol true), false otherwise.
      */
-    protected boolean isMapValueTrue(final CharSequence key) {
+    protected boolean isMapValueTrue(final String key) {
         return "1".equals(mResponseMap.get(key));
     }
 

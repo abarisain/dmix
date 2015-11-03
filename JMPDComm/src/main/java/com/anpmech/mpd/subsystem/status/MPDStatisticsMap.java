@@ -134,6 +134,16 @@ public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
     }
 
     /**
+     * This method returns a {@link MPDStatistics} Object constructed by response.
+     *
+     * @param response The response used to create the MPDStatus.
+     * @return The MPDStatus created by response.
+     */
+    public static MPDStatistics getImmutable(final KeyValueResponse response) {
+        return new MPDStatisticsMap(response.getKeyValueMap());
+    }
+
+    /**
      * Retrieves total number of albums in the connected media server's database.
      *
      * @return total number of albums in the connected media server's database.
@@ -184,16 +194,6 @@ public class MPDStatisticsMap extends ResponseMap implements MPDStatistics {
      */
     public final MPDStatistics getImmutable() {
         return new MPDStatisticsMap(getMap());
-    }
-
-    /**
-     * This method returns a {@link MPDStatus} constructed by response.
-     *
-     * @param response The response used to create the MPDStatus.
-     * @return The MPDStatus created by response.
-     */
-    public MPDStatistics getImmutable(final KeyValueResponse response) {
-        return new MPDStatisticsMap(response.getKeyValueMap());
     }
 
     /**
