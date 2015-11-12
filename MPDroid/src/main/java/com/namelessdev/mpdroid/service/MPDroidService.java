@@ -504,37 +504,40 @@ public final class MPDroidService extends Service implements
      */
     @Override
     public void onTaskRemoved(final Intent rootIntent) {
-        final String pendingAction;
         if (mIsStreamStarted) {
-            pendingAction = StreamHandler.ACTION_START;
+            onTaskRemoved(StreamHandler.ACTION_START);
         } else if (mIsNotificationStarted) {
-            pendingAction = NotificationHandler.ACTION_START;
-        } else {
-            pendingAction = null;
+            onTaskRemoved(NotificationHandler.ACTION_START);
         }
 
-        if (pendingAction != null) {
-            final Intent restartServiceIntent
-                    = new Intent(pendingAction, null, this, RemoteControlReceiver.class);
-            final PendingIntent restartService = PendingIntent
-                    .getBroadcast(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
-            final AlarmManager alarmService =
-                    (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-            /** If notification is persistent, we don't care who owns the service. */
-            if (!isNotificationPersistent()) {
-                if (mNotificationOwnsService) {
-                    restartServiceIntent.putExtra(SERVICE_OWNERSHIP, NotificationHandler.LOCAL_UID);
-                } else if (mStreamOwnsService) {
-                    restartServiceIntent.putExtra(SERVICE_OWNERSHIP, StreamHandler.LOCAL_UID);
-                }
-            }
-
-            alarmService.set(AlarmManager.ELAPSED_REALTIME,
-                    SystemClock.elapsedRealtime() + DateUtils.SECOND_IN_MILLIS,
-                    restartService);
-        }
         super.onTaskRemoved(rootIntent);
+    }
+
+    /**
+     * This method is used to start a action after this Service gets killed.
+     *
+     * @param action The action to start.
+     */
+    private void onTaskRemoved(final String action) {
+        final Intent restartServiceIntent
+                = new Intent(action, null, this, RemoteControlReceiver.class);
+        final PendingIntent restartService = PendingIntent
+                .getBroadcast(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+        final AlarmManager alarmService =
+                (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        /** If notification is persistent, we don't care who owns the service. */
+        if (!isNotificationPersistent()) {
+            if (mNotificationOwnsService) {
+                restartServiceIntent.putExtra(SERVICE_OWNERSHIP, NotificationHandler.LOCAL_UID);
+            } else if (mStreamOwnsService) {
+                restartServiceIntent.putExtra(SERVICE_OWNERSHIP, StreamHandler.LOCAL_UID);
+            }
+        }
+
+        alarmService.set(AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + DateUtils.SECOND_IN_MILLIS,
+                restartService);
     }
 
     /**
