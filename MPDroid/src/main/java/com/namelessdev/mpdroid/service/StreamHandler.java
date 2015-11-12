@@ -100,8 +100,6 @@ public final class StreamHandler implements
      */
     private static final int INVALID_INT = Integer.MIN_VALUE;
 
-    private static final MPD MPD = MPDApplication.getInstance().getMPD();
-
     /** Workaround to delay preparation of stream on Android 4.4.2 and earlier. */
     private static final int PREPARE_ASYNC = 1;
 
@@ -114,6 +112,8 @@ public final class StreamHandler implements
     public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + ".ACTION_STOP";
 
     private final Handler mHandler = new Handler(this);
+
+    private final MPD mMPD;
 
     /** The service context used to acquire the wake lock. */
     private final MPDroidService mServiceContext;
@@ -159,6 +159,7 @@ public final class StreamHandler implements
         mServiceContext = serviceContext;
         mAudioManager = audioManager;
         mServiceHandler = serviceHandler;
+        mMPD = ((MPDApplication) serviceContext.getApplicationContext()).getMPD();
     }
 
     /**
@@ -611,7 +612,7 @@ public final class StreamHandler implements
     void start(final ConnectionInfo connectionInfo) {
         mConnectionInfo = connectionInfo;
         mIsActive = true;
-        mIsPlaying = MPD.getStatus().getState() == MPDStatusMap.STATE_PLAYING;
+        mIsPlaying = mMPD.getStatus().getState() == MPDStatusMap.STATE_PLAYING;
         if (!mPreparingStream && mIsPlaying) {
             tryToStream();
         }
@@ -625,7 +626,7 @@ public final class StreamHandler implements
             Log.d(TAG, "StreamHandler.stateChanged()");
         }
 
-        final int state = MPD.getStatus().getState();
+        final int state = mMPD.getStatus().getState();
 
         if (mIsActive) {
             switch (state) {
@@ -635,7 +636,7 @@ public final class StreamHandler implements
                     tryToStream();
                     break;
                 case MPDStatusMap.STATE_STOPPED:
-                    final MPDStatus mpdStatus = MPD.getStatus();
+                    final MPDStatus mpdStatus = mMPD.getStatus();
 
                     /** Detect final song and let onCompletion handle it */
                     if (mpdStatus.getNextSongPos() == -1 || mpdStatus.getPlaylistLength() == 0) {

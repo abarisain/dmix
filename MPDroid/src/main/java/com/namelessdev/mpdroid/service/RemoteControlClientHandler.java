@@ -48,6 +48,11 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
 
     private final AudioManager mAudioManager;
 
+    /**
+     * This is the MPD instance held in the Application context.
+     */
+    private final MPD mMPD;
+
     private final Handler mServiceHandler;
 
     /** A flag used to inform the RemoteControlClient that a buffering event is taking place. */
@@ -75,6 +80,7 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
 
         mServiceHandler = serviceHandler;
 
+        mMPD = ((MPDApplication) serviceContext.getApplicationContext()).getMPD();
         mAudioManager =
                 (AudioManager) serviceContext.getSystemService(Context.AUDIO_SERVICE);
         mMediaButtonReceiverComponent =
@@ -93,7 +99,8 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
                 RemoteControlClient.FLAG_KEY_MEDIA_STOP;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            mSeekBar = new RemoteControlSeekBarHandler(mRemoteControlClient, controlFlags);
+            mSeekBar = new RemoteControlSeekBarHandler(serviceContext, mRemoteControlClient,
+                    controlFlags);
         } else {
             mRemoteControlClient.setTransportControlFlags(controlFlags);
         }
@@ -153,8 +160,7 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
                         /**
                          * This is an ugly fix for now. I will clean this up sooner or later.
                          */
-                        final MPD mpd = MPDApplication.getInstance().getMPD();
-                        final Music currentTrack = mpd.getCurrentTrack();
+                        final Music currentTrack = mMPD.getCurrentTrack();
 
                         if (currentTrack != null) {
                             mRemoteControlClient.editMetadata(true)
@@ -226,7 +232,7 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
      * Used to keep the state updated.
      */
     final void stateChanged() {
-        final MPDStatus status = MPDApplication.getInstance().getMPD().getStatus();
+        final MPDStatus status = mMPD.getStatus();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             mSeekBar.updateSeekTime(status.getElapsedTime());

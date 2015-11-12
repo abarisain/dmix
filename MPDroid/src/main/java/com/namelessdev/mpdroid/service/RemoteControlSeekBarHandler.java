@@ -21,6 +21,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.media.RemoteControlClient;
 import android.os.Build;
 import android.text.format.DateUtils;
@@ -38,6 +39,8 @@ public class RemoteControlSeekBarHandler implements
 
     private static final String TAG = "RemoteControlSeekBarHandler";
 
+    private final MPDApplication mApp;
+
     private final RemoteControlClient mRemoteControlClient;
 
     /**
@@ -53,10 +56,12 @@ public class RemoteControlSeekBarHandler implements
 
     private int mPlaybackState = -1;
 
-    RemoteControlSeekBarHandler(final RemoteControlClient remoteControlClient,
+    RemoteControlSeekBarHandler(final Context serviceContext,
+            final RemoteControlClient remoteControlClient,
             final int controlFlags) {
         super();
 
+        mApp = (MPDApplication) serviceContext.getApplicationContext();
         mRemoteControlClient = remoteControlClient;
 
         mRemoteControlClient.setTransportControlFlags(controlFlags |
@@ -98,11 +103,11 @@ public class RemoteControlSeekBarHandler implements
     final void start() {
         mRemoteControlClient.setOnGetPlaybackPositionListener(this);
         mRemoteControlClient.setPlaybackPositionUpdateListener(this);
-        MPDApplication.getInstance().addTrackPositionListener(this);
+        mApp.addTrackPositionListener(this);
     }
 
     final void stop() {
-        MPDApplication.getInstance().removeTrackPositionListener(this);
+        mApp.removeTrackPositionListener(this);
         mRemoteControlClient.setOnGetPlaybackPositionListener(null);
         mRemoteControlClient.setPlaybackPositionUpdateListener(null);
     }
@@ -112,7 +117,7 @@ public class RemoteControlSeekBarHandler implements
      */
     @Override
     public final void trackPositionChanged() {
-        updateSeekTime(MPDApplication.getInstance().getMPD().getStatus().getElapsedTime());
+        updateSeekTime(mApp.getMPD().getStatus().getElapsedTime());
     }
 
     /**

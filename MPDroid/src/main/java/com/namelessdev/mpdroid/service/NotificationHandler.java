@@ -16,6 +16,7 @@
 
 package com.namelessdev.mpdroid.service;
 
+import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
@@ -346,7 +347,9 @@ public class NotificationHandler implements AlbumCoverHandler.NotificationCallba
     }
 
     final void stateChanged() {
-        switch (MPDApplication.getInstance().getMPD().getStatus().getState()) {
+        final MPD mpd = ((MPDApplication) mServiceContext.getApplicationContext()).getMPD();
+
+        switch (mpd.getStatus().getState()) {
             case MPDStatusMap.STATE_PLAYING:
                 setPlayState(true);
                 break;

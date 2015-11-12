@@ -21,7 +21,6 @@ import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
-import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.namelessdev.mpdroid.ConnectionInfo;
@@ -80,8 +79,6 @@ public final class MPDroidService extends Service implements
 
     static final String PACKAGE_NAME = "com.namelessdev.mpdroid.service.";
 
-    private static final MPDApplication APP = MPDApplication.getInstance();
-
     /** Disconnects if no connection exists. */
     private static final int DISCONNECT_ON_NO_CONNECTION = LOCAL_UID + 5;
 
@@ -104,8 +101,6 @@ public final class MPDroidService extends Service implements
     /** Sends stop() to all handlers. */
     private static final int WIND_DOWN_HANDLERS = LOCAL_UID + 7;
 
-    private final MPDStatus mMPDStatus = APP.getMPD().getStatus();
-
     /** The inner class which handles messages for this service. */
     private final MessageHandler mMessageHandler = new MessageHandler();
 
@@ -117,7 +112,7 @@ public final class MPDroidService extends Service implements
     /** The Android AudioManager, used by this for audio focus control. */
     private AudioManager mAudioManager = null;
 
-    private ConnectionInfo mConnectionInfo = APP.getConnectionSettings();
+    private ConnectionInfo mConnectionInfo;
 
     /** True if audio is focused on this service. */
     private boolean mIsAudioFocusedOnThis = false;
@@ -237,6 +232,24 @@ public final class MPDroidService extends Service implements
     }
 
     /**
+     * This is a simple accessor for the {@link MPDApplication} instance.
+     *
+     * @return The MPDApplication instance for this process.
+     */
+    private MPDApplication getApp() {
+        return (MPDApplication) getApplicationContext();
+    }
+
+    /**
+     * This is a simple accessor for the {@link MPD} instance.
+     *
+     * @return The MPD instance for this process.
+     */
+    private MPD getMPD() {
+        return getApp().getMPD();
+    }
+
+    /**
      * This method is called by the stateChanged() callback method inform service handlers about
      * media service status changes.
      */
@@ -264,21 +277,24 @@ public final class MPDroidService extends Service implements
 
     /** Initialize the {@code MPD} connection, monitors and listeners. */
     private void initializeAsyncHelper() {
-        APP.getMPD().getConnectionStatus().addListener(this);
-        if (!APP.getMPD().isConnected()) {
+        final MPDApplication app = getApp();
+        final MPD mpd = app.getMPD();
+
+        mpd.getConnectionStatus().addListener(this);
+        if (!mpd.isConnected()) {
             try {
-                APP.connect();
+                app.connect();
             } catch (final UnknownHostException e) {
                 Log.e(TAG, "Failed to connect due to unknown host.", e);
             }
         }
 
-        if (!APP.isStatusMonitorAlive()) {
-            APP.startIdleMonitor(IdleSubsystemMonitor.IDLE_PLAYER,
+        if (!app.isStatusMonitorAlive()) {
+            app.startIdleMonitor(IdleSubsystemMonitor.IDLE_PLAYER,
                     IdleSubsystemMonitor.IDLE_PLAYLIST);
         }
 
-        APP.addStatusChangeListener(this);
+        app.addStatusChangeListener(this);
         /**
          * From here, upon successful connection, it will go from connectionStateChanged to
          * stateChanged() where handlers will be started as required.
@@ -412,6 +428,16 @@ public final class MPDroidService extends Service implements
         }
     }
 
+    /**
+     * Called by the system when the service is first created.  Do not call this method directly.
+     */
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        mConnectionInfo = getApp().getConnectionSettings();
+    }
+
     /** If handlers have activated, use windDownService rather than stopSelf(). */
     @Override
     public void onDestroy() {
@@ -461,7 +487,7 @@ public final class MPDroidService extends Service implements
                         if (mIsStreamStarted && mStreamHandler != null &&
                                 mStreamHandler.isActive()) {
                             /** Should never be disconnected. We're streaming! */
-                            if (APP.getMPD() == null || !APP.getMPD().isConnected()) {
+                            if (getMPD() == null || !getMPD().isConnected()) {
                                 initializeAsyncHelper();
                             }
                             MPDControl.run(MPDControl.ACTION_PAUSE);
@@ -581,7 +607,7 @@ public final class MPDroidService extends Service implements
      */
     @Override
     public void playlistChanged(final int oldPlaylistVersion) {
-        final Music currentTrack = APP.getMPD().getCurrentTrack();
+        final Music currentTrack = getMPD().getCurrentTrack();
 
         /**
          * This is required because streams will emit a playlist (current queue) event as the
@@ -685,7 +711,7 @@ public final class MPDroidService extends Service implements
             }
 
             setHandlerActivity(NotificationHandler.LOCAL_UID, true);
-            if (APP.getMPD().isConnected()) {
+            if (getMPD().isConnected()) {
                 stateChanged(MPDStatusMap.STATE_UNKNOWN);
             } else {
                 initializeAsyncHelper();
@@ -711,7 +737,7 @@ public final class MPDroidService extends Service implements
             }
 
             setHandlerActivity(StreamHandler.LOCAL_UID, true);
-            if (APP.getMPD().isConnected()) {
+            if (getMPD().isConnected()) {
                 stateChanged(MPDStatusMap.STATE_UNKNOWN);
             } else {
                 initializeAsyncHelper();
@@ -730,7 +756,7 @@ public final class MPDroidService extends Service implements
      */
     @Override
     public void stateChanged(final int oldState) {
-        switch (mMPDStatus.getState()) {
+        switch (getMPD().getStatus().getState()) {
             case MPDStatusMap.STATE_PLAYING:
                 stateChangedPlaying();
                 break;
@@ -829,10 +855,10 @@ public final class MPDroidService extends Service implements
      * Updates the current track of all handlers which require a current track.
      */
     private void updateTrack() {
-        final MPD mpd = APP.getMPD();
+        final MPD mpd = getMPD();
 
         try {
-            mMPDStatus.waitForValidity();
+            mpd.getStatus().waitForValidity();
             mpd.getPlaylist().waitForValidity();
         } catch (final InterruptedException ignored) {
         }
@@ -894,8 +920,10 @@ public final class MPDroidService extends Service implements
                  * Don't remove the status change listener here. It
                  * causes a bug with the weak linked list, somehow.
                  */
-                APP.stopIdleMonitor();
-                APP.removeConnectionLock(this);
+                final MPDApplication app = getApp();
+
+                app.stopIdleMonitor();
+                app.removeConnectionLock(this);
             }
         }
 
@@ -1038,7 +1066,7 @@ public final class MPDroidService extends Service implements
 
             switch (what) {
                 case DISCONNECT_ON_NO_CONNECTION:
-                    if (APP.getMPD().isConnected()) {
+                    if (getMPD().isConnected()) {
                         break;
                     }
                     /** Fall through */
@@ -1052,7 +1080,7 @@ public final class MPDroidService extends Service implements
                     haltService();
                     break;
                 case REFRESH_COVER:
-                    final Music track = APP.getMPD().getCurrentTrack();
+                    final Music track = getMPD().getCurrentTrack();
 
                     if (track != null) {
                         mAlbumCoverHandler.update(new AlbumInfo(track));
@@ -1079,8 +1107,10 @@ public final class MPDroidService extends Service implements
                     mRemoteControlClientHandler.setMediaPlayerBuffering(true);
                     break;
                 case StreamHandler.REQUEST_NOTIFICATION_STOP:
-                    if (mIsNotificationStarted && APP.getMPD().isConnected() &&
-                            mMPDStatus.isState(MPDStatusMap.STATE_PLAYING)) {
+                    final MPD mpd = getMPD();
+
+                    if (mIsNotificationStarted && mpd.isConnected() &&
+                            mpd.getStatus().isState(MPDStatusMap.STATE_PLAYING)) {
                         tryToGetAudioFocus();
                     }
                     streamRequestsNotificationStop();
