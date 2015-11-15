@@ -20,9 +20,9 @@ import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.connection.MPDConnectionStatus;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
+import com.namelessdev.mpdroid.preferences.ConnectionModifier;
 import com.namelessdev.mpdroid.preferences.ConnectionSettings;
 import com.namelessdev.mpdroid.preferences.SettingsActivity;
-import com.namelessdev.mpdroid.tools.SettingsHelper;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.Activity;
@@ -34,10 +34,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -81,7 +83,7 @@ public class ErrorHandler implements IdleSubsystemMonitor.Error,
         }
         mApp = (MPDApplication) mActivity.getApplication();
 
-        if (SettingsHelper.getConnectionSettings(null) == null) {
+        if (!hasDefaultServer(activity)) {
             final Intent intent = new Intent(mActivity, ConnectionSettings.class);
 
             // Absolutely no settings defined! Open Settings!
@@ -105,6 +107,19 @@ public class ErrorHandler implements IdleSubsystemMonitor.Error,
         if (DEBUG) {
             Log.d(TAG, line);
         }
+    }
+
+    /**
+     * This method determines if a default server has been setup yet.
+     *
+     * @param context The context to retrieve the settings.
+     * @return True if a default server has been setup, false otherwise.
+     */
+    private static boolean hasDefaultServer(final Context context) {
+        final SharedPreferences settings =
+                PreferenceManager.getDefaultSharedPreferences(context);
+
+        return settings.contains(ConnectionModifier.KEY_HOSTNAME);
     }
 
     /**

@@ -44,8 +44,6 @@ public class MPDAsyncWorker implements Handler.Callback,
 
     private static final String TAG = "MPDAsyncWorker";
 
-    private static final int UPDATE_CONNECTION_INFO = LOCAL_UID + 4;
-
     /** A handler for the MPDAsyncHelper object. */
     private final Handler mHelperHandler;
 
@@ -74,14 +72,6 @@ public class MPDAsyncWorker implements Handler.Callback,
         switch (msg.what) {
             case EVENT_EXEC_ASYNC:
                 ((Runnable) msg.obj).run();
-                break;
-            case UPDATE_CONNECTION_INFO:
-                final ConnectionInfo connectionInfo =
-                        SettingsHelper.getConnectionSettings(mConnectionInfo);
-
-                if (connectionInfo != null) {
-                    setConnectionSettings(connectionInfo);
-                }
                 break;
             default:
                 result = false;
@@ -112,7 +102,7 @@ public class MPDAsyncWorker implements Handler.Callback,
                 case ConnectionModifier.KEY_PERSISTENT_NOTIFICATION:
                 case ConnectionModifier.KEY_PORT:
                 case ConnectionModifier.KEY_STREAM_URL:
-                    mHelperHandler.sendEmptyMessage(UPDATE_CONNECTION_INFO);
+                    updateConnectionSettings();
                     break;
                 case MPDApplication.USE_LOCAL_ALBUM_CACHE_KEY:
                     final boolean useAlbumCache = sharedPreferences.getBoolean(key, false);
@@ -127,20 +117,6 @@ public class MPDAsyncWorker implements Handler.Callback,
                 default:
                     break;
             }
-        }
-    }
-
-    /**
-     * Sets the connection settings.
-     *
-     * @param connectionInfo A current {@code ConnectionInfo} object.
-     */
-    private final void setConnectionSettings(final ConnectionInfo connectionInfo) {
-        if (connectionInfo.hasServerChanged() || connectionInfo.hasStreamInfoChanged()
-                || connectionInfo.wasNotificationPersistent() !=
-                connectionInfo.isNotificationPersistent()) {
-            mConnectionInfo = connectionInfo;
-            mHelperHandler.obtainMessage(EVENT_CONNECTION_CONFIG, connectionInfo).sendToTarget();
         }
     }
 
@@ -161,12 +137,13 @@ public class MPDAsyncWorker implements Handler.Callback,
         final ConnectionInfo connectionInfo =
                 SettingsHelper.getConnectionSettings(mConnectionInfo);
 
-        if (connectionInfo == null) {
-            setConnectionSettings(mConnectionInfo);
-        } else {
-            setConnectionSettings(connectionInfo);
+        if (connectionInfo.hasServerChanged() || connectionInfo.hasStreamInfoChanged()
+                || connectionInfo.wasNotificationPersistent() !=
+                connectionInfo.isNotificationPersistent()) {
+            mConnectionInfo = connectionInfo;
+            mHelperHandler.obtainMessage(EVENT_CONNECTION_CONFIG, connectionInfo).sendToTarget();
         }
 
-        return mConnectionInfo;
+        return connectionInfo;
     }
 }
