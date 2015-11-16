@@ -27,33 +27,46 @@
 
 package com.anpmech.mpd.item;
 
-import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.ResponseObject;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
-import java.util.Arrays;
 
 /**
  * This class creates a Stream, a derivative of {@link PlaylistFile}.
  */
-abstract class AbstractStream<T extends Stream> extends Item<Stream> {
+abstract class AbstractStream extends ResponseItem<Stream> {
 
+    /**
+     * The playlist name to retrieve the special playlist for streams.
+     */
+    public static final String PLAYLIST_NAME = "[Radio Streams]";
+
+    /**
+     * The class log identifier.
+     */
     protected static final String TAG = "Stream";
 
-    protected final String mName;
-
-    protected final String mUrl;
-
-    protected int mPos;
-
-    AbstractStream(final String name, final String url, final int pos) {
-        super();
-
-        mName = name;
-        mUrl = url;
-        mPos = pos;
+    /**
+     * This constructor is used to create a new Stream item with a ResponseObject.
+     *
+     * @param object The prepared ResponseObject.
+     */
+    AbstractStream(@NotNull final ResponseObject object) {
+        super(object);
     }
 
+    /**
+     * This method replaces {@link URI#getFragment() URI Fragment} in the url parameter with the
+     * name.
+     *
+     * @param url  The URL to add the name parameter to.
+     * @param name The name to use as the new url fragment.
+     * @return The new URL as a string.
+     */
     public static String addStreamName(final String url, final String name) {
         final StringBuilder streamName;
 
@@ -83,71 +96,21 @@ abstract class AbstractStream<T extends Stream> extends Item<Stream> {
     }
 
     /**
-     * Compares a Stream object with a general contract of comparison that is reflexive, symmetric
-     * and transitive.
+     * This method returns the URI fragment of the URL from {@link #getUrl()}.
      *
-     * @param o The object to compare this instance with.
-     * @return True if the objects are equal with regard to te general contract, false otherwise.
-     * @see Object#equals(Object)
+     * @return The URI fragment from the {@link #getUrl() URL}.
      */
     @Override
-    public boolean equals(final Object o) {
-        Boolean isEqual = null;
-
-        if (this == o) {
-            isEqual = Boolean.TRUE;
-        } else if (o == null || getClass() != o.getClass()) {
-            isEqual = Boolean.FALSE;
-        }
-
-        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
-            /** This has to be the same due to the class check above. */
-            //noinspection unchecked
-            final AbstractStream<T> stream = (AbstractStream<T>) o;
-
-            if (Tools.isNotEqual(mName, stream.mName)) {
-                isEqual = Boolean.FALSE;
-            }
-
-            if (Tools.isNotEqual(mUrl, stream.mUrl)) {
-                isEqual = Boolean.FALSE;
-            }
-        }
-
-        if (isEqual == null) {
-            isEqual = Boolean.TRUE;
-        }
-
-        return isEqual.booleanValue();
-    }
-
-    @Override
     public String getName() {
-        return mName;
-    }
-
-    public int getPos() {
-        return mPos;
-    }
-
-    public String getUrl() {
-        return mUrl;
+        return getURIFragment(AbstractMusic.RESPONSE_FILE);
     }
 
     /**
-     * Returns an integer hash code for this Stream. By contract, any two objects for which {@link
-     * #equals} returns {@code true} must return the same hash code value. This means that
-     * subclasses of {@code Object} usually override both methods or neither method.
+     * This method returns the URL of this Stream.
      *
-     * @return This Stream hash code.
-     * @see Object#equals(Object)
+     * @return The URL of this Stream.
      */
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(new Object[]{mName, mUrl});
-    }
-
-    public void setPos(final int pos) {
-        mPos = pos;
+    public String getUrl() {
+        return findValue(AbstractMusic.RESPONSE_FILE);
     }
 }

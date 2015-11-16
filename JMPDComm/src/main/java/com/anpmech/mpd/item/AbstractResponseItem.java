@@ -127,6 +127,30 @@ public abstract class AbstractResponseItem<T extends AbstractResponseItem<T>> ex
     }
 
     /**
+     * Returns the URI fragment if it exists.
+     *
+     * @param key The key to find the URI value for.
+     * @return The URI fragment if it exists, null otherwise.
+     */
+    protected String getURIFragment(final String key) {
+        final String fullPath = findValue(key);
+        final int pos;
+        String streamName = null;
+
+        if (fullPath == null) {
+            pos = 0;
+        } else {
+            pos = fullPath.indexOf('#');
+        }
+
+        if (pos > 1) {
+            streamName = fullPath.substring(pos + 1, fullPath.length());
+        }
+
+        return streamName;
+    }
+
+    /**
      * Returns an integer hash code for this Item. By contract, any two objects for which {@link
      * #equals} returns {@code true} must return the same hash code value. This means that
      * subclasses of {@code Object} usually override both methods or neither method.

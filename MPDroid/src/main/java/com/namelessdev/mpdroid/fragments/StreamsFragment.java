@@ -16,17 +16,20 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.commandresponse.StreamResponse;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Artist;
-import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.item.Stream;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
@@ -51,17 +54,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 
+/**
+ * This fragment is used to display a list of Streams in a special playlist on the connected MPD
+ * server.
+ *
+ * This fragment is used to specifically store {@link Stream} URLs with using the URL fragment as
+ * a name place holder. These streams are stored in the {@link Stream#PLAYLIST_NAME} playlist.
+ */
 public class StreamsFragment extends BrowseFragment<Stream> {
 
     private static final int DELETE = 102;
 
     private static final int EDIT = 101;
 
+    /**
+     * The class log identifier.
+     */
     private static final String TAG = "StreamsFragment";
 
-    private final List<Stream> mStreams = new ArrayList<>();
+    /**
+     * This list shows the list of streams prior to ordering.
+     */
+    private final List<Stream> mUnordered = new ArrayList<>();
 
     public StreamsFragment() {
         super(R.string.addStream, R.string.streamAdded);
@@ -103,8 +118,8 @@ public class StreamsFragment extends BrowseFragment<Stream> {
             streamTitle = R.string.editStream;
         }
 
-        if (idx >= 0 && idx < mStreams.size()) {
-            final Stream stream = mStreams.get(idx);
+        if (idx >= 0 && idx < mUnordered.size()) {
+            final Stream stream = mUnordered.get(idx);
             if (null != nameEdit) {
                 nameEdit.setText(stream.getName());
             }
@@ -140,19 +155,12 @@ public class StreamsFragment extends BrowseFragment<Stream> {
 
     @Override
     protected void asyncUpdate() {
-        mStreams.clear();
+        StreamResponse streamResponse = new StreamResponse();
 
         /** Many users have playlist support disabled, no need for an exception. */
         if (mApp.getMPD().isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS)) {
             try {
-                final ListIterator<Music> iterator = mApp.getMPD().getSavedStreams().listIterator();
-
-                while (iterator.hasNext()) {
-                    final Music stream = iterator.next();
-
-                    mStreams.add(new Stream(stream.getName(), stream.getFullPath(),
-                            iterator.nextIndex()));
-                }
+                streamResponse = mApp.getMPD().getSavedStreams();
             } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to retrieve saved streams.", e);
             }
@@ -160,8 +168,11 @@ public class StreamsFragment extends BrowseFragment<Stream> {
             Log.w(TAG, "Streams fragment can't load streams, playlist support not enabled.");
         }
 
-        Collections.sort(mStreams);
-        replaceItems(mStreams);
+        final List<Stream> streams = streamResponse.getList();
+        mUnordered.clear();
+        mUnordered.addAll(streams);
+        Collections.sort(streams);
+        replaceItems(streams);
     }
 
     @Override
@@ -210,7 +221,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
             final ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        if (info.id >= 0L && info.id < (long) mStreams.size()) {
+        if (info.id >= 0L && info.id < (long) mItems.size()) {
             final MenuItem editItem = menu.add(Menu.NONE, EDIT, 0, R.string.editStream);
             editItem.setOnMenuItemClickListener(this);
             final MenuItem addAndReplaceItem =
@@ -250,23 +261,26 @@ public class StreamsFragment extends BrowseFragment<Stream> {
 
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
+        // This is the index in relation to the ordered items.
         final int infoId = (int) ((AdapterContextMenuInfo) item.getMenuInfo()).id;
+        final Stream stream = mItems.get(infoId);
+        // Index should be used for the index given on the server.
+        final int index = mUnordered.indexOf(stream);
         boolean clicked = true;
 
         switch (item.getItemId()) {
             case EDIT:
-                addEdit(infoId, null);
+                addEdit(index, null);
                 break;
             case DELETE:
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                final OnClickListener oDialogClickListener
+                        = new DeleteDialogClickListener(getContext(), index, mUnordered);
+
                 builder.setTitle(R.string.deleteStream);
                 builder.setMessage(
-                        getResources().getString(R.string.deleteStreamPrompt,
-                                mItems.get(infoId).getName()));
-
-                final OnClickListener oDialogClickListener
-                        = new DeleteDialogClickListener(infoId);
-                builder.setNegativeButton(android.R.string.no, oDialogClickListener);
+                        getResources().getString(R.string.deleteStreamPrompt, stream.getName()));
+                builder.setNegativeButton(android.R.string.no, Tools.NOOP_CLICK_LISTENER);
                 builder.setPositiveButton(R.string.deleteStream, oDialogClickListener);
                 try {
                     builder.show();
@@ -276,6 +290,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
                 break;
             default:
                 clicked = super.onMenuItemClick(item);
+                break;
         }
         return clicked;
     }
@@ -295,6 +310,66 @@ public class StreamsFragment extends BrowseFragment<Stream> {
         }
 
         return clicked;
+    }
+
+    /**
+     * Called when a stored playlist has been modified, renamed, created or deleted.
+     */
+    @Override
+    public void storedPlaylistChanged() {
+        super.storedPlaylistChanged();
+
+        updateList();
+    }
+
+    /**
+     * The click listener used when {@link DialogInterface#BUTTON_POSITIVE} is clicked when a
+     * stream is to be deleted.
+     */
+    private static final class DeleteDialogClickListener implements OnClickListener {
+
+        /**
+         * The MPDApplication instance.
+         */
+        private final MPDApplication mApp;
+
+        /**
+         * The index of the stream to be removed.
+         */
+        private final int mItemIndex;
+
+        /**
+         * The name of the stream to be removed.
+         */
+        private final String mStreamName;
+
+        /**
+         * Sole constructor.
+         *
+         * @param context   The context used to get the {@link MPDApplication} instance.
+         * @param itemIndex The index of the item to remove.
+         * @param streams   The current list of streams.
+         */
+        private DeleteDialogClickListener(final Context context, final int itemIndex,
+                final List<Stream> streams) {
+            super();
+
+            mApp = (MPDApplication) context.getApplicationContext();
+            mItemIndex = itemIndex;
+            mStreamName = streams.get(itemIndex).getName();
+        }
+
+        @Override
+        public void onClick(final DialogInterface dialog, final int which) {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                try {
+                    mApp.getMPD().removeSavedStream(mItemIndex);
+                    Tools.notifyUser(R.string.streamDeleted, mStreamName);
+                } catch (final IOException | MPDException e) {
+                    Log.e(TAG, "Failed to removed a saved stream.", e);
+                }
+            }
+        }
     }
 
     private final class AddEditOnClickListener implements OnClickListener {
@@ -318,8 +393,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
         }
 
         /**
-         * Checks the TextView for a getText string, if it exists, trims and returns
-         * it.
+         * Checks the TextView for a getText string, if it exists, trims and returns it.
          *
          * @param textView The TextView to check for a getText() string.
          * @return A trimmed getText string.
@@ -343,35 +417,23 @@ public class StreamsFragment extends BrowseFragment<Stream> {
             mApp.addConnectionLock(this);
 
             if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(url)) {
-                if (mIndex >= 0 && mIndex < mStreams.size()) {
-                    final int removedPos = mStreams.get(mIndex).getPos();
+                if (mIndex >= 0 && mIndex < mItems.size()) {
+                    final MPD mpd = mApp.getMPD();
+
                     try {
-                        mApp.getMPD().editSavedStream(url, name, removedPos);
+                        mpd.removeSavedStream(mIndex);
                     } catch (final IOException | MPDException e) {
                         Log.e(TAG, "Failed to edit a saved stream.", e);
                     }
-                    mStreams.remove(mIndex);
-                    for (final Stream stream : mStreams) {
-                        if (stream.getPos() > removedPos) {
-                            stream.setPos(stream.getPos() - 1);
-                        }
-                    }
-                    mStreams.add(new Stream(url, name, mStreams.size()));
-                } else {
-                    try {
-                        mApp.getMPD().saveStream(url, name);
-                    } catch (final IOException | MPDException e) {
-                        Log.e(TAG, "Failed to save stream.", e);
-                    }
-                    mStreams.add(new Stream(name, url, mStreams.size()));
                 }
 
-                Collections.sort(mStreams);
-                replaceItems(mStreams);
+                try {
+                    mApp.getMPD().saveStream(url, name);
+                } catch (final IOException | MPDException e) {
+                    Log.e(TAG, "Failed to save stream.", e);
+                }
 
-                if (mStreamUrlToAdd == null) {
-                    updateList();
-                } else {
+                if (mStreamUrlToAdd != null) {
                     Toast.makeText(getActivity(), R.string.streamSaved,
                             Toast.LENGTH_SHORT).show();
                 }
@@ -380,33 +442,6 @@ public class StreamsFragment extends BrowseFragment<Stream> {
             mApp.removeConnectionLock(this);
             if (mStreamUrlToAdd != null) {
                 getActivity().finish();
-            }
-        }
-    }
-
-    private final class DeleteDialogClickListener implements OnClickListener {
-
-        private final int mItemIndex;
-
-        private DeleteDialogClickListener(final int itemIndex) {
-            super();
-            mItemIndex = itemIndex;
-        }
-
-        @Override
-        public void onClick(final DialogInterface dialog, final int which) {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                try {
-                    mApp.getMPD().removeSavedStream(mStreams.get(mItemIndex).getPos());
-                } catch (final IOException | MPDException e) {
-                    Log.e(TAG, "Failed to removed a saved stream.", e);
-                }
-
-                final String name = mItems.get(mItemIndex).getName();
-                Tools.notifyUser(R.string.streamDeleted, name);
-                mItems.remove(mItemIndex);
-                mStreams.remove(mItemIndex);
-                updateFromItems();
             }
         }
     }

@@ -27,13 +27,19 @@
 
 package com.anpmech.mpd.item;
 
+import com.anpmech.mpd.ResponseObject;
+
+import org.jetbrains.annotations.NotNull;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * This class creates a Stream, a derivative of {@link PlaylistFile}, for the Android backend.
+ * This class creates a Stream Item, an abstraction of a playlist file in the <A
+ * HREF="http://www.musicpd.org/doc/protocol/playlist_files.html">Stored Playlists</A> <A
+ * HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A> subsystem, for the Android backend.
  */
-public class Stream extends AbstractStream<Stream> {
+public class Stream extends AbstractStream {
 
     /**
      * This field is used to instantiate this class from a {@link Parcel}.
@@ -43,24 +49,33 @@ public class Stream extends AbstractStream<Stream> {
     /**
      * This is a convenience string to use as a Intent extra tag.
      */
-    public static final String EXTRA = AbstractStream.TAG;
+    public static final String EXTRA = TAG;
 
-    public Stream(final String name, final String url, final int pos) {
-        super(name, url, pos);
+    /**
+     * The copy constructor for this class.
+     *
+     * @param entry The {@link Entry} to copy.
+     */
+    public Stream(@NotNull final Stream entry) {
+        super(entry.mResponseObject);
     }
 
     /**
-     * Flatten this object in to a Parcel.
+     * This constructor is used to create a new Stream item with a ResponseObject.
      *
-     * @param dest  The Parcel in which the object should be written.
-     * @param flags Additional flags about how the object should be written.
-     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
+     * @param object The prepared ResponseObject.
      */
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(mName);
-        dest.writeString(mUrl);
-        dest.writeInt(mPos);
+    private Stream(@NotNull final ResponseObject object) {
+        super(object);
+    }
+
+    /**
+     * This constructor generates a Stream Item from a MPD server response.
+     *
+     * @param response The MPD server generated response.
+     */
+    public Stream(@NotNull final String response) {
+        super(new ResponseObject(null, response));
     }
 
     /**
@@ -85,7 +100,7 @@ public class Stream extends AbstractStream<Stream> {
          */
         @Override
         public Stream createFromParcel(final Parcel source) {
-            return new Stream(source.readString(), source.readString(), source.readInt());
+            return new Stream((ResponseObject) source.readParcelable(ResponseObject.LOADER));
         }
 
         /**

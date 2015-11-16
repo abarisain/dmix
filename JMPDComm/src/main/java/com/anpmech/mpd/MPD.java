@@ -35,6 +35,7 @@ import com.anpmech.mpd.commandresponse.KeyValueResponse;
 import com.anpmech.mpd.commandresponse.MusicResponse;
 import com.anpmech.mpd.commandresponse.PlaylistFileResponse;
 import com.anpmech.mpd.commandresponse.SeparatedResponse;
+import com.anpmech.mpd.commandresponse.StreamResponse;
 import com.anpmech.mpd.concurrent.ResultFuture;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.connection.MPDConnection;
@@ -78,8 +79,6 @@ import java.util.Map;
  * a MPD client.
  */
 public class MPD {
-
-    public static final String STREAMS_PLAYLIST = "[Radio Streams]";
 
     private static final String TAG = "MPD";
 
@@ -687,12 +686,6 @@ public class MPD {
         mStatus.invalidate();
     }
 
-    public void editSavedStream(final String url, final String name, final Integer pos)
-            throws IOException, MPDException {
-        removeSavedStream(pos);
-        saveStream(url, name);
-    }
-
     public ResultFuture enableOutput(final int id) {
         return mConnection.submit(MPDCommand.MPD_CMD_OUTPUTENABLE, Integer.toString(id));
     }
@@ -1100,7 +1093,7 @@ public class MPD {
         final List<PlaylistFile> playlistFiles = new ArrayList<>();
 
         for (final PlaylistFile playlistFile : new PlaylistFileResponse(result)) {
-            if (!STREAMS_PLAYLIST.equals(playlistFile.getFullPath())) {
+            if (!Stream.PLAYLIST_NAME.equals(playlistFile.getFullPath())) {
                 playlistFiles.add(playlistFile);
             }
         }
@@ -1108,24 +1101,11 @@ public class MPD {
         return playlistFiles;
     }
 
-    public MusicResponse getSavedStreams() throws IOException, MPDException {
-        final CommandResult result = mConnection.submit(MPDCommand.MPD_CMD_LISTPLAYLISTS).get();
-        MusicResponse savedStreams = null;
+    public StreamResponse getSavedStreams() throws IOException, MPDException {
+        final CommandResult result =
+                mConnection.submit(MPDCommand.MPD_CMD_PLAYLIST_INFO, Stream.PLAYLIST_NAME).get();
 
-        for (final PlaylistFile playlistFile : new PlaylistFileResponse(result)) {
-            final String fullPath = playlistFile.getFullPath();
-
-            if (STREAMS_PLAYLIST.equals(fullPath)) {
-                savedStreams = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, fullPath);
-                break;
-            }
-        }
-
-        if (savedStreams == null) {
-            savedStreams = new MusicResponse();
-        }
-
-        return savedStreams;
+        return new StreamResponse(result);
     }
 
     public List<Music> getSongs(final Album album) throws IOException, MPDException {
@@ -1465,19 +1445,22 @@ public class MPD {
     }
 
     @SuppressWarnings("TypeMayBeWeakened")
-    public void removeFromPlaylist(final PlaylistFile playlist, final Integer pos)
+    public void removeFromPlaylist(final PlaylistFile playlist, final int pos)
             throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlist.getFullPath(),
-                Integer.toString(pos));
+        removeFromPlaylist(playlist.getFullPath(), pos);
     }
 
-    public void removeSavedStream(final Integer pos) throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_PLAYLIST_DEL, STREAMS_PLAYLIST,
-                Integer.toString(pos));
+    private void removeFromPlaylist(final String playlist, final int pos)
+            throws IOException, MPDException {
+        mConnection.send(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlist, Integer.toString(pos));
+    }
+
+    public void removeSavedStream(final int pos) throws IOException, MPDException {
+        removeFromPlaylist(Stream.PLAYLIST_NAME, pos);
     }
 
     public void saveStream(final String url, final String name) throws IOException, MPDException {
-        mConnection.send(MPDCommand.MPD_CMD_PLAYLIST_ADD, STREAMS_PLAYLIST,
+        mConnection.send(MPDCommand.MPD_CMD_PLAYLIST_ADD, Stream.PLAYLIST_NAME,
                 Stream.addStreamName(url, name));
     }
 

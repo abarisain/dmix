@@ -27,12 +27,41 @@
 
 package com.anpmech.mpd.item;
 
-/**
- * This class creates a Stream, a derivative of {@link PlaylistFile}, for the Java backend.
- */
-public class Stream extends AbstractStream<Stream> {
+import com.anpmech.mpd.ResponseObject;
 
-    public Stream(final String name, final String url, final int pos) {
-        super(name, url, pos);
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * This class creates a Stream Item, an abstraction of a playlist file in the <A
+ * HREF="http://www.musicpd.org/doc/protocol/playlist_files.html">Stored Playlists</A> <A
+ * HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A> subsystem, for the Java backend.
+ */
+public class Stream extends AbstractStream {
+
+    /**
+     * The copy constructor for this class.
+     *
+     * @param entry The {@link Entry} to copy.
+     */
+    public Stream(@NotNull final Stream entry) {
+        super(entry.mResponseObject);
+    }
+
+    /**
+     * This constructor is used to create a new Stream item with a ResponseObject.
+     *
+     * @param object The prepared ResponseObject.
+     */
+    private Stream(@NotNull final ResponseObject object) {
+        super(object);
+    }
+
+    /**
+     * This constructor generates a Stream Item from a MPD server response.
+     *
+     * @param response The MPD server generated response.
+     */
+    public Stream(@NotNull final String response) {
+        super(new ResponseObject(null, response));
     }
 }

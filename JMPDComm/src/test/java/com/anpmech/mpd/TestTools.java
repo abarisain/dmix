@@ -130,6 +130,9 @@ public enum TestTools {
     public static final String FILE_SINGULAR_TRACK_STREAM
             = "mpd-protocol/lsinfo/singular_track_stream.txt";
 
+    public static final String FILE_STREAM_PLAYLISTINFO
+            = "mpd-protocol/playlistinfo/streams_playlistinfo.txt";
+
     public static String getMatchMsg(final String message, final String filePath) {
         return message + " failed to match for filepath: " + filePath + '.';
     }

@@ -16,7 +16,6 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDPlaylist;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;

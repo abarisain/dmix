@@ -728,21 +728,7 @@ abstract class AbstractMusic<T extends Music> extends AbstractEntry<Music> {
      * @return The URI fragment if it exists, null otherwise.
      */
     public String getURIFragment() {
-        final String fullPath = findValue(RESPONSE_FILE);
-        final int pos;
-        String streamName = null;
-
-        if (fullPath == null) {
-            pos = 0;
-        } else {
-            pos = fullPath.indexOf('#');
-        }
-
-        if (pos > 1) {
-            streamName = fullPath.substring(pos + 1, fullPath.length());
-        }
-
-        return streamName;
+        return getURIFragment(RESPONSE_FILE);
     }
 
     /**
