@@ -254,7 +254,7 @@ public class ErrorHandler implements IdleSubsystemMonitor.Error,
      */
     private void launchMPD() {
         final boolean shouldLaunch = "127.0.0.1".equals(mApp.getConnectionSettings().getServer())
-                && Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1;
 
         if (shouldLaunch && !isMPDRunning() && Tools.isPackageInstalled(MPD_PACKAGE_NAME)) {
             /**
