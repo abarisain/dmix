@@ -20,10 +20,14 @@ import com.namelessdev.mpdroid.fragments.BrowseFragment;
 import com.namelessdev.mpdroid.fragments.LibraryFragment;
 import com.namelessdev.mpdroid.helpers.MPDConnectionHandler;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.preferences.ConnectionModifier;
+import com.namelessdev.mpdroid.preferences.ConnectionSettings;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiManager;
@@ -38,7 +42,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 
-public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implements
+public class MainMenuActivity extends MPDActivity implements
         ILibraryFragmentActivity {
 
     private static final boolean DEBUG = false;
@@ -60,6 +64,37 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     private Handler mExitCounterReset = new Handler();
 
     private FragmentManager mFragmentManager;
+
+    /**
+     * This method determines if a default server has been setup yet.
+     *
+     * @param context The context to retrieve the settings.
+     * @return True if a default server has been setup, false otherwise.
+     */
+    private static boolean hasDefaultServer(final Context context) {
+        final SharedPreferences settings =
+                PreferenceManager.getDefaultSharedPreferences(context);
+
+        return settings.contains(ConnectionModifier.KEY_HOSTNAME);
+    }
+
+    /**
+     * This method returns the current theme resource ID.
+     *
+     * @return The current theme resource ID.
+     */
+    @Override
+    protected int getThemeResId() {
+        final int themeID;
+
+        if (isLightThemeSelected()) {
+            themeID = R.style.AppTheme_MainMenu_Light;
+        } else {
+            themeID = R.style.AppTheme_MainMenu;
+        }
+
+        return themeID;
+    }
 
     private void initializeLibraryFragment() {
         if (mFragmentManager.findFragmentByTag(FRAGMENT_TAG_LIBRARY) == null) {
@@ -96,6 +131,13 @@ public class MainMenuActivity extends MPDroidActivities.MPDroidActivity implemen
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (!hasDefaultServer(this)) {
+            final Intent intent = new Intent(this, ConnectionSettings.class);
+
+            // Absolutely no settings defined! Open Settings!
+            startActivityForResult(intent, SETTINGS);
+        }
 
         getSupportActionBar().hide();
 

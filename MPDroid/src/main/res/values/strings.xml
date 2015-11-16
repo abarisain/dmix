@@ -341,4 +341,6 @@
     <string name="launchingLocalhostMPD">MPD is installed on localhost and not running, launching.</string>
 
     <string name="songComments">Comments</string>
+
+    <string name="activityReload">"Changes occurred, reloading."</string>
 </resources>

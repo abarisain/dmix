@@ -19,12 +19,15 @@ package com.namelessdev.mpdroid.tools;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -113,6 +116,19 @@ public final class Tools {
     }
 
     /**
+     * This method returns if the light theme has been selected in the preferences.
+     *
+     * @param context The current context.
+     * @return True if the light theme has been selected, false otherwise.
+     */
+    public static boolean isLightThemeSelected(final Context context) {
+        final SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(context);
+
+        return preferences.getBoolean("lightTheme", true);
+    }
+
+    /**
      * This method checks the {@link PackageManager} for the package represented by the
      * {@code packageName} argument.
      *
@@ -154,6 +170,11 @@ public final class Tools {
 
     public static void notifyUser(final CharSequence message) {
         Toast.makeText(APP, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void resetActivity(final Activity activity) {
+        activity.finish();
+        activity.startActivity(activity.getIntent());
     }
 
     /**

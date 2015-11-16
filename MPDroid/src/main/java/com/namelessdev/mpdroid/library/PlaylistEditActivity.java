@@ -25,7 +25,7 @@ import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.namelessdev.mpdroid.ErrorHandler;
-import com.namelessdev.mpdroid.MPDroidActivities;
+import com.namelessdev.mpdroid.MPDActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -50,8 +50,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PlaylistEditActivity extends MPDroidActivities.MPDroidActivity
-        implements StatusChangeListener,
+public class PlaylistEditActivity extends MPDActivity implements StatusChangeListener,
         OnClickListener, AdapterView.OnItemClickListener {
 
     private static final String TAG = "PlaylistEditActivity";

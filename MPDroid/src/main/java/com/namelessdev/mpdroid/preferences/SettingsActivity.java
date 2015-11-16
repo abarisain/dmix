@@ -20,13 +20,13 @@ import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.namelessdev.mpdroid.ErrorHandler;
+import com.namelessdev.mpdroid.MPDActivity;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 
-public class SettingsActivity extends AppCompatActivity implements
+public class SettingsActivity extends MPDActivity implements
         MPDConnectionListener, StatusChangeListener {
 
     private final MPDApplication mApp = MPDApplication.getInstance();
@@ -62,6 +62,19 @@ public class SettingsActivity extends AppCompatActivity implements
     @Override
     public void connectionDisconnected(final String reason) {
         mSettingsFragment.onConnectionStateChanged();
+    }
+
+    @Override
+    protected int getThemeResId() {
+        final int themeResId;
+
+        if (isLightThemeSelected()) {
+            themeResId = R.style.AppTheme_Light;
+        } else {
+            themeResId = R.style.AppTheme;
+        }
+
+        return themeResId;
     }
 
     @Override

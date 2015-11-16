@@ -22,7 +22,7 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-public class SongCommentActivity extends MPDroidActivities.MPDroidActivity {
+public class SongCommentActivity extends MPDActivity {
 
     public static final String COMMENT_KEY = "comment";
 

@@ -22,7 +22,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 
-public class URIHandlerActivity extends MPDroidActivities.MPDroidActivity {
+public class URIHandlerActivity extends MPDActivity {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {

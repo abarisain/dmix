@@ -23,7 +23,9 @@ import com.namelessdev.mpdroid.helpers.QueueControl;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -35,7 +37,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
+public class NowPlayingActivity extends MPDActivity {
 
     private static final String TAG = "NowPlayingActivity";
 
@@ -44,6 +46,29 @@ public class NowPlayingActivity extends MPDroidActivities.MPDroidActivity {
     private boolean mIsDualPaneMode;
 
     private ViewPager mNowPlayingPager;
+
+    /**
+     * This method returns the current theme resource ID.
+     *
+     * @return The current theme resource ID.
+     */
+    @Override
+    protected int getThemeResId() {
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        final int themeID;
+
+        if (settings.getBoolean("smallSeekbars", true)) {
+            if (isLightThemeSelected()) {
+                themeID = R.style.AppTheme_Light_SmallSeekBars;
+            } else {
+                themeID = R.style.AppTheme_SmallSeekBars;
+            }
+        } else {
+            themeID = super.getThemeResId();
+        }
+
+        return themeID;
+    }
 
     private ViewPager initializeNowPlayingPager() {
         final ViewPager nowPlayingPager = (ViewPager) findViewById(R.id.pager);

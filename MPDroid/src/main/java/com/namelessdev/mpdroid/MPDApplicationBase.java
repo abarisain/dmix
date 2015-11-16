@@ -70,7 +70,7 @@ class MPDApplicationBase extends Application implements
 
     private ConnectionInfo mConnectionInfo;
 
-    private Timer mDisconnectScheduler;
+    private Timer mDisconnectScheduler = new Timer();
 
     private IdleSubsystemMonitor mIdleSubsystemMonitor;
 
@@ -290,8 +290,13 @@ class MPDApplicationBase extends Application implements
         return mSettings.getBoolean("simpleMode", false);
     }
 
-    public final boolean isLightThemeSelected() {
-        return mSettings.getBoolean("lightTheme", false);
+    /**
+     * This method returns if the light theme has been selected in the preferences.
+     *
+     * @return True if the light theme has been selected, false otherwise.
+     */
+    public boolean isLightThemeSelected() {
+        return Tools.isLightThemeSelected(this);
     }
 
     /**
@@ -389,9 +394,6 @@ class MPDApplicationBase extends Application implements
 
         mSettings = PreferenceManager.getDefaultSharedPreferences(this);
 
-        // Init the default preferences (meaning we won't have different defaults between code/xml)
-        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
-
         mMPDAsyncHelper = new MPDAsyncHelper();
         mConnectionInfo = mMPDAsyncHelper.updateConnectionSettings();
 
@@ -402,8 +404,6 @@ class MPDApplicationBase extends Application implements
         }
 
         mIdleSubsystemMonitor = new IdleSubsystemMonitor(mMPD);
-
-        mDisconnectScheduler = new Timer();
     }
 
     /**

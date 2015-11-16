@@ -22,7 +22,7 @@ import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.Stream;
 import com.anpmech.mpd.subsystem.AudioOutput;
 import com.namelessdev.mpdroid.ErrorHandler;
-import com.namelessdev.mpdroid.MPDroidActivities;
+import com.namelessdev.mpdroid.MPDActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
 import com.namelessdev.mpdroid.fragments.AlbumsGridFragment;
@@ -52,8 +52,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-public class SimpleLibraryActivity extends MPDroidActivities.MPDroidActivity implements
-        ILibraryFragmentActivity, OnBackStackChangedListener {
+public class SimpleLibraryActivity extends MPDActivity implements ILibraryFragmentActivity,
+        OnBackStackChangedListener {
 
     private ErrorHandler mErrorHandler;
 

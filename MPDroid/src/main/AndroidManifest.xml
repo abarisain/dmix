@@ -102,10 +102,6 @@
             android:name="com.namelessdev.mpdroid.AboutActivity"
             android:label="@string/about"
             android:theme="@style/AppTheme.Settings" />
-        <activity
-            android:name="com.namelessdev.mpdroid.WarningActivity"
-            android:label="@string/warningTitle"
-            android:theme="@style/AppTheme.Dialog" />
 
         <activity
             android:name="com.namelessdev.mpdroid.NowPlayingActivity"

@@ -169,6 +169,16 @@ public class SettingsFragment extends PreferenceFragment {
                 "enableAlbumArtLibrary");
         mAlbumArtLibrary.setEnabled(mCheckBoxPreference.isChecked());
 
+        final CheckBoxPreference lightTheme = (CheckBoxPreference) findPreference("lightTheme");
+        lightTheme.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(final Preference preference, final Object newValue) {
+                Tools.resetActivity(getActivity());
+
+                return true;
+            }
+        });
+
         /** Allow these to be changed individually, pauseOnPhoneStateChange might be overridden. */
         final CheckBoxPreference phonePause = (CheckBoxPreference) findPreference(
                 "pauseOnPhoneStateChange");

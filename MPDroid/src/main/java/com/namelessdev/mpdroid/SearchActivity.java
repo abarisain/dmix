@@ -21,7 +21,6 @@ import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
-import com.namelessdev.mpdroid.MPDroidActivities.MPDroidActivity;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
@@ -59,7 +58,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SearchActivity extends MPDroidActivity implements OnMenuItemClickListener,
+public class SearchActivity extends MPDActivity implements OnMenuItemClickListener,
         AsyncExecListener, OnItemClickListener, ActionBar.TabListener {
 
     public static final int ADD = 0;
