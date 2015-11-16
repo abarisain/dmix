@@ -555,16 +555,16 @@ public class IdleSubsystemMonitor implements Runnable {
                             });
                         }
                     }
+                }
 
-                    if (connectionReset || storedPlaylistChanged) {
-                        for (final StatusChangeListener listener : mStatusChangeListeners) {
-                            MPDExecutor.submitCallback(new Runnable() {
-                                @Override
-                                public void run() {
-                                    listener.storedPlaylistChanged();
-                                }
-                            });
-                        }
+                if (connectionReset || storedPlaylistChanged) {
+                    for (final StatusChangeListener listener : mStatusChangeListeners) {
+                        MPDExecutor.submitCallback(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.storedPlaylistChanged();
+                            }
+                        });
                     }
                 }
 
