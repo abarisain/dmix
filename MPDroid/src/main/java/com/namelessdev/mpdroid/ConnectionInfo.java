@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid;
 
 import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.Tools;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +25,9 @@ import org.jetbrains.annotations.Nullable;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
+import java.util.Arrays;
 
 /**
  * This class stores information about the current connection, at the time of creation.
@@ -47,7 +51,7 @@ public final class ConnectionInfo implements Parcelable {
     /**
      * This is the ClassLoader for this class.
      */
-    private static final ClassLoader LOADER = ConnectionInfo.class.getClassLoader();
+    public static final ClassLoader LOADER = ConnectionInfo.class.getClassLoader();
 
     /**
      * The class log identifier.
@@ -82,11 +86,13 @@ public final class ConnectionInfo implements Parcelable {
     /**
      * This field stores the MPD server host address.
      */
+    @NotNull
     private final String mServer;
 
     /**
      * This field stores the Stream URL for this connection.
      */
+    @NotNull
     private final Uri mStream;
 
     /**
@@ -101,8 +107,8 @@ public final class ConnectionInfo implements Parcelable {
      * @param lastConnection           This is the connection before the change to this one.
      * @see Builder
      */
-    private ConnectionInfo(final String server, final int port, final String password,
-            final Uri stream, final boolean isNotificationPersistent,
+    private ConnectionInfo(@NotNull final String server, final int port, final String password,
+            @NonNull final Uri stream, final boolean isNotificationPersistent,
             final ConnectionInfo lastConnection) {
         super();
 
@@ -146,6 +152,67 @@ public final class ConnectionInfo implements Parcelable {
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        Boolean isEqual = null;
+
+        if (this == o) {
+            isEqual = Boolean.TRUE;
+        } else if (o == null || getClass() != o.getClass()) {
+            isEqual = Boolean.FALSE;
+        }
+
+        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
+            /** This has to be the same due to the class check above. */
+            //noinspection unchecked
+            final ConnectionInfo connectionInfo = (ConnectionInfo) o;
+
+            /**
+             * Fields must be individually tested against the last connection to avoid a stack
+             * overflow.
+             */
+            //noinspection ConstantConditions
+            final Object[][] objects = {
+                    {mLastConnection.mPassword, connectionInfo.mLastConnection.mPassword},
+                    {mPassword, connectionInfo.mPassword},
+                    {mLastConnection.mServer, connectionInfo.mLastConnection.mServer},
+                    {mServer, connectionInfo.mServer},
+                    {mLastConnection.mStream, connectionInfo.mLastConnection.mStream},
+                    {mStream, connectionInfo.mStream}
+            };
+
+            if (Tools.isNotEqual(objects)) {
+                isEqual = Boolean.FALSE;
+            }
+
+            if (mIsNotificationPersistent != connectionInfo.mIsNotificationPersistent ||
+                    mLastConnection.mIsNotificationPersistent !=
+                            connectionInfo.mLastConnection.mIsNotificationPersistent) {
+                isEqual = Boolean.FALSE;
+            }
+
+            if (mPort != connectionInfo.mPort ||
+                    mLastConnection.mPort != connectionInfo.mLastConnection.mPort) {
+                isEqual = Boolean.FALSE;
+            }
+        }
+
+        if (isEqual == null) {
+            isEqual = Boolean.TRUE;
+        }
+
+        return isEqual.booleanValue();
+    }
+
+    /**
+     * This method returns the connection information prior to this connection.
+     *
+     * @return The the last ConnectionInfo object.
+     */
+    public ConnectionInfo getLastConnection() {
+        return mLastConnection;
     }
 
     /**
@@ -211,7 +278,7 @@ public final class ConnectionInfo implements Parcelable {
      * @return True if the hostname has changed since the prior connection, false otherwise.
      */
     public boolean hasHostnameChanged() {
-        return isNotEqualNullSafe(mLastConnection.mServer, mServer);
+        return !mServer.equals(mLastConnection.mServer);
     }
 
     /**
@@ -234,6 +301,20 @@ public final class ConnectionInfo implements Parcelable {
      */
     public boolean hasStreamInfoChanged() {
         return !mLastConnection.mStream.equals(mStream);
+    }
+
+    @Override
+    public int hashCode() {
+        final Object[] objects = {mLastConnection, mPassword, mServer, mStream};
+        int result = Arrays.hashCode(objects);
+
+        if (mIsNotificationPersistent) {
+            result += 1;
+        }
+
+        result *= 31 + mPort;
+
+        return result;
     }
 
     /**
@@ -359,6 +440,10 @@ public final class ConnectionInfo implements Parcelable {
          */
         public Builder(final String server, final int port, final String password) {
             super();
+
+            if (server == null) {
+                throw new IllegalArgumentException("Server must not be null.");
+            }
 
             mServer = server;
             mPort = port;
