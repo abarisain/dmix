@@ -19,6 +19,7 @@ package com.namelessdev.mpdroid.fragments;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.PlaylistFile;
+import com.anpmech.mpd.item.Stream;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.library.PlaylistEditActivity;
@@ -42,8 +43,14 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import java.io.IOException;
-import java.util.Collections;
 
+/**
+ * This Fragment lists the current stored {@link PlaylistFile}s.
+ *
+ * This class is kept updated via the {@link BrowseFragmentBase#mPlaylistFiles} Collection. This
+ * collection will not include the {@link Stream#PLAYLIST_NAME} playlist. That playlist is
+ * considered special and used only with the {@link StreamsFragment}.
+ */
 public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
 
     public static final int DELETE = 102;
@@ -74,13 +81,20 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
     }
 
     @Override
-    protected void asyncUpdate() {
-        try {
-            replaceItems(mApp.getMPD().getPlaylists());
-            Collections.sort(mItems);
-        } catch (final IOException | MPDException e) {
-            Log.e(TAG, "Failed to update.", e);
+    public void asyncComplete(final CharSequence token) {
+        super.asyncComplete(token);
+
+        /**
+         * Piggyback off the stored playlists already populating {@link BrowseFragmentBase}.
+         */
+        if (token.equals(UPDATE_PLAYLISTS)) {
+            replaceItems(mPlaylistFiles);
+            updateList();
         }
+    }
+
+    @Override
+    protected void asyncUpdate() {
     }
 
     @Override
@@ -185,7 +199,6 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
                     if (isAdded()) {
                         Tools.notifyUser(R.string.playlistDeleted, playlist);
                     }
-                    mItems.remove(mItemIndex);
                 } catch (final IOException | MPDException e) {
                     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle(R.string.deletePlaylist);
@@ -199,7 +212,6 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
                         // Can't display it. Don't care.
                     }
                 }
-                updateFromItems();
             }
         }
     }

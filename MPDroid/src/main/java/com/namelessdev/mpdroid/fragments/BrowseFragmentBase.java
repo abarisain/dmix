@@ -108,6 +108,12 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
 
     protected static final String TAG = "BrowseFragment";
 
+    /**
+     * This token is called back when {@link #asyncComplete(CharSequence)} is called, after a
+     * playlist update.
+     */
+    protected static final CharSequence UPDATE_PLAYLISTS = "UPDATE_PLAYLISTS";
+
     private static final String ARGUMENT_EMBEDDED = "embedded";
 
     /**
@@ -122,6 +128,11 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
 
     protected final List<T> mItems = new ArrayList<>();
 
+    /**
+     * This is a collection of current playlist files.
+     */
+    protected final Collection<PlaylistFile> mPlaylistFiles = new ArrayList<>();
+
     final int mIrAdd;
 
     final int mIrAdded;
@@ -135,8 +146,6 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
             asyncUpdate();
         }
     };
-
-    private final Collection<PlaylistFile> mStoredPlaylists = new ArrayList<>();
 
     protected AbsListView mList;
 
@@ -472,7 +481,7 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
                         R.string.newPlaylist);
                 menuItem.setOnMenuItemClickListener(this);
 
-                for (final PlaylistFile pl : mStoredPlaylists) {
+                for (final PlaylistFile pl : mPlaylistFiles) {
                     menuItem = playlistMenu.add(ADD_TO_PLAYLIST, id++, index, pl.getName());
                     menuItem.setOnMenuItemClickListener(this);
                 }
@@ -779,19 +788,15 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
      */
     @Override
     public void storedPlaylistChanged() {
-        final Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    mStoredPlaylists.clear();
-                    mStoredPlaylists.addAll(mApp.getMPD().getPlaylists());
-                } catch (final IOException | MPDException e) {
-                    Log.e(TAG, "Failed to parse playlists.", e);
-                }
-            }
-        };
+        final boolean playlistAvailable = mApp.getMPD().getIdleConnection()
+                .isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS);
 
-        new Thread(runnable).start();
+        if (playlistAvailable) {
+            final Runnable getPlaylistList =
+                    new UpdatePlaylistList(mPlaylistFiles, getContext());
+
+            mApp.getAsyncHelper().execAsync(this, UPDATE_PLAYLISTS, getPlaylistList);
+        }
     }
 
     /**
@@ -880,5 +885,54 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
      */
     @Override
     public void volumeChanged(final int oldVolume) {
+    }
+
+    /**
+     * This class updates the playlist from a {@link Runnable} executor.
+     */
+    private static final class UpdatePlaylistList implements Runnable {
+
+        /**
+         * The MPDApplication instance.
+         */
+        private final MPDApplication mApp;
+
+        /**
+         * The Playlist collection to update.
+         */
+        private final Collection<PlaylistFile> mPlaylistFiles;
+
+        /**
+         * Sole constructor.
+         *
+         * @param playlistFiles The collection of playlist files to update.
+         * @param context       The current context.
+         */
+        private UpdatePlaylistList(final Collection<PlaylistFile> playlistFiles,
+                final Context context) {
+            super();
+
+            mApp = (MPDApplication) context.getApplicationContext();
+            mPlaylistFiles = playlistFiles;
+        }
+
+        /**
+         * Starts executing the active part of the class' code. This method is
+         * called when a thread is started that has been created with a class which
+         * implements {@code Runnable}.
+         */
+        @Override
+        public void run() {
+            if (mApp != null) {
+                try {
+                    final Collection<PlaylistFile> playlistFiles = mApp.getMPD().getPlaylists();
+
+                    mPlaylistFiles.clear();
+                    mPlaylistFiles.addAll(playlistFiles);
+                } catch (final IOException | MPDException e) {
+                    Log.e(TAG, "Failed to parse playlist files.", e);
+                }
+            }
+        }
     }
 }
