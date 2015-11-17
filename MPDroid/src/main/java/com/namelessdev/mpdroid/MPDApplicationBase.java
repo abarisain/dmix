@@ -278,14 +278,6 @@ class MPDApplicationBase extends Application implements
         return result;
     }
 
-    public final boolean hasGooglePlayDeathWarningBeenDisplayed() {
-        return mSettings.getBoolean("googlePlayDeathWarningShown", false);
-    }
-
-    public final boolean hasGooglePlayThankYouBeenDisplayed() {
-        return mSettings.getBoolean("googlePlayThankYouShown", false);
-    }
-
     public final boolean isInSimpleMode() {
         return mSettings.getBoolean("simpleMode", false);
     }
