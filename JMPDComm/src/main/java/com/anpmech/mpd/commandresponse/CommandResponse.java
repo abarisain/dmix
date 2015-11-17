@@ -477,12 +477,12 @@ public class CommandResponse extends ObjectResponse<String> {
          * This method returns the index of the prior beginning token in relation to the current
          * position.
          *
+         * @param position The position to begin at.
          * @return The prior beginning token in relation to the current position.
          */
-        @Override
-        protected int previousIndexBegin() {
+        protected int previousIndexBegin(final int position) {
             int index = -1;
-            int mpdDelimiterIndex = mResult.lastIndexOf(MPD_KV_DELIMITER, mPosition);
+            int mpdDelimiterIndex = mResult.lastIndexOf(MPD_KV_DELIMITER, position);
             int keyIndex;
 
             while (index == -1 && mpdDelimiterIndex != -1) {
@@ -502,6 +502,17 @@ public class CommandResponse extends ObjectResponse<String> {
             }
 
             return index;
+        }
+
+        /**
+         * This method returns the index of the prior beginning token in relation to the current
+         * position.
+         *
+         * @return The prior beginning token in relation to the current position.
+         */
+        @Override
+        protected int previousIndexBegin() {
+            return previousIndexBegin(mPosition);
         }
 
         /**

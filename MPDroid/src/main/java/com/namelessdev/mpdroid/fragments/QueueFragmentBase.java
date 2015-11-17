@@ -495,7 +495,7 @@ abstract class QueueFragmentBase extends ListFragment implements StatusChangeLis
         if (item.getItemId() == R.id.PLM_Save) {
             List<PlaylistFile> playLists = Collections.emptyList();
             try {
-                playLists = mApp.getMPD().getPlaylists();
+                playLists = mApp.getMPD().getPlaylists().getList();
             } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to receive list of playlists.", e);
             }
@@ -642,9 +642,7 @@ abstract class QueueFragmentBase extends ListFragment implements StatusChangeLis
                                         public void onClick(final DialogInterface dialog,
                                                 final int which) {
                                             final String name = input.getText().toString().trim();
-                                            if (!name.isEmpty() && !name
-                                                    .equals(MPD.STREAMS_PLAYLIST)) {
-                                                // TODO: Need to warn user if they attempt to save to MPD.STREAMS_PLAYLIST
+                                            if (!name.isEmpty()) {
                                                 savePlaylist(name);
                                             }
                                         }

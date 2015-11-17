@@ -27,8 +27,10 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.PlaylistFile;
+import com.anpmech.mpd.item.Stream;
 
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -110,6 +112,59 @@ public class PlaylistFileResponse extends ObjectResponse<PlaylistFile> {
         @Override
         PlaylistFile instantiate(final String responseBlock) {
             return PlaylistFile.byResponse(responseBlock);
+        }
+
+        /**
+         * This method checks to see at the key's value at {@code position} is
+         * {@link Stream#PLAYLIST_NAME}.
+         *
+         * @param position The position of the key of the value to check.
+         * @return True if the value of the key at {@code position} matches
+         * {@link Stream#PLAYLIST_NAME}, false otherwise.
+         */
+        private boolean isStreamValue(final int position) {
+            int start = position;
+
+            if (start != -1) {
+                start += PlaylistFile.RESPONSE_PLAYLIST_FILE.length() + 2;
+            }
+
+            return mResult.regionMatches(start, Stream.PLAYLIST_NAME, 0,
+                    Stream.PLAYLIST_NAME.length());
+        }
+
+        /**
+         * This method returns the index of the next beginning token in relation to the current
+         * position.
+         *
+         * @return The next beginning token in relation to the current position.
+         */
+        @Override
+        protected int nextIndexBegin() {
+            int index = super.nextIndexBegin();
+
+            if (isStreamValue(index)) {
+                index = Tools.getNextKeyIndex(mResult, index + 1, mBeginBlockTokens);
+            }
+
+            return index;
+        }
+
+        /**
+         * This method returns the index of the prior beginning token in relation to the current
+         * position.
+         *
+         * @return The prior beginning token in relation to the current position.
+         */
+        @Override
+        protected int previousIndexBegin() {
+            int index = super.previousIndexBegin();
+
+            if (isStreamValue(index)) {
+                index = previousIndexBegin(index);
+            }
+
+            return index;
         }
     }
 }

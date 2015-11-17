@@ -18,6 +18,7 @@ package com.namelessdev.mpdroid.fragments;
 
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.commandresponse.PlaylistFileResponse;
 import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Artist;
@@ -75,6 +76,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
@@ -925,10 +927,13 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
         public void run() {
             if (mApp != null) {
                 try {
-                    final Collection<PlaylistFile> playlistFiles = mApp.getMPD().getPlaylists();
+                    final PlaylistFileResponse playlistFiles = mApp.getMPD().getPlaylists();
 
+                    final List<PlaylistFile> playlists = playlistFiles.getList();
+
+                    Collections.sort(playlists);
                     mPlaylistFiles.clear();
-                    mPlaylistFiles.addAll(playlistFiles);
+                    mPlaylistFiles.addAll(playlists);
                 } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to parse playlist files.", e);
                 }

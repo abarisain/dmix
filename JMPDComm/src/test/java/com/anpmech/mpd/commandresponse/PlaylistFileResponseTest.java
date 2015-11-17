@@ -29,12 +29,12 @@ package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.TestTools;
 import com.anpmech.mpd.connection.CommandResult;
-import com.anpmech.mpd.connection.CommandResultCreator;
 import com.anpmech.mpd.item.PlaylistFile;
 
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ListIterator;
 
 import static org.junit.Assert.assertEquals;
 
@@ -68,7 +68,7 @@ public class PlaylistFileResponseTest extends
      */
     @Override
     protected String getResponsePath() {
-        return TestTools.FILE_MULTIPLE_PLAYLISTINFO;
+        return TestTools.FILE_ROOT_LSINFO;
     }
 
     /**
@@ -83,18 +83,37 @@ public class PlaylistFileResponseTest extends
     }
 
     /**
-     * This method tests iteration consistency of a lsinfo {@link PlaylistFileResponse} result
-     * against a known value.
+     * This method tests iteration consistency of a playlistinfo {@link PlaylistFileResponse}
+     * result against a known value.
      *
      * @throws IOException Thrown if there is a issue retrieving the result file.
      */
     @Test
     public void playlistFileIteratorRootConsistencyTest() throws IOException {
-        final CommandResult result = CommandResultCreator.generate(
-                TestTools.FILE_ROOT_LSINFO);
-        final PlaylistFileResponse response = instantiate(result);
+        final PlaylistFileResponse response = instantiate(getResult());
 
-        assertEquals("PlaylistFileResponse failed fixed size consistency test", 2L,
+        assertEquals("PlaylistFileResponse failed fixed size consistency test", 1L,
                 (long) response.getList().size());
+    }
+
+    /**
+     * This method tests iteration consistency of a playlistinfo {@link PlaylistFileResponse}
+     * result against a known good value.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void playlistFileReverseIteratorRootConsistencyTest() throws IOException {
+        final PlaylistFileResponse response = instantiate(getResult());
+        final ListIterator<PlaylistFile> iterator = response.reverseListIterator();
+        long l = 0L;
+
+        while (iterator.hasPrevious()) {
+            iterator.previous();
+            l++;
+        }
+
+        assertEquals("PlaylistFileResponse failed reverse fixed size consistency test",
+                (long) response.getList().size(), l);
     }
 }

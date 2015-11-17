@@ -1088,17 +1088,10 @@ public class MPD {
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
      */
-    public List<PlaylistFile> getPlaylists() throws IOException, MPDException {
+    public PlaylistFileResponse getPlaylists() throws IOException, MPDException {
         final CommandResult result = mConnection.submit(MPDCommand.MPD_CMD_LISTPLAYLISTS).get();
-        final List<PlaylistFile> playlistFiles = new ArrayList<>();
 
-        for (final PlaylistFile playlistFile : new PlaylistFileResponse(result)) {
-            if (!Stream.PLAYLIST_NAME.equals(playlistFile.getFullPath())) {
-                playlistFiles.add(playlistFile);
-            }
-        }
-
-        return playlistFiles;
+        return new PlaylistFileResponse(result);
     }
 
     public StreamResponse getSavedStreams() throws IOException, MPDException {
