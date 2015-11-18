@@ -39,7 +39,7 @@ import android.os.Parcelable;
  * HREF="http://www.musicpd.org/doc/protocol/playlist_files.html">Stored Playlists</A> <A
  * HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A> subsystem, for the Android backend.
  */
-public class PlaylistFile extends AbstractPlaylistFile<PlaylistFile> {
+public class PlaylistFile extends AbstractPlaylistFile {
 
     /**
      * This field is used to instantiate this class from a {@link Parcel}.

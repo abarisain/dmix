@@ -39,87 +39,16 @@ import java.util.Comparator;
  */
 abstract class AbstractAlbum<T extends Album> extends Item<Album> {
 
+    /**
+     * This {@code Comparator} adds support for sorting by date to the default {@code comparator}.
+     */
+    public static final Comparator<Album> SORT_BY_DATE = new SortByDate();
+
     static final String TAG = AbstractMusic.RESPONSE_ALBUM;
 
     final Artist mArtist;
 
     final long mDate;
-
-    /**
-     * This {@code Comparator} adds support for sorting by date to the default {@code comparator}.
-     */
-    public static final Comparator<Album> SORT_BY_DATE =
-            new Comparator<Album>() {
-                /**
-                 * Compares the two specified objects to determine their relative ordering. The
-                 * ordering implied by the return value of this method for all possible pairs of
-                 * {@code (lhs, rhs)} should form an <i>equivalence relation</i>.
-                 * This means that
-                 * <ul>
-                 * <li>{@code compare(a, a)} returns zero for all {@code a}</li>
-                 * <li>the sign of {@code compare(a, b)} must be the opposite of the sign of {@code
-                 * compare(b, a)} for all pairs of (a,b)</li>
-                 * <li>From {@code compare(a, b) > 0} and {@code compare(b, c) > 0} it must
-                 * follow {@code compare(a, c) > 0} for all possible combinations of {@code
-                 * (a, b, c)}</li>
-                 * </ul>
-                 *
-                 * @param lhs an {@code Object}.
-                 * @param rhs a second {@code Object} to compare with {@code lhs}.
-                 * @return an integer < 0 if {@code lhs} is less than {@code rhs}, 0 if they are
-                 * equal, and > 0 if {@code lhs} is greater than {@code rhs}.
-                 * @throws ClassCastException if objects are not of the correct type.
-                 */
-                @Override
-                public int compare(final Album lhs, final Album rhs) {
-                    int compare = 0;
-                    final int leftDate = formattedDate(lhs.mDate);
-                    final int rightDate = formattedDate(rhs.mDate);
-
-                    if (leftDate < rightDate) {
-                        compare = -1;
-                    } else if (leftDate > rightDate) {
-                        compare = 1;
-                    }
-
-                    if (compare == 0) {
-                        compare = lhs.compareTo(rhs);
-                    }
-
-                    return compare;
-                }
-
-                /**
-                 * This formats the input date to have a minimum of 8 digits to improve comparison.
-                 *
-                 * @param date The input date.
-                 * @return The input date formatted to exactly 8 digits,
-                 * unless date is less than or equal to 0L.
-                 */
-                private int formattedDate(final long date) {
-                    final int result;
-
-                    if (date > 0L) {
-                        final StringBuilder stringBuilder = new StringBuilder(8);
-                        stringBuilder.append(date);
-
-                        final int dateLength = stringBuilder.length();
-
-                        if (dateLength > 8) {
-                            stringBuilder.setLength(8);
-                        } else if (dateLength < 8) {
-                            while (stringBuilder.length() < 8) {
-                                stringBuilder.append('0');
-                            }
-                        }
-                        result = Integer.parseInt(stringBuilder.toString());
-                    } else {
-                        result = 0;
-                    }
-
-                    return result;
-                }
-            };
 
     final long mDuration;
 
@@ -249,5 +178,88 @@ abstract class AbstractAlbum<T extends Album> extends Item<Album> {
         final AbstractAlbum<Album> a = (AbstractAlbum<Album>) otherItem;
 
         return mName.equals(a.mName) && mArtist.isNameSame(a.mArtist);
+    }
+
+    /**
+     * This class implements a sort by date comparator.
+     */
+    private static final class SortByDate implements Comparator<Album> {
+
+        /**
+         * Sole constructor.
+         */
+        private SortByDate() {
+            super();
+        }
+
+        /**
+         * This formats the input date to have a minimum of 8 digits to improve comparison.
+         *
+         * @param date The input date.
+         * @return The input date formatted to exactly 8 digits, unless date is less than or equal
+         * to 0L.
+         */
+        private static int formattedDate(final long date) {
+            final int result;
+
+            if (date > 0L) {
+                final StringBuilder stringBuilder = new StringBuilder(8);
+                stringBuilder.append(date);
+
+                final int dateLength = stringBuilder.length();
+
+                if (dateLength > 8) {
+                    stringBuilder.setLength(8);
+                } else if (dateLength < 8) {
+                    while (stringBuilder.length() < 8) {
+                        stringBuilder.append('0');
+                    }
+                }
+                result = Integer.parseInt(stringBuilder.toString());
+            } else {
+                result = 0;
+            }
+
+            return result;
+        }
+
+        /**
+         * Compares the two specified objects to determine their relative ordering. The ordering
+         * implied by the return value of this method for all possible pairs of {@code (lhs, rhs)}
+         * should form an <i>equivalence relation</i>.
+         * This means that
+         * <ul>
+         * <li>{@code compare(a, a)} returns zero for all {@code a}</li>
+         * <li>the sign of {@code compare(a, b)} must be the opposite of the sign of {@code
+         * compare(b, a)} for all pairs of (a,b)</li>
+         * <li>From {@code compare(a, b) &gt; 0} and {@code compare(b, c) &gt; 0} it must
+         * follow {@code compare(a, c) &gt; 0} for all possible combinations of {@code
+         * (a, b, c)}</li>
+         * </ul>
+         *
+         * @param lhs an {@code Object}.
+         * @param rhs a second {@code Object} to compare with {@code lhs}.
+         * @return an integer &lt; 0 if {@code lhs} is less than {@code rhs}, 0 if they are equal,
+         * and &gt; 0 if {@code lhs} is greater than {@code rhs}.
+         * @throws ClassCastException if objects are not of the correct type.
+         */
+        @Override
+        public int compare(final Album lhs, final Album rhs) {
+            int compare = 0;
+            final int leftDate = formattedDate(lhs.mDate);
+            final int rightDate = formattedDate(rhs.mDate);
+
+            if (leftDate < rightDate) {
+                compare = -1;
+            } else if (leftDate > rightDate) {
+                compare = 1;
+            }
+
+            if (compare == 0) {
+                compare = lhs.compareTo(rhs);
+            }
+
+            return compare;
+        }
     }
 }

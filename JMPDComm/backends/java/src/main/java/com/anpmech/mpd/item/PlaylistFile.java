@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
  * HREF="http://www.musicpd.org/doc/protocol/playlist_files.html">Stored Playlists</A> <A
  * HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A> subsystem, for the Java backend.
  */
-public class PlaylistFile extends AbstractPlaylistFile<PlaylistFile> {
+public class PlaylistFile extends AbstractPlaylistFile {
 
     /**
      * The copy constructor for this class.

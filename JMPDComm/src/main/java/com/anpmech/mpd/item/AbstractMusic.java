@@ -43,10 +43,8 @@ import java.util.Comparator;
  * <p>This item is returned from methods of the
  * <A HREF="http://www.musicpd.org/doc/protocol/database.html">database</A>
  * subsystem of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>.</p>
- *
- * @param <T> The Music type.
  */
-abstract class AbstractMusic<T extends Music> extends AbstractEntry<Music> {
+abstract class AbstractMusic<T extends AbstractMusic<T>> extends AbstractEntry<T> {
 
     /**
      * The media server response key returned for a Album value.
@@ -189,44 +187,6 @@ abstract class AbstractMusic<T extends Music> extends AbstractEntry<Music> {
     private static final String TAG = "AbstractMusic";
 
     /**
-     * Similar to the default {@code Comparable} for the Music class, but it compares without
-     * taking disc and track numbers into account.
-     */
-    public static final Comparator<AbstractMusic<Music>> COMPARE_WITHOUT_TRACK_NUMBER =
-            new Comparator<AbstractMusic<Music>>() {
-                /**
-                 * Compares the two specified objects to determine their relative ordering. The
-                 * ordering implied by the return value of this method for all possible pairs of
-                 * {@code (lhs, rhs)} should form an <i>equivalence relation</i>.
-                 * This means that
-                 * <ul>
-                 * <li>{@code compare(a, a)} returns zero for all {@code a}</li>
-                 * <li>the sign of {@code compare(a, b)} must be the opposite of the sign of {@code
-                 * compare(b, a)} for all pairs of (a,b)</li>
-                 * <li>From {@code compare(a, b) > 0} and {@code compare(b, c) > 0} it must
-                 * follow {@code compare(a, c) > 0} for all possible combinations of {@code
-                 * (a, b, c)}</li>
-                 * </ul>
-                 *
-                 * @param lhs an {@code Object}.
-                 * @param rhs a second {@code Object} to compare with {@code lhs}.
-                 * @return an integer < 0 if {@code lhs} is less than {@code rhs}, 0 if they are
-                 * equal, and > 0 if {@code lhs} is greater than {@code rhs}.
-                 * @throws ClassCastException if objects are not of the correct type.
-                 */
-                @Override
-                public int compare(final AbstractMusic<Music> lhs, final AbstractMusic<Music> rhs) {
-                    int compare = 0;
-
-                    if (lhs != null) {
-                        compare = lhs.compareTo(rhs, false);
-                    }
-
-                    return compare;
-                }
-            };
-
-    /**
      * This constructor is used to create a new Music item with a ResponseObject.
      *
      * @param object The prepared ResponseObject.
@@ -327,7 +287,7 @@ abstract class AbstractMusic<T extends Music> extends AbstractEntry<Music> {
      * {@code another}.
      */
     @Override
-    public int compareTo(final Music another) {
+    public int compareTo(final T another) {
         return compareTo(another, true);
     }
 
@@ -340,7 +300,7 @@ abstract class AbstractMusic<T extends Music> extends AbstractEntry<Music> {
      * if this instance is greater than {@code another}; 0 if this instance has the same order as
      * {@code another}.
      */
-    private int compareTo(final AbstractMusic<Music> another, final boolean withTrackNumber) {
+    protected int compareTo(final T another, final boolean withTrackNumber) {
         /** songId overrides every other sorting method. It's used for playlists/queue. */
         int compareResult = compareIntegers(true, getSongId(), another.getSongId());
 
@@ -750,5 +710,53 @@ abstract class AbstractMusic<T extends Music> extends AbstractEntry<Music> {
     @Override
     public String toString() {
         return getTitle();
+    }
+
+    /**
+     * This class creates a {@link Comparator} for this class to compare an instance of a subclass
+     * to an instance of another of the same type.
+     *
+     * @param <T> The type to compare.
+     */
+    protected static class ComparatorWithoutTrackNumber<T extends AbstractMusic<T>>
+            implements Comparator<T> {
+
+        /**
+         * Sole constructor.
+         */
+        protected ComparatorWithoutTrackNumber() {
+            super();
+        }
+
+        /**
+         * Compares the two specified objects to determine their relative ordering. The
+         * ordering implied by the return value of this method for all possible pairs of
+         * {@code (lhs, rhs)} should form an <i>equivalence relation</i>.
+         * This means that
+         * <ul>
+         * <li>{@code compare(a, a)} returns zero for all {@code a}</li>
+         * <li>the sign of {@code compare(a, b)} must be the opposite of the sign of {@code
+         * compare(b, a)} for all pairs of (a,b)</li>
+         * <li>From {@code compare(a, b) &gt; 0} and {@code compare(b, c) &gt; 0} it must
+         * follow {@code compare(a, c) &gt; 0} for all possible combinations of {@code
+         * (a, b, c)}</li>
+         * </ul>
+         *
+         * @param lhs an {@code Object}.
+         * @param rhs a second {@code Object} to compare with {@code lhs}.
+         * @return an integer &lt; 0 if {@code lhs} is less than {@code rhs}, 0 if they are
+         * equal, and &gt; 0 if {@code lhs} is greater than {@code rhs}.
+         * @throws ClassCastException if objects are not of the correct type.
+         */
+        @Override
+        public int compare(final T lhs, final T rhs) {
+            int compare = 0;
+
+            if (lhs != null) {
+                compare = lhs.compareTo(rhs, false);
+            }
+
+            return compare;
+        }
     }
 }

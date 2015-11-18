@@ -33,10 +33,8 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * This class is the generic base for the Genre items, abstracted for backend.
- *
- * @param <T> The Genre type.
  */
-abstract class AbstractGenre<T extends Genre> extends ResponseItem<Genre> {
+abstract class AbstractGenre extends ResponseItem<Genre> {
 
     /**
      * The class log identifier.

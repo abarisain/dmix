@@ -39,7 +39,7 @@ import android.os.Parcelable;
  * <A HREF="http://www.musicpd.org/doc/protocol/database.html">Database Subsystem</A> in the
  * <A HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Android backend.
  */
-public class Genre extends AbstractGenre<Genre> {
+public class Genre extends AbstractGenre {
 
     /**
      * This field is used to instantiate this class from a {@link Parcel}.

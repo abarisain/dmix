@@ -37,12 +37,21 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Comparator;
+
 /**
  * This class creates a Music Item, a item commonly found in the
  * <A HREF="http://www.musicpd.org/doc/protocol/database.html">Database Subsystem</A> in the
  * <A HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Android backend.
  */
 public class Music extends AbstractMusic<Music> {
+
+    /**
+     * Similar to the default {@code Comparable} for the Music class, but it compares without
+     * taking disc and track numbers into account.
+     */
+    public static final Comparator<Music> COMPARE_WITHOUT_TRACK_NUMBER =
+            new ComparatorWithoutTrackNumber<>();
 
     /**
      * This field is used to instantiate this class from a {@link Parcel}.

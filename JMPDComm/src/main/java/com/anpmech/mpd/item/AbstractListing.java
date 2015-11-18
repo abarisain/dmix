@@ -57,7 +57,7 @@ import java.io.IOException;
  *
  * @param <T> The Directory type.
  */
-class AbstractListing<T extends AbstractListing<T>> extends AbstractDirectoryBase<T> {
+abstract class AbstractListing<T extends AbstractListing<T>> extends AbstractDirectoryBase<T> {
 
     /**
      * This is the command sent to retrieve all files in a directory.

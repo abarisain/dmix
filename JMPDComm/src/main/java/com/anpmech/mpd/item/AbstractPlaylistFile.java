@@ -41,10 +41,8 @@ import java.util.regex.Pattern;
  * <p>This item is returned from methods of the
  * <A HREF="http://www.musicpd.org/doc/protocol/database.html">database</A>
  * subsystem of the <A HREF="http://www.musicpd.org/doc/protocol">MPD protocol</A>.</p>
- *
- * @param <T> The PlaylistFile type.
  */
-abstract class AbstractPlaylistFile<T extends PlaylistFile> extends AbstractEntry<PlaylistFile> {
+abstract class AbstractPlaylistFile extends AbstractEntry<PlaylistFile> {
 
     /**
      * The media server response key returned for a Playlist value.

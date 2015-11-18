@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
  * <A HREF="http://www.musicpd.org/doc/protocol/database.html">Database Subsystem</A> in the
  * <A HREF="http://www.musicpd.org/doc/protocol">MPD Protocol</A>, for the Java backend.
  */
-public class Genre extends AbstractGenre<Genre> {
+public class Genre extends AbstractGenre {
 
     /**
      * This is the copy constructor.
