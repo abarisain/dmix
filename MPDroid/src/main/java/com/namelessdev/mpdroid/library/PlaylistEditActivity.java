@@ -24,7 +24,6 @@ import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
-import com.namelessdev.mpdroid.ErrorHandler;
 import com.namelessdev.mpdroid.MPDActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -56,8 +55,6 @@ public class PlaylistEditActivity extends MPDActivity implements StatusChangeLis
     private static final String TAG = "PlaylistEditActivity";
 
     private final MPD mMPD = mApp.getMPD();
-
-    private ErrorHandler mErrorHandler;
 
     private boolean mIsFirstRefresh = true;
 
@@ -226,18 +223,6 @@ public class PlaylistEditActivity extends MPDActivity implements StatusChangeLis
                 return false;
         }
 
-    }
-
-    @Override
-    protected void onPause() {
-        mErrorHandler.stop();
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mErrorHandler = new ErrorHandler(this);
     }
 
     /**

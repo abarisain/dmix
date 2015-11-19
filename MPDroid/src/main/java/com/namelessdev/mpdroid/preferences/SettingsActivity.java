@@ -16,22 +16,14 @@
 
 package com.namelessdev.mpdroid.preferences;
 
-import com.anpmech.mpd.connection.MPDConnectionListener;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.subsystem.status.StatusChangeListener;
-import com.namelessdev.mpdroid.ErrorHandler;
 import com.namelessdev.mpdroid.MPDActivity;
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 
 import android.os.Bundle;
 
-public class SettingsActivity extends MPDActivity implements
-        MPDConnectionListener, StatusChangeListener {
-
-    private final MPDApplication mApp = MPDApplication.getInstance();
-
-    private ErrorHandler mErrorHandler;
+public class SettingsActivity extends MPDActivity implements StatusChangeListener {
 
     private SettingsFragment mSettingsFragment;
 
@@ -44,14 +36,9 @@ public class SettingsActivity extends MPDActivity implements
      */
     @Override
     public void connectionConnected(final int commandErrorCode) {
-        mSettingsFragment.onConnectionStateChanged();
-    }
+        super.connectionConnected(commandErrorCode);
 
-    /**
-     * Called when connecting.
-     */
-    @Override
-    public void connectionConnecting() {
+        mSettingsFragment.onConnectionStateChanged();
     }
 
     /**
@@ -61,6 +48,8 @@ public class SettingsActivity extends MPDActivity implements
      */
     @Override
     public void connectionDisconnected(final String reason) {
+        super.connectionDisconnected(reason);
+
         mSettingsFragment.onConnectionStateChanged();
     }
 
@@ -93,7 +82,6 @@ public class SettingsActivity extends MPDActivity implements
 
     @Override
     public void onPause() {
-        mErrorHandler.stop();
         mApp.getMPD().getConnectionStatus().removeListener(this);
         mApp.removeStatusChangeListener(this);
         super.onPause();
@@ -104,7 +92,6 @@ public class SettingsActivity extends MPDActivity implements
         super.onResume();
         mApp.addStatusChangeListener(this);
         mApp.getMPD().getConnectionStatus().addListener(this);
-        mErrorHandler = new ErrorHandler(this);
     }
 
     /**

@@ -118,8 +118,6 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
     @StringRes
     private int mAddedString;
 
-    private ErrorHandler mErrorHandler;
-
     private ListView mListAlbums = null;
 
     private View mListAlbumsFrame = null;
@@ -521,18 +519,6 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
         }
 
         return handled;
-    }
-
-    @Override
-    public void onPause() {
-        mErrorHandler.stop();
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mErrorHandler = new ErrorHandler(this);
     }
 
     @Override

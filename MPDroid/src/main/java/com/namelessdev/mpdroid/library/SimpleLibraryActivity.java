@@ -21,7 +21,6 @@ import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.Stream;
 import com.anpmech.mpd.subsystem.AudioOutput;
-import com.namelessdev.mpdroid.ErrorHandler;
 import com.namelessdev.mpdroid.MPDActivity;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.fragments.AlbumsFragment;
@@ -54,8 +53,6 @@ import android.widget.TextView;
 
 public class SimpleLibraryActivity extends MPDActivity implements ILibraryFragmentActivity,
         OnBackStackChangedListener {
-
-    private ErrorHandler mErrorHandler;
 
     private TextView mTitleView;
 
@@ -215,20 +212,6 @@ public class SimpleLibraryActivity extends MPDActivity implements ILibraryFragme
         }
 
         return result;
-    }
-
-    @Override
-    protected void onPause() {
-        mErrorHandler.stop();
-
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        mErrorHandler = new ErrorHandler(this);
     }
 
     @Override

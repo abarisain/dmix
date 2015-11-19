@@ -57,8 +57,6 @@ public class MainMenuActivity extends MPDActivity implements
 
     private int mBackPressExitCount;
 
-    private ErrorHandler mErrorHandler;
-
     private Handler mExitCounterReset = new Handler();
 
     private FragmentManager mFragmentManager;
@@ -168,7 +166,6 @@ public class MainMenuActivity extends MPDActivity implements
 
     @Override
     protected void onPause() {
-        mErrorHandler.stop();
         if (DEBUG) {
             unregisterReceiver(MPDConnectionHandler.getInstance());
         }
@@ -186,7 +183,6 @@ public class MainMenuActivity extends MPDActivity implements
     protected void onResume() {
         super.onResume();
         mBackPressExitCount = 0;
-        mErrorHandler = new ErrorHandler(this);
 
         if (DEBUG) {
             registerReceiver(MPDConnectionHandler.getInstance(),
