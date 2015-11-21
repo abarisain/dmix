@@ -39,11 +39,6 @@ import android.view.KeyEvent;
 public class RemoteControlReceiver extends BroadcastReceiver {
 
     /**
-     * The application context.
-     */
-    private static final MPDApplication APP = MPDApplication.getInstance();
-
-    /**
      * The debug flag. If true, debug outputs to the logcat.
      */
     private static final boolean DEBUG = false;
@@ -100,10 +95,13 @@ public class RemoteControlReceiver extends BroadcastReceiver {
 
     @Override
     public final void onReceive(final Context context, final Intent intent) {
+        final MPDApplication app = (MPDApplication) context.getApplicationContext();
         final String action = intent.getAction();
         boolean isActionHandled;
 
-        Log.d(TAG, Tools.debugIntent(intent, null));
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, Tools.debugIntent(intent, null));
+        }
 
         isActionHandled = isMediaButton(intent, action);
 
@@ -113,20 +111,20 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     if (Tools.isServerLocalhost()) {
                         Tools.runCommand(MPDControl.ACTION_PAUSE);
                     } else {
-                        redirectIntentToService(false, intent);
+                        redirectIntentToService(context, false, intent);
                     }
                     break;
                 case Intent.ACTION_BOOT_COMPLETED:
-                    if (APP.isNotificationPersistent()) {
-                        redirectIntentToService(true, intent);
+                    if (app.isNotificationPersistent()) {
+                        redirectIntentToService(context, true, intent);
                     }
                     break;
                 case MPDroidService.ACTION_STOP:
-                    APP.setPersistentOverride(true);
+                    app.setPersistentOverride(true);
                     /** Fall Through */
                 case NotificationHandler.ACTION_START:
                 case StreamHandler.ACTION_START:
-                    redirectIntentToService(true, intent);
+                    redirectIntentToService(context, true, intent);
                     break;
                 default:
                     //noinspection ResourceType
@@ -142,19 +140,21 @@ public class RemoteControlReceiver extends BroadcastReceiver {
      * is registered through the AndroidManifest {@code <receiver>} tag which results in this
      * BroadcastReceiver will no longer exist after return from {@code onReceive()}.
      *
+     * @param context      The current context given passed to this {@link BroadcastReceiver}.
      * @param forceService Force the action, even if the service isn't active.
      * @param intent       The incoming intent through {@code onReceive()}.
      * @see BroadcastReceiver#onReceive(Context, Intent)
      */
-    private void redirectIntentToService(final boolean forceService, final Intent intent) {
-        intent.setClass(APP, MPDroidService.class);
-        final IBinder iBinder = peekService(APP, intent);
+    private void redirectIntentToService(final Context context, final boolean forceService,
+            final Intent intent) {
+        intent.setClass(context, MPDroidService.class);
+        final IBinder iBinder = peekService(context, intent);
         if (forceService || iBinder != null && iBinder.isBinderAlive()) {
             if (DEBUG) {
                 Log.d(TAG, "Redirecting action " + intent.getAction() + " to the service.");
             }
 
-            APP.startService(intent);
+            context.startService(intent);
         }
     }
 }
