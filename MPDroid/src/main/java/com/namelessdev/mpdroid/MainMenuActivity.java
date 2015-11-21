@@ -33,7 +33,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.transition.Transition;
 import android.view.KeyEvent;
@@ -58,8 +57,6 @@ public class MainMenuActivity extends MPDActivity implements
     private int mBackPressExitCount;
 
     private Handler mExitCounterReset = new Handler();
-
-    private FragmentManager mFragmentManager;
 
     /**
      * This method determines if a default server has been setup yet.
@@ -93,7 +90,7 @@ public class MainMenuActivity extends MPDActivity implements
     }
 
     private void initializeLibraryFragment() {
-        if (mFragmentManager.findFragmentByTag(FRAGMENT_TAG_LIBRARY) == null) {
+        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIBRARY) == null) {
             final Fragment fragment = Fragment.instantiate(this, LibraryFragment.class.getName());
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -104,7 +101,7 @@ public class MainMenuActivity extends MPDActivity implements
 
     @Override
     public void onBackPressed() {
-        if (mFragmentManager.getBackStackEntryCount() > 0) {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             super.onBackPressed();
         } else {
             final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -140,8 +137,6 @@ public class MainMenuActivity extends MPDActivity implements
         mApp.setupServiceBinder();
 
         setContentView(R.layout.main_activity_nagvigation);
-
-        mFragmentManager = getSupportFragmentManager();
 
         initializeLibraryFragment();
 
