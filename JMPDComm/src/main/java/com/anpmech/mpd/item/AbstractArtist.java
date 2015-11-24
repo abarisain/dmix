@@ -32,8 +32,6 @@ import com.anpmech.mpd.ResponseObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Locale;
-
 /**
  * This class is the generic base for the Artist items, abstracted for backend.
  *
@@ -73,10 +71,10 @@ abstract class AbstractArtist<T extends AbstractArtist<T>> extends ResponseItem<
     @Override
     @Nullable
     public String sortName() {
-        final String name = getName();
+        final String name = super.sortName();
         final String result;
 
-        if (null != name && name.toLowerCase(Locale.getDefault()).startsWith("the ")) {
+        if (name != null && name.regionMatches(true, 0, "the", 0, 4)) {
             result = name.substring(4);
         } else {
             result = name;
