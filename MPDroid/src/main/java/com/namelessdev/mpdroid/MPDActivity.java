@@ -40,6 +40,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.StyleRes;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -233,8 +234,17 @@ public abstract class MPDActivity extends AppCompatActivity implements IdleSubsy
      *
      * @return The current theme resource ID.
      */
+    @StyleRes
     protected int getThemeResId() {
-        return R.style.AppTheme_Light;
+        final int themeResId;
+
+        if (isLightThemeSelected()) {
+            themeResId = R.style.AppTheme_Light;
+        } else {
+            themeResId = R.style.AppTheme;
+        }
+
+        return themeResId;
     }
 
     /**

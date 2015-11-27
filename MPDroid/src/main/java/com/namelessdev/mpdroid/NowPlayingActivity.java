@@ -26,6 +26,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.StyleRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -50,6 +51,7 @@ public class NowPlayingActivity extends MPDActivity {
      *
      * @return The current theme resource ID.
      */
+    @StyleRes
     @Override
     protected int getThemeResId() {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
