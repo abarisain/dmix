@@ -790,12 +790,13 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
      */
     @Override
     public void storedPlaylistChanged() {
+        final Context context = getContext();
         final boolean playlistAvailable = mApp.getMPD().getIdleConnection()
                 .isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS);
 
-        if (playlistAvailable) {
+        if (playlistAvailable && context != null) {
             final Runnable getPlaylistList =
-                    new UpdatePlaylistList(mPlaylistFiles, getContext());
+                    new UpdatePlaylistList(mPlaylistFiles, context);
 
             mApp.getAsyncHelper().execAsync(this, UPDATE_PLAYLISTS, getPlaylistList);
         }
