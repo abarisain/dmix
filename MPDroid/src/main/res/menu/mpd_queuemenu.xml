@@ -24,5 +24,8 @@
         android:id="@+id/PLM_Clear"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:title="@string/clear" />
-
+    <item
+        android:id="@+id/PLM_Shuffle"
+        android:icon="@drawable/ic_media_shuffle"
+        android:title="@string/shuffle_playlist" />
 </menu>
