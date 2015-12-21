@@ -164,6 +164,10 @@ public class NowPlayingActivity extends MPDActivity {
                 QueueControl.run(QueueControl.CLEAR);
                 Tools.notifyUser(R.string.playlistCleared);
                 break;
+            case R.id.PLM_Shuffle:
+                QueueControl.run(QueueControl.SHUFFLE);
+                Tools.notifyUser(R.string.playlistShuffled);
+                break;
             /**
              * TODO: Better reimplementation of PLM_Save
              * (QueueFragment:onOptionsItemSelected(final MenuItem item))
@@ -196,11 +200,13 @@ public class NowPlayingActivity extends MPDActivity {
 
         final MenuItem saveItem = menu.findItem(R.id.PLM_Save);
         final MenuItem clearItem = menu.findItem(R.id.PLM_Clear);
+        final MenuItem shuffleItem = menu.findItem(R.id.PLM_Shuffle);
         final boolean isQueueVisible = !mIsDualPaneMode && mNowPlayingPager != null
                 && mNowPlayingPager.getCurrentItem() == 1;
 
         saveItem.setVisible(isQueueVisible);
         clearItem.setVisible(isQueueVisible);
+        shuffleItem.setVisible(isQueueVisible);
 
         /** If in streamingMode or persistentNotification don't allow a checkbox in the menu. */
         final MenuItem notificationItem = menu.findItem(R.id.GMM_ShowNotification);

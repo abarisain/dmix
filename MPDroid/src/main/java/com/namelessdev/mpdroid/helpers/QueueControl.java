@@ -48,7 +48,9 @@ public final class QueueControl {
 
     public static final int SAVE_PLAYLIST = 6;
 
-    public static final int SKIP_TO_ID = 7;
+    public static final int SHUFFLE = 7;
+
+    public static final int SKIP_TO_ID = 8;
 
     private static final MPDApplication APP = MPDApplication.getInstance();
 
@@ -59,6 +61,7 @@ public final class QueueControl {
     private static final MPDPlaylist PLAYLIST = MPD.getPlaylist();
 
     private static final String TAG = "QueueControl";
+
 
     private QueueControl() {
         super();
@@ -201,6 +204,9 @@ public final class QueueControl {
                             break;
                         case REMOVE_BY_ID:
                             PLAYLIST.removeById(arg1);
+                            break;
+                        case SHUFFLE:
+                            PLAYLIST.shuffle();
                             break;
                         default:
                             argumentNotSupported(command);
