@@ -99,8 +99,10 @@
     <string name="cropSongs">Crop</string>
     <string name="removeCountSongs">Removed %s songs</string>
     <string name="clear">Clear</string>
+    <string name="shuffle_playlist">Shuffle playlist</string>
     <string name="mainMenu">Main Menu</string>
     <string name="playlistCleared">Playlist cleared</string>
+    <string name="playlistShuffled">Playlist shuffled</string>
     <string name="deletedSongFromPlaylist">Deleted song from playlist</string>
     <string name="albumAdded">Album %s added</string>
     <string name="playlistAdded">Playlist %s added</string>

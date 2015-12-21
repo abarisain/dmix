@@ -316,5 +316,7 @@
     <string name="mediaPlayerErrorMalformed">Der Stream folgt nicht kodierungs Standards.</string>
     <string name="mediaPlayerErrorTimedOut">Zeitüberschreitung.</string>
     <string name="mediaPlayerErrorUnsupported">Der Stream-Codec wird nicht unterstützt.</string>
+    <string name="shuffle_playlist">Wiedergabeliste mischen</string>
+    <string name="playlistShuffled">Wiedergabeliste wurde zufällig gemischt</string>
     <!-- End MediaPlayer Error Strings -->
 </resources>
