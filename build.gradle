@@ -16,7 +16,7 @@
 
 task wrapper(type: Wrapper) {
     description "Updates the Gradle wrapper for this project."
-    gradleVersion '2.9'
+    gradleVersion '2.10'
 }
 
 buildscript {
