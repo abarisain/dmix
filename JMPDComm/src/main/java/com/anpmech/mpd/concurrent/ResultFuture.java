@@ -28,29 +28,13 @@
 package com.anpmech.mpd.concurrent;
 
 import com.anpmech.mpd.connection.CommandResult;
-import com.anpmech.mpd.exception.MPDException;
 
-import java.io.IOException;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * This class returns a {@link CommandResult} in the future.
  */
-public class ResultFuture {
-
-    /**
-     * The message given when a connection has been lost.
-     */
-    protected static final String LOST_CONNECTION = "Lost connection.";
-
-    /**
-     * The future to be wrapped.
-     */
-    protected final Future<?> mFuture;
+public class ResultFuture extends MPDFuture<CommandResult> {
 
     /**
      * This constructor is used for subclassing this class.
@@ -58,9 +42,7 @@ public class ResultFuture {
      * @param future The future to be subclassed.
      */
     ResultFuture(final ResultFuture future) {
-        super();
-
-        mFuture = future.mFuture;
+        super(future);
     }
 
     /**
@@ -69,134 +51,17 @@ public class ResultFuture {
      * @param future The future to wrap.
      */
     ResultFuture(final Future<?> future) {
-        super();
-
-        mFuture = future;
+        super(future);
     }
 
     /**
-     * Wraps and throws an exception, based one the instance of the {@code Throwable} instance
-     * origin.
+     * This method is used to construct the Future object for this result.
      *
-     * @param throwable The throwable to throw.
-     * @throws IOException  Thrown upon a communication error with the server.
-     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @param result The result to create the MPDFuture from.
+     * @return A MPDFuture subclass.
      */
-    protected static void throwException(final Throwable throwable)
-            throws IOException, MPDException {
-        if (throwable instanceof MPDException) {
-            throw new MPDException(throwable);
-        } else {
-            throw new IOException(throwable);
-        }
-    }
-
-    /**
-     * Attempts to cancel execution of this task.
-     *
-     * <p>This attempt will fail if the task has already completed, has already been cancelled, or
-     * could not be cancelled for some other reason. If successful, and this task has not started
-     * when {@code cancel} is called, this task should never run.  If the task has already started,
-     * then the {@code mayInterruptIfRunning} parameter determines whether the thread executing
-     * this task should be interrupted in an attempt to stop the task.</p>
-     *
-     * <p>After this method returns, subsequent calls to {@link #isDone} will always return
-     * {@code true}.  Subsequent calls to {@link #isCancelled} will always return {@code true}
-     * if this method returned {@code true}.</p>
-     *
-     * @param mayInterruptIfRunning {@code true} if the thread executing this task should be
-     *                              interrupted; otherwise, in-progress tasks are allowed to
-     *                              complete
-     * @return {@code false} if the task could not be cancelled, typically because it has already
-     * completed normally; {@code true} otherwise.
-     */
-    public boolean cancel(final boolean mayInterruptIfRunning) {
-        return mFuture.cancel(mayInterruptIfRunning);
-    }
-
-    /**
-     * Waits if necessary for the computation to complete, and then retrieves its result.
-     *
-     * @return The computed result.
-     * @throws CancellationException If the computation was cancelled.
-     * @throws IOException           Thrown upon a communication error with the server.
-     * @throws MPDException          Thrown if an error occurs as a result of command execution.
-     */
-    public CommandResult get() throws IOException, MPDException {
-        CommandResult result = null;
-
-        try {
-            result = (CommandResult) mFuture.get();
-        } catch (final ExecutionException | InterruptedException e) {
-            throwException(e.getCause());
-        }
-
-        /**
-         * For some reason, an exception may not be thrown when going into Airplane Mode.
-         */
-        if (result == null) {
-            throw new IOException(LOST_CONNECTION);
-        }
-
-        return result;
-    }
-
-    /**
-     * Waits if necessary for the computation to complete, and then retrieves its result.
-     *
-     * @param timeout The maximum time to wait.
-     * @param unit    The time unit of the timeout argument.
-     * @return The computed result.
-     * @throws CancellationException If the computation was cancelled.
-     * @throws IOException           Thrown upon a communication error with the server.
-     * @throws MPDException          Thrown if an error occurs as a result of command execution.
-     * @throws TimeoutException      If the wait timed out.
-     */
-    public CommandResult get(final long timeout, final TimeUnit unit)
-            throws IOException, MPDException, TimeoutException {
-        CommandResult result = null;
-
-        try {
-            result = (CommandResult) mFuture.get(timeout, unit);
-        } catch (final ExecutionException | InterruptedException e) {
-            throwException(e.getCause());
-        }
-
-        /**
-         * For some reason, an exception may not be thrown when going into Airplane Mode.
-         */
-        if (result == null) {
-            throw new IOException(LOST_CONNECTION);
-        }
-
-        return result;
-    }
-
-    /**
-     * Returns {@code true} If this task was cancelled before it completed normally.
-     *
-     * @return {@code true} If this task was cancelled before it completed.
-     */
-    public boolean isCancelled() {
-        return mFuture.isCancelled();
-    }
-
-    /**
-     * Returns {@code true} if this task completed.
-     *
-     * <p>Completion may be due to normal termination, an exception, or cancellation -- in all of
-     * these cases, this method will return {@code true}.</p>
-     *
-     * @return {@code true} If this task has completed.
-     */
-    public boolean isDone() {
-        return mFuture.isDone();
-    }
-
     @Override
-    public String toString() {
-        return "ResultFuture{" +
-                "mFuture=" + mFuture +
-                '}';
+    CommandResult instantiate(final CommandResult result) {
+        return result;
     }
 }

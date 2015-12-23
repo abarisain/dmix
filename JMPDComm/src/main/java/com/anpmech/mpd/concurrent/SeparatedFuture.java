@@ -28,17 +28,12 @@
 package com.anpmech.mpd.concurrent;
 
 import com.anpmech.mpd.commandresponse.SeparatedResponse;
-import com.anpmech.mpd.exception.MPDException;
-
-import java.io.IOException;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import com.anpmech.mpd.connection.CommandResult;
 
 /**
  * This class returns a {@link SeparatedResponse} in the future.
  */
-public class SeparatedFuture extends ResultFuture {
+public class SeparatedFuture extends MPDFuture<SeparatedResponse> {
 
     /**
      * The sole constructor.
@@ -50,33 +45,13 @@ public class SeparatedFuture extends ResultFuture {
     }
 
     /**
-     * Waits if necessary for at most the given time for the computation
-     * to complete, and then retrieves its result, if available.
+     * This method is used to construct the Future object for this result.
      *
-     * @param timeout The maximum time to wait.
-     * @param unit    The time unit of the timeout argument.
-     * @return The computed result.
-     * @throws CancellationException If the computation was cancelled.
-     * @throws IOException           Thrown upon a communication error with the server.
-     * @throws MPDException          Thrown if an error occurs as a result of command execution.
-     * @throws TimeoutException      If the wait timed out.
+     * @param result The result to create the MPDFuture from.
+     * @return A MPDFuture subclass.
      */
     @Override
-    public SeparatedResponse get(final long timeout, final TimeUnit unit)
-            throws IOException, MPDException, TimeoutException {
-        return new SeparatedResponse(super.get(timeout, unit));
-    }
-
-    /**
-     * Waits if necessary for the computation to complete, and then retrieves its result.
-     *
-     * @return The computed result.
-     * @throws CancellationException If the computation was cancelled.
-     * @throws IOException           Thrown upon a communication error with the server.
-     * @throws MPDException          Thrown if an error occurs as a result of command execution.
-     */
-    @Override
-    public SeparatedResponse get() throws IOException, MPDException {
-        return new SeparatedResponse(super.get());
+    SeparatedResponse instantiate(final CommandResult result) {
+        return new SeparatedResponse(result);
     }
 }
