@@ -495,7 +495,7 @@ abstract class QueueFragmentBase extends ListFragment implements StatusChangeLis
         if (item.getItemId() == R.id.PLM_Save) {
             List<PlaylistFile> playLists = Collections.emptyList();
             try {
-                playLists = mApp.getMPD().getPlaylists().getList();
+                playLists = new ArrayList<>(mApp.getMPD().getPlaylists());
             } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to receive list of playlists.", e);
             }

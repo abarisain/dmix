@@ -35,8 +35,9 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * This class contains methods used to process {@link Stream} entries from a {@link
- * CommandResult}.
+ * This class contains methods used to process {@link Stream} entries from a MPD response.
+ *
+ * <p>This class is immutable, thus, thread-safe.</p>
  */
 public class StreamResponse extends ObjectResponse<Stream> {
 
@@ -51,12 +52,12 @@ public class StreamResponse extends ObjectResponse<Stream> {
     private static final String TAG = "StreamResponse";
 
     /**
-     * Sole public constructor.
+     * This constructor is used to create {@link Stream} objects from a CommandResult.
      *
-     * @param response The CommandResponse containing a Stream type or mixed entry MPD response.
+     * @param result The CommandResult containing a Stream type MPD result.
      */
-    public StreamResponse(final CommandResult response) {
-        super(response);
+    public StreamResponse(final CommandResult result) {
+        super(result);
     }
 
     /**
@@ -67,10 +68,19 @@ public class StreamResponse extends ObjectResponse<Stream> {
     }
 
     /**
+     * This constructor is used to create {@link Stream} objects from another compatible
+     * {@link ObjectResponse}.
+     *
+     * @param response The ObjectResponse containing a Stream type MPD response.
+     */
+    public StreamResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
      * This method returns a iterator, starting at the beginning of the response.
      *
      * @return A iterator to return the response.
-     * @see #getList()
      */
     @Override
     protected ListIterator<Stream> listIterator(final int position) {
@@ -88,7 +98,6 @@ public class StreamResponse extends ObjectResponse<Stream> {
     public int size() {
         return CommandResponse.SingleLineResultIterator.size(mResult, BLOCK_TOKEN);
     }
-
 
     /**
      * This class instantiates an {@link Iterator} to iterate over {@link Stream} entries.

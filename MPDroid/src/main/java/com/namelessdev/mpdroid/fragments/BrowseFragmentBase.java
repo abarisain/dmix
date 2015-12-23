@@ -940,7 +940,7 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
                 try {
                     final PlaylistFileResponse playlistFiles = mApp.getMPD().getPlaylists();
 
-                    final List<PlaylistFile> playlists = playlistFiles.getList();
+                    final List<PlaylistFile> playlists = new ArrayList<>(playlistFiles);
 
                     Collections.sort(playlists);
                     mPlaylistFiles.clear();

@@ -34,7 +34,9 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * This class contains methods used to process {@link Music} entries from a {@link CommandResult}.
+ * This class contains methods used to process {@link Music} entries from a MPD response.
+ *
+ * <p>This class is immutable, thus, thread-safe.</p>
  */
 public class MusicResponse extends ObjectResponse<Music> {
 
@@ -49,12 +51,12 @@ public class MusicResponse extends ObjectResponse<Music> {
     private static final String TAG = "MusicResponse";
 
     /**
-     * Sole public constructor.
+     * This constructor is used to create {@link Music} objects from a CommandResult.
      *
-     * @param response The CommandResponse containing a Music type MPD response.
+     * @param result The CommandResult containing a Music type MPD result.
      */
-    public MusicResponse(final CommandResult response) {
-        super(response);
+    public MusicResponse(final CommandResult result) {
+        super(result);
     }
 
     /**
@@ -65,10 +67,19 @@ public class MusicResponse extends ObjectResponse<Music> {
     }
 
     /**
+     * This constructor is used to create {@link Music} objects from another compatible
+     * {@link ObjectResponse}.
+     *
+     * @param response The ObjectResponse containing a Music type MPD response.
+     */
+    public MusicResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
      * This method returns a iterator, starting at the beginning of the response.
      *
      * @return A iterator to return the response.
-     * @see #getList()
      */
     @Override
     protected ListIterator<Music> listIterator(final int position) {

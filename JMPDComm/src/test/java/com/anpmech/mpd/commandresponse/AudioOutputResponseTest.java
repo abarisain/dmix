@@ -34,7 +34,6 @@ import com.anpmech.mpd.subsystem.AudioOutput;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -58,9 +57,8 @@ public class AudioOutputResponseTest extends
      */
     @Test
     public void audioOutputResponseSizeTest() throws IOException {
-        final List<AudioOutput> list = instantiate(getResult()).getList();
-
-        assertEquals("AudioOutput list size failed against known result.", 2L, (long) list.size());
+        assertEquals("AudioOutput list size failed against known result.", 2L,
+                (long) instantiate(getResult()).size());
     }
 
     /**

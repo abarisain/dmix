@@ -93,7 +93,7 @@ public class PlaylistFileResponseTest extends
         final PlaylistFileResponse response = instantiate(getResult());
 
         assertEquals("PlaylistFileResponse failed fixed size consistency test", 1L,
-                (long) response.getList().size());
+                (long) response.size());
     }
 
     /**
@@ -114,6 +114,6 @@ public class PlaylistFileResponseTest extends
         }
 
         assertEquals("PlaylistFileResponse failed reverse fixed size consistency test",
-                (long) response.getList().size(), l);
+                (long) response.size(), l);
     }
 }

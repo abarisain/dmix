@@ -52,7 +52,7 @@ public class CommandResult extends AbstractCommandResult {
      * @param result The result to subclass.
      */
     protected CommandResult(final CommandResult result) {
-        this(result.mConnectionResult, result.mResult, result.mListSize);
+        this(result.mConnectionResult, result.mResult);
     }
 
     /**
@@ -62,7 +62,7 @@ public class CommandResult extends AbstractCommandResult {
      * @param result           The MPD protocol command result.
      */
     protected CommandResult(final String connectionResult, final String result) {
-        this(connectionResult, result, 16);
+        super(connectionResult, result);
     }
 
     /**
@@ -72,18 +72,5 @@ public class CommandResult extends AbstractCommandResult {
      */
     private CommandResult() {
         super();
-    }
-
-    /**
-     * This constructor is used to create a new core result from the MPD protocol.
-     *
-     * @param connectionResult The result of the connection initiation.
-     * @param result           The MPD protocol command result.
-     * @param listSize         This is the size of this object if it is created as a {@link
-     *                         java.util.List}; which is to say how many newlines + 1 which can be
-     *                         found in the {@link #mResult} field. This value is simply a helper,
-     */
-    private CommandResult(final String connectionResult, final String result, final int listSize) {
-        super(connectionResult, result, listSize);
     }
 }

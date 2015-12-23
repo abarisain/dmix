@@ -183,8 +183,9 @@ public class MusicResponseTest extends ObjectResponseTest<Music, MusicResponse> 
     @Test
     public void musicIteratorPlaylistinfoConsistencyTest() throws IOException {
         final CommandResponse response = new CommandResponse(getResult());
-        final List<Music> musicList = buildMusicFromList(response.getList());
-        final List<Music> musicResponseList = instantiate(response).getList();
+        final List<String> responseList = new ArrayList<>(response);
+        final List<Music> musicList = buildMusicFromList(responseList);
+        final List<Music> musicResponseList = new ArrayList<>(new MusicResponse(response));
 
         assertEquals("Music list fails to be consistent with last known good list generator.",
                 musicList, musicResponseList);
@@ -200,7 +201,7 @@ public class MusicResponseTest extends ObjectResponseTest<Music, MusicResponse> 
     public void musicIteratorRootLsinfoConsistencyTest() throws IOException {
         final CommandResult result = CommandResultCreator.generate(
                 TestTools.FILE_ROOT_LSINFO);
-        final List<Music> list = instantiate(result).getList();
+        final List<Music> list = new ArrayList<>(new MusicResponse(instantiate(result)));
 
         /**
          * This cannot be tested against a buildMusicFromList() result as it only delimits by

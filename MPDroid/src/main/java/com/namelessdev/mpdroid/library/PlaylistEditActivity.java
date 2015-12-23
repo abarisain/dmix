@@ -93,15 +93,15 @@ public class PlaylistEditActivity extends MPDActivity implements StatusChangeLis
         }
     };
 
-    private List<Music> getMusic() {
-        List<Music> musics;
+    private Collection<Music> getMusic() {
+        Collection<Music> musics;
 
         if (mIsPlayQueue) {
             final MPDPlaylist playlist = mMPD.getPlaylist();
             musics = playlist.getMusicList();
         } else {
             try {
-                musics = mMPD.getPlaylistSongs(mPlaylist).getList();
+                musics = mMPD.getPlaylistSongs(mPlaylist);
             } catch (final IOException | MPDException e) {
                 Log.d(TAG, "Playlist update failure.", e);
                 musics = Collections.emptyList();

@@ -60,7 +60,7 @@ public class EntryResponseTest extends ObjectResponseTest<Entry, EntryResponse> 
         final EntryResponse response = instantiate(getResult());
 
         assertEquals("EntryResponse failed fixed size consistency test", 11L,
-                (long) response.getList().size());
+                (long) response.size());
     }
 
     /**

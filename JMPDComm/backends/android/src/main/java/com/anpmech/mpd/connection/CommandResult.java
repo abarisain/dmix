@@ -36,10 +36,9 @@ import android.os.Parcelable;
  * This is the core of the {@link CommandResponse} classes, abstracted for the Android backend.
  *
  * <p>This class contains the bare results from the connection. Processing required from this
- * result should be done in a subclass.</p>
+ * result should be done in another class.</p>
  *
- * <p>This class is subclassed to process any MPD protocol server responses. This class is
- * immutable, thus, thread-safe.</p>
+ * <p>This class is immutable, thus, thread-safe.</p>
  */
 public class CommandResult extends AbstractCommandResult implements Parcelable {
 
@@ -64,7 +63,7 @@ public class CommandResult extends AbstractCommandResult implements Parcelable {
      * @param result The result to subclass.
      */
     protected CommandResult(final CommandResult result) {
-        this(result.mConnectionResult, result.mResult, result.mListSize);
+        this(result.mConnectionResult, result.mResult);
     }
 
     /**
@@ -74,20 +73,7 @@ public class CommandResult extends AbstractCommandResult implements Parcelable {
      * @param result           The MPD protocol command result.
      */
     protected CommandResult(final String connectionResult, final String result) {
-        this(connectionResult, result, 16);
-    }
-
-    /**
-     * This constructor is used to create a new core result from the MPD protocol.
-     *
-     * @param connectionResult The result of the connection initiation.
-     * @param result           The MPD protocol command result.
-     * @param listSize         This is the size of this object if it is created as a {@link
-     *                         java.util.List}; which is to say how many newlines + 1 which can be
-     *                         found in the {@link #mResult} field. This value is simply a helper,
-     */
-    private CommandResult(final String connectionResult, final String result, final int listSize) {
-        super(connectionResult, result, listSize);
+        super(connectionResult, result);
     }
 
     /**
@@ -122,7 +108,6 @@ public class CommandResult extends AbstractCommandResult implements Parcelable {
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(mConnectionResult);
         dest.writeString(mResult);
-        dest.writeInt(mListSize);
     }
 
     /**
@@ -147,7 +132,7 @@ public class CommandResult extends AbstractCommandResult implements Parcelable {
          */
         @Override
         public CommandResult createFromParcel(final Parcel source) {
-            return new CommandResult(source.readString(), source.readString(), source.readInt());
+            return new CommandResult(source.readString(), source.readString());
         }
 
         /**

@@ -280,10 +280,12 @@ public abstract class MPDConnection implements MPDConnectionListener {
     @Override
     public void connectionConnected(final int zero) {
         int commandErrorCode = 0;
+        CommandResult result = null;
         KeyValueResponse response = null;
 
         try {
-            response = new KeyValueResponse(mConnectionResponse.get());
+            result = mConnectionResponse.get();
+            response = new KeyValueResponse(result);
         } catch (final MPDException e) {
             commandErrorCode = e.mErrorCode;
             Log.error(TAG, "Exception during connection.", e);
@@ -304,16 +306,16 @@ public abstract class MPDConnection implements MPDConnectionListener {
          * If not connected, this will be skipped and another MPDConnectionStatus callback will
          * have been called.
          */
-        if (mConnectionStatus.isConnected()) {
+        if (result != null && mConnectionStatus.isConnected()) {
             /**
              * Don't worry too much about it if we didn't get a connection header. Sometimes,
              * we'll have been told we disconnected when we had not.
              */
-            if (response != null && response.isHeaderValid()) {
+            if (response != null && result.isHeaderValid()) {
                 mAvailableCommands.clear();
                 mAvailableCommands.addAll(response.getValues());
 
-                mMPDVersion = response.getMPDVersion();
+                mMPDVersion = result.getMPDVersion();
             }
 
             debug("Releasing connection lock upon successful connection.");
@@ -567,7 +569,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      */
     @Deprecated
     public List<String> send(final MPDCommand command) throws IOException, MPDException {
-        return new CommandResponse(submit(command).get()).getList();
+        return new ArrayList<>(new CommandResponse(submit(command).get()));
     }
 
     /**
@@ -583,7 +585,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
     @Deprecated
     public List<String> send(final CharSequence command, final CharSequence... args)
             throws IOException, MPDException {
-        return new CommandResponse(submit(command, args).get()).getList();
+        return new ArrayList<>(new CommandResponse(submit(command, args).get()));
     }
 
     /**
@@ -597,7 +599,7 @@ public abstract class MPDConnection implements MPDConnectionListener {
      */
     @Deprecated
     public List<String> send(final CommandQueue commandQueue) throws IOException, MPDException {
-        return new CommandResponse(submit(commandQueue).get()).getList();
+        return new ArrayList<>(new CommandResponse(submit(commandQueue).get()));
     }
 
     /**

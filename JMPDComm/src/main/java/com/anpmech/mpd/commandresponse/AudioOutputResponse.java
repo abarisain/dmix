@@ -34,15 +34,16 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * This class contains methods used to process {@link AudioOutput} entries from a
- * {@link CommandResult}.
+ * This class contains methods used to process {@link AudioOutput} entries from a MPD response.
+ *
+ * <p>This class is immutable, thus, thread-safe.</p>
  */
 public class AudioOutputResponse extends ObjectResponse<AudioOutput> {
 
     /**
-     * This class is used to subclass a CommandResult.
+     * This constructor is used to create {@link AudioOutput} objects from a CommandResult.
      *
-     * @param result The result to subclass.
+     * @param result The CommandResult containing a AudioOutput type MPD response.
      */
     public AudioOutputResponse(final CommandResult result) {
         super(result);
@@ -56,11 +57,20 @@ public class AudioOutputResponse extends ObjectResponse<AudioOutput> {
     }
 
     /**
+     * This constructor is used to create {@link AudioOutput} objects from another compatible
+     * {@link ObjectResponse}.
+     *
+     * @param response The ObjectResponse containing a AudioOutput type MPD response.
+     */
+    public AudioOutputResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
      * This method returns a iterator, starting at the beginning of the response.
      *
      * @param position The position to begin the iterator at, typically beginning or end.
      * @return A iterator to return the response.
-     * @see #getList()
      */
     @Override
     protected ListIterator<AudioOutput> listIterator(final int position) {

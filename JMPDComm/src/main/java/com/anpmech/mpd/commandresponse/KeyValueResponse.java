@@ -27,8 +27,8 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.connection.AbstractCommandResult.AbstractResultIterator;
 import com.anpmech.mpd.connection.CommandResult;
-import com.anpmech.mpd.item.Artist;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +39,10 @@ import java.util.ListIterator;
 import java.util.Map;
 
 /**
- * This class contains methods used to process {@link Artist} entries from a {@link CommandResult}.
+ * This class contains methods used to process {@link Map.Entry} entries from a
+ * {@code key}:{@code value} MPD response.
+ *
+ * <p>This class is immutable, thus, thread-safe.</p>
  */
 public class KeyValueResponse extends ObjectResponse<Map.Entry<String, String>> {
 
@@ -54,12 +57,12 @@ public class KeyValueResponse extends ObjectResponse<Map.Entry<String, String>> 
     private static final String TAG = "KeyValueResponse";
 
     /**
-     * Sole public constructor.
+     * This constructor is used to create {@link Map.Entry} objects from a CommandResult.
      *
-     * @param response The CommandResponse containing a Artist type MPD response.
+     * @param result The CommandResult containing a Map.Entry type MPD result.
      */
-    public KeyValueResponse(final CommandResult response) {
-        super(response);
+    public KeyValueResponse(final CommandResult result) {
+        super(result);
     }
 
     /**
@@ -67,6 +70,16 @@ public class KeyValueResponse extends ObjectResponse<Map.Entry<String, String>> 
      */
     public KeyValueResponse() {
         super();
+    }
+
+    /**
+     * This constructor is used to create {@link Map.Entry} objects from another compatible
+     * {@link ObjectResponse}.
+     *
+     * @param response The ObjectResponse containing a {@code key}:{@code value} type MPD response.
+     */
+    public KeyValueResponse(final ObjectResponse<?> response) {
+        super(response);
     }
 
     /**
@@ -123,7 +136,7 @@ public class KeyValueResponse extends ObjectResponse<Map.Entry<String, String>> 
      * @return A {@code Map<Key, Value>}.
      */
     public Map<String, String> getKeyValueMap() {
-        final Map<String, String> map = new HashMap<>(mListSize);
+        final Map<String, String> map = new HashMap<>();
         putAll(map, listIterator());
 
         return map;
@@ -137,7 +150,7 @@ public class KeyValueResponse extends ObjectResponse<Map.Entry<String, String>> 
      * @return A list of values with keys matching the {@code key} parameter.
      */
     public List<String> getValues(final String key) {
-        final List<String> values = new ArrayList<>(mListSize);
+        final List<String> values = new ArrayList<>();
         addAllMatching(values, listIterator(), key);
 
         return values;
@@ -161,7 +174,6 @@ public class KeyValueResponse extends ObjectResponse<Map.Entry<String, String>> 
      *
      * @param position The position to begin the iterator at, typically beginning or end.
      * @return A iterator to return the response.
-     * @see #getList()
      */
     @Override
     protected ListIterator<Map.Entry<String, String>> listIterator(final int position) {

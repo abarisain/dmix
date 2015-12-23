@@ -78,7 +78,7 @@ public class StoredPlaylistFragment extends BrowseFragment<Music> {
             if (getActivity() == null) {
                 return;
             }
-            replaceItems(mApp.getMPD().getPlaylistSongs(mPlaylist).getList());
+            replaceItems(mApp.getMPD().getPlaylistSongs(mPlaylist));
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }

@@ -108,7 +108,7 @@ public class FSFragment extends BrowseFragment {
      */
     private static <T extends AbstractEntry<T>> List<T> getOrderedEntries(
             final ObjectResponse<T> response) {
-        final List<T> list = response.getList();
+        final List<T> list = new ArrayList<>(response);
 
         Collections.sort(list, new EntryComparator<T>());
 

@@ -34,8 +34,9 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * This class contains methods used to process {@link CommandResult} entries from multiple, and
- * separated, {@link CommandResult}s.
+ * This class contains methods used to process separated MPD responses.
+ *
+ * <p>This class is immutable, thus, thread-safe.</p>
  */
 public class SeparatedResponse extends ObjectResponse<CommandResponse> {
 
@@ -78,7 +79,7 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
      */
     @Override
     protected ListIterator<CommandResponse> listIterator(final int position) {
-        return new SeparatedIterator(mResult, mConnectionResult, position);
+        return new SeparatedIterator(mResult, position);
     }
 
     /**
@@ -112,21 +113,14 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
         private static final int TOKEN_LENGTH = MPDConnection.MPD_CMD_BULK_SEP.length();
 
         /**
-         * The connection result for the CommandResult.
-         */
-        protected final String mConnectionResult;
-
-        /**
          * Sole constructor.
          *
-         * @param result           The MPD protocol command result.
-         * @param connectionResult The connectionResult from the {@link CommandResult}.
-         * @param position         The position relative to the result to initiate the
-         *                         {@link #mPosition} to.
+         * @param result   The MPD protocol command result.
+         * @param position The position relative to the result to initiate the {@link #mPosition}
+         *                 to.
          * @throws IllegalArgumentException if the position parameter is less than 0.
          */
-        private AbstractSeparatedIterator(final String result, final String connectionResult,
-                final int position) {
+        private AbstractSeparatedIterator(final String result, final int position) {
             super(result, position);
 
             /**
@@ -136,8 +130,6 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
             if (position == 0) {
                 mPosition = -1;
             }
-
-            mConnectionResult = connectionResult;
         }
 
         /**
@@ -250,7 +242,7 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
          * @param result The MPD protocol command result.
          */
         private NoopIterator(final String result) {
-            super(result, null, 0);
+            super(result, 0);
         }
 
         /**
@@ -284,15 +276,13 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
         /**
          * Sole constructor.
          *
-         * @param result           The MPD protocol command result.
-         * @param connectionResult The connectionResult from the {@link CommandResult}.
-         * @param position         The position relative to the result to initiate the
-         *                         {@link #mPosition} to.
+         * @param result   The MPD protocol command result.
+         * @param position The position relative to the result to initiate the {@link #mPosition}
+         *                 to.
          * @throws IllegalArgumentException if the position parameter is less than 0.
          */
-        private SeparatedIterator(final String result, final String connectionResult,
-                final int position) {
-            super(result, connectionResult, position);
+        private SeparatedIterator(final String result, final int position) {
+            super(result, position);
         }
 
         /**
@@ -305,7 +295,7 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
          */
         @Override
         CommandResponse instantiate(final String responseBlock) {
-            return new CommandResponse(mConnectionResult, responseBlock);
+            return new CommandResponse(responseBlock);
         }
     }
 }

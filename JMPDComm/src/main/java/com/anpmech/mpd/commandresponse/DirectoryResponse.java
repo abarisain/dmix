@@ -35,8 +35,9 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * This class contains methods used to process {@link Directory} entries from a {@link
- * CommandResult}.
+ * This class contains methods used to process {@link Directory} entries from a MPD response.
+ *
+ * <p>This class is immutable, thus, thread-safe.</p>
  *
  * @see ListingResponse
  */
@@ -53,12 +54,12 @@ public class DirectoryResponse extends ObjectResponse<Directory> {
     private static final String TAG = "DirectoryResponse";
 
     /**
-     * Sole public constructor.
+     * This constructor is used to create {@link Directory} objects from a CommandResult.
      *
-     * @param response The CommandResponse containing a Music type MPD response.
+     * @param result The CommandResult containing a Directory type MPD result.
      */
-    public DirectoryResponse(final CommandResult response) {
-        super(response);
+    public DirectoryResponse(final CommandResult result) {
+        super(result);
     }
 
     /**
@@ -69,10 +70,19 @@ public class DirectoryResponse extends ObjectResponse<Directory> {
     }
 
     /**
+     * This constructor is used to create {@link Directory} objects from another compatible
+     * {@link ObjectResponse}.
+     *
+     * @param response The ObjectResponse containing a Directory type MPD response.
+     */
+    public DirectoryResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
      * This method returns a iterator, starting at the beginning of the response.
      *
      * @return A iterator to return the response.
-     * @see #getList()
      */
     @Override
     protected ListIterator<Directory> listIterator(final int position) {

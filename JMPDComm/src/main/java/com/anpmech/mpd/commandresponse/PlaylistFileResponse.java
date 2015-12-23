@@ -37,8 +37,9 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
 /**
- * This class contains methods used to process {@link PlaylistFile} entries from a {@link
- * CommandResult}.
+ * This class contains methods used to process {@link PlaylistFile} entries from a MPD response.
+ *
+ * <p>This class is immutable, thus, thread-safe.</p>
  */
 public class PlaylistFileResponse extends ObjectResponse<PlaylistFile> {
 
@@ -53,13 +54,12 @@ public class PlaylistFileResponse extends ObjectResponse<PlaylistFile> {
     private static final String TAG = "PlaylistFileResponse";
 
     /**
-     * Sole public constructor.
+     * This constructor is used to create {@link PlaylistFile} objects from a CommandResult.
      *
-     * @param response The CommandResponse containing a PlaylistFile type or mixed entry MPD
-     *                 response.
+     * @param result The CommandResult containing a PlaylistFile type MPD result.
      */
-    public PlaylistFileResponse(final CommandResult response) {
-        super(response);
+    public PlaylistFileResponse(final CommandResult result) {
+        super(result);
     }
 
     /**
@@ -70,10 +70,19 @@ public class PlaylistFileResponse extends ObjectResponse<PlaylistFile> {
     }
 
     /**
+     * This constructor is used to create {@link PlaylistFile} objects from another compatible
+     * {@link ObjectResponse}.
+     *
+     * @param response The ObjectResponse containing a PlaylistFile type MPD response.
+     */
+    public PlaylistFileResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
      * This method returns a iterator, starting at the beginning of the response.
      *
      * @return A iterator to return the response.
-     * @see #getList()
      */
     @Override
     protected ListIterator<PlaylistFile> listIterator(final int position) {

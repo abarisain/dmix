@@ -37,6 +37,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.Timeout;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +47,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -89,6 +93,166 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
     }
 
     /**
+     * This method sets the {@code e} parameter to throw an exception of the class type in the
+     * {@code exceptionClass} class.
+     *
+     * @param e              The {@link ExpectedException} field.
+     * @param exceptionClass The expected class which will throw an exception.
+     * @param <U>            The type expected by the {@code exceptionClass}.
+     */
+    public static <U extends Class<? extends Exception>> void
+    expectMutationException(final ExpectedException e, final U exceptionClass) {
+        e.expect(exceptionClass);
+        e.reportMissingExceptionWithMessage("Exception expected, should throw " +
+                exceptionClass.getName());
+    }
+
+    /**
+     * This method sets the e parameter to throw an {@link NullPointerException}.
+     *
+     * @param e The parameter to use to set the expected exception for.
+     */
+    private static void expectNullPointer(final ExpectedException e) {
+        e.expect(NullPointerException.class);
+        e.reportMissingExceptionWithMessage("Expected a NullPointerException upon passing null.");
+    }
+
+    /**
+     * This method sets the e parameter to throw an {@link UnsupportedOperationException}.
+     *
+     * @param e The parameter to use to set the expected exception for.
+     */
+    private static void expectUnsupportedOperation(final ExpectedException e) {
+        expectMutationException(e, UnsupportedOperationException.class);
+    }
+
+    /**
+     * This test ensures that {@link ObjectResponse#addAll(Collection)} throws a
+     * {@link IllegalArgumentException}, per the {@link Collection} interface.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+    @Test
+    public void addAllException() throws IOException {
+        expectUnsupportedOperation(mException);
+
+        instantiate(getResult()).addAll(Collections.<T>emptyList());
+    }
+
+    /**
+     * This test ensures that {@link ObjectResponse#add(Object)} throws a
+     * {@link IllegalArgumentException}, per the {@link Collection} interface.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+    @Test
+    public void addException() throws IOException {
+        expectUnsupportedOperation(mException);
+
+        instantiate(getResult()).add(null);
+    }
+
+    /**
+     * This test ensures that {@link ObjectResponse#clear()} throws a
+     * {@link UnsupportedOperationException}, per the {@link Collection} interface.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+    @Test
+    public void clearException() throws IOException {
+        expectUnsupportedOperation(mException);
+
+        instantiate(getResult()).clear();
+    }
+
+    /**
+     * This method tests to ensure that a collection passed to
+     * {@link ObjectResponse#containsAll(Collection)} has no null elements, as null elements are
+     * not supported by this collection.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void containsAllNullInParameterCollection() throws IOException {
+        expectNullPointer(mException);
+
+        final Collection<T> nullList = Collections.singletonList(null);
+        instantiate(getResult()).containsAll(nullList);
+    }
+
+    /**
+     * This method tests to ensure that if {@code null} is passed to
+     * {@link ObjectResponse#containsAll(Collection)}, that a {@link NullPointerException} is
+     * thrown, per the {@link Collection} interface.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void containsAllNullParameter() throws IOException {
+        expectNullPointer(mException);
+
+        instantiate(getResult()).containsAll(null);
+    }
+
+    /**
+     * This tests if {@link ObjectResponse#containsAll(Collection)} returns true with a collection
+     * and the first element removed.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void containsFirstRemoved() throws IOException {
+        final S response = instantiate(getResult());
+        final Iterator<T> iterator = response.iterator();
+        final List<T> list = new ArrayList<>(response);
+        final String message =
+                "Response containsAll failed when the first parameter element was removed";
+
+        if (iterator.hasNext()) {
+            list.remove(0);
+
+            if (!list.isEmpty()) {
+                assertTrue(message, response.containsAll(list));
+            }
+        } else {
+            assertTrue(message, response.containsAll(list));
+        }
+    }
+
+    /**
+     * This method tests to ensure that if {@code null} is passed to
+     * {@link ObjectResponse#contains(Object)}, that a {@link NullPointerException} is thrown, per
+     * the {@link Collection} interface.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void containsNull() throws IOException {
+        expectNullPointer(mException);
+
+        instantiate(getResult()).contains(null);
+    }
+
+    /**
+     * This method contains a simple {@link Collection#contains(Object)} test.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+    @Test
+    public void containsTest() throws IOException {
+        final S response = instantiate(getResult());
+        final T element = new ArrayList<>(response).get(0);
+
+        if (element != null) {
+            response.contains(element);
+        }
+    }
+
+    /**
      * This method asserts that when ObjectResponse subclass CommandResult is empty, that the
      * subclass also says it's empty.
      */
@@ -105,7 +269,7 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
     @Test
     public void forwardReverseConsistencyTest() throws IOException {
         final S response = instantiate(getResult());
-        final List<T> list = response.getList();
+        final List<T> list = new ArrayList<>(response);
         final List<T> reverseIterated = TestTools.reverseList(response);
 
         Collections.reverse(reverseIterated);
@@ -180,6 +344,49 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
     }
 
     /**
+     * This test ensures that {@link ObjectResponse#removeAll(Collection)} throws a
+     * {@link UnsupportedOperationException}, per the {@link Collection} interface.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+    @Test
+    public void removeAllException() throws IOException {
+        expectUnsupportedOperation(mException);
+
+        // This is done per the interface.
+        //noinspection SuspiciousMethodCalls
+        instantiate(getResult()).removeAll(Collections.emptyList());
+    }
+
+    /**
+     * This test ensures that {@link ObjectResponse#remove(Object)} throws a
+     * {@link UnsupportedOperationException}, per the {@link Collection} interface.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void removeException() throws IOException {
+        expectUnsupportedOperation(mException);
+
+        instantiate(getResult()).remove(new Object());
+    }
+
+    /**
+     * This test ensures that {@link ObjectResponse#retainAll(Collection)} throws a {@link
+     * UnsupportedOperationException}, per the {@link Collection} interface.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+    @Test
+    public void retainAllException() throws IOException {
+        expectUnsupportedOperation(mException);
+
+        instantiate(getResult()).retainAll(Collections.emptyList());
+    }
+
+    /**
      * This method checks the optimized size method to ensure it always equals 0 with an empty
      * response.
      *
@@ -210,6 +417,59 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
         final String message
                 = "Optimized size method failed to produce the same result as a typical iteration.";
         assertEquals(message, (long) expectedSize, (long) response.size());
+    }
+
+    /**
+     * Tests to ensure a consistent {@link Collection#toArray()} in both the
+     * {@code ObjectResponse.class} and the {@code ArrayList.class}.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+    @Test
+    public void toArrayConsistency() throws IOException {
+        final S response = instantiate(getResult());
+        final Collection<T> collection = new ArrayList<>(response);
+        final String message =
+                "ResponseObject.toArray() failed to equal ArrayList.toArray(response).toArray().";
+
+        assertArrayEquals(message, response.toArray(), collection.toArray());
+    }
+
+    /**
+     * This test ensures that {@link ObjectResponse#toArray(Object[])} throws a
+     * {@link ArrayStoreException}, per the {@link Collection} interface.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void toArrayException() throws IOException {
+        expectMutationException(mException, ArrayStoreException.class);
+
+        final S response = instantiate(getResult());
+        response.toArray(new Void[]{null});
+    }
+
+    /**
+     * Tests to ensure a consistent {@link Collection#toArray(Object[])} in both the
+     * {@code ObjectResponse.class} and the {@code ArrayList.class}.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void toArraySize() throws IOException {
+        final S response = instantiate(getResult());
+        final Collection<T> collection = new ArrayList<>(response);
+        //noinspection unchecked
+        final Object[] array = collection.toArray();
+        final Object[] testArray = Arrays.copyOf(array, collection.size());
+        Arrays.fill(testArray, null);
+        response.toArray(testArray);
+        final String message =
+                "ResponseObject.toArray(Object[]) failed to equal"
+                        + " ArrayList.toArray(response).toArray().";
+
+        assertArrayEquals(message, array, testArray);
     }
 
     /**

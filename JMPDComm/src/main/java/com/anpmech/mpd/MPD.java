@@ -329,7 +329,7 @@ public class MPD {
             commandQueue
                     .add(MPDCommand.MPD_CMD_FIND_ADD, Music.TAG_GENRE, genre.getName());
         } else {
-            final List<Music> music = find(Music.TAG_GENRE, genre.getName()).getList();
+            final List<Music> music = new ArrayList<>(find(Music.TAG_GENRE, genre.getName()));
             Collections.sort(music);
 
             commandQueue = MPDPlaylist.addAllCommand(music);
@@ -586,7 +586,7 @@ public class MPD {
             mConnection.send(MPDCommand.MPD_CMD_SEARCH_ADD_PLAYLIST, playlist.getFullPath(),
                     Music.TAG_GENRE, genre.getName());
         } else {
-            final List<Music> music = find(Music.TAG_GENRE, genre.getName()).getList();
+            final List<Music> music = new ArrayList<>(find(Music.TAG_GENRE, genre.getName()));
             Collections.sort(music);
 
             addToPlaylist(playlist, music);
@@ -894,12 +894,15 @@ public class MPD {
         final Iterator<CommandResponse> iterator =
                 mConnection.submitSeparated(commands).get().iterator();
 
-        final List<Artist> artists = new ArtistResponse(iterator.next()).getList();
-        final List<Artist> albumArtists = new ArtistResponse(iterator.next()).getList();
+        final ArtistResponse artists = new ArtistResponse(iterator.next());
+        final ArtistResponse albumArtists = new ArtistResponse(iterator.next());
 
-        Item.merge(artists, albumArtists);
+        final List<Artist> artistList = new ArrayList<>(artists);
+        final List<Artist> albumArtistList = new ArrayList<>(albumArtists);
 
-        return artists;
+        Item.merge(artistList, albumArtistList);
+
+        return artistList;
     }
 
     public List<Artist> getArtistsMerged(final Genre genre) throws IOException, MPDException {
@@ -911,12 +914,15 @@ public class MPD {
         final Iterator<CommandResponse> iterator =
                 mConnection.submitSeparated(commands).get().iterator();
 
-        final List<Artist> artists = new ArtistResponse(iterator.next()).getList();
-        final List<Artist> albumArtists = new ArtistResponse(iterator.next()).getList();
+        final ArtistResponse artists = new ArtistResponse(iterator.next());
+        final ArtistResponse albumArtists = new ArtistResponse(iterator.next());
 
-        Item.merge(artists, albumArtists);
+        final List<Artist> artistList = new ArrayList<>(artists);
+        final List<Artist> albumArtistList = new ArrayList<>(albumArtists);
 
-        return artists;
+        Item.merge(artistList, albumArtistList);
+
+        return artistList;
     }
 
     /**
@@ -1124,7 +1130,7 @@ public class MPD {
                 }
             }
         } else {
-            tracks = response.getList();
+            tracks = new ArrayList<>(response);
         }
 
         return tracks;

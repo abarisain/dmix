@@ -38,7 +38,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
 /**
- * This class contains classes and methods used to process a {@link CommandResult}.
+ * This class contains methods used to process {@link String} entries from a MPD response.
  *
  * <p>This class is immutable, thus, thread-safe.</p>
  */
@@ -57,11 +57,10 @@ public class CommandResponse extends ObjectResponse<String> {
     /**
      * This constructor builds this class from the MPD protocol result.
      *
-     * @param connectionResult The result of the connection initiation.
-     * @param result           The MPD protocol command result.
+     * @param result The MPD protocol command result.
      */
-    protected CommandResponse(final String connectionResult, final String result) {
-        super(connectionResult, result);
+    protected CommandResponse(final String result) {
+        super(result);
     }
 
     /**
@@ -85,7 +84,6 @@ public class CommandResponse extends ObjectResponse<String> {
      *
      * @param position The position to begin the iterator at, typically beginning or end.
      * @return A iterator to return the response.
-     * @see #getList()
      */
     @Override
     protected ListIterator<String> listIterator(final int position) {
@@ -113,8 +111,6 @@ public class CommandResponse extends ObjectResponse<String> {
     public String toString() {
         return "CommandResponse{" +
                 "mResult='" + mResult + '\'' +
-                ", mConnectionResult='" + mConnectionResult + '\'' +
-                ", mListSize=" + mListSize +
                 '}';
     }
 
@@ -124,7 +120,7 @@ public class CommandResponse extends ObjectResponse<String> {
      * @param <T> The type of Object to be generated from the {@link CommandResult}.
      */
     protected abstract static class AbstractObjectResultIterator<T>
-            extends AbstractResultIterator<T> {
+            extends AbstractCommandResult.AbstractResultIterator<T> {
 
         /**
          * Sole constructor.

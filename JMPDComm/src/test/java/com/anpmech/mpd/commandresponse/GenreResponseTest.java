@@ -100,7 +100,7 @@ public class GenreResponseTest extends ObjectResponseTest<Genre, GenreResponse> 
         final List<Genre> reversedList = TestTools.reverseList(response);
 
         assertEquals("Single line reverse Iterator failed due to incorrect size.",
-                (long) response.getList().size(), (long) reversedList.size());
+                (long) response.size(), (long) reversedList.size());
     }
 
     @Test
@@ -110,7 +110,7 @@ public class GenreResponseTest extends ObjectResponseTest<Genre, GenreResponse> 
          */
         final long genreListSize = 444L;
 
-        assertEquals(genreListSize, (long) instantiate(getResult()).getList().size());
+        assertEquals(genreListSize, (long) instantiate(getResult()).size());
     }
 
     /**

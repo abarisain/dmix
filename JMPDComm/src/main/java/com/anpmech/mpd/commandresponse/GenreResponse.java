@@ -35,7 +35,9 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * This class contains methods used to process {@link Genre} entries from a {@link CommandResult}.
+ * This class contains methods used to process {@link Genre} entries from a MPD response.
+ *
+ * <p>This class is immutable, thus, thread-safe.</p>
  */
 public class GenreResponse extends ObjectResponse<Genre> {
 
@@ -50,12 +52,12 @@ public class GenreResponse extends ObjectResponse<Genre> {
     private static final String TAG = "GenreResponse";
 
     /**
-     * Sole public constructor.
+     * This constructor is used to create {@link Genre} objects from a CommandResult.
      *
-     * @param response The CommandResponse containing a Genre type MPD response.
+     * @param result The CommandResult containing a Genre type MPD result.
      */
-    public GenreResponse(final CommandResult response) {
-        super(response);
+    public GenreResponse(final CommandResult result) {
+        super(result);
     }
 
     /**
@@ -66,10 +68,19 @@ public class GenreResponse extends ObjectResponse<Genre> {
     }
 
     /**
+     * This constructor is used to create {@link Genre} objects from another compatible
+     * {@link ObjectResponse}.
+     *
+     * @param response The ObjectResponse containing a Genre type MPD response.
+     */
+    public GenreResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
      * This method returns a iterator, starting at the beginning of the response.
      *
      * @return A iterator to return the response.
-     * @see #getList()
      */
     @Override
     protected ListIterator<Genre> listIterator(final int position) {

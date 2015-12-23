@@ -168,7 +168,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
             Log.w(TAG, "Streams fragment can't load streams, playlist support not enabled.");
         }
 
-        final List<Stream> streams = streamResponse.getList();
+        final List<Stream> streams = new ArrayList<>(streamResponse);
         mUnordered.clear();
         mUnordered.addAll(streams);
         Collections.sort(streams);

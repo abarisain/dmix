@@ -91,6 +91,6 @@ public class StreamResponseTest extends ObjectResponseTest<Stream, StreamRespons
         final StreamResponse response = instantiate(getResult());
 
         assertEquals("StreamResponse failed fixed size consistency test", 3L,
-                (long) response.getList().size());
+                (long) response.size());
     }
 }

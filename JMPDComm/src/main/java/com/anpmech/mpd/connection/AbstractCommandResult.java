@@ -64,31 +64,23 @@ public class AbstractCommandResult {
     protected final String mResult;
 
     /**
-     * This is a mutable hint for list size.
-     */
-    protected int mListSize;
-
-    /**
      * This constructor is used to create a new core result from the MPD protocol.
      *
      * @param connectionResult The result of the connection initiation.
      * @param result           The MPD protocol command result.
-     * @param listSize         This is the size to initialize this object to.
      */
-    protected AbstractCommandResult(@Nullable final String connectionResult, final String result,
-            final int listSize) {
+    protected AbstractCommandResult(@Nullable final String connectionResult, final String result) {
         super();
 
         mConnectionResult = connectionResult;
         mResult = result;
-        mListSize = listSize;
     }
 
     /**
      * This constructor is used to create a empty CommandResult.
      */
     protected AbstractCommandResult() {
-        this(null, "", 0);
+        this(null, "");
     }
 
     /**
@@ -111,7 +103,12 @@ public class AbstractCommandResult {
         return hash != collection.hashCode();
     }
 
-
+    /**
+     * This method checks this result for a specific value.
+     *
+     * @param value The value to find in the response.
+     * @return True if the value is found, false otherwise.
+     */
     public boolean contains(@NotNull final CharSequence value) {
         return contains(null, value);
     }
@@ -181,13 +178,6 @@ public class AbstractCommandResult {
     }
 
     /**
-     * This method checks this result for a specific value.
-     *
-     * @param value The value to find in the response.
-     * @return True if the value is found, false otherwise.
-     */
-
-    /**
      * Returns the first string response from the media server after connection. This method is
      * mainly for debugging.
      *
@@ -223,6 +213,15 @@ public class AbstractCommandResult {
         }
 
         return version;
+    }
+
+    /**
+     * This returns the result from this command.
+     *
+     * @return The response from the sent command.
+     */
+    public String getResult() {
+        return mResult;
     }
 
     /**
@@ -274,7 +273,6 @@ public class AbstractCommandResult {
         return "CommandResult{" +
                 "mConnectionResult='" + mConnectionResult + '\'' +
                 ", mResult='" + mResult + '\'' +
-                ", mListSize=" + mListSize +
                 '}';
     }
 
@@ -283,7 +281,7 @@ public class AbstractCommandResult {
      *
      * @param <T> The type to iterate over.
      */
-    protected abstract static class AbstractResultIterator<T> implements ListIterator<T>,
+    public abstract static class AbstractResultIterator<T> implements ListIterator<T>,
             Iterable<T> {
 
         /**

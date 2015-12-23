@@ -34,7 +34,9 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * This class contains methods used to process {@link Entry} items from a {@link CommandResult}.
+ * This class contains methods used to process {@link Entry} entries from a MPD response.
+ *
+ * <p>This class is immutable, thus, thread-safe.</p>
  */
 public class EntryResponse extends ObjectResponse<Entry> {
 
@@ -44,12 +46,12 @@ public class EntryResponse extends ObjectResponse<Entry> {
     private static final String TAG = "EntryResponse";
 
     /**
-     * Sole public constructor.
+     * This constructor is used to create {@link Entry} objects from a CommandResult.
      *
-     * @param response The CommandResponse containing a Entry type MPD response.
+     * @param result The CommandResult containing a Entry type MPD result.
      */
-    public EntryResponse(final CommandResult response) {
-        super(response);
+    public EntryResponse(final CommandResult result) {
+        super(result);
     }
 
     /**
@@ -60,11 +62,20 @@ public class EntryResponse extends ObjectResponse<Entry> {
     }
 
     /**
+     * This constructor is used to create {@link Entry} objects from another compatible
+     * {@link ObjectResponse}.
+     *
+     * @param response The ObjectResponse containing a Entry type MPD response.
+     */
+    public EntryResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
      * This method returns a iterator, starting at the beginning of the response.
      *
      * @param position The position to begin the iterator at, typically beginning or end.
      * @return A iterator to return the response.
-     * @see #getList()
      */
     @Override
     protected ListIterator<Entry> listIterator(final int position) {
