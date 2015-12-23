@@ -40,6 +40,12 @@ import java.util.ListIterator;
 public class ArtistResponse extends ObjectResponse<Artist> {
 
     /**
+     * These are the block tokens to search for.
+     */
+    private static final String[] BEGINNING_BLOCK_TOKENS = {Music.RESPONSE_ARTIST,
+            Music.RESPONSE_ALBUM_ARTIST};
+
+    /**
      * The class log identifier.
      */
     private static final String TAG = "ArtistResponse";
@@ -72,16 +78,22 @@ public class ArtistResponse extends ObjectResponse<Artist> {
     }
 
     /**
+     * Returns a count of how many objects this {@code Collection} contains.
+     *
+     * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+     * if there are more than {@link Integer#MAX_VALUE} elements in this
+     * {@code Collection}.
+     */
+    @Override
+    public int size() {
+        return CommandResponse.SingleLineResultIterator.size(mResult, BEGINNING_BLOCK_TOKENS);
+    }
+
+    /**
      * This class instantiates an {@link Iterator} to iterate over {@link Artist} entries.
      */
     private static final class ArtistIterator extends
             CommandResponse.SingleLineResultIterator<Artist> {
-
-        /**
-         * These are the block tokens to search for.
-         */
-        private static final String[] BEGINNING_BLOCK_TOKENS = {Music.RESPONSE_ARTIST,
-                Music.RESPONSE_ALBUM_ARTIST};
 
         /**
          * The class log identifier.

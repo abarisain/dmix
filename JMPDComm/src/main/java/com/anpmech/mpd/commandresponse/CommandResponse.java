@@ -31,9 +31,6 @@ import com.anpmech.mpd.MPDCommand;
 import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.connection.AbstractCommandResult;
 import com.anpmech.mpd.connection.CommandResult;
-import com.anpmech.mpd.item.Directory;
-import com.anpmech.mpd.item.Music;
-import com.anpmech.mpd.item.PlaylistFile;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -96,6 +93,18 @@ public class CommandResponse extends ObjectResponse<String> {
     }
 
     /**
+     * Returns a count of how many objects this {@code Collection} contains.
+     *
+     * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+     * if there are more than {@link Integer#MAX_VALUE} elements in this
+     * {@code Collection}.
+     */
+    @Override
+    public int size() {
+        return FullBlockResultIterator.size(mResult);
+    }
+
+    /**
      * Returns the some results from the command response.
      *
      * @return Some results from the command response.
@@ -127,6 +136,23 @@ public class CommandResponse extends ObjectResponse<String> {
          */
         protected AbstractObjectResultIterator(final String result, final int position) {
             super(result, position);
+        }
+
+        /**
+         * This method counts a Void iterator for the sum of it's iteration.
+         *
+         * @param iterator The iterator to count the iterations of.
+         * @return The size of the number of items from this Void iterator.
+         */
+        protected static int count(final Iterator<Void> iterator) {
+            int size = 0;
+
+            while (iterator.hasNext()) {
+                size++;
+                iterator.next();
+            }
+
+            return size;
         }
 
         /**
@@ -170,6 +196,19 @@ public class CommandResponse extends ObjectResponse<String> {
 
             return instantiate(previousLine);
         }
+
+        /**
+         * This is used to implement a Void iterator.
+         *
+         * @return null
+         */
+        protected Void voidNext() {
+            checkNext();
+
+            setPositionNext();
+
+            return null;
+        }
     }
 
     /**
@@ -192,6 +231,26 @@ public class CommandResponse extends ObjectResponse<String> {
          */
         protected FullBlockResultIterator(final String response, final int position) {
             super(response, position);
+        }
+
+        /**
+         * Returns a count of how many objects this {@code Collection} contains.
+         *
+         * @param result The result to count the number of objects to be iterated over.
+         * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+         * if there are more than {@link Integer#MAX_VALUE} elements in this
+         * {@code Collection}.
+         */
+        protected static int size(final String result) {
+            int size = 0;
+            int position = result.indexOf(MPDCommand.MPD_CMD_NEWLINE);
+
+            while (position != -1) {
+                size++;
+                position = result.indexOf(MPDCommand.MPD_CMD_NEWLINE, position + 1);
+            }
+
+            return size;
         }
 
         /**
@@ -333,6 +392,43 @@ public class CommandResponse extends ObjectResponse<String> {
         }
 
         /**
+         * Returns a count of how many objects this {@code Collection} contains.
+         *
+         * @param result The result to count the number of objects to be iterated over.
+         * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+         * if there are more than {@link Integer#MAX_VALUE} elements in this
+         * {@code Collection}.
+         */
+        public static int size(final String result) {
+            final Iterator<Void> iterator = new MultiLineResultIterator.NoopIterator(result);
+
+            return AbstractObjectResultIterator.count(iterator);
+        }
+
+        /**
+         * Returns a count of how many objects this {@code Collection} contains.
+         *
+         * @param result           The result to count the number of objects to be iterated over.
+         * @param beginBlockTokens The block tokens to find the beginning of a block. This
+         *                         array must be sorted in ascending natural order prior to
+         *                         calling this constructor.
+         * @param endBlockTokens   The block tokens to find the ending of a block. This array
+         *                         must be sorted in ascending natural order prior to calling
+         *                         this constructor.
+         * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+         * if there are more than {@link Integer#MAX_VALUE} elements in this
+         * {@code Collection}.
+         */
+        public static int size(final String result, final String[] beginBlockTokens,
+                final String[] endBlockTokens) {
+            final Iterator<Void> iterator =
+                    new MultiLineResultIterator.NoopIterator(result, beginBlockTokens,
+                            endBlockTokens);
+
+            return AbstractObjectResultIterator.count(iterator);
+        }
+
+        /**
          * This method returns the index of the next ending token in relation to the current
          * position.
          *
@@ -370,6 +466,68 @@ public class CommandResponse extends ObjectResponse<String> {
 
             return end;
         }
+
+        /**
+         * This class implements a {@link MultiLineResultIterator} simply for counting iterations
+         * with less required garbage collection.
+         */
+        private static final class NoopIterator extends MultiLineResultIterator<Void> {
+
+            /**
+             * This constructor is used when the first token found in a response is used as the
+             * beginning and ending delimiter for a result.
+             *
+             * <p>This is used for MPD protocol results which have one single type of information
+             * in the result.</p>
+             *
+             * @param result The MPD protocol command result.
+             * @throws IllegalArgumentException If the position parameter is less than 0.
+             */
+            private NoopIterator(final String result) {
+                super(result, 0);
+            }
+
+            /**
+             * This constructor is used when either the beginning tokens or the ending tokens must
+             * be defined.
+             *
+             * @param result           The MPD protocol command result.
+             * @param beginBlockTokens The block tokens to find the beginning of a block. This
+             *                         array must be sorted in ascending natural order prior to
+             *                         calling this constructor.
+             * @param endBlockTokens   The block tokens to find the ending of a block. This array
+             *                         must be sorted in ascending natural order prior to calling
+             *                         this constructor.
+             * @throws IllegalArgumentException If the position parameter is less than 0.
+             */
+            private NoopIterator(final String result, final String[] beginBlockTokens,
+                    final String[] endBlockTokens) {
+                super(result, 0, beginBlockTokens, endBlockTokens);
+            }
+
+            /**
+             * Override this to create the Object using the response block.
+             *
+             * @param responseBlock The response block to create the Object from.
+             * @return The object created from the response block.
+             */
+            @Override
+            Void instantiate(final String responseBlock) {
+                return null;
+            }
+
+            /**
+             * Returns the next object in the iteration.
+             *
+             * @return the next object.
+             * @throws NoSuchElementException If there are no more elements.
+             * @see #hasNext
+             */
+            @Override
+            public Void next() {
+                return voidNext();
+            }
+        }
     }
 
     /**
@@ -383,12 +541,6 @@ public class CommandResponse extends ObjectResponse<String> {
      */
     private abstract static class PartialBlockResultIterator<T>
             extends AbstractObjectResultIterator<T> {
-
-        /**
-         * This is a list of all tokens which begin a new block.
-         */
-        protected static final String[] ENTRY_BLOCK_TOKENS = {Directory.RESPONSE_DIRECTORY,
-                Music.RESPONSE_FILE, PlaylistFile.RESPONSE_PLAYLIST_FILE};
 
         /**
          * The block tokens to tokenize for the beginning of the iteration for this iterator.
@@ -606,6 +758,23 @@ public class CommandResponse extends ObjectResponse<String> {
         }
 
         /**
+         * Returns a count of how many objects this {@code Collection} contains.
+         *
+         * @param result           The result to count the number of objects to be iterated over.
+         * @param beginBlockTokens The block tokens to find the beginning of a block. This
+         *                         array must be sorted in ascending natural order prior to
+         *                         calling this constructor.
+         * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+         * if there are more than {@link Integer#MAX_VALUE} elements in this
+         * {@code Collection}.
+         */
+        public static int size(final String result, final String[] beginBlockTokens) {
+            final Iterator<Void> iterator = new NoopIterator(result, 0, beginBlockTokens);
+
+            return AbstractObjectResultIterator.count(iterator);
+        }
+
+        /**
          * This method returns the index of the next ending token in relation to the current
          * position.
          *
@@ -631,6 +800,53 @@ public class CommandResponse extends ObjectResponse<String> {
             }
 
             return end;
+        }
+
+        /**
+         * This class implements a {@link SingleLineResultIterator} simply for counting iterations
+         * with less required garbage collection.
+         */
+        private static final class NoopIterator extends SingleLineResultIterator<Void> {
+
+            /**
+             * This constructor is used when either the beginning tokens or the ending tokens must
+             * be defined.
+             *
+             * @param result           The MPD protocol command result.
+             * @param position         The position relative to the result to initiate the
+             *                         {@link #mPosition} to.
+             * @param beginBlockTokens The block tokens to find the beginning of a block. This
+             *                         array must be sorted in ascending natural order prior to
+             *                         calling this constructor.
+             * @throws IllegalArgumentException If the position parameter is less than 0.
+             */
+            private NoopIterator(final String result, final int position,
+                    final String[] beginBlockTokens) {
+                super(result, position, beginBlockTokens);
+            }
+
+            /**
+             * Override this to create the Object using the response block.
+             *
+             * @param responseBlock The response block to create the Object from.
+             * @return The object created from the response block.
+             */
+            @Override
+            Void instantiate(final String responseBlock) {
+                return null;
+            }
+
+            /**
+             * Returns the next object in the iteration.
+             *
+             * @return the next object.
+             * @throws NoSuchElementException If there are no more elements.
+             * @see #hasNext
+             */
+            @Override
+            public Void next() {
+                return voidNext();
+            }
         }
     }
 }

@@ -45,12 +45,13 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
     private static final String TAG = "SeparatedResponse";
 
     /**
-     * Sole public constructor.
+     * This constructor is used to create {@link CommandResponse} objects from a CommandResult from
+     * a CommandList.
      *
-     * @param response The CommandResponse containing a SeparatedCommand type MPD response.
+     * @param result The CommandResult containing multiple MPD results.
      */
-    public SeparatedResponse(final CommandResult response) {
-        super(response);
+    public SeparatedResponse(final CommandResult result) {
+        super(result);
     }
 
     /**
@@ -61,10 +62,19 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
     }
 
     /**
+     * This constructor is used to create {@link CommandResponse} objects from another compatible
+     * {@link ObjectResponse}.
+     *
+     * @param response The ObjectResponse containing a CommandResponse type MPD response.
+     */
+    public SeparatedResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
      * This method returns a iterator, starting at the beginning of the response.
      *
      * @return A iterator to return the response.
-     * @see #getList()
      */
     @Override
     protected ListIterator<CommandResponse> listIterator(final int position) {
@@ -72,10 +82,24 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
     }
 
     /**
+     * Returns a count of how many objects this {@code Collection} contains.
+     *
+     * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+     * if there are more than {@link Integer#MAX_VALUE} elements in this
+     * {@code Collection}.
+     */
+    @Override
+    public int size() {
+        final Iterator<Void> iterator = new NoopIterator(mResult);
+
+        return CommandResponse.AbstractObjectResultIterator.count(iterator);
+    }
+
+    /**
      * This class instantiates an {@link Iterator} to iterate over {@link CommandResponse} entries.
      */
-    private static final class SeparatedIterator extends
-            CommandResponse.MultiLineResultIterator<CommandResponse> {
+    private abstract static class AbstractSeparatedIterator<T>
+            extends CommandResponse.MultiLineResultIterator<T> {
 
         /**
          * The class log identifier.
@@ -90,7 +114,7 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
         /**
          * The connection result for the CommandResult.
          */
-        private final String mConnectionResult;
+        protected final String mConnectionResult;
 
         /**
          * Sole constructor.
@@ -101,7 +125,7 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
          *                         {@link #mPosition} to.
          * @throws IllegalArgumentException if the position parameter is less than 0.
          */
-        private SeparatedIterator(final String result, final String connectionResult,
+        private AbstractSeparatedIterator(final String result, final String connectionResult,
                 final int position) {
             super(result, position);
 
@@ -114,19 +138,6 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
             }
 
             mConnectionResult = connectionResult;
-        }
-
-        /**
-         * This method instantiates the {@link CommandResponse} object with a block from the MPD
-         * server response.
-         *
-         * @param responseBlock The MPD server response to instantiate the SeparatedCommand entry
-         *                      with.
-         * @return The SeparatedCommand entry.
-         */
-        @Override
-        CommandResponse instantiate(final String responseBlock) {
-            return new CommandResponse(mConnectionResult, responseBlock);
         }
 
         /**
@@ -224,6 +235,77 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
             }
 
             return index;
+        }
+    }
+
+    /**
+     * This class implements a {@link SeparatedResponse.SeparatedIterator} which is used to count
+     * the iterations.
+     */
+    private static final class NoopIterator extends AbstractSeparatedIterator<Void> {
+
+        /**
+         * Sole constructor.
+         *
+         * @param result The MPD protocol command result.
+         */
+        private NoopIterator(final String result) {
+            super(result, null, 0);
+        }
+
+        /**
+         * This method is noop.
+         *
+         * @param responseBlock ignored
+         * @return null
+         */
+        @Override
+        Void instantiate(final String responseBlock) {
+            return null;
+        }
+
+        /**
+         * This method is noop.
+         *
+         * @return null
+         */
+        @Override
+        public Void next() {
+            return voidNext();
+        }
+    }
+
+    /**
+     * This class instantiates an {@link Iterator} to iterate over {@link CommandResponse} entries.
+     */
+    private static final class SeparatedIterator
+            extends AbstractSeparatedIterator<CommandResponse> {
+
+        /**
+         * Sole constructor.
+         *
+         * @param result           The MPD protocol command result.
+         * @param connectionResult The connectionResult from the {@link CommandResult}.
+         * @param position         The position relative to the result to initiate the
+         *                         {@link #mPosition} to.
+         * @throws IllegalArgumentException if the position parameter is less than 0.
+         */
+        private SeparatedIterator(final String result, final String connectionResult,
+                final int position) {
+            super(result, connectionResult, position);
+        }
+
+        /**
+         * This method instantiates the {@link CommandResponse} object with a block from the MPD
+         * server response.
+         *
+         * @param responseBlock The MPD server response to instantiate the SeparatedCommand entry
+         *                      with.
+         * @return The SeparatedCommand entry.
+         */
+        @Override
+        CommandResponse instantiate(final String responseBlock) {
+            return new CommandResponse(mConnectionResult, responseBlock);
         }
     }
 }

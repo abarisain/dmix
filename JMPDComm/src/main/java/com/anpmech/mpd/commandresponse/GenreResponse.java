@@ -40,6 +40,11 @@ import java.util.ListIterator;
 public class GenreResponse extends ObjectResponse<Genre> {
 
     /**
+     * This is the beginning block token to find for this multi-line response.
+     */
+    private static final String[] BLOCK_TOKEN = {Music.RESPONSE_GENRE};
+
+    /**
      * The class log identifier.
      */
     private static final String TAG = "GenreResponse";
@@ -72,15 +77,22 @@ public class GenreResponse extends ObjectResponse<Genre> {
     }
 
     /**
+     * Returns a count of how many objects this {@code Collection} contains.
+     *
+     * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+     * if there are more than {@link Integer#MAX_VALUE} elements in this
+     * {@code Collection}.
+     */
+    @Override
+    public int size() {
+        return CommandResponse.SingleLineResultIterator.size(mResult, BLOCK_TOKEN);
+    }
+
+    /**
      * This class instantiates an {@link Iterator} to iterate over {@link Genre} entries.
      */
     private static final class GenreIterator extends
             CommandResponse.SingleLineResultIterator<Genre> {
-
-        /**
-         * This is the beginning block token to find for this multi-line response.
-         */
-        private static final String[] BLOCK_TOKEN = {Music.RESPONSE_GENRE};
 
         /**
          * The class log identifier.

@@ -28,6 +28,9 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.connection.CommandResult;
+import com.anpmech.mpd.item.Directory;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.item.PlaylistFile;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +44,12 @@ import java.util.ListIterator;
  * @param <T> The type of object to create from this {@link CommandResult}.
  */
 public abstract class ObjectResponse<T> extends CommandResult implements Iterable<T> {
+
+    /**
+     * This is a list of all tokens which begin a new block.
+     */
+    protected static final String[] ENTRY_BLOCK_TOKENS = {Directory.RESPONSE_DIRECTORY,
+            Music.RESPONSE_FILE, PlaylistFile.RESPONSE_PLAYLIST_FILE};
 
     /**
      * This constructor builds this class from an empty MPD protocol result.
@@ -128,4 +137,13 @@ public abstract class ObjectResponse<T> extends CommandResult implements Iterabl
     public ListIterator<T> reverseListIterator() {
         return listIterator(mResult.length());
     }
+
+    /**
+     * Returns a count of how many objects this {@code Collection} contains.
+     *
+     * @return how many objects this {@code Collection} contains, or Integer.MAX_VALUE
+     * if there are more than Integer.MAX_VALUE elements in this
+     * {@code Collection}.
+     */
+    public abstract int size();
 }

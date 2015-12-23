@@ -72,6 +72,19 @@ public class EntryResponse extends ObjectResponse<Entry> {
     }
 
     /**
+     * Returns a count of how many objects this {@code Collection} contains.
+     *
+     * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+     * if there are more than {@link Integer#MAX_VALUE} elements in this
+     * {@code Collection}.
+     */
+    @Override
+    public int size() {
+        return CommandResponse.MultiLineResultIterator.size(mResult, ENTRY_BLOCK_TOKENS,
+                ENTRY_BLOCK_TOKENS);
+    }
+
+    /**
      * This class instantiates an {@link Iterator} to iterate over {@link Entry} entries.
      */
     private static final class EntryIterator extends

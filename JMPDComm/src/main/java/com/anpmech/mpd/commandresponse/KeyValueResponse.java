@@ -169,6 +169,18 @@ public class KeyValueResponse extends ObjectResponse<Map.Entry<String, String>> 
     }
 
     /**
+     * Returns a count of how many objects this {@code Collection} contains.
+     *
+     * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+     * if there are more than {@link Integer#MAX_VALUE} elements in this
+     * {@code Collection}.
+     */
+    @Override
+    public int size() {
+        return CommandResponse.FullBlockResultIterator.size(mResult);
+    }
+
+    /**
      * This class is used to create an {@link Iterator} to iterate over each {@code key}:{@code
      * value} of an MPD
      * command response.

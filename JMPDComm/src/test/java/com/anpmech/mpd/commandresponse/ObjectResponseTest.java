@@ -94,7 +94,7 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
      */
     @Test
     public void emptyResponseIsEmpty() {
-        assertTrue(instantiate(getEmptyResponse()).isEmpty());
+        assertTrue(getEmptyResponse().isEmpty());
     }
 
     /**
@@ -177,6 +177,39 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
         final ListIterator<T> iterator = instantiate(getResult()).listIterator();
 
         assertFalse(LOWER_BOUNDS_ERROR, iterator.hasPrevious());
+    }
+
+    /**
+     * This method checks the optimized size method to ensure it always equals 0 with an empty
+     * response.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void testEmptySize() throws IOException {
+        final String message = "Empty response failed to equal 0";
+
+        assertEquals(message, 0L, (long) getEmptyResponse().size());
+    }
+
+    /**
+     * This method checks the optimized size() method against a typical iteration.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void testSize() throws IOException {
+        final S response = instantiate(getResult());
+
+        int expectedSize = 0;
+
+        for (final Object object : response) {
+            expectedSize++;
+        }
+
+        final String message
+                = "Optimized size method failed to produce the same result as a typical iteration.";
+        assertEquals(message, (long) expectedSize, (long) response.size());
     }
 
     /**

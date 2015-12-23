@@ -41,6 +41,11 @@ import java.util.ListIterator;
 public class StreamResponse extends ObjectResponse<Stream> {
 
     /**
+     * This is the beginning block token to find for this multi-line response.
+     */
+    private static final String[] BLOCK_TOKEN = {Music.RESPONSE_FILE};
+
+    /**
      * The class log identifier.
      */
     private static final String TAG = "StreamResponse";
@@ -73,15 +78,23 @@ public class StreamResponse extends ObjectResponse<Stream> {
     }
 
     /**
+     * Returns a count of how many objects this {@code Collection} contains.
+     *
+     * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+     * if there are more than {@link Integer#MAX_VALUE} elements in this
+     * {@code Collection}.
+     */
+    @Override
+    public int size() {
+        return CommandResponse.SingleLineResultIterator.size(mResult, BLOCK_TOKEN);
+    }
+
+
+    /**
      * This class instantiates an {@link Iterator} to iterate over {@link Stream} entries.
      */
     private static final class StreamIterator extends
             CommandResponse.SingleLineResultIterator<Stream> {
-
-        /**
-         * This is the beginning block token to find for this multi-line response.
-         */
-        private static final String[] BLOCK_TOKEN = {Music.RESPONSE_FILE};
 
         /**
          * The class log identifier.

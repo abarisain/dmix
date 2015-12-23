@@ -43,6 +43,11 @@ import java.util.ListIterator;
 public class ListingResponse extends ObjectResponse<Listing> {
 
     /**
+     * This is the beginning block token to find for this multi-line response.
+     */
+    private static final String[] BLOCK_TOKEN = {Listing.RESPONSE_DIRECTORY};
+
+    /**
      * The class log identifier.
      */
     private static final String TAG = "ListingResponse";
@@ -75,15 +80,23 @@ public class ListingResponse extends ObjectResponse<Listing> {
     }
 
     /**
+     * Returns a count of how many objects this {@code Collection} contains.
+     *
+     * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+     * if there are more than {@link Integer#MAX_VALUE} elements in this
+     * {@code Collection}.
+     */
+    @Override
+    public int size() {
+        return CommandResponse.MultiLineResultIterator.size(mResult, BLOCK_TOKEN,
+                ENTRY_BLOCK_TOKENS);
+    }
+
+    /**
      * This class instantiates an {@link Iterator} to iterate over {@link Listing} entries.
      */
     private static final class ListingIterator extends
             CommandResponse.MultiLineResultIterator<Listing> {
-
-        /**
-         * This is the beginning block token to find for this multi-line response.
-         */
-        private static final String[] BLOCK_TOKEN = {Listing.RESPONSE_DIRECTORY};
 
         /**
          * The class log identifier.
