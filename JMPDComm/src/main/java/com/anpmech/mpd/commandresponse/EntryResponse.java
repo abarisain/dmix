@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Entry;
 
@@ -68,6 +69,15 @@ public class EntryResponse extends ObjectResponse<Entry> {
      * @param response The ObjectResponse containing a Entry type MPD response.
      */
     public EntryResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
+     * This constructor is used to iterate over responses in a {@link ResponseObject}.
+     *
+     * @param response The ResponseObject to iterate over.
+     */
+    public EntryResponse(final ResponseObject response) {
         super(response);
     }
 

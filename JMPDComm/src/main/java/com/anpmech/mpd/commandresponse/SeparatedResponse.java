@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.connection.MPDConnection;
 
@@ -69,6 +70,15 @@ public class SeparatedResponse extends ObjectResponse<CommandResponse> {
      * @param response The ObjectResponse containing a CommandResponse type MPD response.
      */
     public SeparatedResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
+     * This constructor is used to iterate over responses in a {@link ResponseObject}.
+     *
+     * @param response The ResponseObject to iterate over.
+     */
+    public SeparatedResponse(final ResponseObject response) {
         super(response);
     }
 

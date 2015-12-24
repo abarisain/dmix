@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.subsystem.AudioOutput;
 
@@ -63,6 +64,15 @@ public class AudioOutputResponse extends ObjectResponse<AudioOutput> {
      * @param response The ObjectResponse containing a AudioOutput type MPD response.
      */
     public AudioOutputResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
+     * This constructor is used to iterate over responses in a {@link ResponseObject}.
+     *
+     * @param response The ResponseObject to iterate over.
+     */
+    public AudioOutputResponse(final ResponseObject response) {
         super(response);
     }
 

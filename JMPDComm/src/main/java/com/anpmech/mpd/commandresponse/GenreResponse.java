@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Genre;
 import com.anpmech.mpd.item.Music;
@@ -74,6 +75,15 @@ public class GenreResponse extends ObjectResponse<Genre> {
      * @param response The ObjectResponse containing a Genre type MPD response.
      */
     public GenreResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
+     * This constructor is used to iterate over responses in a {@link ResponseObject}.
+     *
+     * @param response The ResponseObject to iterate over.
+     */
+    public GenreResponse(final ResponseObject response) {
         super(response);
     }
 

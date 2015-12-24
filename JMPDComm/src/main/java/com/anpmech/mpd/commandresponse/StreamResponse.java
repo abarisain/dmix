@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Music;
 import com.anpmech.mpd.item.Stream;
@@ -74,6 +75,15 @@ public class StreamResponse extends ObjectResponse<Stream> {
      * @param response The ObjectResponse containing a Stream type MPD response.
      */
     public StreamResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
+     * This constructor is used to iterate over responses in a {@link ResponseObject}.
+     *
+     * @param response The ResponseObject to iterate over.
+     */
+    public StreamResponse(final ResponseObject response) {
         super(response);
     }
 

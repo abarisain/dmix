@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Music;
 
@@ -73,6 +74,15 @@ public class MusicResponse extends ObjectResponse<Music> {
      * @param response The ObjectResponse containing a Music type MPD response.
      */
     public MusicResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
+     * This constructor is used to iterate over responses in a {@link ResponseObject}.
+     *
+     * @param response The ResponseObject to iterate over.
+     */
+    public MusicResponse(final ResponseObject response) {
         super(response);
     }
 

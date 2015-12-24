@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Music;
@@ -66,6 +67,15 @@ public class ArtistResponse extends ObjectResponse<Artist> {
      */
     public ArtistResponse() {
         super();
+    }
+
+    /**
+     * This constructor is used to iterate over responses in a {@link ResponseObject}.
+     *
+     * @param response The ResponseObject to iterate over.
+     */
+    public ArtistResponse(final ResponseObject response) {
+        super(response);
     }
 
     /**

@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Directory;
 import com.anpmech.mpd.item.Music;
@@ -100,6 +101,15 @@ public abstract class ObjectResponse<T> implements Collection<T> {
      */
     protected ObjectResponse(final ObjectResponse<?> response) {
         this(response.mResult);
+    }
+
+    /**
+     * This constructor is used to iterate over responses in a {@link ResponseObject}.
+     *
+     * @param response The ResponseObject to iterate over.
+     */
+    protected ObjectResponse(final ResponseObject response) {
+        this(response.getResponse());
     }
 
     /**

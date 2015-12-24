@@ -28,6 +28,7 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.connection.AbstractCommandResult;
 import com.anpmech.mpd.connection.CommandResult;
@@ -53,6 +54,15 @@ public class CommandResponse extends ObjectResponse<String> {
      * The class log identifier.
      */
     private static final String TAG = "CommandResponse";
+
+    /**
+     * This constructor is used to iterate over responses in a {@link ResponseObject}.
+     *
+     * @param response The ResponseObject to iterate over.
+     */
+    public CommandResponse(final ResponseObject response) {
+        super(response);
+    }
 
     /**
      * This constructor builds this class from the MPD protocol result.

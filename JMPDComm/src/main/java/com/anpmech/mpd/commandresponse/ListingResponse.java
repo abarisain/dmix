@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Listing;
 import com.anpmech.mpd.item.Music;
@@ -76,6 +77,15 @@ public class ListingResponse extends ObjectResponse<Listing> {
      * @param response The ObjectResponse containing a Directory type MPD response.
      */
     public ListingResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
+     * This constructor is used to iterate over responses in a {@link ResponseObject}.
+     *
+     * @param response The ResponseObject to iterate over.
+     */
+    public ListingResponse(final ResponseObject response) {
         super(response);
     }
 

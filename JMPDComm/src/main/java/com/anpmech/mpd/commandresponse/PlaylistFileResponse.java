@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.PlaylistFile;
@@ -76,6 +77,15 @@ public class PlaylistFileResponse extends ObjectResponse<PlaylistFile> {
      * @param response The ObjectResponse containing a PlaylistFile type MPD response.
      */
     public PlaylistFileResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
+     * This constructor is used to iterate over responses in a {@link ResponseObject}.
+     *
+     * @param response The ResponseObject to iterate over.
+     */
+    public PlaylistFileResponse(final ResponseObject response) {
         super(response);
     }
 

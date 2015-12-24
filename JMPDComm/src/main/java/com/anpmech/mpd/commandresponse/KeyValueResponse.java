@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd.commandresponse;
 
+import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.connection.AbstractCommandResult.AbstractResultIterator;
 import com.anpmech.mpd.connection.CommandResult;
 
@@ -79,6 +80,15 @@ public class KeyValueResponse extends ObjectResponse<Map.Entry<String, String>> 
      * @param response The ObjectResponse containing a {@code key}:{@code value} type MPD response.
      */
     public KeyValueResponse(final ObjectResponse<?> response) {
+        super(response);
+    }
+
+    /**
+     * This constructor is used to iterate over responses in a {@link ResponseObject}.
+     *
+     * @param response The ResponseObject to iterate over.
+     */
+    public KeyValueResponse(final ResponseObject response) {
         super(response);
     }
 
