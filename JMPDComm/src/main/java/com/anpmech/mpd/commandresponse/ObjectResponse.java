@@ -259,7 +259,12 @@ public abstract class ObjectResponse<T> implements Collection<T> {
             i++;
         }
 
-        if (i != location || !iterator.hasNext()) {
+        if (!iterator.hasNext()) {
+            throw new IndexOutOfBoundsException("Location " + location + " does not exist in " +
+            "this collection.");
+        }
+
+        if (i != location) {
             throw new IndexOutOfBoundsException("Location: " + location + " is less than the size"
                     + " of this collection: " + i);
         }

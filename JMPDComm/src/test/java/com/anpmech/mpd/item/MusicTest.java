@@ -29,6 +29,7 @@ package com.anpmech.mpd.item;
 
 import com.anpmech.mpd.TestTools;
 import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.commandresponse.GenreResponse;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -341,9 +342,17 @@ public final class MusicTest {
             final String filePath = entry.getKey();
             final String expectedValue = getValue(filePath, AbstractMusic.RESPONSE_GENRE);
             final Music music = mMusicList.get(filePath);
+            final GenreResponse genres = music.getGenres();
             final String msg = TestTools.getMatchMsg("Genre Name", filePath);
+            final String genreName;
 
-            assertEquals(msg, expectedValue, music.getGenreName());
+            if (genres.isEmpty()) {
+                genreName = null;
+            } else {
+                genreName = genres.get(0).getName();
+            }
+
+            assertEquals(msg, expectedValue, genreName);
         }
     }
 

@@ -87,6 +87,21 @@ public class Music extends AbstractMusic<Music> {
     }
 
     /**
+     * This method puts {@link Item}s from a {@link Iterable} into a {@link MediaMetadata.Builder}.
+     *
+     * @param metadata The {@code MediaMetadata.Builder} object to put the Items into.
+     * @param key      The key to store the items in.
+     * @param response The response to iterate over to put into the metadata builder.
+     */
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private static void putResponseObject(final MediaMetadata.Builder metadata, final String key,
+            final Iterable<? extends Item<?>> response) {
+        for (final Item<?> item : response) {
+            metadata.putString(key, item.getName());
+        }
+    }
+
+    /**
      * Adds metadata from the current track to a {@code MediaMetadata.Builder} object.
      *
      * @param metadata The constructed {@code MediaMetadata.Builder} object to add the current
@@ -106,8 +121,9 @@ public class Music extends AbstractMusic<Music> {
                 .putString(MediaMetadata.METADATA_KEY_ARTIST, getArtistName())
                 .putString(MediaMetadata.METADATA_KEY_COMPOSER, getComposerName())
                 .putString(MediaMetadata.METADATA_KEY_DATE, Long.toString(getDate()))
-                .putString(MediaMetadata.METADATA_KEY_GENRE, getGenreName())
                 .putString(MediaMetadata.METADATA_KEY_TITLE, getTitle());
+
+        putResponseObject(metadata, MediaMetadata.METADATA_KEY_GENRE, getGenres());
     }
 
     /**

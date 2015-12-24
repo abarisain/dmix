@@ -30,6 +30,7 @@ package com.anpmech.mpd.item;
 import com.anpmech.mpd.Log;
 import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.commandresponse.GenreResponse;
 import com.anpmech.mpd.exception.InvalidResponseException;
 
 import org.jetbrains.annotations.NotNull;
@@ -525,12 +526,12 @@ abstract class AbstractMusic<T extends AbstractMusic<T>> extends AbstractEntry<T
     }
 
     /**
-     * Retrieves the genre name for this track.
+     * Retrieves the genres for this track.
      *
-     * @return The genre name for this track.
+     * @return The genres for this track.
      */
-    public String getGenreName() {
-        return findValue(RESPONSE_GENRE);
+    public GenreResponse getGenres() {
+        return new GenreResponse(mResponseObject);
     }
 
     /**
