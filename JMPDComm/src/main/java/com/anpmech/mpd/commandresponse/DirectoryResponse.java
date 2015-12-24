@@ -28,11 +28,10 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.ResponseObject;
+import com.anpmech.mpd.commandresponse.iterator.DirectoryIterator;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Directory;
-import com.anpmech.mpd.item.Music;
 
-import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
@@ -43,11 +42,6 @@ import java.util.ListIterator;
  * @see ListingResponse
  */
 public class DirectoryResponse extends ObjectResponse<Directory> {
-
-    /**
-     * This is the beginning block token to find for this multi-line response.
-     */
-    private static final String[] BLOCK_TOKEN = {Directory.RESPONSE_DIRECTORY};
 
     /**
      * The class log identifier.
@@ -102,49 +96,11 @@ public class DirectoryResponse extends ObjectResponse<Directory> {
     /**
      * Returns a count of how many objects this {@code Collection} contains.
      *
-     * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
-     * if there are more than {@link Integer#MAX_VALUE} elements in this
-     * {@code Collection}.
+     * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE} if
+     * there are more than {@link Integer#MAX_VALUE} elements in this {@code Collection}.
      */
     @Override
     public int size() {
-        return CommandResponse.MultiLineResultIterator.size(mResult, BLOCK_TOKEN,
-                ENTRY_BLOCK_TOKENS);
-    }
-
-    /**
-     * This class instantiates an {@link Iterator} to iterate over {@link Directory} entries.
-     */
-    private static final class DirectoryIterator extends
-            CommandResponse.MultiLineResultIterator<Directory> {
-
-        /**
-         * The class log identifier.
-         */
-        private static final String TAG = "DirectoryIterator";
-
-        /**
-         * Sole constructor.
-         *
-         * @param result   The MPD protocol command result.
-         * @param position The position relative to the result to initiate the {@link #mPosition}
-         *                 to.
-         * @throws IllegalArgumentException if the position parameter is less than 0.
-         */
-        private DirectoryIterator(final String result, final int position) {
-            super(result, position, BLOCK_TOKEN, ENTRY_BLOCK_TOKENS);
-        }
-
-        /**
-         * This method instantiates the {@link Music} object with a block from the MPD server
-         * response.
-         *
-         * @param responseBlock The MPD server response to instantiate the Music entry with.
-         * @return The Music entry.
-         */
-        @Override
-        Directory instantiate(final String responseBlock) {
-            return Directory.byResponse(responseBlock);
-        }
+        return DirectoryIterator.size(mResult);
     }
 }

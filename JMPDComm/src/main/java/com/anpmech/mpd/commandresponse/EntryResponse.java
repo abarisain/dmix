@@ -28,10 +28,10 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.ResponseObject;
+import com.anpmech.mpd.commandresponse.iterator.EntryIterator;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Entry;
 
-import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
@@ -96,48 +96,10 @@ public class EntryResponse extends ObjectResponse<Entry> {
      * Returns a count of how many objects this {@code Collection} contains.
      *
      * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
-     * if there are more than {@link Integer#MAX_VALUE} elements in this
-     * {@code Collection}.
+     * if there are more than {@link Integer#MAX_VALUE} elements in this {@code Collection}.
      */
     @Override
     public int size() {
-        return CommandResponse.MultiLineResultIterator.size(mResult, ENTRY_BLOCK_TOKENS,
-                ENTRY_BLOCK_TOKENS);
-    }
-
-    /**
-     * This class instantiates an {@link Iterator} to iterate over {@link Entry} entries.
-     */
-    private static final class EntryIterator extends
-            CommandResponse.MultiLineResultIterator<Entry> {
-
-        /**
-         * The class log identifier.
-         */
-        private static final String TAG = "EntryIterator";
-
-        /**
-         * Sole constructor.
-         *
-         * @param result   The MPD protocol command result.
-         * @param position The position relative to the result to initiate the {@link #mPosition}
-         *                 to.
-         * @throws IllegalArgumentException if the position parameter is less than 0.
-         */
-        private EntryIterator(final String result, final int position) {
-            super(result, position, ENTRY_BLOCK_TOKENS, ENTRY_BLOCK_TOKENS);
-        }
-
-        /**
-         * This method instantiates the {@link Entry} object with a block from the MPD server
-         * response.
-         *
-         * @param responseBlock The MPD server response to instantiate the Entry item with.
-         * @return The Entry item.
-         */
-        @Override
-        Entry instantiate(final String responseBlock) {
-            return new Entry(responseBlock);
-        }
+        return EntryIterator.size(mResult);
     }
 }

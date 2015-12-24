@@ -26,7 +26,6 @@
  */
 
 /**
- * This package contains {@link java.util.Collection}s for processing {@link
- * com.anpmech.mpd.connection.CommandResult} Objects.
+ * This package contains {@link java.util.Iterator}s for iterating over MPD responses.
  */
-package com.anpmech.mpd.commandresponse;
+package com.anpmech.mpd.commandresponse.iterator;

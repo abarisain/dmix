@@ -29,9 +29,6 @@ package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.ResponseObject;
 import com.anpmech.mpd.connection.CommandResult;
-import com.anpmech.mpd.item.Directory;
-import com.anpmech.mpd.item.Music;
-import com.anpmech.mpd.item.PlaylistFile;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -49,12 +46,6 @@ import java.util.ListIterator;
  * @param <T> The type of object to create from this {@link CommandResult}.
  */
 public abstract class ObjectResponse<T> implements Collection<T> {
-
-    /**
-     * This is a list of all tokens which begin a new block.
-     */
-    protected static final String[] ENTRY_BLOCK_TOKENS = {Directory.RESPONSE_DIRECTORY,
-            Music.RESPONSE_FILE, PlaylistFile.RESPONSE_PLAYLIST_FILE};
 
     /**
      * This is the error message thrown by an exception if mutation is attempted by this class.
@@ -261,7 +252,7 @@ public abstract class ObjectResponse<T> implements Collection<T> {
 
         if (!iterator.hasNext()) {
             throw new IndexOutOfBoundsException("Location " + location + " does not exist in " +
-            "this collection.");
+                    "this collection.");
         }
 
         if (i != location) {

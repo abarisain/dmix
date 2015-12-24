@@ -25,8 +25,47 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package com.anpmech.mpd.commandresponse.iterator;
+
+import java.util.Iterator;
+
 /**
- * This package contains {@link java.util.Collection}s for processing {@link
- * com.anpmech.mpd.connection.CommandResult} Objects.
+ * This class is used to create an {@link Iterator} to iterate over each individual line of a
+ * MPD command response.
  */
-package com.anpmech.mpd.commandresponse;
+public class ResultIterator extends FullBlockResult<String> {
+
+    /**
+     * Sole constructor.
+     *
+     * @param result   The MPD protocol command result.
+     * @param position The position relative to the result to initiate the
+     *                 {@link FullBlockResult#mPosition} to.
+     */
+    public ResultIterator(final String result, final int position) {
+        super(result, position);
+    }
+
+    /**
+     * Returns a count of how many objects this {@code Collection} contains.
+     *
+     * @param result The MPD result to get the size for.
+     * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
+     * if there are more than {@link Integer#MAX_VALUE} elements in this
+     * {@code Collection}.
+     */
+    public static int size(final String result) {
+        return FullBlockResult.count(result);
+    }
+
+    /**
+     * Override this to create the Object using the response block.
+     *
+     * @param responseBlock The response block to create the Object from.
+     * @return The object created from the response block.
+     */
+    @Override
+    protected String instantiate(final String responseBlock) {
+        return responseBlock;
+    }
+}

@@ -25,8 +25,40 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package com.anpmech.mpd.commandresponse.iterator;
+
 /**
- * This package contains {@link java.util.Collection}s for processing {@link
- * com.anpmech.mpd.connection.CommandResult} Objects.
+ * This class implements a {@link SeparatedResultIterator} which is used to count the iterations.
  */
-package com.anpmech.mpd.commandresponse;
+class SeparatedResultNoop extends AbstractSeparatedResult<Void> {
+
+    /**
+     * Sole constructor.
+     *
+     * @param result The MPD protocol command result.
+     */
+    SeparatedResultNoop(final String result) {
+        super(result, 0);
+    }
+
+    /**
+     * This method is noop.
+     *
+     * @param responseBlock ignored
+     * @return null
+     */
+    @Override
+    protected Void instantiate(final String responseBlock) {
+        return null;
+    }
+
+    /**
+     * This method is noop.
+     *
+     * @return null
+     */
+    @Override
+    public Void next() {
+        return voidNext();
+    }
+}

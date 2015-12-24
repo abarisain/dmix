@@ -28,11 +28,10 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.ResponseObject;
+import com.anpmech.mpd.commandresponse.iterator.ArtistIterator;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Artist;
-import com.anpmech.mpd.item.Music;
 
-import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
@@ -41,12 +40,6 @@ import java.util.ListIterator;
  * <p>This class is immutable, thus, thread-safe.</p>
  */
 public class ArtistResponse extends ObjectResponse<Artist> {
-
-    /**
-     * These are the block tokens to search for.
-     */
-    private static final String[] BEGINNING_BLOCK_TOKENS = {Music.RESPONSE_ARTIST,
-            Music.RESPONSE_ALBUM_ARTIST};
 
     /**
      * The class log identifier.
@@ -102,47 +95,10 @@ public class ArtistResponse extends ObjectResponse<Artist> {
      * Returns a count of how many objects this {@code Collection} contains.
      *
      * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
-     * if there are more than {@link Integer#MAX_VALUE} elements in this
-     * {@code Collection}.
+     * if there are more than {@link Integer#MAX_VALUE} elements in this {@code Collection}.
      */
     @Override
     public int size() {
-        return CommandResponse.SingleLineResultIterator.size(mResult, BEGINNING_BLOCK_TOKENS);
-    }
-
-    /**
-     * This class instantiates an {@link Iterator} to iterate over {@link Artist} entries.
-     */
-    private static final class ArtistIterator extends
-            CommandResponse.SingleLineResultIterator<Artist> {
-
-        /**
-         * The class log identifier.
-         */
-        private static final String TAG = "ArtistIterator";
-
-        /**
-         * Sole constructor.
-         *
-         * @param result   The MPD protocol command result.
-         * @param position The position relative to the result to initiate the {@link #mPosition}
-         *                 to.
-         * @throws IllegalArgumentException if the position parameter is less than 0.
-         */
-        private ArtistIterator(final String result, final int position) {
-            super(result, position, BEGINNING_BLOCK_TOKENS);
-        }
-
-        /**
-         * This method instantiates the {@link Artist} object with a block from the MPD server
-         * response.
-         *
-         * @param responseBlock The MPD server response to instantiate the Artist entry with.
-         * @return The Artist entry.
-         */
-        @Override
-        Artist instantiate(final String responseBlock) {
-            return Artist.byResponse(responseBlock);
-        }
+        return ArtistIterator.size(mResult);
     }
 }

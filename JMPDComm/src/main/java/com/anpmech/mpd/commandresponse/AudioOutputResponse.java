@@ -28,10 +28,10 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.ResponseObject;
+import com.anpmech.mpd.commandresponse.iterator.AudioOutputIterator;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.subsystem.AudioOutput;
 
-import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
@@ -91,49 +91,10 @@ public class AudioOutputResponse extends ObjectResponse<AudioOutput> {
      * Returns a count of how many objects this {@code Collection} contains.
      *
      * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
-     * if there are more than {@link Integer#MAX_VALUE} elements in this
-     * {@code Collection}.
+     * if there are more than {@link Integer#MAX_VALUE} elements in this {@code Collection}.
      */
     @Override
     public int size() {
-        return CommandResponse.MultiLineResultIterator.size(mResult);
-    }
-
-    /**
-     * This class instantiates an {@link Iterator} to iterate over {@link AudioOutput} entries.
-     */
-    private static final class AudioOutputIterator
-            extends CommandResponse.MultiLineResultIterator<AudioOutput> {
-
-        /**
-         * Class log identifier.
-         */
-        private static final String TAG = "AudioOutputIterator";
-
-        /**
-         * Sole constructor.
-         *
-         * @param response The MPD protocol command response.
-         * @param position The position relative to the response to initiate the
-         *                 {@link #mPosition} to.
-         */
-        private AudioOutputIterator(final String response, final int position) {
-            /**
-             * The initial line of this response is implementation dependent. Use the constructor
-             * which will generate the beginning block from the first key.
-             */
-            super(response, position);
-        }
-
-        /**
-         * Override this to create the Object using the response block.
-         *
-         * @param responseBlock The response block to create the Object from.
-         * @return The object created from the response block.
-         */
-        @Override
-        AudioOutput instantiate(final String responseBlock) {
-            return new AudioOutput(responseBlock);
-        }
+        return AudioOutputIterator.size(mResult);
     }
 }

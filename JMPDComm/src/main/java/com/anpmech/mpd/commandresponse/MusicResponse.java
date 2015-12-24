@@ -28,10 +28,10 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.ResponseObject;
+import com.anpmech.mpd.commandresponse.iterator.MusicIterator;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Music;
 
-import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
@@ -40,11 +40,6 @@ import java.util.ListIterator;
  * <p>This class is immutable, thus, thread-safe.</p>
  */
 public class MusicResponse extends ObjectResponse<Music> {
-
-    /**
-     * This is the beginning block token to find for this multi-line response.
-     */
-    private static final String[] BLOCK_TOKEN = {Music.RESPONSE_FILE};
 
     /**
      * The class log identifier.
@@ -100,48 +95,10 @@ public class MusicResponse extends ObjectResponse<Music> {
      * Returns a count of how many objects this {@code Collection} contains.
      *
      * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
-     * if there are more than {@link Integer#MAX_VALUE} elements in this
-     * {@code Collection}.
+     * if there are more than {@link Integer#MAX_VALUE} elements in this {@code Collection}.
      */
     @Override
     public int size() {
-        return CommandResponse.MultiLineResultIterator.size(mResult, BLOCK_TOKEN,
-                ENTRY_BLOCK_TOKENS);
-    }
-
-    /**
-     * This class instantiates an {@link Iterator} to iterate over {@link Music} entries.
-     */
-    private static final class MusicIterator extends
-            CommandResponse.MultiLineResultIterator<Music> {
-
-        /**
-         * The class log identifier.
-         */
-        private static final String TAG = "MusicIterator";
-
-        /**
-         * Sole constructor.
-         *
-         * @param result   The MPD protocol command result.
-         * @param position The position relative to the result to initiate the {@link #mPosition}
-         *                 to.
-         * @throws IllegalArgumentException if the position parameter is less than 0.
-         */
-        private MusicIterator(final String result, final int position) {
-            super(result, position, BLOCK_TOKEN, ENTRY_BLOCK_TOKENS);
-        }
-
-        /**
-         * This method instantiates the {@link Music} object with a block from the MPD server
-         * response.
-         *
-         * @param responseBlock The MPD server response to instantiate the Music entry with.
-         * @return The Music entry.
-         */
-        @Override
-        Music instantiate(final String responseBlock) {
-            return new Music(responseBlock);
-        }
+        return MusicIterator.size(mResult);
     }
 }

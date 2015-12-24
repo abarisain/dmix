@@ -28,11 +28,10 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.ResponseObject;
+import com.anpmech.mpd.commandresponse.iterator.ListingIterator;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Listing;
-import com.anpmech.mpd.item.Music;
 
-import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
@@ -43,11 +42,6 @@ import java.util.ListIterator;
  * @see DirectoryResponse
  */
 public class ListingResponse extends ObjectResponse<Listing> {
-
-    /**
-     * This is the beginning block token to find for this multi-line response.
-     */
-    private static final String[] BLOCK_TOKEN = {Listing.RESPONSE_DIRECTORY};
 
     /**
      * The class log identifier.
@@ -103,48 +97,10 @@ public class ListingResponse extends ObjectResponse<Listing> {
      * Returns a count of how many objects this {@code Collection} contains.
      *
      * @return how many objects this {@code Collection} contains, or {@link Integer#MAX_VALUE}
-     * if there are more than {@link Integer#MAX_VALUE} elements in this
-     * {@code Collection}.
+     * if there are more than {@link Integer#MAX_VALUE} elements in this {@code Collection}.
      */
     @Override
     public int size() {
-        return CommandResponse.MultiLineResultIterator.size(mResult, BLOCK_TOKEN,
-                ENTRY_BLOCK_TOKENS);
-    }
-
-    /**
-     * This class instantiates an {@link Iterator} to iterate over {@link Listing} entries.
-     */
-    private static final class ListingIterator extends
-            CommandResponse.MultiLineResultIterator<Listing> {
-
-        /**
-         * The class log identifier.
-         */
-        private static final String TAG = "ListingIterator";
-
-        /**
-         * Sole constructor.
-         *
-         * @param result   The MPD protocol command result.
-         * @param position The position relative to the result to initiate the {@link #mPosition}
-         *                 to.
-         * @throws IllegalArgumentException if the position parameter is less than 0.
-         */
-        private ListingIterator(final String result, final int position) {
-            super(result, position, BLOCK_TOKEN, ENTRY_BLOCK_TOKENS);
-        }
-
-        /**
-         * This method instantiates the {@link Music} object with a block from the MPD server
-         * response.
-         *
-         * @param responseBlock The MPD server response to instantiate the Music entry with.
-         * @return The Music entry.
-         */
-        @Override
-        Listing instantiate(final String responseBlock) {
-            return Listing.byResponse(responseBlock);
-        }
+        return ListingIterator.size(mResult);
     }
 }
