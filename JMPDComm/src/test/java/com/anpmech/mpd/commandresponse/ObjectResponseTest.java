@@ -285,6 +285,19 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
     protected abstract S getEmptyResponse();
 
     /**
+     * This method tests that an {@link IndexOutOfBoundsException} exception is thrown if the
+     * argument to {@link ObjectResponse#get(int)} is less than 0.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void getLowerBounds() throws IOException {
+        expectMutationException(mException, IndexOutOfBoundsException.class);
+
+        instantiate(getResult()).get(-1);
+    }
+
+    /**
      * This returns a path to a test sample file to construct a CommandResult from.
      *
      * @return A path to a test sample file.
@@ -300,6 +313,22 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
      */
     protected CommandResult getResult() throws IOException {
         return CommandResultCreator.generate(getResponsePath());
+    }
+
+    /**
+     * This method tests that an {@link IndexOutOfBoundsException} exception is thrown if the
+     * argument to {@link ObjectResponse#get(int)} is {@code >=} {@link ObjectResponse#size()} per
+     * the {@link List} interface.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+    @Test
+    public void getUpperBounds() throws IOException {
+        final S response = instantiate(getResult());
+        expectMutationException(mException, IndexOutOfBoundsException.class);
+
+        response.get(response.size());
     }
 
     /**
@@ -397,6 +426,29 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
         final String message = "Empty response failed to equal 0";
 
         assertEquals(message, 0L, (long) getEmptyResponse().size());
+    }
+
+    /**
+     * This method tests that the {@link ObjectResponse#get(int)} method consistently outputs the
+     * same as a {@link List#get(int)} implementation.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void testGetMethod() throws IOException {
+        final String errorMessage = "The collection get implementation failed to match a List"
+                + " get() implementation.";
+        final S collection = instantiate(getResult());
+        final List<T> list = new ArrayList<>(collection);
+        final int location;
+
+        if (collection.size() > 1) {
+            location = 1;
+        } else {
+            location = 0;
+        }
+
+        assertEquals(errorMessage, collection.get(location), list.get(location));
     }
 
     /**

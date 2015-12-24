@@ -234,6 +234,30 @@ public abstract class ObjectResponse<T> implements Collection<T> {
     }
 
     /**
+     * Returns the element at the specified location in this {@code List}.
+     *
+     * @param location the index of the element to return.
+     * @return the element at the specified location.
+     * @throws IndexOutOfBoundsException if {@code location < 0 || location >= size()}
+     */
+    public T get(final int location) {
+        final Iterator<T> iterator = iterator();
+        int i = 0;
+
+        while (iterator.hasNext() && i != location) {
+            iterator.next();
+            i++;
+        }
+
+        if (i != location || !iterator.hasNext()) {
+            throw new IndexOutOfBoundsException("Location: " + location + " is less than the size"
+                    + " of this collection: " + i);
+        }
+
+        return iterator.next();
+    }
+
+    /**
      * Returns an integer hash code for this object. By contract, any two objects for which
      * {@link #equals} returns {@code true} must return the same hash code value. This means that
      * subclasses of {@code Object} usually override both methods or neither method.
