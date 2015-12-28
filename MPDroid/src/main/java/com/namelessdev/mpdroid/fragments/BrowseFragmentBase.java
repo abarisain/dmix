@@ -78,6 +78,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
         OnMenuItemClickListener, AsyncExecListener, OnItemClickListener, StatusChangeListener,
@@ -108,6 +109,11 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
      */
     protected static final int PLAYLIST_ADD_GROUP = 1;
 
+    /**
+     * This is a collection of current playlist files.
+     */
+    protected static final Collection<PlaylistFile> PLAYLIST_FILES = new ArrayList<>();
+
     protected static final String TAG = "BrowseFragment";
 
     /**
@@ -130,11 +136,6 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
 
     protected final List<T> mItems = new ArrayList<>();
 
-    /**
-     * This is a collection of current playlist files.
-     */
-    protected final Collection<PlaylistFile> mPlaylistFiles = new ArrayList<>();
-
     final int mIrAdd;
 
     final int mIrAdded;
@@ -148,6 +149,11 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
             asyncUpdate();
         }
     };
+
+    /**
+     * This is set to true to ensure the playlist is only updated once, since it is static.
+     */
+    private final AtomicBoolean mPlaylistUpdated = new AtomicBoolean();
 
     protected AbsListView mList;
 
@@ -483,7 +489,7 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
                         R.string.newPlaylist);
                 menuItem.setOnMenuItemClickListener(this);
 
-                for (final PlaylistFile pl : mPlaylistFiles) {
+                for (final PlaylistFile pl : PLAYLIST_FILES) {
                     menuItem = playlistMenu.add(ADD_TO_PLAYLIST, id++, index, pl.getName());
                     menuItem.setOnMenuItemClickListener(this);
                 }
@@ -598,7 +604,7 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
 
         mApp.getMPD().getConnectionStatus().addListener(this);
         mApp.addStatusChangeListener(this);
-        IntentFilter filter = new IntentFilter(MPDApplication.INTENT_ACTION_REFRESH);
+        final IntentFilter filter = new IntentFilter(MPDApplication.INTENT_ACTION_REFRESH);
         LocalBroadcastManager.getInstance(MPDApplication.getInstance()).registerReceiver(
                 mLocalBroadcastReceiver, filter);
         checkDatabase();
@@ -608,7 +614,11 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
     public void onStart() {
         super.onStart();
 
-        if (mApp.getMPD().isConnected()) {
+        /**
+         * Every Fragment is initialized on start, to prevent initializing the playlist during each
+         * Fragment initialization, the mPlaylistUpdated boolean should only allow one through.
+         */
+        if (!mPlaylistUpdated.getAndSet(true) && mApp.getMPD().isConnected()) {
             storedPlaylistChanged();
         }
     }
@@ -796,7 +806,7 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
 
         if (playlistAvailable && context != null) {
             final Runnable getPlaylistList =
-                    new UpdatePlaylistList(mPlaylistFiles, context);
+                    new UpdatePlaylistList(PLAYLIST_FILES, context);
 
             mApp.getAsyncHelper().execAsync(this, UPDATE_PLAYLISTS, getPlaylistList);
         }

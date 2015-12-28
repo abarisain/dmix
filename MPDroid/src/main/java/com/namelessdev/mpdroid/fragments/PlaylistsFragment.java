@@ -47,7 +47,7 @@ import java.io.IOException;
 /**
  * This Fragment lists the current stored {@link PlaylistFile}s.
  *
- * This class is kept updated via the {@link BrowseFragmentBase#mPlaylistFiles} Collection. This
+ * This class is kept updated via the {@link BrowseFragmentBase#PLAYLIST_FILES} Collection. This
  * collection will not include the {@link Stream#PLAYLIST_NAME} playlist. That playlist is
  * considered special and used only with the {@link StreamsFragment}.
  */
@@ -88,7 +88,7 @@ public class PlaylistsFragment extends BrowseFragment<PlaylistFile> {
          * Piggyback off the stored playlists already populating {@link BrowseFragmentBase}.
          */
         if (token.equals(UPDATE_PLAYLISTS)) {
-            replaceItems(mPlaylistFiles);
+            replaceItems(PLAYLIST_FILES);
             updateList();
         }
     }
