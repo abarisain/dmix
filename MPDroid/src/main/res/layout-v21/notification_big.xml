@@ -16,8 +16,7 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="128dp"
-    android:background="#424242">
+    android:layout_height="128dp">
 
     <ImageView
         android:id="@+id/notificationIcon"
@@ -49,7 +48,7 @@
             android:gravity="center_vertical"
             android:maxLines="1"
             android:singleLine="true"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/black" />
         <!-- Move the Artist & Title close to each other -->
         <TextView
             android:id="@+id/notificationArtist"
@@ -61,7 +60,8 @@
             android:gravity="bottom"
             android:maxLines="1"
             android:singleLine="true"
-            android:textAppearance="?android:textAppearanceSmall" />
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="#ff6b6b6b" />
 
         <TextView
             android:id="@+id/notificationAlbum"
@@ -73,7 +73,8 @@
             android:gravity="top"
             android:maxLines="1"
             android:singleLine="true"
-            android:textAppearance="?android:textAppearanceSmall" />
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="#ff6b6b6b" />
     </LinearLayout>
 
     <ImageView
@@ -82,7 +83,7 @@
         android:layout_height="1dip"
         android:layout_above="@+id/notificationButtons"
         android:layout_toRightOf="@+id/notificationIcon"
-        android:background="@color/notification_separator"
+        android:background="#ff6b6b6b"
         android:contentDescription="@string/separatorDescription" />
 
     <LinearLayout
@@ -104,7 +105,8 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:contentDescription="@string/previous"
-            android:src="@drawable/ic_media_previous" />
+            android:src="@drawable/ic_media_previous"
+            android:tint="@android:color/black" />
 
         <ImageView
             android:id="@+id/notificationPlayPause"
@@ -113,7 +115,8 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:contentDescription="@string/nowPlaying"
-            android:src="@drawable/ic_media_pause" />
+            android:src="@drawable/ic_media_pause"
+            android:tint="@android:color/black" />
 
         <ImageView
             android:id="@+id/notificationNext"
@@ -122,7 +125,8 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:contentDescription="@string/playNext"
-            android:src="@drawable/ic_media_next" />
+            android:src="@drawable/ic_media_next"
+            android:tint="@android:color/black" />
     </LinearLayout>
 
     <ImageView
@@ -132,5 +136,6 @@
         android:layout_height="40dp"
         android:layout_alignParentRight="true"
         android:contentDescription="@string/stop"
-        android:src="@drawable/ic_close_notification" />
+        android:src="@drawable/ic_close_notification"
+        android:tint="@android:color/black" />
 </RelativeLayout>
