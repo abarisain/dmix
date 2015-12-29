@@ -340,6 +340,50 @@ public abstract class ObjectResponseTest<T, S extends ObjectResponse<T>> {
     protected abstract S instantiate(final CommandResult result);
 
     /**
+     * This method tests to ensure that if {@code ObjectResponse.listIterator().add(Object)} is
+     * called, that a {@link UnsupportedOperationException} is thrown per the
+     * {@link ListIterator#add(Object)} interface as this {@code ListIterator} is immutable.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+    @Test
+    public void iteratorAddException() throws IOException {
+        expectUnsupportedOperation(mException);
+
+        instantiate(getResult()).listIterator().add(null);
+    }
+
+    /**
+     * This method tests to ensure that if {@code ObjectResponse.listIterator().remove()} is
+     * called, that a {@link UnsupportedOperationException} is thrown per the
+     * {@link ListIterator#remove()} interface as this {@code ListIterator} is immutable.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+    @Test
+    public void iteratorRemoveException() throws IOException {
+        expectUnsupportedOperation(mException);
+
+        instantiate(getResult()).listIterator().remove();
+    }
+
+    /**
+     * This method tests to ensure that if {@code ObjectResponse.listIterator().set(Object)} is
+     * called, that a {@link UnsupportedOperationException} is thrown per the
+     * {@link ListIterator#set(Object)} interface as this {@code ListIterator} is immutable.
+     *
+     * @throws IOException Thrown if there is a issue retrieving the result file.
+     */
+    @Test
+    public void iteratorSetException() throws IOException {
+        expectMutationException(mException, UnsupportedOperationException.class);
+
+        instantiate(getResult()).listIterator().set(null);
+    }
+
+    /**
      * This method ensures the {@link ObjectResponse} subclass throws a {@link
      * NoSuchElementException} upon the lower bounds of the {@link Iterator}.
      *
