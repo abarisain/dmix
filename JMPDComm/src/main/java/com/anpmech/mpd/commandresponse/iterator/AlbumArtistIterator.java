@@ -34,19 +34,19 @@ import java.util.Iterator;
 
 /**
  * This class instantiates an {@link Iterator} to iterate over {@link Artist} entries of the
- * artist type.
+ * album artist type.
  */
-public class ArtistIterator extends SingleLineResult<Artist> {
+public class AlbumArtistIterator extends SingleLineResult<Artist> {
 
     /**
      * The artist type to use to generate the Iterator.
      */
-    private static final String[] ARTIST_TYPE = {Music.RESPONSE_ARTIST};
+    private static final String[] ARTIST_TYPE = {Music.RESPONSE_ALBUM_ARTIST};
 
     /**
      * The class log identifier.
      */
-    private static final String TAG = "ArtistIterator";
+    private static final String TAG = "AlbumArtistIterator";
 
     /**
      * Sole constructor.
@@ -56,7 +56,7 @@ public class ArtistIterator extends SingleLineResult<Artist> {
      *                 to.
      * @throws IllegalArgumentException if the position parameter is less than 0.
      */
-    public ArtistIterator(final String result, final int position) {
+    public AlbumArtistIterator(final String result, final int position) {
         super(result, position, ARTIST_TYPE);
     }
 

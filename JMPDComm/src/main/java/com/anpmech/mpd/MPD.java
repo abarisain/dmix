@@ -27,6 +27,7 @@
 
 package com.anpmech.mpd;
 
+import com.anpmech.mpd.commandresponse.AlbumArtistResponse;
 import com.anpmech.mpd.commandresponse.ArtistResponse;
 import com.anpmech.mpd.commandresponse.AudioOutputResponse;
 import com.anpmech.mpd.commandresponse.CommandResponse;
@@ -159,6 +160,22 @@ public class MPD {
         return MPDCommand.create(MPDCommand.MPD_CMD_COUNT,
                 Music.TAG_ALBUM, album.getName(),
                 artistPair[0], artistPair[1]);
+    }
+
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    private static List<Artist> getMergedArtists(final MPDConnection connection,
+            final CommandQueue commandQueue) throws IOException, MPDException {
+        final CommandResult result = connection.submit(commandQueue).get();
+
+        final ArtistResponse artists = new ArtistResponse(result);
+        final AlbumArtistResponse albumArtists = new AlbumArtistResponse(result);
+
+        final List<Artist> artistList = new ArrayList<>(artists);
+        final List<Artist> albumArtistList = new ArrayList<>(albumArtists);
+
+        Item.merge(artistList, albumArtistList);
+
+        return artistList;
     }
 
     private static MPDCommand getSongsCommand(final Album album) {
@@ -772,19 +789,19 @@ public class MPD {
         return new MusicResponse(result);
     }
 
-    public ArtistResponse getAlbumArtists() throws IOException, MPDException {
+    public AlbumArtistResponse getAlbumArtists() throws IOException, MPDException {
         final CommandResult result = mConnection.submit(MPDCommand.MPD_CMD_LIST_TAG,
                 Music.TAG_ALBUM_ARTIST).get();
 
-        return new ArtistResponse(result);
+        return new AlbumArtistResponse(result);
     }
 
-    public ArtistResponse getAlbumArtists(final Genre genre) throws IOException, MPDException {
+    public AlbumArtistResponse getAlbumArtists(final Genre genre) throws IOException, MPDException {
         final CommandResult result = mConnection.submit(
                 MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM_ARTIST,
                 Music.TAG_GENRE, genre.getName()).get();
 
-        return new ArtistResponse(result);
+        return new AlbumArtistResponse(result);
     }
 
     public int getAlbumCount(final Artist artist, final boolean useAlbumArtistTag)
@@ -891,18 +908,8 @@ public class MPD {
         final CommandQueue commands = new CommandQueue(2);
         commands.add(MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ARTIST);
         commands.add(MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM_ARTIST);
-        final Iterator<CommandResponse> iterator =
-                mConnection.submitSeparated(commands).get().iterator();
 
-        final ArtistResponse artists = new ArtistResponse(iterator.next());
-        final ArtistResponse albumArtists = new ArtistResponse(iterator.next());
-
-        final List<Artist> artistList = new ArrayList<>(artists);
-        final List<Artist> albumArtistList = new ArrayList<>(albumArtists);
-
-        Item.merge(artistList, albumArtistList);
-
-        return artistList;
+        return getMergedArtists(mConnection, commands);
     }
 
     public List<Artist> getArtistsMerged(final Genre genre) throws IOException, MPDException {
@@ -911,18 +918,8 @@ public class MPD {
         commands.add(MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ARTIST, Music.TAG_GENRE, genreName);
         commands.add(MPDCommand.MPD_CMD_LIST_TAG, Music.TAG_ALBUM_ARTIST, Music.TAG_GENRE,
                 genreName);
-        final Iterator<CommandResponse> iterator =
-                mConnection.submitSeparated(commands).get().iterator();
 
-        final ArtistResponse artists = new ArtistResponse(iterator.next());
-        final ArtistResponse albumArtists = new ArtistResponse(iterator.next());
-
-        final List<Artist> artistList = new ArrayList<>(artists);
-        final List<Artist> albumArtistList = new ArrayList<>(albumArtists);
-
-        Item.merge(artistList, albumArtistList);
-
-        return artistList;
+        return getMergedArtists(mConnection, commands);
     }
 
     /**

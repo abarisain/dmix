@@ -28,33 +28,33 @@
 package com.anpmech.mpd.commandresponse;
 
 import com.anpmech.mpd.ResponseObject;
-import com.anpmech.mpd.commandresponse.iterator.ArtistIterator;
+import com.anpmech.mpd.commandresponse.iterator.AlbumArtistIterator;
 import com.anpmech.mpd.connection.CommandResult;
 import com.anpmech.mpd.item.Artist;
 
 import java.util.ListIterator;
 
 /**
- * This class contains methods used to process {@link Artist} entries, of the Artist type only,
- * from a MPD response.
+ * This class contains methods used to process {@link Artist} entries, of the AlbumArtist type
+ * only, from a MPD response.
  *
  * <p>This class is immutable, thus, thread-safe.</p>
  */
-public class ArtistResponse extends ObjectResponse<Artist> {
+public class AlbumArtistResponse extends ObjectResponse<Artist> {
 
     /**
      * This constructor is used to create {@link Artist} objects from a CommandResult.
      *
      * @param result The CommandResult containing a Artist type MPD result.
      */
-    public ArtistResponse(final CommandResult result) {
+    public AlbumArtistResponse(final CommandResult result) {
         super(result);
     }
 
     /**
      * This constructor builds this class from an empty MPD protocol result.
      */
-    public ArtistResponse() {
+    public AlbumArtistResponse() {
         super();
     }
 
@@ -63,7 +63,7 @@ public class ArtistResponse extends ObjectResponse<Artist> {
      *
      * @param response The ResponseObject to iterate over.
      */
-    public ArtistResponse(final ResponseObject response) {
+    public AlbumArtistResponse(final ResponseObject response) {
         super(response);
     }
 
@@ -73,18 +73,19 @@ public class ArtistResponse extends ObjectResponse<Artist> {
      *
      * @param response The ObjectResponse containing a Artist type MPD response.
      */
-    public ArtistResponse(final ObjectResponse<?> response) {
+    public AlbumArtistResponse(final ObjectResponse<?> response) {
         super(response);
     }
 
     /**
      * This method returns a iterator, starting at the beginning of the response.
      *
+     * @param position The position to begin the iterator at, typically beginning or end.
      * @return A iterator to return the response.
      */
     @Override
     protected ListIterator<Artist> listIterator(final int position) {
-        return new ArtistIterator(mResult, position);
+        return new AlbumArtistIterator(mResult, position);
     }
 
     /**
@@ -95,6 +96,6 @@ public class ArtistResponse extends ObjectResponse<Artist> {
      */
     @Override
     public int size() {
-        return ArtistIterator.size(mResult);
+        return AlbumArtistIterator.size(mResult);
     }
 }

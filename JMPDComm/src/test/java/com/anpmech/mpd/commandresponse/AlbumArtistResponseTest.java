@@ -25,61 +25,52 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.anpmech.mpd.item;
+package com.anpmech.mpd.commandresponse;
 
-import com.anpmech.mpd.ResponseObject;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.anpmech.mpd.TestTools;
+import com.anpmech.mpd.connection.CommandResult;
+import com.anpmech.mpd.item.Artist;
 
 /**
- * This class is the generic base for the Artist items, abstracted for backend.
- *
- * @param <T> The Artist type.
+ * This class tests the {@link ArtistResponse} class.
  */
-abstract class AbstractArtist<T extends AbstractArtist<T>> extends ResponseItem<T> {
+public class AlbumArtistResponseTest extends ObjectResponseTest<Artist, AlbumArtistResponse> {
 
     /**
-     * The class log identifier.
+     * Sole constructor.
      */
-    protected static final String TAG = AbstractMusic.RESPONSE_ARTIST;
-
-    /**
-     * This constructor is used to create a new Artist item with a ResponseObject.
-     *
-     * @param object The prepared ResponseObject.
-     */
-    AbstractArtist(@NotNull final ResponseObject object) {
-        super(object);
+    public AlbumArtistResponseTest() {
+        super();
     }
 
     /**
-     * This is the string representation of this Artist.
+     * This returns a empty ObjectResponse for the ObjectResponse subclass.
      *
-     * @return A string representation of this Artist.
+     * @return A empty ObjectResponse.
      */
     @Override
-    public String getName() {
-        return findValue(AbstractMusic.RESPONSE_ALBUM_ARTIST, AbstractMusic.RESPONSE_ARTIST);
+    protected AlbumArtistResponse getEmptyResponse() {
+        return new AlbumArtistResponse();
     }
 
     /**
-     * This returns the name of the Artist name, with a appended "the" removed.
+     * This returns a path to a test sample file to construct a CommandResult from.
      *
-     * @return The Artist name, with a appended "the" removed.
+     * @return A path to a test sample file.
      */
     @Override
-    @Nullable
-    public String sortName() {
-        final String name = super.sortName();
-        final String result;
+    protected String getResponsePath() {
+        return TestTools.FILE_SEPARATED_COMMAND_RESPONSE;
+    }
 
-        if (name != null && name.regionMatches(true, 0, "the", 0, 4)) {
-            result = name.substring(4);
-        } else {
-            result = name;
-        }
-
-        return result;
+    /**
+     * This method instantiates the ObjectResponse type from the {@code CommandResult} parameter.
+     *
+     * @param result The {@code CommandResult} to create the ObjectResponse type from.
+     * @return A ObjectResponse subclass type.
+     */
+    @Override
+    protected AlbumArtistResponse instantiate(final CommandResult result) {
+        return new AlbumArtistResponse(result);
     }
 }
