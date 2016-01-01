@@ -150,7 +150,8 @@ abstract class PartialBlockResult<T> extends AbstractObjectResult<T> {
             if (keyIndex < mPosition) {
                 final String foundToken = mResult.substring(keyIndex, mpdDelimiterIndex);
 
-                if (Arrays.binarySearch(mBeginBlockTokens, foundToken) >= 0) {
+                if (mBeginBlockTokens.length == 1 && mBeginBlockTokens[0].equals(foundToken) ||
+                        Arrays.binarySearch(mBeginBlockTokens, foundToken) >= 0) {
                     index = keyIndex;
                 }
             }
