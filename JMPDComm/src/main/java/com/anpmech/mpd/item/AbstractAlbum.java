@@ -211,7 +211,7 @@ abstract class AbstractAlbum<T extends Album> extends Item<Album> {
                 if (dateLength > 8) {
                     stringBuilder.setLength(8);
                 } else if (dateLength < 8) {
-                    while (stringBuilder.length() < 8) {
+                    for (int i = stringBuilder.length(); i < 8; i++) {
                         stringBuilder.append('0');
                     }
                 }

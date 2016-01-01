@@ -151,12 +151,13 @@ public class MPDCommand {
         outString.append(command);
         for (final CharSequence arg : args) {
             if (arg != null) {
+                final int length = arg.length();
                 outString.append(" \"");
 
-                for (int i = 0; i < arg.length(); i++) {
+                for (int i = 0; i < length; i++) {
                     final char c = arg.charAt(i);
 
-                    if (c == '"') {
+                    if ((int) c == (int) '"') {
                         outString.append("\\\"");
                     } else {
                         outString.append(c);
