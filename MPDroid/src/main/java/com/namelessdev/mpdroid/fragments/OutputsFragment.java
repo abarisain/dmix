@@ -320,7 +320,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
         public void run() {
             try {
                 mOutputs.clear();
-                mMPD.getOutputs().addAll(mOutputs);
+                mOutputs.addAll(mMPD.getOutputs());
             } catch (final IOException | MPDException e) {
                 Log.e(TAG, "Failed to list outputs.", e);
             }
