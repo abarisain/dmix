@@ -194,4 +194,23 @@ public final class Tools {
             }
         }
     }
+
+    /**
+     * This method sets up the connection prior to running, only if necessary.
+     *
+     * @param command The {@link MPDControl} command to send.
+     * @param i       An integer which will be cast to long for run.
+     */
+    public static void runCommand(@MPDControl.ControlType final String command, final int i) {
+        if (APP.getMPD().getStatus().isValid()) {
+            MPDControl.run(command);
+        } else {
+            final Object token = MPDControl.setupConnection(5L, TimeUnit.SECONDS);
+
+            if (token != null) {
+                MPDControl.run(command, i);
+                APP.removeConnectionLock(token);
+            }
+        }
+    }
 }

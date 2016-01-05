@@ -21,6 +21,7 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.service.MPDroidService;
 import com.namelessdev.mpdroid.service.NotificationHandler;
 import com.namelessdev.mpdroid.service.StreamHandler;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -72,7 +73,7 @@ public class ActionFireReceiver extends BroadcastReceiver {
                                 }
                             }
                         }
-                        MPDControl.run(action, volume);
+                        Tools.runCommand(action, volume);
                         break;
                 }
             }
