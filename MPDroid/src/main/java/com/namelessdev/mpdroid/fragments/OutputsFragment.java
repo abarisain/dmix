@@ -150,7 +150,7 @@ public class OutputsFragment extends ListFragment implements AdapterView.OnItemC
         listView.setOnItemClickListener(this);
 
         // Not needed since MainMenuActivity will take care of telling us to refresh
-        if (!(activity instanceof MainMenuActivity)) {
+        if (!(activity instanceof MainMenuActivity) && mApp.getMPD().isConnected()) {
             refreshOutputs();
         }
     }
