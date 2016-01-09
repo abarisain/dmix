@@ -16,12 +16,12 @@
 
 package com.namelessdev.mpdroid.views;
 
+import com.anpmech.mpd.Tools;
 import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverAsyncHelper;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
-import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.PlaylistViewHolder;
 
@@ -69,10 +69,10 @@ public class StoredPlaylistDataBinder<T extends Item<T>> extends BaseDataBinder<
         String artist = music.getArtistName();
         String album = music.getAlbumName();
 
-        if (Tools.isStringEmptyOrNull(artist)) {
+        if (Tools.isEmpty(artist)) {
             artist = null;
         }
-        if (Tools.isStringEmptyOrNull(album)) {
+        if (Tools.isEmpty(album)) {
             album = null;
         }
 
@@ -88,7 +88,7 @@ public class StoredPlaylistDataBinder<T extends Item<T>> extends BaseDataBinder<
         }
 
         holder.mName.setText(music.getTitle());
-        if (Tools.isStringEmptyOrNull(info)) {
+        if (Tools.isEmpty(info)) {
             holder.mInfo.setVisibility(View.GONE);
         } else {
             holder.mInfo.setVisibility(View.VISIBLE);
