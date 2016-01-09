@@ -1,6 +1,16 @@
 language: android
-jdk: oraclejdk8
+jdk: java
 sudo: false
+
+## The old JDK used on Travis is broken for our project, this is a workaround until it's fixed.
+## See https://github.com/travis-ci/travis-ci/issues/3259
+addons:
+    apt:
+        packages:
+            - oracle-java8-installer
+
+jdk:
+    - oraclejdk8
 
 android:
   components:
