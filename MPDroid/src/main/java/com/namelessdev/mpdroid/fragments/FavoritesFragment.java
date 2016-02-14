@@ -29,7 +29,7 @@ import com.namelessdev.mpdroid.favorites.Favorites;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
 import com.namelessdev.mpdroid.tools.Tools;
-import com.namelessdev.mpdroid.views.AlbumDataBinder;
+import com.namelessdev.mpdroid.views.AlbumGridDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
 import android.app.Activity;
@@ -44,21 +44,23 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.Collections;
 
-public class AlbumsFragment extends BrowseFragment<Album> {
+public class FavoritesFragment extends BrowseFragment<Album> {
 
     private static final String ALBUM_YEAR_SORT_KEY = "sortAlbumsByYear";
 
     private static final String SHOW_ALBUM_TRACK_COUNT_KEY = "showAlbumTrackCount";
 
-    private static final String TAG = "AlbumsFragment";
+    private static final String TAG = "FavoritesFragment";
 
     protected Artist mArtist = null;
 
@@ -68,7 +70,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
 
     protected boolean mIsCountDisplayed;
 
-    public AlbumsFragment() {
+    public FavoritesFragment() {
         super(R.string.addAlbum, R.string.albumAdded);
     }
 
@@ -109,7 +111,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         final boolean sortByYear = settings.getBoolean(ALBUM_YEAR_SORT_KEY, false);
 
         try {
-            replaceItems(mApp.getMPD().getAlbums(mArtist, sortByYear, mIsCountDisplayed));
+            replaceItems(mApp.getFavorites().getAlbums());
 
             if (sortByYear) {
                 Collections.sort(mItems, Album.SORT_BY_DATE);
@@ -153,10 +155,11 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         updateNowPlayingSmallFragment(albumInfo);
     }
 
-    private void addToFavorites(final MenuItem item){
+    private void removeFromFavorites(final MenuItem item){
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+
         Favorites favorites = new Favorites(getActivity());
-        favorites.addAlbum(mItems.get((int) info.id));
+        favorites.removeAlbum(mItems.get((int) info.id));
     }
 
     @Override
@@ -166,7 +169,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
 
     @Override
     protected ListAdapter getCustomListAdapter() {
-        return new ArrayIndexerAdapter<>(getActivity(), new AlbumDataBinder<Album>(mArtist),
+        return new ArrayIndexerAdapter<>(getActivity(), new AlbumGridDataBinder(mArtist),
                 mItems);
     }
 
@@ -221,21 +224,36 @@ public class AlbumsFragment extends BrowseFragment<Album> {
     public void onCreateContextMenu(final ContextMenu menu, final View v,
             final ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
+        final MenuItem removeFromFavoritesItem = menu.add(POPUP_REMOVE_FROM_FAVORITES,
+                POPUP_REMOVE_FROM_FAVORITES, 0, R.string.removeFromFavorites);
+        removeFromFavoritesItem.setOnMenuItemClickListener(this);
         final MenuItem otherCoverItem = menu.add(POPUP_COVER_BLACKLIST,
                 POPUP_COVER_BLACKLIST, 0, R.string.otherCover);
         otherCoverItem.setOnMenuItemClickListener(this);
         final MenuItem resetCoverItem = menu.add(POPUP_COVER_SELECTIVE_CLEAN,
                 POPUP_COVER_SELECTIVE_CLEAN, 0, R.string.resetCover);
         resetCoverItem.setOnMenuItemClickListener(this);
-        final MenuItem addToFavoritesItem = menu.add(POPUP_ADD_TO_FAVORITES, POPUP_ADD_TO_FAVORITES , 0, R.string.addToFavorites);
-        addToFavoritesItem.setOnMenuItemClickListener(this);
+
     }
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
-        final View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        final View view = inflater.inflate(R.layout.browsegrid, container, false);
+        mList = (AbsListView) view.findViewById(R.id.grid);
+        registerForContextMenu(mList);
+        mList.setOnItemClickListener(this);
+        mLoadingView = view.findViewById(R.id.loadingLayout);
+        mLoadingTextView = (TextView) view.findViewById(R.id.loadingText);
+        mNoResultView = view.findViewById(R.id.noResultLayout);
+        mLoadingTextView.setText(getLoadingText());
         mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
+
+        setupStandardToolbar(view);
+
+
+
         return view;
 
     }
@@ -284,8 +302,8 @@ public class AlbumsFragment extends BrowseFragment<Album> {
             case POPUP_COVER_SELECTIVE_CLEAN:
                 cleanupCover(item, false);
                 break;
-            case POPUP_ADD_TO_FAVORITES:
-                addToFavorites(item);
+            case POPUP_REMOVE_FROM_FAVORITES:
+                removeFromFavorites(item);
                 break;
             default:
                 result = super.onMenuItemClick(item);
