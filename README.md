@@ -12,6 +12,8 @@ What's not to like?
 
 MPDroid works on **all** devices from 4.0.3 (API 15) to 4.4+
 
+[![Get it on F-Droid](get_it_on_f-droid.png?raw=true)](https://f-droid.org/repository/browse/?fdid=com.namelessdev.mpdroid)
+
 #### Libraries
 
 - JMPDComm - The core MPD interface lib. Heavily modified.
