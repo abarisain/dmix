@@ -40,7 +40,7 @@ def gitShortHash() {
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         minSdkVersion 16
@@ -96,8 +96,8 @@ android {
             versionName defaultConfig.versionName + "-l"
 
             dependencies {
-                debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta1'
-                releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta1'
+                debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
+                releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
             }
         }
     }
