@@ -16,7 +16,7 @@
 
 task wrapper(type: Wrapper) {
     description "Updates the Gradle wrapper for this project."
-    gradleVersion '2.12'
+    gradleVersion '2.13'
 }
 
 buildscript {
@@ -24,6 +24,6 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.0.0'
+        classpath 'com.android.tools.build:gradle:2.1.0'
     }
 }
