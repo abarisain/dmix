@@ -38,6 +38,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -272,6 +273,16 @@ public class FSFragment extends BrowseFragment {
             }
             mUseBackStack = bundle.getBoolean(EXTRA_USE_BACK_STACK, true);
         }
+    }
+
+    @Override
+    public void onCreateContextMenu(final ContextMenu menu, final View v,
+            final ContextMenu.ContextMenuInfo menuInfo) {
+            // Don't create a context menu if the child directory item is clicked.
+            if (mDirectory.getParent() == null ||
+                    ((AdapterView.AdapterContextMenuInfo) menuInfo).id != 0L) {
+                super.onCreateContextMenu(menu, v, menuInfo);
+            }
     }
 
     @Override
