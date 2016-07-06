@@ -166,6 +166,33 @@ public final class CoverManager {
     }
 
     /**
+     * This method connects to the HTTP server URL, and gets a HTTP status code. If the status code
+     * is a redirection this method returns true, otherwise false.
+     *
+     * @param connection An HttpURLConnection object.
+     * @return True if the URL is a redirection, false otherwise.
+     * @throws IOException Upon error retrieving a response code.
+     */
+
+    public static boolean doesUrlRedirect(final HttpURLConnection connection) throws IOException {
+        boolean doesUrlRedirect;
+
+        if (connection == null) {
+            Log.d(TAG, "Cannot find out if URL exists with a null connection.");
+            doesUrlRedirect = false;
+        } else {
+            try {
+                doesUrlRedirect = doesUrlRedirect(connection.getResponseCode());
+            } catch (IOException ex) {
+                Log.e(TAG, "Cannot get the connection response code", ex);
+                doesUrlRedirect = false;
+            }
+        }
+
+        return doesUrlRedirect;
+    }
+
+    /**
      * This method connects to the HTTP server URL, gets a HTTP status code and if the status code
      * is OK or similar this method returns true, otherwise false.
      *
@@ -177,6 +204,22 @@ public final class CoverManager {
 
         return statusCode == HttpURLConnection.HTTP_OK ||
                 statusCode == temporaryRedirect ||
+                statusCode == HttpURLConnection.HTTP_MOVED_TEMP;
+    }
+
+
+    /**
+     * This method connects to the HTTP server URL, gets a HTTP status code and if the status code
+     * is a redirection this method returns true, otherwise false.
+     *
+     * @param statusCode An HttpURLConnection object.
+     * @return True if the URL is a redirection, false otherwise.
+     */
+    private static boolean doesUrlRedirect(final int statusCode) {
+        final int temporaryRedirect = 307; /** No constant for 307 exists */
+
+        return statusCode == temporaryRedirect ||
+                statusCode == HttpURLConnection.HTTP_MOVED_PERM ||
                 statusCode == HttpURLConnection.HTTP_MOVED_TEMP;
     }
 
@@ -667,6 +710,12 @@ public final class CoverManager {
             int len;
 
             if (doesUrlExist(connection)) {
+
+                // Follow a potential HTTP to HTTPS or HTTPS to HTTP redirection
+                if (doesUrlRedirect(connection)) {
+                    return download(connection.getHeaderField("Location"));
+                }
+
                 /** TODO: After minSdkVersion="19" use try-with-resources here. */
                 try {
                     bis = new BufferedInputStream(connection.getInputStream(), 8192);
