@@ -16,8 +16,7 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="64dp"
-    android:background="#424242">
+    android:layout_height="64dp">
 
     <ImageView
         android:id="@+id/notificationIcon"
@@ -45,7 +44,7 @@
             android:maxLines="1"
             android:singleLine="true"
             android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/black" />
 
         <TextView
             android:id="@+id/notificationArtist"
@@ -55,7 +54,8 @@
             android:maxLines="1"
             android:singleLine="true"
             android:text="@string/artist"
-            android:textAppearance="?android:textAppearanceSmall" />
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="#ff6b6b6b" />
     </LinearLayout>
 
     <LinearLayout
@@ -74,7 +74,8 @@
             android:layout_marginBottom="4dp"
             android:layout_marginTop="4dp"
             android:contentDescription="@string/nowPlaying"
-            android:src="@drawable/ic_media_pause" />
+            android:src="@drawable/ic_media_pause"
+            android:tint="@android:color/black" />
 
         <ImageView
             android:id="@+id/notificationNext"
@@ -84,7 +85,8 @@
             android:layout_marginBottom="4dp"
             android:layout_marginTop="4dp"
             android:contentDescription="@string/playNext"
-            android:src="@drawable/ic_media_next" />
+            android:src="@drawable/ic_media_next"
+            android:tint="@android:color/black" />
 
         <ImageView
             android:id="@+id/notificationClose"
@@ -94,6 +96,7 @@
             android:layout_marginBottom="4dp"
             android:layout_marginTop="4dp"
             android:contentDescription="@string/stop"
-            android:src="@drawable/ic_close_notification" />
+            android:src="@drawable/ic_close_notification"
+            android:tint="@android:color/black" />
     </LinearLayout>
 </RelativeLayout>
