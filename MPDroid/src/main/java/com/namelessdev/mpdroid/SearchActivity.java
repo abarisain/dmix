@@ -22,6 +22,7 @@ import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
+import com.namelessdev.mpdroid.favorites.Favorites;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -70,6 +71,8 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
     public static final int ADD_REPLACE_PLAY = 3;
 
     public static final int GOTO_ALBUM = 4;
+
+    public static final int ADD_TO_FAVORITES = 5;
 
     public static final int MAIN = 0;
 
@@ -374,6 +377,8 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
 
         switch (mPager.getCurrentItem()) {
             case RESULT_ALBUM:
+                final MenuItem addToFavoritesIcon = menu.add(Menu.NONE, ADD_TO_FAVORITES, 0, R.string.addToFavorites);
+                addToFavoritesIcon.setOnMenuItemClickListener(this);
                 final Album album = mAlbumResults.get((int) info.id);
                 menu.setHeaderTitle(album.toString());
                 setContextForObject(album);
@@ -428,7 +433,7 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
             intent.putExtra(Artist.EXTRA, (Parcelable) selectedItem);
             startActivityForResult(intent, -1);
         } else if (selectedItem instanceof Album) {
-            final Intent intent = new Intent(this, SimpleLibraryActivity.class);
+             final Intent intent = new Intent(this, SimpleLibraryActivity.class);
             intent.putExtra(Album.EXTRA, (Parcelable) selectedItem);
             startActivityForResult(intent, -1);
         }
@@ -471,7 +476,14 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
                     intent.putExtra(Album.EXTRA, music.getAlbum());
                     startActivityForResult(intent, -1);
                 }
-            } else {
+            }
+            else if (item.getItemId() == ADD_TO_FAVORITES) {
+                if (selectedItem instanceof Album){
+                    Favorites favorites = new Favorites(this);
+                    favorites.addAlbum((Album)selectedItem);
+                }
+            }
+            else{
                 mApp.getAsyncHelper().execAsync(new Runnable() {
                     @Override
                     public void run() {
