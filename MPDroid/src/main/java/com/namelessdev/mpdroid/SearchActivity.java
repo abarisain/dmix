@@ -188,16 +188,25 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         final String finalSearch = mSearchKeywords.toLowerCase();
 
         List<Music> arrayMusic = null;
+        List<Music> arrayMusicFiles = null;
 
         try {
             arrayMusic = mApp.oMPDAsyncHelper.oMPD.search("any", finalSearch);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "MPD search failure.", e);
-
         }
 
         if (arrayMusic == null) {
             return;
+        }
+
+        try {
+            arrayMusicFiles = mApp.oMPDAsyncHelper.oMPD.search("filename", finalSearch);
+        } catch (final IOException | MPDException e) {
+            Log.e(TAG, "MPD search failure.", e);
+        }
+        if (arrayMusicFiles == null) {
+            arrayMusicFiles = new ArrayList();
         }
 
         mArtistResults.clear();
@@ -207,6 +216,15 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         String tmpValue;
         boolean valueFound;
         for (final Music music : arrayMusic) {
+            for (final Music fMusic : arrayMusicFiles) {
+                final String fMusicFullPath = fMusic.getFullPath();
+                if (fMusicFullPath != null &&
+                        fMusicFullPath.equals(music.getFullPath())) {
+                    arrayMusicFiles.remove(fMusic);
+                    break;
+                }
+            }
+
             if (music.getTitle() != null && music.getTitle().toLowerCase().contains(finalSearch)) {
                 mSongResults.add(music);
             }
@@ -253,6 +271,10 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                     }
                 }
             }
+        }
+
+        for (final Music music : arrayMusicFiles) {
+            mSongResults.add(music);
         }
 
         Collections.sort(mArtistResults);
