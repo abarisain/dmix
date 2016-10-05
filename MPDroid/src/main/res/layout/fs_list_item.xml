@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (C) 2010-2014 The MPDroid Project
+  ~ Copyright (C) 2010-2016 The MPDroid Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="?attr/listItemHeight"
@@ -21,27 +22,27 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/text1"
+        android:id="@+id/name_metadata"
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_marginLeft="8dip"
-        android:layout_marginRight="8dip"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
         android:layout_weight="1"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLines="1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
-        android:id="@+id/text2"
+        android:id="@+id/full_path"
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_marginLeft="8dip"
-        android:layout_marginRight="8dip"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
         android:layout_weight="1"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLines="1"
         android:paddingBottom="5dip"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 </LinearLayout>

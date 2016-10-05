@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,19 @@
 
 package com.namelessdev.mpdroid.helpers;
 
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.concurrent.ResultFuture;
+import com.anpmech.mpd.subsystem.Playback;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Music;
-
 import android.support.annotation.IdRes;
-import android.util.Log;
+import android.support.annotation.StringDef;
 
-import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class contains simple server control methods.
@@ -35,11 +36,13 @@ import java.io.IOException;
 public final class MPDControl {
 
     /** If these are sent to the run() class, the volume will not change. */
-    public static final int INVALID_INT = -5;
+    public static final int INVALID_INT = Integer.MIN_VALUE;
 
-    public static final long INVALID_LONG = -5L;
+    public static final long INVALID_LONG = Long.MIN_VALUE;
 
     private static final MPDApplication APP = MPDApplication.getInstance();
+
+    private static final String BAD_ARGUMENT = "Control not setup: ";
 
     private static final String TAG = "MPDControl";
 
@@ -79,8 +82,6 @@ public final class MPDControl {
 
     public static final String ACTION_VOLUME_STEP_UP = FULLY_QUALIFIED_NAME + "VOLUME_STEP_UP";
 
-    public static final String ACTION_RATING_SET = FULLY_QUALIFIED_NAME + "SET_RATING";
-
     private static final int VOLUME_STEP = 5;
 
     private MPDControl() {
@@ -88,33 +89,8 @@ public final class MPDControl {
     }
 
     /**
-     * An overload method to use the standard {@code MPD}
-     * object and no {@code userCommand} argument.
-     *
-     * @param userCommand The command to be run.
-     */
-    public static void run(final String userCommand) {
-        run(APP.oMPDAsyncHelper.oMPD, userCommand, INVALID_LONG, true);
-    }
-
-    /**
-     * An overload for the  {@code run(mpd, userCommand, long)} method which uses
-     * the standard {@code MPD} object.
-     *
-     * @param userCommand The command to be run.
-     * @param i           An integer which will be cast to long for run for userCommand argument.
-     */
-    public static void run(final String userCommand, final int i) {
-        run(APP.oMPDAsyncHelper.oMPD, userCommand, (long) i, true);
-    }
-
-    public static void run(final String userCommand, final long l) {
-        run(APP.oMPDAsyncHelper.oMPD, userCommand, l, true);
-    }
-
-    /**
-     * An overload for the  {@code run(mpd, userCommand, long)} method which
-     * translates resource id into a native command.
+     * An overload for the {@code run(userCommand, long)} method which translates resource id
+     * into a native command.
      *
      * @param resId A resource id.
      */
@@ -139,158 +115,151 @@ public final class MPDControl {
                 run(ACTION_STOP);
                 break;
             default:
-                break;
+                throw new IllegalArgumentException(BAD_ARGUMENT + resId);
         }
     }
 
     /**
-     * Overload method for the {@code run(mpd, userCommand, long)}
-     * method which removes the third parameter.
+     * Overload method for the {@code run(userCommand, long)} method which removes the third
+     * parameter.
      *
-     * @param mpd         An {@code MPD} object.
      * @param userCommand The command to be run.
      */
-    public static void run(final MPD mpd, final String userCommand) {
-        run(mpd, userCommand, INVALID_LONG, false);
+    public static void run(@ControlType final String userCommand) {
+        run(userCommand, INVALID_LONG);
     }
 
     /**
-     * Overload method for the {@code run(mpd, userCommand, long)} method which
-     * allows an integer as the final parameter.
+     * Overload method for the {@code run(userCommand, long)} method which allows an integer
+     * as the final parameter.
      *
-     * @param mpd         An {@code MPD} object.
      * @param userCommand The command to be run.
      * @param i           An integer which will be cast to long for run.
      */
-    public static void run(final MPD mpd, final String userCommand, final int i) {
-        run(mpd, userCommand, (long) i, false);
+    public static void run(@ControlType final String userCommand, final int i) {
+        run(userCommand, (long) i);
     }
 
     /**
      * The parent method which runs the command (above) in a thread.
      *
-     * @param mpd         An {@code MPD} object.
      * @param userCommand The command to be run.
      * @param l           A long primitive argument for the {@code userCommand}.
-     * @param internalMPD True if the {@code MPD} object was created by the main MPDroid process
-     *                    Application class singleton MPDAsyncHelper instance, false otherwise.
+     * @return A {@link ResultFuture} for interested callers.
      */
-    public static void run(final MPD mpd, final String userCommand, final long l,
-            final boolean internalMPD) {
-        new Thread(new Runnable() {
+    public static ResultFuture run(@ControlType final String userCommand, final long l) {
+        final Playback playback = APP.getMPD().getPlayback();
+        ResultFuture future = null;
 
-            private void blockForConnection() {
-                int loopIterator = 50; /** Give the connection 5 seconds, tops. */
-                final long blockTimeout = 100L;
-
-                while (!mpd.isConnected() || !mpd.getStatus().isValid()) {
-                    synchronized (this) {
-                        /** Send a notice once a second or so. */
-                        if (loopIterator % 10 == 0) {
-                            Log.w(TAG, "Blocking for connection...");
-                        }
-
-                        try {
-                            wait(blockTimeout);
-                        } catch (final InterruptedException ignored) {
-                        }
-
-                        if (loopIterator == 0) {
-                            break;
-                        }
-                        loopIterator--;
-                    }
+        switch (userCommand) {
+            case ACTION_CONSUME:
+                future = playback.consume();
+                break;
+            case ACTION_MUTE:
+                future = playback.setVolume(0);
+                break;
+            case ACTION_NEXT:
+                future = playback.next();
+                break;
+            case ACTION_PAUSE:
+                future = playback.pause();
+                break;
+            case ACTION_PLAY:
+                future = playback.play();
+                break;
+            case ACTION_PREVIOUS:
+                future = playback.previous();
+                break;
+            case ACTION_SEEK:
+                long li = l;
+                if (li == INVALID_LONG) {
+                    li = 0L;
                 }
-            }
-
-            @Override
-            public void run() {
-                if (internalMPD) {
-                    APP.addConnectionLock(this);
+                future = playback.seek(li);
+                break;
+            case ACTION_STOP:
+                future = playback.stop();
+                break;
+            case ACTION_SINGLE:
+                future = playback.single();
+                break;
+            case ACTION_TOGGLE_PLAYBACK:
+                future = playback.togglePlayback();
+                break;
+            case ACTION_TOGGLE_RANDOM:
+                future = playback.random();
+                break;
+            case ACTION_TOGGLE_REPEAT:
+                future = playback.repeat();
+                break;
+            case ACTION_VOLUME_SET:
+                if (l != INVALID_LONG) {
+                    future = playback.setVolume((int) l);
                 }
-                blockForConnection();
-
-                /**
-                 * The main switch for running the command.
-                 */
-                try {
-                    switch (userCommand) {
-                        case ACTION_CONSUME:
-                            mpd.setConsume(!mpd.getStatus().isConsume());
-                            break;
-                        case ACTION_MUTE:
-                            mpd.setVolume(0);
-                            break;
-                        case ACTION_NEXT:
-                            mpd.next();
-                            break;
-                        case ACTION_PAUSE:
-                            if (!mpd.getStatus().isState(MPDStatus.STATE_PAUSED)) {
-                                mpd.pause();
-                            }
-                            break;
-                        case ACTION_TOGGLE_PLAYBACK:
-                            if (mpd.getStatus().isState(MPDStatus.STATE_PLAYING)) {
-                                mpd.pause();
-                            } else {
-                                mpd.play();
-                            }
-                            break;
-                        case ACTION_PLAY:
-                            mpd.play();
-                            break;
-                        case ACTION_PREVIOUS:
-                            mpd.previous();
-                            break;
-                        case ACTION_RATING_SET:
-                            if (l != INVALID_LONG) {
-                                final int songPos = mpd.getStatus().getSongPos();
-                                final Music music = mpd.getPlaylist().getByIndex(songPos);
-                                mpd.getStickerManager().setRating(music, (int) l);
-                            }
-                            break;
-                        case ACTION_SEEK:
-                            long li = l;
-                            if (li == INVALID_LONG) {
-                                li = 0L;
-                            }
-                            mpd.seek(li);
-                            break;
-                        case ACTION_STOP:
-                            mpd.stop();
-                            break;
-                        case ACTION_SINGLE:
-                            mpd.setSingle(!mpd.getStatus().isSingle());
-                            break;
-                        case ACTION_TOGGLE_RANDOM:
-                            mpd.setRandom(!mpd.getStatus().isRandom());
-                            break;
-                        case ACTION_TOGGLE_REPEAT:
-                            mpd.setRepeat(!mpd.getStatus().isRepeat());
-                            break;
-                        case ACTION_VOLUME_SET:
-                            if (l != INVALID_LONG) {
-                                mpd.setVolume((int) l);
-                            }
-                            break;
-                        case ACTION_VOLUME_STEP_DOWN:
-                            mpd.adjustVolume(-VOLUME_STEP);
-                            break;
-                        case ACTION_VOLUME_STEP_UP:
-                            mpd.adjustVolume(VOLUME_STEP);
-                            break;
-                        default:
-                            break;
-                    }
-                } catch (final IOException | MPDException e) {
-                    Log.w(TAG, "Failed to send a simple MPD command.", e);
-                } finally {
-                    if (internalMPD) {
-                        APP.removeConnectionLock(this);
-                    }
-                }
-            }
+                break;
+            case ACTION_VOLUME_STEP_DOWN:
+                future = playback.stepVolume(-VOLUME_STEP);
+                break;
+            case ACTION_VOLUME_STEP_UP:
+                future = playback.stepVolume(VOLUME_STEP);
+                break;
+            default:
+                throw new IllegalArgumentException(BAD_ARGUMENT + userCommand);
         }
-        ).start();
+
+        return future;
+    }
+
+    /**
+     * This method sets up the connection.
+     *
+     * <p>This should be used, as required, prior to run().</p>
+     *
+     * @param timeout The maximum time to wait for both a connection and/or status.
+     * @param unit    The time unit of the {@code timeout} argument.
+     * @return A token to use with {@link MPDApplication#removeConnectionLock(Object)}. If
+     * {@code null}, a connection could not be established.
+     */
+    public static Object setupConnection(final long timeout, final TimeUnit unit) {
+        final MPD mpd = APP.getMPD();
+
+        if (mpd.getStatus().isValid()) {
+            throw new IllegalStateException("setupConnection must be called with invalid status.");
+        }
+
+        final Object token = Integer.valueOf(new Random().nextInt());
+
+        APP.addConnectionLock(token);
+        boolean success = true;
+        try {
+            success = mpd.getConnectionStatus().waitForConnection(timeout, unit);
+
+            if (success) {
+                success = mpd.getStatus().waitForValidity(timeout, unit);
+            }
+        } catch (final InterruptedException ignored) {
+        }
+
+        final Object lockToken;
+        if (success) {
+            lockToken = token;
+        } else {
+            lockToken = null;
+            APP.removeConnectionLock(token);
+        }
+
+        return lockToken;
+    }
+
+    /**
+     * This annotation is used to give a hint if a possible invalid value is fed to run().
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef({ACTION_CONSUME, ACTION_MUTE, ACTION_NEXT, ACTION_PAUSE, ACTION_PLAY,
+            ACTION_PREVIOUS, ACTION_SEEK, ACTION_SINGLE, ACTION_STOP, ACTION_TOGGLE_PLAYBACK,
+            ACTION_TOGGLE_RANDOM, ACTION_TOGGLE_REPEAT, ACTION_VOLUME_SET, ACTION_VOLUME_STEP_DOWN,
+            ACTION_VOLUME_STEP_UP})
+    public @interface ControlType {
+
     }
 }

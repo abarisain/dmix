@@ -1,19 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2010-2016 The MPDroid Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <resources>
     <!-- Unused strings, commented for possible for later use.
     <string name="aboutDescription">Acerca de MPDroid</string>
     <string name="albumGridWifiUnavailable">Wi-Fi no disponible. Las carátulas no serán descargadas</string>
-    <string name="configurationName">Nombre de configuración</string>
-    <string name="coverSettings">Ajustes de carátula</string>
+    <string name="chooseWLAN">Seleccione una red inalámbrica</string>
     <string name="clientSettings">Ajustes del cliente</string>
+    <string name="configurationName">Nombre de configuración</string>
+    <string name="connect">Conectar</string>
+    <string name="coverSettings">Ajustes de carátula</string>
+    <string name="deleteServer">Borrar este servidor</string>
+    <string name="drawer_close">Cerrar el cajón</string>
+    <string name="drawer_open">Abrir el cajón</string>
     <string name="edit">Editar</string>
     <string name="enableLightNowPlayingTheme">Usar el tema claro para la Reproducción en curso</string>
     <string name="enableLightNowPlayingThemeDescription">Reiniciar la aplicación para ver los cambios</string>
+    <string name="hostStreaming">Servidor de transmisión</string>
+    <string name="hostStreamingDescription">Nombre o IP del servidor de transmisión</string>
+    <string name="libraryTabActivity">Librería</string>
     <string name="manage">Administrar</string>
+    <string name="musicPathDescription">Directorio de la música en el servidor MPD, ej.: files/mp3 (music/ para usuarios de vortexbox)</string>
     <string name="outputsDescription">Activar/Desactivar Salidas de MPD</string>
     <string name="paused">En pausa</string>
     <string name="playlistNameEditTitle">Nombre de la lista de reproducción</string>
     <string name="playlistSave">Guardar lista de reproducción</string>
+    <string name="portStreaming">Puerto de transmisión</string>
+    <string name="portStreamingDescription">Puerto de transmisión MPD (Por defecto: 8000)</string>
     <string name="random">Aleatorio</string>
     <string name="randomDescription">Activar/Desactivar aleatoriedad</string>
     <string name="removeSong">Eliminar canción</string>
@@ -31,6 +57,8 @@
     <string name="streamPauseBattery">Para ahorar batería, detenga la transmisión cuando no la está usando</string>
     <string name="streamStopped">Transmisión detenida</string>
     <string name="streamingURLDescription">URL de la transmisión (con http://)</string>
+    <string name="suffixStreaming">Sufijo de la URL de la transmisión</string>
+    <string name="suffixStreamingDescription">Sufijo a anexar a la URL de la transmisión (ej. mpd.mp3)</string>
     <string name="track">Pista</string>
     <string name="updateDB">Actualizar</string>
     <string name="volume">Volumen</string>
@@ -38,7 +66,7 @@
     <string name="whatsNew">¿Qué hay de nuevo?</string>
     <string name="whatsNewDescription">Ver el registro de cambios (abre una página web externa)</string>
     <string name="widget_initial_text">Toque para seleccionar la música</string>
-    <string name="musicPathDescription">Directorio de la música en el servidor MPD, ej.: files/mp3 (music/ para usuarios de vortexbox)</string>
+    <string name="wlanBasedSettingsDescription">Establecer la dirección, puerto y contraseña del servidor MPD según la red inalámbrica</string>
     -->
 
     <string name="app_name">MPDroid</string>
@@ -82,8 +110,6 @@
     <string name="artistAdded">Artista %s añadido</string>
     <string name="host">Servidor</string>
     <string name="hostDescription">Nombre o IP del servidor MPD</string>
-    <string name="hostStreaming">Servidor de transmisión</string>
-    <string name="hostStreamingDescription">Nombre o IP del servidor de transmisión</string>
     <string name="port">Puerto</string>
     <string name="portDescription">Puerto del servidor MPD (Por defecto: 6600)</string>
     <string name="password">Contraseña</string>
@@ -101,7 +127,6 @@
     <string name="about">Acerca de…</string>
     <string name="connectionFailed">Conexión fallida</string>
     <string name="connectionFailedMessage">La conexión al servidor MPD ha fallado! Revise si el servidor está funcionando. (%s)</string>
-    <string name="connect">Conectar</string>
     <string name="connecting">Conectando…</string>
     <string name="connectingToServer">Conectando al servidor MPD.</string>
     <string name="connected">Conectado</string>
@@ -112,23 +137,16 @@
     <string name="deletePlaylist">Borrar lista de reproducción</string>
     <string name="defaultConnection">Conexión por defecto</string>
     <string name="preferredConnection">Conexión preferida</string>
-    <string name="chooseWLAN">Seleccione una red inalámbrica</string>
     <string name="wlanBasedSettings">Conexión basada en la red inalámbrica</string>
     <string name="defaultSettings">Ajustes de conexión por defecto</string>
-    <string name="wlanBasedSettingsDescription">Establecer la dirección, puerto y contraseña del servidor MPD según la red inalámbrica</string>
     <string name="defaultSettingsDescription">Establecer la dirección, puerto y contraseña del servidor MPD por defecto</string>
     <string name="stream">Streaming</string>
     <string name="buffering">Almacenando en buffer…</string>
-    <string name="portStreaming">Puerto de transmisión</string>
-    <string name="portStreamingDescription">Puerto de transmisión MPD (Por defecto: 8000)</string>
-    <string name="suffixStreaming">Sufijo de la URL de la transmisión</string>
-    <string name="suffixStreamingDescription">Sufijo a anexar a la URL de la transmisión (ej. mpd.mp3)</string>
     <string name="aboutText1">MPDroid es software open-source. Visita http://github.com/abarisain/dmix para obtener el código fuente !</string>
     <string name="aboutText2">MPDroid es un fork de PMix (http://code.google.com/p/pmix/). Gracias a ellos !</string>
     <string name="search">Buscar</string>
     <string name="search_label">MPDroid</string>
     <string name="search_hint">Buscar…</string>
-    <string name="libraryTabActivity">Librería</string>
     <string name="warningTitle">Por favor, leer</string>
     <string name="warningText1">Bienvenido a MPDroid 1.0 !\nEste mensaje se mostrará solo la primera vez.\n\nPrimero que todo, si no sabes lo que es un servidor MPD, deberías desinstalar esta aplicación, no está hecha para tí.\n\nFallo importante conocido : El widget a veces se cierra o agota la batería.\n\nA usuarios previos, un montón de gracias por su soporte y contribuciones.</string>
     <string name="editPlaylist">Editar</string>
@@ -154,7 +172,6 @@
     <string name="coverFileName">Nombre de las carátulas</string>
     <string name="coverFileNameDescription">Nombre estándar de las carátulas en el servidor, ej.: folder.jpg (cover.jpg para usuarios de vortexbox)</string>
     <string name="cacheUsage">Uso de caché</string>
-    <string name="deleteServer">Borrar este servidor</string>
     <string name="aboutIcon">Icono original de la aplicación por Asher (http://kyo-tux.deviantart.com/) y brsev (http://brsev.deviantart.com/), modificado por MPDroid.</string>
     <string name="connectionFailedMessageSetting">Conexión fallida, revise los ajustes de conexión. (%s)</string>
     <string name="no_result">Sin resultados</string>
@@ -240,13 +257,10 @@
     <string name="share">Compartir</string>
     <string name="sharePrefix">Estoy escuchando:</string>
     <string name="enableTabletUI">Usar la interfaz de usuario para tablets</string>
-    <string name="enableTabletUIDescription">Reiniciar la aplicación para ver los cambios</string>
     <string name="enableInternetCover">Descargar carátulas</string>
     <string name="enableInternetCoverDescription">Obtener carátulas usando varios servicios de internet (enviando la información de la canción)</string>
     <string name="gracenoteClientId">ID de Cliente de GraceNote</string>
     <string name="gracenoteClientIdDescription">ID de Cliente de GraceNote (XXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)</string>
-    <string name="drawer_open">Abrir el cajón</string>
-    <string name="drawer_close">Cerrar el cajón</string>
 
     <string name="nowPlayingSettingsTitle">Ajustes de Reproducción en curso</string>
     <string name="enableSmallSeekbars">Utilizar una barra de búsqueda más pequeña</string>

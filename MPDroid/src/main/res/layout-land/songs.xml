@@ -1,130 +1,44 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:mpdroid="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    tools:ignore="InconsistentLayout">
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2010-2016 The MPDroid Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
-    <LinearLayout
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="140dip"
+        android:background="?attr/colorPrimary" />
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:minHeight="?attr/actionBarSize"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <include
+        layout="@layout/browse"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:baselineAligned="false"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:id="@+id/albumInfoLayout"
-            android:layout_width="0dip"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:orientation="vertical">
-
-            <com.namelessdev.mpdroid.views.FixedRatioRelativeLayout
-                android:id="@+id/albumCoverFrame"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dip"
-                mpdroid:fixedSide="width">
-
-                <ImageView
-                    android:id="@+id/albumCover"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:contentDescription="@string/albumCover"
-                    android:scaleType="fitCenter"
-                    android:src="?attr/noCoverArtIcon" />
-
-                <ProgressBar
-                    android:id="@+id/albumCoverProgress"
-                    style="?android:attr/progressBarStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:visibility="invisible" />
-            </com.namelessdev.mpdroid.views.FixedRatioRelativeLayout>
-
-            <TextView
-                android:id="@+id/tracks_artist"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dip"
-                android:layout_marginLeft="8dip"
-                android:ellipsize="end"
-                android:gravity="center_vertical"
-                android:singleLine="true"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <TextView
-                android:id="@+id/tracks_info"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dip"
-                android:ellipsize="end"
-                android:gravity="center_vertical"
-                android:singleLine="true"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-
-            <!-- I'm not really proud of this negative margin, but at least this layout is efficient, rather than nesting it more -->
-
-            <ImageButton
-                android:id="@+id/album_menu"
-                android:layout_width="40dip"
-                android:layout_height="48dip"
-                android:layout_gravity="right"
-                android:layout_marginTop="-40dip"
-                android:background="?android:attr/actionBarItemBackground"
-                android:contentDescription="@string/menuButton"
-                android:src="?attr/menuButton" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dip"
-            android:layout_height="match_parent"
-            android:layout_weight="7">
-
-            <ListView
-                android:id="@id/list"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:fastScrollEnabled="true" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/loadingLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:visibility="gone">
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
-
-        <TextView
-            android:id="@+id/loadingText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/progressBar"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="5dip"
-            android:text="@string/loading" />
-    </RelativeLayout>
-
-    <ScrollView
-        android:id="@+id/noResultLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/no_result" />
-    </ScrollView>
+        android:layout_marginLeft="40dip"
+        android:layout_marginRight="40dip"
+        android:layout_marginTop="40dip" />
 
 </FrameLayout>

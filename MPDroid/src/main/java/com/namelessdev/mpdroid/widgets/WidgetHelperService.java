@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,10 @@
 
 package com.namelessdev.mpdroid.widgets;
 
+import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.MPDApplication;
-import com.namelessdev.mpdroid.helpers.MPDControl;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -33,7 +32,7 @@ public class WidgetHelperService extends IntentService {
 
     private final MPDApplication mApp = MPDApplication.getInstance();
 
-    private boolean mPlaying = false;
+    private boolean mPlaying;
 
     public WidgetHelperService() {
         super(TAG);
@@ -45,33 +44,16 @@ public class WidgetHelperService extends IntentService {
 
     @Override
     protected void onHandleIntent(final Intent intent) {
-        // get MPD connection
-        mApp.setActivity(this);
-
-        // prepare values for runnable
-        final MPD mpd = mApp.oMPDAsyncHelper.oMPD;
         final String action = intent.getAction();
+        final MPDStatus status = mApp.getMPD().getStatus();
 
-        // schedule real work
-        mApp.oMPDAsyncHelper.execAsync(new Runnable() {
-            @Override
-            public void run() {
-                processIntent(action, mpd);
-            }
-        });
-
-        // clean up
-        mApp.unsetActivity(this);
-    }
-
-    void processIntent(final String action, final MPD mpd) {
         switch (action) {
             case CMD_UPDATE_WIDGET:
-                mPlaying = mpd.getStatus().isState(MPDStatus.STATE_PLAYING);
+                mPlaying = status.isState(MPDStatusMap.STATE_PLAYING);
                 SimpleWidgetProvider.getInstance().notifyChange(this);
                 break;
             default:
-                MPDControl.run(action);
+                Tools.runCommand(action);
         }
     }
 }

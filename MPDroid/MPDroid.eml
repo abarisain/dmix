@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component inheritJdk="true">
-	<exclude-output/>
-	<contentEntry url="file://$MODULE_DIR$"/>
-	<lib name="$MODULE_DIR$/libs/android-support-v4.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$USER_HOME$/dev/android/dmix/MPDroid/libs/android-support-v4.jar!/"/>
-	</lib>
+        <exclude-output/>
+        <contentEntry url="file://$MODULE_DIR$"/>
+        <lib name="$MODULE_DIR$/libs/android-support-v4.jar" scope="COMPILE">
+                <relative-module-cls project-related="jar://$USER_HOME$/dev/android/dmix/MPDroid/libs/android-support-v4.jar!/"/>
+        </lib>
 </component>

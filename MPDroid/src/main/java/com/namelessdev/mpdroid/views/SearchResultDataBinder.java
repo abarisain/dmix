@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,11 @@
 
 package com.namelessdev.mpdroid.views;
 
+import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Music;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
-
-import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Item;
-import org.a0z.mpd.item.Music;
 
 import android.content.Context;
 import android.view.View;
@@ -61,8 +59,8 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
     @Override
     public void onDataBind(final Context context, final View targetView, final List<?> items,
             final Object item, final int position) {
-        final TextView text1 = (TextView) targetView.findViewById(R.id.line1);
-        final TextView text2 = (TextView) targetView.findViewById(R.id.line2);
+        final TextView text1 = (TextView) targetView.findViewById(R.id.upper_line);
+        final TextView text2 = (TextView) targetView.findViewById(R.id.lower_line);
         String formattedResult1 = null;
         String formattedResult2 = null;
 
@@ -70,17 +68,17 @@ public class SearchResultDataBinder implements SeparatedListDataBinder {
             final Music music;
             music = (Music) item;
             formattedResult1 = music.getTitle();
-            formattedResult2 = join(music.getAlbum(), music.getArtist());
+            formattedResult2 = join(music.getAlbumName(), music.getArtistName());
         } else if (item instanceof Artist) {
-            formattedResult1 = ((Item) item).mainText();
+            formattedResult1 = ((Artist) item).toString();
         } else if (item instanceof Album) {
             final Album album = (Album) item;
             final Artist artist = album.getArtist();
 
-            formattedResult1 = album.mainText();
+            formattedResult1 = album.toString();
 
             if (artist != null) {
-                formattedResult2 = artist.mainText();
+                formattedResult2 = artist.toString();
             }
         }
 

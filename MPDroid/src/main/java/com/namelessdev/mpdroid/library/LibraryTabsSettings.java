@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@ package com.namelessdev.mpdroid.library;
 
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
-import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
 import com.namelessdev.mpdroid.adapters.SeparatedListDataBinder;
@@ -37,6 +36,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LibraryTabsSettings extends PreferenceActivity {
+
+    private SeparatedListAdapter mAdapter;
+
+    private ArrayList<Object> mTabList;
 
     public final DragSortListView.DropListener mDropListener = new DragSortListView.DropListener() {
 
@@ -58,12 +61,6 @@ public class LibraryTabsSettings extends PreferenceActivity {
             }
         }
     };
-
-    private final MPDApplication mApp = MPDApplication.getInstance();
-
-    private SeparatedListAdapter mAdapter;
-
-    private ArrayList<Object> mTabList;
 
     private ArrayList<String> getVisibleTabs() {
         final ArrayList<String> visibleTabs = new ArrayList<>();
@@ -93,7 +90,7 @@ public class LibraryTabsSettings extends PreferenceActivity {
         mList.setDropListener(mDropListener);
 
         final DragSortController controller = new DragSortController(mList);
-        controller.setDragHandleId(R.id.text1);
+        controller.setDragHandleId(R.id.name_metadata);
         controller.setRemoveEnabled(false);
         controller.setSortEnabled(true);
         controller.setDragInitMode(1);
@@ -121,18 +118,6 @@ public class LibraryTabsSettings extends PreferenceActivity {
                 return super.onOptionsItemSelected(item);
         }
 
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mApp.setActivity(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mApp.unsetActivity(this);
     }
 
     private void refreshTable() {

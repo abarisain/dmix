@@ -1,0 +1,32 @@
+file: Individuals/Eels - Novocaine for the Soul.flac
+Last-Modified: 2007-03-11T20:05:42Z
+Time: 189
+Track: 1
+Title: Novocaine for the Soul
+MUSICBRAINZ_TRACKID: 90ea693c-da58-4ce4-975b-8087bc46b9e7
+MUSICBRAINZ_ARTISTID: 14387b0f-765c-4852-852f-135335790466
+MUSICBRAINZ_ALBUMID: 359130d5-c667-4449-852a-9ad2074db0c4
+MUSICBRAINZ_ALBUMARTISTID: 14387b0f-765c-4852-852f-135335790466
+Date: 1996-00-00
+Artist: Eels
+Album: Beautiful Freak
+directory: Albums
+Last-Modified: 2015-08-04T01:27:34Z
+directory: Christmas
+Last-Modified: 2009-12-10T04:42:55Z
+directory: Comedy
+Last-Modified: 2011-06-10T13:34:09Z
+directory: Individuals
+Last-Modified: 2014-10-25T14:15:05Z
+directory: Jamendo
+Last-Modified: 2008-08-02T18:33:51Z
+directory: Live
+Last-Modified: 2015-06-29T21:06:53Z
+directory: Mods
+Last-Modified: 2010-01-27T04:16:50Z
+directory: Vocal
+Last-Modified: 2015-08-20T12:45:33Z
+playlist: [Radio Streams]
+Last-Modified: 2015-09-14T17:59:58Z
+playlist: b
+Last-Modified: 2015-09-14T18:00:46Z

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,8 @@
 
 package com.namelessdev.mpdroid.tools;
 
-import org.a0z.mpd.item.Stream;
+import com.anpmech.mpd.item.Stream;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -168,17 +169,30 @@ public class StreamFetcher {
 
     private String check(final String url) {
         HttpURLConnection connection = null;
+        String checkedUrl = null;
+
         try {
             final URL u = new URL(url);
             connection = (HttpURLConnection) u.openConnection();
-            final InputStream in = new BufferedInputStream(connection.getInputStream(), 8192);
 
-            final byte[] buffer = new byte[8192];
-            final int read = in.read(buffer);
-            if (read < buffer.length) {
-                buffer[read] = '\0';
+            if (connection == null) {
+                Log.e(TAG, "Failed to open a connection to the stream due to null connection.");
+            } else if (connection.getResponseCode() == HttpURLConnection.HTTP_ACCEPTED) {
+                final InputStream in = new BufferedInputStream(connection.getInputStream(), 8192);
+                final byte[] buffer = new byte[8192];
+                final int read = in.read(buffer);
+
+                if (read != -1) {
+                    if (read < buffer.length) {
+                        buffer[read] = (byte) '\0';
+                    }
+
+                    checkedUrl = parse(new String(buffer), mHandlers);
+                }
+            } else {
+                Log.e(TAG, "URL did not accept a connection. Code: " + connection.getResponseCode()
+                        + " Message: " + connection.getResponseMessage());
             }
-            return parse(new String(buffer), mHandlers);
         } catch (final IOException e) {
             Log.e(TAG, "Failed to check and parse an incoming playlist.", e);
         } finally {
@@ -186,7 +200,8 @@ public class StreamFetcher {
                 connection.disconnect();
             }
         }
-        return null;
+
+        return checkedUrl;
     }
 
     public String get(final String url, final String name) throws MalformedURLException {

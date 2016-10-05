@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,9 +50,11 @@ public class MPDConnectionHandler extends BroadcastReceiver {
                 final NetworkInfo networkInfo =
                         intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
 
-                Log.d(TAG, "NETW-STATE:" + action);
-                Log.d(TAG, "NETW-STATE: Connected: " + networkInfo.isConnected()
-                        + ", state: " + networkInfo.getState());
+                if (networkInfo != null) {
+                    Log.d(TAG, "NETW-STATE:" + action);
+                    Log.d(TAG, "NETW-STATE: Connected: " + networkInfo.isConnected()
+                            + ", state: " + networkInfo.getState());
+                }
                 break;
             default:
                 break;

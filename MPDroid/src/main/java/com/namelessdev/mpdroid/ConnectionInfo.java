@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,103 +16,131 @@
 
 package com.namelessdev.mpdroid;
 
-import org.a0z.mpd.MPDCommand;
+import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.Tools;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
-public class ConnectionInfo implements Parcelable {
+import java.util.Arrays;
 
-    public static final Creator<ConnectionInfo> CREATOR = new Creator<ConnectionInfo>() {
+/**
+ * This class stores information about the current connection, at the time of creation.
+ *
+ * This class is immutable, thus thread-safe.
+ */
+public final class ConnectionInfo implements Parcelable {
 
-        /**
-         * This creates the object instance from the Parcel.
-         *
-         * @param source The source Parcel.
-         * @return The instance object from the Parcel.
-         */
-        @Override
-        public ConnectionInfo createFromParcel(final Parcel source) {
-            final String pServer = source.readString();
-            final int pPort = source.readInt();
-            final String pPassword = source.readString();
-            final String pStreamServer = source.readString();
-            final int pStreamPort = source.readInt();
-            final String pStreamSuffix = source.readString();
-            final boolean[] pBoolArray = source.createBooleanArray();
+    /**
+     * This field is used to instantiate this class from a {@link Parcel}.
+     */
+    public static final Creator<ConnectionInfo> CREATOR = new ConnectionInfoCreator();
 
-            return new ConnectionInfo(
-                    pServer, pPort, pPassword, pStreamServer, pStreamPort, pStreamSuffix,
-                    pBoolArray[0], pBoolArray[1], pBoolArray[2], pBoolArray[3]);
-        }
+    /**
+     * This is an empty object used for initialization.
+     *
+     * <p>Everything from this object will be {@code false}, {@code empty} or the item default.</p>
+     */
+    public static final ConnectionInfo EMPTY = new ConnectionInfo.Builder().build();
 
-        @Override
-        public ConnectionInfo[] newArray(final int size) {
-            return new ConnectionInfo[size];
-        }
-    };
+    /**
+     * This is the ClassLoader for this class.
+     */
+    public static final ClassLoader LOADER = ConnectionInfo.class.getClassLoader();
 
+    /**
+     * The class log identifier.
+     */
     private static final String TAG = "ConnectionInfo";
 
-    public static final String BUNDLE_KEY = TAG;
+    /**
+     * This is a convenience string to use as a Intent extra tag.
+     */
+    public static final String EXTRA = TAG;
 
-    public final boolean isNotificationPersistent;
+    /**
+     * This field stores whether the notification should be persistent.
+     */
+    private final boolean mIsNotificationPersistent;
 
-    public final String password;
+    /**
+     * This field is used to track changes from the last connection to this one.
+     */
+    private final ConnectionInfo mLastConnection;
 
-    public final int port;
+    /**
+     * This field stores the MPD server password.
+     */
+    private final String mPassword;
 
-    public final String server;
+    /**
+     * This field stores the MPD server host port.
+     */
+    private final int mPort;
 
-    public final boolean serverInfoChanged;
+    /**
+     * This field stores the MPD server host address.
+     */
+    @NotNull
+    private final String mServer;
 
-    public final int streamPort;
+    /**
+     * This field stores the Stream URL for this connection.
+     */
+    @NotNull
+    private final Uri mStream;
 
-    public final String streamServer;
-
-    public final String streamSuffix;
-
-    public final boolean streamingServerInfoChanged;
-
-    public final boolean wasNotificationPersistent;
-
-    /** Only call this to initialize. */
-    public ConnectionInfo() {
+    /**
+     * This constructor is used to build this immutable class. To build this class, see the {@link
+     * Builder}
+     *
+     * @param server                   The MPD server host address.
+     * @param port                     The MPD server host port.
+     * @param password                 The MPD server password.
+     * @param stream                   This is the Uri for the stream.
+     * @param isNotificationPersistent Whether notification persistence is expected.
+     * @param lastConnection           This is the connection before the change to this one.
+     * @see Builder
+     */
+    private ConnectionInfo(@NotNull final String server, final int port, final String password,
+            @NonNull final Uri stream, final boolean isNotificationPersistent,
+            final ConnectionInfo lastConnection) {
         super();
 
-        server = null;
-        port = MPDCommand.DEFAULT_MPD_PORT;
-        password = null;
+        mServer = server;
+        mPort = port;
+        mPassword = password;
 
-        streamServer = null;
-        streamPort = MPDCommand.DEFAULT_MPD_PORT;
-        streamSuffix = null;
+        mStream = stream;
 
-        isNotificationPersistent = false;
-        wasNotificationPersistent = false;
-        serverInfoChanged = false;
-        streamingServerInfoChanged = false;
+        mIsNotificationPersistent = isNotificationPersistent;
+        mLastConnection = lastConnection;
     }
 
-    /** The private constructor, constructed by the Build inner class. */
-    private ConnectionInfo(final String pServer, final int pPort, final String pPassword,
-            final String pStreamServer, final int pStreamPort, final String pStreamSuffix,
-            final boolean pIsNotificationPersistent, final boolean pWasNotificationPersistent,
-            final boolean pServerInfoChanged, final boolean pStreamingInfoChanged) {
-        super();
+    /**
+     * This is a simple static method to test for inequality in a null-safe fashion.
+     *
+     * @param a The Object to test for equality with the Object in parameter {@code b}.
+     * @param b The Object to test for equality with the Object in parameter {@code a}.
+     * @return True if the two parameters are not equal, false otherwise.
+     */
+    private static boolean isNotEqualNullSafe(final Object a, final Object b) {
+        final boolean isNotEqual;
 
-        server = pServer;
-        port = pPort;
-        password = pPassword;
+        if (a == null && b == null) {
+            isNotEqual = false;
+        } else if (a == null || b == null) {
+            isNotEqual = true;
+        } else {
+            isNotEqual = !a.equals(b);
+        }
 
-        streamServer = pStreamServer;
-        streamPort = pStreamPort;
-        streamSuffix = pStreamSuffix;
-
-        isNotificationPersistent = pIsNotificationPersistent;
-        wasNotificationPersistent = pWasNotificationPersistent;
-        serverInfoChanged = pServerInfoChanged;
-        streamingServerInfoChanged = pStreamingInfoChanged;
+        return isNotEqual;
     }
 
     /**
@@ -122,78 +150,300 @@ public class ConnectionInfo implements Parcelable {
      * @return A bit mask indicating the set of special object types marshall by the Parcelable.
      */
     @Override
-    public final int describeContents() {
+    public int describeContents() {
         return 0;
     }
 
-    /**
-     * The {@code ConnectionInfo} toString() implementation.
-     *
-     * @return A string containing all the {@code ConnectionInfo} fields.
-     */
     @Override
-    public final String toString() {
-        return "isNotificationPersistent: " + isNotificationPersistent +
-                " password: " + password +
-                " port: " + port +
-                " server: " + server +
-                " serverInfoChanged: " + serverInfoChanged +
-                " streamServerInfoChanged: " + streamingServerInfoChanged +
-                " streamServer: " + streamServer +
-                " streamPort: " + streamPort +
-                " streamSuffix: " + streamSuffix +
-                " wasNotificationPersistent: " + wasNotificationPersistent;
+    public boolean equals(final Object o) {
+        Boolean isEqual = null;
+
+        if (this == o) {
+            isEqual = Boolean.TRUE;
+        } else if (o == null || getClass() != o.getClass()) {
+            isEqual = Boolean.FALSE;
+        }
+
+        if (isEqual == null || isEqual.equals(Boolean.TRUE)) {
+            /** This has to be the same due to the class check above. */
+            //noinspection unchecked
+            final ConnectionInfo connectionInfo = (ConnectionInfo) o;
+
+            /**
+             * Fields must be individually tested against the last connection to avoid a stack
+             * overflow.
+             */
+            //noinspection ConstantConditions
+            final Object[][] objects = {
+                    {mLastConnection.mPassword, connectionInfo.mLastConnection.mPassword},
+                    {mPassword, connectionInfo.mPassword},
+                    {mLastConnection.mServer, connectionInfo.mLastConnection.mServer},
+                    {mServer, connectionInfo.mServer},
+                    {mLastConnection.mStream, connectionInfo.mLastConnection.mStream},
+                    {mStream, connectionInfo.mStream}
+            };
+
+            if (Tools.isNotEqual(objects)) {
+                isEqual = Boolean.FALSE;
+            }
+
+            if (mIsNotificationPersistent != connectionInfo.mIsNotificationPersistent ||
+                    mLastConnection.mIsNotificationPersistent !=
+                            connectionInfo.mLastConnection.mIsNotificationPersistent) {
+                isEqual = Boolean.FALSE;
+            }
+
+            if (mPort != connectionInfo.mPort ||
+                    mLastConnection.mPort != connectionInfo.mLastConnection.mPort) {
+                isEqual = Boolean.FALSE;
+            }
+        }
+
+        if (isEqual == null) {
+            isEqual = Boolean.TRUE;
+        }
+
+        return isEqual.booleanValue();
+    }
+
+    /**
+     * This method returns the connection information prior to this connection.
+     *
+     * @return The the last ConnectionInfo object.
+     */
+    public ConnectionInfo getLastConnection() {
+        return mLastConnection;
+    }
+
+    /**
+     * This method returns the MPD server password for this ConnectionInfo.
+     *
+     * @return The MPD server password.
+     */
+    @Nullable
+    public String getPassword() {
+        return mPassword;
+    }
+
+    /**
+     * This method returns the MPD server host port for this ConnectionInfo.
+     *
+     * @return The MPD server host port.
+     */
+    public int getPort() {
+        return mPort;
+    }
+
+    /**
+     * This method returns the MPD server host address for this ConnectionInfo.
+     *
+     * @return The MPD server host address.
+     */
+    @NotNull
+    public String getServer() {
+        return mServer;
+    }
+
+    /**
+     * This method returns the stream URL for this connection.
+     *
+     * @return The stream URL for this connection.
+     */
+    @NotNull
+    public Uri getStream() {
+        return mStream;
+    }
+
+    /**
+     * This method checks for changes in the password.
+     *
+     * @return True if the host password has changed, false otherwise.
+     */
+    public boolean hasHostPasswordChanged() {
+        return isNotEqualNullSafe(mLastConnection.mPassword, mPassword);
+    }
+
+    /**
+     * This method checks for changes in the hostname port.
+     *
+     * @return True if the port has changed, false otherwise.
+     */
+    public boolean hasHostPortChanged() {
+        return mLastConnection.mPort != mPort;
+    }
+
+    /**
+     * This method checks for changes in the hostname.
+     *
+     * @return True if the hostname has changed since the prior connection, false otherwise.
+     */
+    public boolean hasHostnameChanged() {
+        return !mServer.equals(mLastConnection.mServer);
+    }
+
+    /**
+     * This method returns whether the server information has changed since the prior
+     * ConnectionInfo.
+     *
+     * <p>This is true if {@link #hasHostnameChanged()}, {@link #hasHostPortChanged()} and
+     * {@link #hasHostPasswordChanged()} is true, false otherwise.</p>
+     *
+     * @return True if the server information has changed since the last ConnectionInfo.
+     */
+    public boolean hasServerChanged() {
+        return hasHostnameChanged() || hasHostPasswordChanged() || hasHostPortChanged();
+    }
+
+    /**
+     * This returns whether the stream information has changed since the prior ConnectionInfo.
+     *
+     * @return True if the stream information has changed, false otherwise.
+     */
+    public boolean hasStreamInfoChanged() {
+        return !mLastConnection.mStream.equals(mStream);
+    }
+
+    @Override
+    public int hashCode() {
+        final Object[] objects = {mLastConnection, mPassword, mServer, mStream};
+        int result = Arrays.hashCode(objects);
+
+        if (mIsNotificationPersistent) {
+            result += 1;
+        }
+
+        result *= 31 + mPort;
+
+        return result;
+    }
+
+    /**
+     * This returns whether the notification for this ConnectionInfo is expected to be persistent.
+     *
+     * @return True if the notification should be persistent, false otherwise.
+     */
+    public boolean isNotificationPersistent() {
+        return mIsNotificationPersistent;
+    }
+
+    @Override
+    public String toString() {
+        return "ConnectionInfo{" +
+                "mIsNotificationPersistent=" + mIsNotificationPersistent +
+                ", mPassword='" + mPassword + '\'' +
+                ", mPort=" + mPort +
+                ", mServer='" + mServer + '\'' +
+                ", mStream=" + mStream +
+                ", mLastConnection=" + mLastConnection +
+                '}';
+    }
+
+    /**
+     * This returns whether the prior ConnectionInfo notification was expected to be persistent.
+     *
+     * @return True if the prior ConnectionInfo notification was persistent, false otherwise.
+     */
+    public boolean wasNotificationPersistent() {
+        return mLastConnection.mIsNotificationPersistent != mIsNotificationPersistent;
     }
 
     /**
      * Flatten this object into a Parcel.
      *
      * @param dest  The Parcel in which the object should be written.
-     * @param flags Additional flags about how the object should be written.
-     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
+     * @param flags Additional flags about how the object should be written. May be 0 or {@link
+     *              #PARCELABLE_WRITE_RETURN_VALUE}.
      */
     @Override
-    public final void writeToParcel(final Parcel dest, final int flags) {
-        final boolean[] boolArray = {isNotificationPersistent, wasNotificationPersistent,
-                serverInfoChanged, streamingServerInfoChanged};
+    public void writeToParcel(final Parcel dest, final int flags) {
+        final boolean[] boolArray = {mIsNotificationPersistent};
 
-        dest.writeString(server);
-        dest.writeInt(port);
-        dest.writeString(password);
-        dest.writeString(streamServer);
-        dest.writeInt(streamPort);
-        dest.writeString(streamSuffix);
+        dest.writeString(mServer);
+        dest.writeInt(mPort);
+        dest.writeString(mPassword);
+        dest.writeParcelable(mStream, 0);
         dest.writeBooleanArray(boolArray);
+        dest.writeParcelable(mLastConnection, 0);
     }
 
+    /**
+     * This is the Builder for the enclosing class.
+     */
     public static class Builder {
 
+        /**
+         * The MPD server password store for this Builder.
+         */
         private final String mPassword;
 
+        /**
+         * The MPD server host port for this Builder.
+         */
         private final int mPort;
 
-        private boolean mNotificationPersistent;
+        /**
+         * The MPD server hostname for this Builder.
+         */
+        private final String mServer;
 
-        private boolean mPersistentRunFirst = false;
+        /**
+         * Whether this notification is persistent.
+         */
+        private boolean mIsNotificationPersistent;
 
-        private boolean mPreviousRunFirst = false;
+        /**
+         * This field stores the prior connection information.
+         */
+        private ConnectionInfo mLastConnection;
 
-        private String mServer = null;
+        /**
+         * This field is a flag marked as true to ensure that persistent notification is set prior
+         * to a call to {@link #build()}.
+         */
+        private boolean mPersistentRunFirst;
 
-        private boolean mServerInfoChanged;
+        /**
+         * This field is a flag marked as {@code true} to ensure that a previous state has been
+         * given prior to a call to {@link #build()}.
+         */
+        private boolean mPreviousRunFirst;
 
-        private int mStreamPort;
+        /**
+         * This is the Uri for the stream host built by the UI.
+         */
+        private Uri mStream;
 
-        private String mStreamServer = null;
+        /**
+         * This is an empty ConnectionInfo object.
+         */
+        private Builder() {
+            super();
 
-        private String mStreamSuffix;
+            mPreviousRunFirst = true;
+            mPersistentRunFirst = true;
 
-        private boolean mStreamingServerInfoChanged;
+            mServer = "";
+            mPort = MPDCommand.DEFAULT_MPD_PORT;
+            mPassword = "";
 
-        private boolean mWasNotificationPersistent;
+            mStream = Uri.EMPTY;
 
+            mLastConnection = build();
+        }
+
+        /**
+         * This constructor constructs a non-empty ConnectionInfo object.
+         *
+         * @param server   The MPD server host address.
+         * @param port     The MPD server host port.
+         * @param password The MPD server host password.
+         */
         public Builder(final String server, final int port, final String password) {
             super();
+
+            if (server == null) {
+                throw new IllegalArgumentException("Server must not be null.");
+            }
 
             mServer = server;
             mPort = port;
@@ -206,115 +456,111 @@ public class ConnectionInfo implements Parcelable {
          * @return The {@code ConnectionInfo} object.
          * @throws IllegalStateException If {@code setPreviousConnectionInfo()} is not run.
          */
-        public final ConnectionInfo build() {
+        public ConnectionInfo build() {
             if (!mPreviousRunFirst) {
-                throw new IllegalStateException("setPreviousConnectionInfo() must be run prior to" +
-                        " build()");
+                throw new IllegalStateException("setPreviousConnectionInfo() must be run prior to "
+                        + "calling this method.");
             }
 
-            return new ConnectionInfo(mServer, mPort, mPassword,
-                    mStreamServer, mStreamPort, mStreamSuffix, mNotificationPersistent,
-                    mWasNotificationPersistent, mServerInfoChanged, mStreamingServerInfoChanged);
+            if (!mPersistentRunFirst) {
+                throw new IllegalStateException("Notification must be set as persistent or not "
+                        + "persistent prior to calling this method.");
+            }
+
+            if (mStream == null) {
+                throw new IllegalStateException("setStreamServer() must be called prior to " +
+                        "calling this method.");
+            }
+
+            return new ConnectionInfo(mServer, mPort, mPassword, mStream,
+                    mIsNotificationPersistent, mLastConnection);
         }
 
         /**
-         * Compares two {@code ConnectionInfo} objects for logical equality with regard to the main
-         * media server information.
-         *
-         * @param connectionInfo The object containing server information to compare against.
-         * @return True if the media server information is different, false otherwise.
+         * This method sets the notification is not persistent for this connection.
          */
-        private boolean hasServerChanged(final ConnectionInfo connectionInfo) {
-            final boolean result;
+        public void setNotificationNotPersistent() {
+            mIsNotificationPersistent = false;
 
-            if (connectionInfo == null) {
-                result = true;
-            } else if (connectionInfo.server == null ||
-                    !connectionInfo.server.equals(mServer)) {
-                result = true;
-            } else if (connectionInfo.port != mPort) {
-                result = true;
-            } else if (connectionInfo.password == null ||
-                    !connectionInfo.password.equals(mPassword)) {
-                result = true;
-            } else {
-                result = false;
-            }
-
-            return result;
+            mPersistentRunFirst = true;
         }
 
         /**
-         * Compares two {@code ConnectionInfo} objects for logical equality with regard to the
-         * streaming server information.
-         *
-         * @param connectionInfo The object containing stream server information to compare
-         *                       against.
-         * @return True if the streaming server information is different, false otherwise.
+         * This method sets the notification as persistent for this connection.
          */
-        private boolean hasStreamingServerChanged(final ConnectionInfo connectionInfo) {
-            final boolean result;
-
-            if (connectionInfo == null) {
-                result = true;
-            } else if (connectionInfo.streamServer == null ||
-                    !connectionInfo.streamServer.equals(mStreamServer)) {
-                result = true;
-            } else if (connectionInfo.streamPort != mStreamPort) {
-                result = true;
-            } else if (connectionInfo.streamSuffix == null ||
-                    !connectionInfo.streamSuffix.equals(mStreamSuffix)) {
-                result = true;
-            } else {
-                result = false;
-            }
-
-            return result;
-        }
-
-        public final void setPersistentNotification(final boolean isPersistent) {
+        public void setNotificationPersistent() {
             mPersistentRunFirst = true;
 
-            mNotificationPersistent = isPersistent;
+            mIsNotificationPersistent = true;
         }
 
         /**
-         * Logically compares the previous {@code ConnectionInfo} object
-         * for changes and changes in the current object.
+         * Logically compares the previous {@code ConnectionInfo} object for changes and changes in
+         * the current object.
          *
          * @param connectionInfo The previous {@code ConnectionInfo} object.
-         * @throws IllegalStateException If {@code setPersistentNotification()} and
-         *                               {@code setStreamServer()} are not run prior to this
-         *                               method.
+         * @throws IllegalStateException If {@code setPersistentNotification()} and {@code
+         *                               setStreamServer()} are not run prior to this method.
          */
-        public final void setPreviousConnectionInfo(final ConnectionInfo connectionInfo) {
-            if (!mPersistentRunFirst || mStreamServer == null) {
-                throw new IllegalStateException("setPersistentNotification() && setStreamServer()" +
-                        "must be" + " run prior to setPersistentConnectionInfo()");
-            }
+        public void setPreviousConnectionInfo(final ConnectionInfo connectionInfo) {
             mPreviousRunFirst = true;
-
-            if (connectionInfo == null) {
-                mWasNotificationPersistent = false;
-                mServerInfoChanged = true;
-                mStreamingServerInfoChanged = true;
-            } else {
-                mWasNotificationPersistent = connectionInfo.isNotificationPersistent;
-
-                mServerInfoChanged = hasServerChanged(connectionInfo);
-                mStreamingServerInfoChanged = hasStreamingServerChanged(connectionInfo);
-            }
+            mLastConnection = connectionInfo;
         }
 
-        public final void setStreamingServer(final String server, final int port,
-                final String suffix) {
-            if (server == null || server.isEmpty()) {
-                mStreamServer = mServer;
-            } else {
-                mStreamServer = server;
+        /**
+         * This method sets a streaming server for this connection.
+         *
+         * @param stream The stream URI.
+         */
+        public void setStreamingServer(final String stream) {
+            mStream = Uri.parse(stream);
+
+            if (BuildConfig.DEBUG && mServer != null && mStream.getPort() == -1) {
+                throw new IllegalStateException("Stream must have a port: " + mStream);
             }
-            mStreamPort = port;
-            mStreamSuffix = suffix;
+        }
+    }
+
+    /**
+     * This class is used to instantiate a ConnectionInfo Object from a {@code Parcel}.
+     */
+    private static final class ConnectionInfoCreator implements Creator<ConnectionInfo> {
+
+        /**
+         * Sole constructor.
+         */
+        private ConnectionInfoCreator() {
+            super();
+        }
+
+        /**
+         * This creates the object instance from the Parcel.
+         *
+         * @param source The source Parcel.
+         * @return The instance object from the Parcel.
+         */
+        @Override
+        public ConnectionInfo createFromParcel(final Parcel source) {
+            final String server = source.readString();
+            final int port = source.readInt();
+            final String password = source.readString();
+            final Uri stream = source.readParcelable(Uri.class.getClassLoader());
+            final boolean[] boolArray = source.createBooleanArray();
+            final ConnectionInfo lastConnection = source.readParcelable(LOADER);
+
+            return new ConnectionInfo(server, port, password, stream, boolArray[0],
+                    lastConnection);
+        }
+
+        /**
+         * Create a new array of the Parcelable class.
+         *
+         * @param size Size of the array.
+         * @return Returns an array of the Parcelable class, with every entry initialized to null.
+         */
+        @Override
+        public ConnectionInfo[] newArray(final int size) {
+            return new ConnectionInfo[size];
         }
     }
 }

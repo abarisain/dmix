@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 package com.namelessdev.mpdroid.helpers;
 
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.FilesystemTreeEntry;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.subsystem.Sticker;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
-
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.subsystem.Sticker;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -32,9 +32,8 @@ import android.util.Log;
 import java.io.IOException;
 
 /**
- * This sets up an AsyncTask to gather and parse all the information to update the
- * track information outside of the UI thread, then sends a callback to the resource
- * listeners.
+ * This sets up an AsyncTask to gather and parse all the information to update the track
+ * information outside of the UI thread, then sends a callback to the resource listeners.
  */
 public class UpdateTrackInfo {
 
@@ -43,6 +42,8 @@ public class UpdateTrackInfo {
     private static final String TAG = "UpdateTrackInfo";
 
     private final MPDApplication mApp = MPDApplication.getInstance();
+
+    private final MPDStatus mMPDStatus = mApp.getMPD().getStatus();
 
     private final SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(mApp);
 
@@ -59,7 +60,7 @@ public class UpdateTrackInfo {
     private TrackInfoUpdate mTrackInfoListener = null;
 
     public UpdateTrackInfo() {
-        mSticker = mApp.oMPDAsyncHelper.oMPD.getStickerManager();
+        mSticker = mApp.getMPD().getStickerManager();
     }
 
     public final void addCallback(final FullTrackInfoUpdate listener) {
@@ -70,13 +71,13 @@ public class UpdateTrackInfo {
         mTrackInfoListener = listener;
     }
 
-    public final void refresh(final MPDStatus mpdStatus) {
-        refresh(mpdStatus, false);
+    public final void refresh() {
+        refresh(false);
     }
 
-    public final void refresh(final MPDStatus mpdStatus, final boolean forceCoverUpdate) {
+    public final void refresh(final boolean forceCoverUpdate) {
         mForceCoverUpdate = forceCoverUpdate;
-        new UpdateTrackInfoAsync().execute(mpdStatus);
+        new UpdateTrackInfoAsync().execute();
     }
 
     public final void removeCallback(final TrackInfoUpdate ignored) {
@@ -128,15 +129,13 @@ public class UpdateTrackInfo {
         void onTrackInfoUpdate(CharSequence artist, CharSequence title);
     }
 
-    private class UpdateTrackInfoAsync extends AsyncTask<MPDStatus, Void, Void> {
-
-        private String mAlbum = null;
+    private class UpdateTrackInfoAsync extends AsyncTask<Void, Music, Music> {
 
         private AlbumInfo mAlbumInfo = null;
 
-        private String mArtist = null;
+        private String mAlbumName = null;
 
-        private Music mCurrentTrack = null;
+        private String mArtistName = null;
 
         private String mDate = null;
 
@@ -153,69 +152,69 @@ public class UpdateTrackInfo {
          * @return A null {@code Void} object, ignore it.
          */
         @Override
-        protected final Void doInBackground(final MPDStatus... params) {
-            final int songPos = params[0].getSongPos();
-            mCurrentTrack = mApp.oMPDAsyncHelper.oMPD.getPlaylist().getByIndex(songPos);
+        protected final Music doInBackground(final Void... params) {
+            try {
+                mMPDStatus.waitForValidity();
+                mApp.getMPD().getPlaylist().waitForValidity();
+            } catch (final InterruptedException ignored) {
+            }
 
-            if (mCurrentTrack != null) {
-                if (mCurrentTrack.isStream()) {
-                    if (mCurrentTrack.hasTitle()) {
-                        mAlbum = mCurrentTrack.getName();
-                        mTitle = mCurrentTrack.getTitle();
+            final Music currentTrack = mApp.getMPD().getCurrentTrack();
+
+            if (currentTrack != null) {
+                if (currentTrack.isStream()) {
+                    final String title = currentTrack.getTitle();
+
+                    if (title != null && !title.isEmpty()) {
+                        mAlbumName = currentTrack.getName();
+                        mTitle = currentTrack.getTitle();
                     } else {
-                        mTitle = mCurrentTrack.getName();
+                        mTitle = currentTrack.getName();
                     }
 
-                    mArtist = mCurrentTrack.getArtist();
-                    mAlbumInfo = new AlbumInfo(mArtist, mAlbum);
+                    mArtistName = currentTrack.getArtistName();
+                    mAlbumInfo = new AlbumInfo(mArtistName, mAlbumName);
                 } else {
-                    mAlbum = mCurrentTrack.getAlbum();
+                    mAlbumName = currentTrack.getAlbumName();
 
-                    mDate = Long.toString(mCurrentTrack.getDate());
+                    mDate = Long.toString(currentTrack.getDate());
                     if (mDate.isEmpty() || mDate.charAt(0) == '-') {
                         mDate = "";
                     } else {
                         mDate = " - " + mDate;
                     }
 
-                    mTitle = mCurrentTrack.getTitle();
-                    setArtist();
-                    mAlbumInfo = new AlbumInfo(mCurrentTrack);
+                    mTitle = currentTrack.getTitle();
+                    setArtist(currentTrack);
+                    mAlbumInfo = new AlbumInfo(currentTrack);
                 }
                 mHasCoverChanged = hasCoverChanged();
-                mTrackRating = getTrackRating();
+                mTrackRating = getTrackRating(currentTrack);
 
                 if (DEBUG) {
-                    Log.i(TAG,
-                            "mAlbum: " + mAlbum +
-                                    " mArtist: " + mArtist +
-                                    " mDate: " + mDate +
-                                    " mAlbumInfo: " + mAlbumInfo +
-                                    " mHasTrackChanged: " + mHasCoverChanged +
-                                    " mCurrentTrack: " + mCurrentTrack +
-                                    " mForceCoverUpdate: " + mForceCoverUpdate
-                    );
+                    Log.i(TAG, toString());
                 }
             }
 
-            mLastAlbum = mAlbum;
-            mLastArtist = mArtist;
+            mLastAlbum = mAlbumName;
+            mLastArtist = mArtistName;
 
-            return null;
+            return currentTrack;
         }
 
         /**
          * This method retrieves the current rating sticker from the connected media server.
          *
+         * @param currentTrack The current playing {@link Music} item.
          * @return Returns the current rating sticker from the connected media server.
          */
-        private float getTrackRating() {
+        private float getTrackRating(final FilesystemTreeEntry currentTrack) {
             float rating = 0.0f;
 
-            if (mCurrentTrack != null && mSticker.isAvailable() &&
+            if (currentTrack != null && mSticker.isAvailable() &&
                     mSettings.getBoolean("enableRating", false)) {
                 try {
-                    rating = (float) mSticker.getRating(mCurrentTrack) / 2.0f;
+                    rating = (float) mSticker.getRating(currentTrack) / 2.0f;
                 } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to get the current track rating.", e);
                 }
@@ -225,27 +224,27 @@ public class UpdateTrackInfo {
         }
 
         private boolean hasCoverChanged() {
-            final boolean invalid = mArtist == null || mAlbum == null;
-            return invalid || !mArtist.equals(mLastArtist) || !mAlbum.equals(mLastAlbum);
+            final boolean invalid = mArtistName == null || mAlbumName == null;
+            return invalid || !mArtistName.equals(mLastArtist) || !mAlbumName.equals(mLastAlbum);
         }
 
         /**
          * Send out the messages to listeners.
          */
         @Override
-        protected final void onPostExecute(final Void result) {
+        protected final void onPostExecute(final Music result) {
             super.onPostExecute(result);
 
-            final boolean sendCoverUpdate = mHasCoverChanged || mCurrentTrack == null
+            final boolean sendCoverUpdate = mHasCoverChanged || result == null
                     || mForceCoverUpdate;
 
-            if (mCurrentTrack == null) {
+            if (result == null) {
                 mTitle = mApp.getResources().getString(R.string.noSongInfo);
             }
 
             if (mFullTrackInfoListener != null) {
-                mFullTrackInfoListener.onTrackInfoUpdate(mCurrentTrack, mTrackRating, mAlbum,
-                        mArtist, mDate, mTitle);
+                mFullTrackInfoListener.onTrackInfoUpdate(result, mTrackRating, mAlbumName,
+                        mArtistName, mDate, mTitle);
 
                 if (sendCoverUpdate) {
                     if (DEBUG) {
@@ -256,7 +255,7 @@ public class UpdateTrackInfo {
             }
 
             if (mTrackInfoListener != null) {
-                mTrackInfoListener.onTrackInfoUpdate(mAlbum, mTitle);
+                mTrackInfoListener.onTrackInfoUpdate(mAlbumName, mTitle);
 
                 if (sendCoverUpdate) {
                     if (DEBUG) {
@@ -268,20 +267,34 @@ public class UpdateTrackInfo {
         }
 
         /**
-         * If not a stream, this sets up the mArtist based on mArtist and album mArtist
-         * information.
+         * If not a stream, this sets up the mArtistName based on artist and album information.
+         *
+         * @param currentTrack The current playing {@link Music} item.
          */
-        private void setArtist() {
+        private void setArtist(final Music currentTrack) {
             final boolean showAlbumArtist = mSettings.getBoolean("showAlbumArtist", true);
-            final String albumArtist = mCurrentTrack.getAlbumArtist();
+            final String albumArtist = currentTrack.getAlbumArtistName();
 
-            mArtist = mCurrentTrack.getArtist();
-            if (mArtist == null || mArtist.isEmpty()) {
-                mArtist = albumArtist;
+            mArtistName = currentTrack.getArtistName();
+            if (mArtistName == null || mArtistName.isEmpty()) {
+                mArtistName = albumArtist;
             } else if (showAlbumArtist && albumArtist != null &&
-                    !mArtist.toLowerCase().contains(albumArtist.toLowerCase())) {
-                mArtist = albumArtist + " / " + mArtist;
+                    !mArtistName.toLowerCase().contains(albumArtist.toLowerCase())) {
+                mArtistName = albumArtist + " / " + mArtistName;
             }
+        }
+
+        @Override
+        public String toString() {
+            return "UpdateTrackInfoAsync{" +
+                    "mAlbumInfo=" + mAlbumInfo +
+                    ", mAlbumName='" + mAlbumName + '\'' +
+                    ", mArtistName='" + mArtistName + '\'' +
+                    ", mDate='" + mDate + '\'' +
+                    ", mHasCoverChanged=" + mHasCoverChanged +
+                    ", mTitle='" + mTitle + '\'' +
+                    ", mTrackRating=" + mTrackRating +
+                    "} " + super.toString();
         }
     }
 }

@@ -1,0 +1,14 @@
+file: Albums/Sublime/40 Oz. to Freedom/22 Thanx.flac
+Last-Modified: 2010-08-10T02:32:32Z
+Date: 1992
+AlbumArtistSort: Sublime
+Title: Thanx
+AlbumArtist: Sublime
+Album: 40 Oz. to Freedom
+Artist: Sublime
+ArtistSort: Sublime
+Genre: Rock
+Track: 22/22
+Time: 261
+Pos: 26
+Id: 162

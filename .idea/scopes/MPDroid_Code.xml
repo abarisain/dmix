@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="MPDroid-Code" pattern="file[MPDroid]:src//*&amp;&amp;!file:src/main/java/com/namelessdev/mpdroid/tools/StringComparators.java&amp;&amp;!file:src/main/java/com/namelessdev/mpdroid/locale/LocaleConstants.java||file:build.gradle" />
+</component>

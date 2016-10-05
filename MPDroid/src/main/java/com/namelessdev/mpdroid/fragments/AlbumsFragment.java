@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,30 +16,28 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Genre;
+import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.adapters.ArrayIndexerAdapter;
+import com.namelessdev.mpdroid.cover.CoverAsyncHelper;
+import com.namelessdev.mpdroid.cover.CoverManager;
+import com.namelessdev.mpdroid.favorites.Favorites;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
-import com.namelessdev.mpdroid.helpers.CoverManager;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
-import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Genre;
-import org.a0z.mpd.item.Item;
-
-import android.annotation.SuppressLint;
-import android.content.Intent;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -53,15 +51,10 @@ import android.widget.ProgressBar;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 
-public class AlbumsFragment extends BrowseFragment {
+public class AlbumsFragment extends BrowseFragment<Album> {
 
     private static final String ALBUM_YEAR_SORT_KEY = "sortAlbumsByYear";
-
-    private static final String EXTRA_ARTIST = "artist";
-
-    private static final String EXTRA_GENRE = "genre";
 
     private static final String SHOW_ALBUM_TRACK_COUNT_KEY = "showAlbumTrackCount";
 
@@ -76,36 +69,24 @@ public class AlbumsFragment extends BrowseFragment {
     protected boolean mIsCountDisplayed;
 
     public AlbumsFragment() {
-        this(null);
-    }
-
-    @SuppressLint("ValidFragment")
-    public AlbumsFragment(final Artist artist) {
-        this(artist, null);
-    }
-
-    public AlbumsFragment(final Artist artist, final Genre genre) {
-        super(R.string.addAlbum, R.string.albumAdded, MPDCommand.MPD_SEARCH_ALBUM);
-        init(artist, genre);
+        super(R.string.addAlbum, R.string.albumAdded);
     }
 
     private static void refreshCover(final View view, final AlbumInfo album) {
         if (view.getTag() instanceof AlbumViewHolder) {
             final AlbumViewHolder albumViewHolder = (AlbumViewHolder) view.getTag();
-            if (albumViewHolder.mAlbumCover
-                    .getTag(R.id.CoverAsyncHelper) instanceof CoverAsyncHelper) {
-                final CoverAsyncHelper coverAsyncHelper
-                        = (CoverAsyncHelper) albumViewHolder.mAlbumCover
-                        .getTag(R.id.CoverAsyncHelper);
-                coverAsyncHelper.downloadCover(album, true);
+            final Object tag = albumViewHolder.mAlbumCover.getTag(R.id.CoverAsyncHelper);
+
+            if (tag instanceof CoverAsyncHelper) {
+                ((CoverAsyncHelper) tag).downloadCover(album, true);
             }
         }
     }
 
     @Override
-    protected void add(final Item item, final boolean replace, final boolean play) {
+    protected void add(final Album item, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add((Album) item, replace, play);
+            mApp.getMPD().add(item, replace, play);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -113,9 +94,9 @@ public class AlbumsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final String playlist) {
+    protected void add(final Album item, final PlaylistFile playlist) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.addToPlaylist(playlist, (Album) item);
+            mApp.getMPD().addToPlaylist(playlist, item);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -128,15 +109,17 @@ public class AlbumsFragment extends BrowseFragment {
         final boolean sortByYear = settings.getBoolean(ALBUM_YEAR_SORT_KEY, false);
 
         try {
-            mItems = mApp.oMPDAsyncHelper.oMPD.getAlbums(mArtist, sortByYear, mIsCountDisplayed);
+            replaceItems(mApp.getMPD().getAlbums(mArtist, sortByYear, mIsCountDisplayed));
 
             if (sortByYear) {
-                Collections.sort((List<? extends Album>) mItems, Album.SORT_BY_YEAR);
+                Collections.sort(mItems, Album.SORT_BY_DATE);
+            } else {
+                Collections.sort(mItems);
             }
 
             if (mGenre != null) { // filter albums not in genre
                 for (int i = mItems.size() - 1; i >= 0; i--) {
-                    if (!mApp.oMPDAsyncHelper.oMPD.isAlbumInGenre((Album) mItems.get(i), mGenre)) {
+                    if (!mApp.getMPD().isAlbumInGenre(mItems.get(i), mGenre)) {
                         mItems.remove(i);
                     }
                 }
@@ -153,10 +136,9 @@ public class AlbumsFragment extends BrowseFragment {
      * @param isWrongCover True to blacklist the cover, false otherwise.
      */
     private void cleanupCover(final MenuItem item, final boolean isWrongCover) {
-        final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
-                .getMenuInfo();
+        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 
-        final Album album = (Album) mItems.get((int) info.id);
+        final Album album = mItems.get((int) info.id);
         final AlbumInfo albumInfo = new AlbumInfo(album);
 
         if (isWrongCover) {
@@ -171,13 +153,32 @@ public class AlbumsFragment extends BrowseFragment {
         updateNowPlayingSmallFragment(albumInfo);
     }
 
+    private void addToFavorites(final MenuItem item){
+        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        Favorites favorites = new Favorites(getActivity());
+        favorites.addAlbum(mItems.get((int) info.id));
+    }
+
+    @Override
+    protected Artist getArtist(final Album item) {
+        return item.getArtist();
+    }
+
     @Override
     protected ListAdapter getCustomListAdapter() {
-        if (mItems != null) {
-            return new ArrayIndexerAdapter(getActivity(),
-                    new AlbumDataBinder(), mItems);
-        }
-        return super.getCustomListAdapter();
+        return new ArrayIndexerAdapter<>(getActivity(), new AlbumDataBinder<Album>(mArtist),
+                mItems);
+    }
+
+    /**
+     * This method returns the default string resource.
+     *
+     * @return The default string resource.
+     */
+    @Override
+    @StringRes
+    public int getDefaultTitle() {
+        return R.string.albums;
     }
 
     @Override
@@ -188,25 +189,31 @@ public class AlbumsFragment extends BrowseFragment {
 
     @Override
     public String getTitle() {
-        if (mArtist != null) {
-            return mArtist.mainText();
-        } else {
-            return getString(R.string.albums);
-        }
-    }
+        final String title;
 
-    public AlbumsFragment init(final Artist artist, final Genre genre) {
-        mArtist = artist;
-        mGenre = genre;
-        return this;
+        if (mArtist == null) {
+            title = super.getTitle();
+        } else {
+            title = mArtist.toString();
+        }
+
+        return title;
     }
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            init((Artist) savedInstanceState.getParcelable(EXTRA_ARTIST),
-                    (Genre) savedInstanceState.getParcelable(EXTRA_GENRE));
+
+        final Bundle bundle;
+        if (savedInstanceState == null) {
+            bundle = getArguments();
+        } else {
+            bundle = savedInstanceState;
+        }
+
+        if (bundle != null) {
+            mArtist = bundle.getParcelable(Artist.EXTRA);
+            mGenre = bundle.getParcelable(Genre.EXTRA);
         }
     }
 
@@ -220,6 +227,8 @@ public class AlbumsFragment extends BrowseFragment {
         final MenuItem resetCoverItem = menu.add(POPUP_COVER_SELECTIVE_CLEAN,
                 POPUP_COVER_SELECTIVE_CLEAN, 0, R.string.resetCover);
         resetCoverItem.setOnMenuItemClickListener(this);
+        final MenuItem addToFavoritesItem = menu.add(POPUP_ADD_TO_FAVORITES, POPUP_ADD_TO_FAVORITES , 0, R.string.addToFavorites);
+        addToFavoritesItem.setOnMenuItemClickListener(this);
     }
 
     @Override
@@ -234,9 +243,34 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
-        ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(
-                new SongsFragment().init((Album) mItems.get(position)),
-                "songs");
+        final Activity activity = getActivity();
+        final Bundle bundle = new Bundle();
+        final Fragment fragment = Fragment.instantiate(activity, SongsFragment.class.getName(),
+                bundle);
+
+        bundle.putParcelable(Album.EXTRA, mItems.get(position));
+
+        // Terribly bugged
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            final TransitionInflater inflater = TransitionInflater.from(activity);
+            final ImageView albumCoverView = (ImageView) view.findViewById(R.id.albumCover);
+            final String transitionName = albumCoverView.getTransitionName();
+            final Drawable drawable = albumCoverView.getDrawable();
+
+            if (drawable instanceof BitmapDrawable) {
+                bundle.putParcelable(SongsFragment.COVER_THUMBNAIL_BUNDLE_KEY,
+                        ((BitmapDrawable) drawable).getBitmap());
+            }
+
+            bundle.putString(SongsFragment.COVER_TRANSITION_NAME_BASE, transitionName);
+
+            ((ILibraryFragmentActivity) activity).pushLibraryFragment(
+                    fragment, "songs", albumCoverView,
+                    albumCoverView.getTransitionName(),
+                    inflater.inflateTransition(R.transition.album_songs_transition));
+        } else {*/
+        ((ILibraryFragmentActivity) activity).pushLibraryFragment(fragment, "songs");
+        //}
     }
 
     @Override
@@ -244,20 +278,14 @@ public class AlbumsFragment extends BrowseFragment {
         boolean result = false;
 
         switch (item.getGroupId()) {
-            case GOTO_ARTIST:
-                final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-                final Object selectedItem = mItems.get((int) info.id);
-                final Intent intent = new Intent(getActivity(), SimpleLibraryActivity.class);
-                final Album a = (Album) selectedItem;
-
-                intent.putExtra("artist", a.getArtist());
-                startActivityForResult(intent, -1);
-                break;
             case POPUP_COVER_BLACKLIST:
                 cleanupCover(item, true);
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
                 cleanupCover(item, false);
+                break;
+            case POPUP_ADD_TO_FAVORITES:
+                addToFavorites(item);
                 break;
             default:
                 result = super.onMenuItemClick(item);
@@ -277,23 +305,12 @@ public class AlbumsFragment extends BrowseFragment {
     @Override
     public void onSaveInstanceState(final Bundle outState) {
         if (mArtist != null) {
-            outState.putParcelable(EXTRA_ARTIST, mArtist);
+            outState.putParcelable(Artist.EXTRA, mArtist);
         }
 
         if (mGenre != null) {
-            outState.putParcelable(EXTRA_GENRE, mGenre);
+            outState.putParcelable(Genre.EXTRA, mGenre);
         }
         super.onSaveInstanceState(outState);
-    }
-
-    private void updateNowPlayingSmallFragment(final AlbumInfo albumInfo) {
-        final NowPlayingSmallFragment nowPlayingSmallFragment;
-        if (getActivity() != null) {
-            nowPlayingSmallFragment = (NowPlayingSmallFragment) getActivity()
-                    .getSupportFragmentManager().findFragmentById(R.id.now_playing_small_fragment);
-            if (nowPlayingSmallFragment != null) {
-                nowPlayingSmallFragment.updateCover(albumInfo);
-            }
-        }
     }
 }

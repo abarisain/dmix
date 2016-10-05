@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,8 +24,8 @@ import java.io.InputStream;
 
 public class CoverBitmapDrawable extends BitmapDrawable {
 
-    public CoverBitmapDrawable(final Resources resources, final Bitmap bitmap) {
-        super(resources, bitmap);
+    public CoverBitmapDrawable(final Resources resources, final Iterable<Bitmap> bitmaps) {
+        super(resources, bitmaps.iterator().next());
     }
 
     public CoverBitmapDrawable(final Resources resources, final InputStream is) {

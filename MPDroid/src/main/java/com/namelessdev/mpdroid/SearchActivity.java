@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,18 +16,18 @@
 
 package com.namelessdev.mpdroid;
 
-import com.namelessdev.mpdroid.MPDroidActivities.MPDroidActivity;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Item;
+import com.anpmech.mpd.item.Music;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
+import com.namelessdev.mpdroid.favorites.Favorites;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
+import com.namelessdev.mpdroid.ui.ToolbarHelper;
 import com.namelessdev.mpdroid.views.SearchResultDataBinder;
-
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Item;
-import org.a0z.mpd.item.Music;
 
 import android.app.SearchManager;
 import android.content.Intent;
@@ -39,6 +39,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -57,7 +59,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SearchActivity extends MPDroidActivity implements OnMenuItemClickListener,
+public class SearchActivity extends MPDActivity implements OnMenuItemClickListener,
         AsyncExecListener, OnItemClickListener, ActionBar.TabListener {
 
     public static final int ADD = 0;
@@ -70,6 +72,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     public static final int GOTO_ALBUM = 4;
 
+    public static final int ADD_TO_FAVORITES = 5;
+
     public static final int MAIN = 0;
 
     public static final int PLAYLIST = 3;
@@ -77,7 +81,21 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     private static final String PLAY_SERVICES_ACTION_SEARCH
             = "com.google.android.gms.actions.SEARCH_ACTION";
 
+    private static final int RESULT_ALBUM = 1;
+
+    private static final int RESULT_ARTIST = 0;
+
+    private static final int RESULT_MUSIC = 2;
+
     private static final String TAG = "SearchActivity";
+
+    private static final String UNKNOWN_ITEM_ERROR = "Unknown item.";
+
+    /**
+     * The token called back when {@link #asyncComplete(CharSequence)} is called, to indicate
+     * updated items being available.
+     */
+    private static final CharSequence UPDATE_ITEMS_TOKEN = "UPDATE_ITEMS";
 
     private final ArrayList<Album> mAlbumResults;
 
@@ -140,12 +158,12 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             if (artist == null) {
                 final Artist albumArtist = album.getArtist();
 
-                mApp.oMPDAsyncHelper.oMPD.add(album, replace, play);
+                mApp.getMPD().add(album, replace, play);
                 if (albumArtist != null) {
                     note = albumArtist.getName() + " - " + album.getName();
                 }
             } else if (album == null) {
-                mApp.oMPDAsyncHelper.oMPD.add(artist, replace, play);
+                mApp.getMPD().add(artist, replace, play);
                 note = artist.getName();
             }
         } catch (final IOException | MPDException e) {
@@ -159,7 +177,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
     protected void add(final Music music, final boolean replace, final boolean play) {
         try {
-            mApp.oMPDAsyncHelper.oMPD.add(music, replace, play);
+            mApp.getMPD().add(music, replace, play);
             Tools.notifyUser(R.string.songAdded, music.getTitle(), music.getName());
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add.", e);
@@ -178,8 +196,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     @Override
-    public void asyncExecSucceeded(final int jobID) {
-        if (mJobID == jobID) {
+    public void asyncComplete(final CharSequence token) {
+        if (UPDATE_ITEMS_TOKEN.equals(token)) {
             updateFromItems();
         }
     }
@@ -190,7 +208,8 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         List<Music> arrayMusic = null;
 
         try {
-            arrayMusic = mApp.oMPDAsyncHelper.oMPD.search("any", finalSearch);
+            arrayMusic = new ArrayList<>(mApp.getMPD().search("any", finalSearch));
+            Collections.sort(arrayMusic);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "MPD search failure.", e);
 
@@ -211,31 +230,32 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
                 mSongResults.add(music);
             }
             valueFound = false;
-            Artist artist = music.getAlbumArtistAsArtist();
-            if (artist == null || artist.isUnknown()) {
-                artist = music.getArtistAsArtist();
+
+            String artistName = music.getAlbumArtistName();
+            if (TextUtils.isEmpty(artistName)) {
+                artistName = music.getArtistName();
             }
-            if (artist != null) {
-                final String name = artist.getName();
-                if (name != null) {
-                    tmpValue = name.toLowerCase();
-                    if (tmpValue.contains(finalSearch)) {
-                        for (final Artist artistItem : mArtistResults) {
-                            final String artistItemName = artistItem.getName();
-                            if (artistItemName != null &&
-                                    artistItemName.equalsIgnoreCase(tmpValue)) {
-                                valueFound = true;
-                            }
+
+            if (artistName != null) {
+                final Artist artist = Artist.byName(artistName);
+
+                tmpValue = artistName.toLowerCase();
+                if (tmpValue.contains(finalSearch)) {
+                    for (final Artist artistItem : mArtistResults) {
+                        final String artistItemName = artistItem.getName();
+                        if (artistItemName != null &&
+                                artistItemName.equalsIgnoreCase(tmpValue)) {
+                            valueFound = true;
                         }
-                        if (!valueFound) {
-                            mArtistResults.add(artist);
-                        }
+                    }
+                    if (!valueFound) {
+                        mArtistResults.add(artist);
                     }
                 }
             }
 
             valueFound = false;
-            final Album album = music.getAlbumAsAlbum();
+            final Album album = music.getAlbum();
             if (album != null) {
                 final String albumName = album.getName();
                 if (albumName != null) {
@@ -281,7 +301,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(adapter);
-        mPager.setOnPageChangeListener(
+        mPager.addOnPageChangeListener(
                 new ViewPager.SimpleOnPageChangeListener() {
                     @Override
                     public void onPageSelected(final int position) {
@@ -329,7 +349,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         final String queryAction = queryIntent.getAction();
 
         if (Intent.ACTION_SEARCH.equals(queryAction) || PLAY_SERVICES_ACTION_SEARCH
-                .equals(queryAction)) {
+                .equals(queryAction) && queryIntent.hasExtra(SearchManager.QUERY)) {
             mSearchKeywords = queryIntent.getStringExtra(SearchManager.QUERY).trim();
             final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
                     SearchRecentProvider.AUTHORITY, SearchRecentProvider.MODE);
@@ -356,26 +376,28 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 
         switch (mPager.getCurrentItem()) {
-            case 0:
-                final Artist artist = mArtistResults.get((int) info.id);
-                menu.setHeaderTitle(artist.mainText());
-                setContextForObject(artist);
-                break;
-            case 1:
+            case RESULT_ALBUM:
+                final MenuItem addToFavoritesIcon = menu.add(Menu.NONE, ADD_TO_FAVORITES, 0, R.string.addToFavorites);
+                addToFavoritesIcon.setOnMenuItemClickListener(this);
                 final Album album = mAlbumResults.get((int) info.id);
-                menu.setHeaderTitle(album.mainText());
+                menu.setHeaderTitle(album.toString());
                 setContextForObject(album);
                 break;
-            case 2:
+            case RESULT_ARTIST:
+                final Artist artist = mArtistResults.get((int) info.id);
+                menu.setHeaderTitle(artist.toString());
+                setContextForObject(artist);
+                break;
+            case RESULT_MUSIC:
                 final Music music = mSongResults.get((int) info.id);
                 final MenuItem gotoAlbumItem = menu
                         .add(Menu.NONE, GOTO_ALBUM, 0, R.string.goToAlbum);
                 gotoAlbumItem.setOnMenuItemClickListener(this);
-                menu.setHeaderTitle(music.mainText());
+                menu.setHeaderTitle(music.toString());
                 setContextForObject(music);
                 break;
             default:
-                break;
+                throw new UnsupportedOperationException(UNKNOWN_ITEM_ERROR);
         }
 
         final MenuItem addItem = menu.add(Menu.NONE, ADD, 0, getString(mAddString));
@@ -395,13 +417,9 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     public boolean onCreateOptionsMenu(final Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.mpd_searchmenu, menu);
+        ToolbarHelper.manuallySetupSearchView(this,
+                (SearchView) menu.findItem(R.id.menu_search).getActionView());
         return true;
-    }
-
-    @Override
-    public void onDestroy() {
-        mApp.oMPDAsyncHelper.removeAsyncExecListener(this);
-        super.onDestroy();
     }
 
     @Override
@@ -412,11 +430,11 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
             add((Music) selectedItem, false, false);
         } else if (selectedItem instanceof Artist) {
             final Intent intent = new Intent(this, SimpleLibraryActivity.class);
-            intent.putExtra("artist", (Parcelable) selectedItem);
+            intent.putExtra(Artist.EXTRA, (Parcelable) selectedItem);
             startActivityForResult(intent, -1);
         } else if (selectedItem instanceof Album) {
-            final Intent intent = new Intent(this, SimpleLibraryActivity.class);
-            intent.putExtra("album", (Parcelable) selectedItem);
+             final Intent intent = new Intent(this, SimpleLibraryActivity.class);
+            intent.putExtra(Album.EXTRA, (Parcelable) selectedItem);
             startActivityForResult(intent, -1);
         }
     }
@@ -424,54 +442,74 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        final List<? extends Item> targetArray;
-        switch (mPager.getCurrentItem()) {
-            case 1:
-                targetArray = mAlbumResults;
-                break;
-            case 2:
-                targetArray = mSongResults;
-                break;
-            case 0:
-            default:
-                targetArray = mArtistResults;
-                break;
-        }
-        final Object selectedItem = targetArray.get((int) info.id);
-        if (item.getItemId() == GOTO_ALBUM) {
-            if (selectedItem instanceof Music) {
-                final Music music = (Music) selectedItem;
-                final Intent intent = new Intent(this, SimpleLibraryActivity.class);
-                final Parcelable artist = new Artist(music.getAlbumArtistOrArtist());
-                intent.putExtra("artist", artist);
-                intent.putExtra("album", music.getAlbumAsAlbum());
-                startActivityForResult(intent, -1);
-            }
+        final View itemFocus = (View) info.targetView.getParent();
+        final View currentFocus = getCurrentFocus();
+        final boolean isConsumed;
+
+        if (itemFocus == null || currentFocus != null && !itemFocus.equals(currentFocus)) {
+            isConsumed = false;
+            Log.w(TAG, "Ignoring menu item press due to view change.");
         } else {
-            mApp.oMPDAsyncHelper.execAsync(new Runnable() {
-                @Override
-                public void run() {
-                    boolean replace = false;
-                    boolean play = false;
-                    switch (item.getItemId()) {
-                        case ADD_REPLACE_PLAY:
-                            replace = true;
-                            play = true;
-                            break;
-                        case ADD_REPLACE:
-                            replace = true;
-                            break;
-                        case ADD_PLAY:
-                            play = true;
-                            break;
-                        default:
-                            break;
-                    }
-                    add(selectedItem, replace, play);
+            isConsumed = true;
+            final List<? extends Item<?>> targetArray;
+
+            switch (mPager.getCurrentItem()) {
+                case RESULT_ALBUM:
+                    targetArray = mAlbumResults;
+                    break;
+                case RESULT_ARTIST:
+                    targetArray = mArtistResults;
+                    break;
+                case RESULT_MUSIC:
+                    targetArray = mSongResults;
+                    break;
+                default:
+                    throw new UnsupportedOperationException(UNKNOWN_ITEM_ERROR);
+            }
+            final Object selectedItem = targetArray.get((int) info.id);
+            if (item.getItemId() == GOTO_ALBUM) {
+                if (selectedItem instanceof Music) {
+                    final Music music = (Music) selectedItem;
+                    final Intent intent = new Intent(this, SimpleLibraryActivity.class);
+                    final Parcelable artist = Artist.byName(music.getAlbumArtistOrArtist());
+                    intent.putExtra(Artist.EXTRA, artist);
+                    intent.putExtra(Album.EXTRA, music.getAlbum());
+                    startActivityForResult(intent, -1);
                 }
-            });
+            }
+            else if (item.getItemId() == ADD_TO_FAVORITES) {
+                if (selectedItem instanceof Album){
+                    Favorites favorites = new Favorites(this);
+                    favorites.addAlbum((Album)selectedItem);
+                }
+            }
+            else{
+                mApp.getAsyncHelper().execAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean replace = false;
+                        boolean play = false;
+                        switch (item.getItemId()) {
+                            case ADD_REPLACE_PLAY:
+                                replace = true;
+                                play = true;
+                                break;
+                            case ADD_REPLACE:
+                                replace = true;
+                                break;
+                            case ADD_PLAY:
+                                play = true;
+                                break;
+                            default:
+                                break;
+                        }
+                        add(selectedItem, replace, play);
+                    }
+                });
+            }
         }
-        return false;
+
+        return isConsumed;
     }
 
     @Override
@@ -493,18 +531,6 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
         }
 
         return handled;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mApp.setActivity(this);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mApp.unsetActivity(this);
     }
 
     @Override
@@ -540,7 +566,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
      * @param resultList    The List of results to enter into the ListView.
      * @param noResultsView The View to hide if there are no results.
      */
-    private void update(final ListView listView, final List<? extends Item> resultList,
+    private void update(final ListView listView, final List<? extends Item<?>> resultList,
             final View noResultsView) {
         final ListAdapter separatedListAdapter = new SeparatedListAdapter(this,
                 R.layout.search_list_item,
@@ -567,8 +593,7 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
     }
 
     public void updateList() {
-        mApp.oMPDAsyncHelper.addAsyncExecListener(this);
-        mJobID = mApp.oMPDAsyncHelper.execAsync(new Runnable() {
+        mApp.getAsyncHelper().execAsync(this, UPDATE_ITEMS_TOKEN, new Runnable() {
             @Override
             public void run() {
                 asyncUpdate();
@@ -594,16 +619,17 @@ public class SearchActivity extends MPDroidActivity implements OnMenuItemClickLi
 
             final View v;
             switch (position) {
-                case 1:
+                case RESULT_ALBUM:
                     v = mListAlbumsFrame;
                     break;
-                case 2:
-                    v = mListSongsFrame;
-                    break;
-                case 0:
-                default:
+                case RESULT_ARTIST:
                     v = mListArtistsFrame;
                     break;
+                case RESULT_MUSIC:
+                    v = mListSongsFrame;
+                    break;
+                default:
+                    throw new UnsupportedOperationException(UNKNOWN_ITEM_ERROR);
             }
             if (v.getParent() == null) {
                 mPager.addView(v);

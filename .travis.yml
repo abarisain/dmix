@@ -1,26 +1,35 @@
 language: android
+jdk: java
+sudo: false
+
+## The old JDK used on Travis is broken for our project, this is a workaround until it's fixed.
+## See https://github.com/travis-ci/travis-ci/issues/3259
+addons:
+    apt:
+        packages:
+            - oracle-java8-installer
+
+jdk:
+    - oraclejdk8
 
 android:
   components:
-    # Uncomment the lines below if you want to use the latest revision of Android SDK Tools.
-    # - platform-tools
-    # - tools
+    - tools
+    - build-tools-23.0.2
 
-    # The BuildTools version used by your project.
-    - build-tools-21.1.1
-
-    # The SDK version used to compile your project.
-    - android-21
+    - android-23
 
     # Additional components
-    # - extra-google-google_play_services
-    # - extra-google-m2repository
     - extra-android-m2repository
-    # - addon-google_apis-google-21
+    - extra-android-support
+
+before_script:
+    ## We need to be able to test the compile.
+    sed -ie 's%Get_your_own_key_ugh%0%g' MPDroid/src/crashlytics/AndroidManifest.xml
 
 # This project doesn't support checkConnected, which is
 #  the default script label for the Android plugin.
 script:
-    ## Build the standard MPDroid distribution and check to
-    ### make sure the plain Java build didn't break.
-    ./gradlew assembleFossDebug JMPDCommJava:Build
+    ## Build /everything/ but MPDroid Javadoc (Android Support Libraries break the TravisCI build).
+    ## It's not fast, but it's thorough.
+    ./gradlew build JMPDCommAndroid:debugJavadoc JMPDCommJava:javadoc

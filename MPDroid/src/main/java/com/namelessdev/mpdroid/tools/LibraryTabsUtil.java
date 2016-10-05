@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,6 +41,8 @@ public final class LibraryTabsUtil {
 
     public static final String TAB_STREAMS = "streams";
 
+    public static final String TAB_FAVORITES = "favorites";
+
     private static final MPDApplication APP = MPDApplication.getInstance();
 
     private static final String LIBRARY_TABS_DELIMITER = "|";
@@ -50,7 +52,8 @@ public final class LibraryTabsUtil {
             + LIBRARY_TABS_DELIMITER + TAB_PLAYLISTS
             + LIBRARY_TABS_DELIMITER + TAB_STREAMS
             + LIBRARY_TABS_DELIMITER + TAB_FILES
-            + LIBRARY_TABS_DELIMITER + TAB_GENRES;
+            + LIBRARY_TABS_DELIMITER + TAB_GENRES
+            + LIBRARY_TABS_DELIMITER + TAB_FAVORITES;
 
     private static final String LIBRARY_TABS_SETTINGS_KEY = "currentLibraryTabs";
 
@@ -63,6 +66,7 @@ public final class LibraryTabsUtil {
         TABS.put(TAB_STREAMS, R.string.streams);
         TABS.put(TAB_FILES, R.string.files);
         TABS.put(TAB_GENRES, R.string.genres);
+        TABS.put(TAB_FAVORITES, R.string.favorites);
     }
 
     private LibraryTabsUtil() {
@@ -75,11 +79,14 @@ public final class LibraryTabsUtil {
 
     public static ArrayList<String> getCurrentLibraryTabs() {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(APP);
-        String currentSettings = settings.getString(LIBRARY_TABS_SETTINGS_KEY, "");
-        if (currentSettings != null && currentSettings.isEmpty()) {
+        String currentSettings =
+                settings.getString(LIBRARY_TABS_SETTINGS_KEY, DEFAULT_LIBRARY_TABS);
+
+        if (currentSettings.isEmpty()) {
             currentSettings = DEFAULT_LIBRARY_TABS;
             resetLibraryTabs();
         }
+
         return new ArrayList<>(Arrays.asList(currentSettings.split('\\'
                 + LIBRARY_TABS_DELIMITER)));
     }

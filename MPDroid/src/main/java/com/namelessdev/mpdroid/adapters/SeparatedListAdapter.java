@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,14 +30,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * List adapter which uses an object list. If the object is an instance of
- * String, the list will display a separator. If the object is of any other
- * type, the binder will be called. The binder should do what getView does when
- * you extend BaseAdapter (except that you never inflate the view yourself)
- * There are many other implementations of this list on the internet, this one
- * has a lot of restrictions (which makes it simpler), but handles the
- * separators so that you always get the right line number when you select a
- * line. The separator needs to have a TextView named "separator_title".
+ * List adapter which uses an object list. If the object is an instance of String, the list will
+ * display a separator. If the object is of any other type, the binder will be called. The binder
+ * should do what getView does when you extend BaseAdapter (except that you never inflate the view
+ * yourself) There are many other implementations of this list on the internet, this one has a lot
+ * of restrictions (which makes it simpler), but handles the separators so that you always get the
+ * right line number when you select a line. The separator needs to have a TextView named
+ * "separator_title".
  */
 
 public class SeparatedListAdapter extends BaseAdapter {

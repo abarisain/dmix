@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 
 package com.namelessdev.mpdroid.service;
 
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.subsystem.status.MPDStatus;
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
-
-import org.a0z.mpd.MPD;
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.item.Music;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -36,29 +37,36 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 /**
- * A class to handle everything necessary to integrate
- * the music server with Android's RemoteControlClient.
+ * A class to handle everything necessary to integrate the music server with Android's
+ * RemoteControlClient.
  */
 public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCallback {
 
     private static final boolean DEBUG = MPDroidService.DEBUG;
 
-    private static final String TAG = "RemoteControlClientService";
+    private static final String TAG = "RemoteControlClient";
 
     private final AudioManager mAudioManager;
+
+    /**
+     * This is the MPD instance held in the Application context.
+     */
+    private final MPD mMPD;
+
+    private final Handler mServiceHandler;
 
     /** A flag used to inform the RemoteControlClient that a buffering event is taking place. */
     private boolean mIsMediaPlayerBuffering = false;
 
     /**
-     * The component name of MusicIntentReceiver, for
-     * use with media button and remote control APIs.
+     * The component name of MusicIntentReceiver, for use with media button and remote control
+     * APIs.
      */
     private ComponentName mMediaButtonReceiverComponent = null;
 
     /**
-     * This is kept up to date and used when the state didn't change
-     * but the remote control client needs the current state.
+     * This is kept up to date and used when the state didn't change but the remote control client
+     * needs the current state.
      */
     private int mPlaybackState = -1;
 
@@ -67,13 +75,12 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
     /** The RemoteControlClient Seekbar handled by the {@code RemoteControlClientSeekBarHandler}. */
     private RemoteControlSeekBarHandler mSeekBar = null;
 
-    private final Handler mServiceHandler;
-
     RemoteControlClientHandler(final MPDroidService serviceContext, final Handler serviceHandler) {
         super();
 
         mServiceHandler = serviceHandler;
 
+        mMPD = ((MPDApplication) serviceContext.getApplicationContext()).getMPD();
         mAudioManager =
                 (AudioManager) serviceContext.getSystemService(Context.AUDIO_SERVICE);
         mMediaButtonReceiverComponent =
@@ -92,7 +99,8 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
                 RemoteControlClient.FLAG_KEY_MEDIA_STOP;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            mSeekBar = new RemoteControlSeekBarHandler(mRemoteControlClient, controlFlags);
+            mSeekBar = new RemoteControlSeekBarHandler(serviceContext, mRemoteControlClient,
+                    controlFlags);
         } else {
             mRemoteControlClient.setTransportControlFlags(controlFlags);
         }
@@ -108,16 +116,16 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
         final int playbackState;
 
         switch (state) {
-            case MPDStatus.STATE_PLAYING:
+            case MPDStatusMap.STATE_PLAYING:
                 playbackState = RemoteControlClient.PLAYSTATE_PLAYING;
                 break;
-            case MPDStatus.STATE_STOPPED:
+            case MPDStatusMap.STATE_STOPPED:
                 playbackState = RemoteControlClient.PLAYSTATE_STOPPED;
                 break;
-            case MPDStatus.STATE_PAUSED:
+            case MPDStatusMap.STATE_PAUSED:
                 playbackState = RemoteControlClient.PLAYSTATE_PAUSED;
                 break;
-            case MPDStatus.STATE_UNKNOWN:
+            case MPDStatusMap.STATE_UNKNOWN:
             default:
                 playbackState = RemoteControlClient.PLAYSTATE_ERROR;
                 break;
@@ -152,28 +160,29 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
                         /**
                          * This is an ugly fix for now. I will clean this up sooner or later.
                          */
-                        final MPD mpd = MPDroidService.MPD_ASYNC_HELPER.oMPD;
-                        final int songPos = mpd.getStatus().getSongPos();
-                        final Music currentTrack = mpd.getPlaylist().getByIndex(songPos);
+                        final Music currentTrack = mMPD.getCurrentTrack();
 
-                        mRemoteControlClient.editMetadata(true)
-                                .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK,
-                                        albumCover)
-                                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
-                                        currentTrack.getAlbum())
-                                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
-                                        currentTrack.getAlbumArtist())
-                                .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
-                                        currentTrack.getArtist())
-                                .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
-                                        (long) currentTrack.getTrack())
-                                .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
-                                        (long) currentTrack.getDisc())
-                                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                                        currentTrack.getTime() * DateUtils.SECOND_IN_MILLIS)
-                                .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
-                                        currentTrack.getTitle())
-                                .apply();
+                        if (currentTrack != null) {
+                            mRemoteControlClient.editMetadata(true)
+                                    .putBitmap(
+                                            RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK,
+                                            albumCover)
+                                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
+                                            currentTrack.getAlbumName())
+                                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
+                                            currentTrack.getAlbumArtistName())
+                                    .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                                            currentTrack.getArtistName())
+                                    .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
+                                            (long) currentTrack.getTrack())
+                                    .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,
+                                            (long) currentTrack.getDisc())
+                                    .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
+                                            currentTrack.getTime() * DateUtils.SECOND_IN_MILLIS)
+                                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
+                                            currentTrack.getTitle())
+                                    .apply();
+                        }
                     } catch (final IllegalStateException e) {
                         Log.w(TAG, "RemoteControlClient bug workaround", e);
                         mServiceHandler.sendEmptyMessage(MPDroidService.REFRESH_COVER);
@@ -198,8 +207,8 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
     }
 
     /**
-     * Sets the current media server playback state in the
-     * RemoteControlClient and RemoteControlClient seek bar.
+     * Sets the current media server playback state in the RemoteControlClient and
+     * RemoteControlClient seek bar.
      *
      * @param playbackState The current playback state.
      */
@@ -221,14 +230,14 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
 
     /**
      * Used to keep the state updated.
-     *
-     * @param mpdStatus An MPDStatus object.
      */
-    final void stateChanged(final MPDStatus mpdStatus) {
+    final void stateChanged() {
+        final MPDStatus status = mMPD.getStatus();
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            mSeekBar.updateSeekTime(mpdStatus.getElapsedTime());
+            mSeekBar.updateSeekTime(status.getElapsedTime());
         }
-        getRemoteState(mpdStatus.getState());
+        getRemoteState(status.getState());
     }
 
     /** Cleans up this object prior to closing the parent. */
@@ -259,11 +268,11 @@ public class RemoteControlClientHandler implements AlbumCoverHandler.FullSizeCal
                 try {
                     mRemoteControlClient.editMetadata(false)
                             .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
-                                    currentTrack.getAlbum())
+                                    currentTrack.getAlbumName())
                             .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
-                                    currentTrack.getAlbumArtist())
+                                    currentTrack.getAlbumArtistName())
                             .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
-                                    currentTrack.getArtist())
+                                    currentTrack.getArtistName())
                             .putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER,
                                     (long) currentTrack.getTrack())
                             .putLong(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER,

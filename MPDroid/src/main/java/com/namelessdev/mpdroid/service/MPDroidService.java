@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,17 +16,19 @@
 
 package com.namelessdev.mpdroid.service;
 
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.connection.MPDConnectionListener;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Music;
+import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
+import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.namelessdev.mpdroid.ConnectionInfo;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.MPDControl;
-import com.namelessdev.mpdroid.tools.SettingsHelper;
-
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.MPDStatusMonitor;
-import org.a0z.mpd.event.StatusChangeListener;
-import org.a0z.mpd.item.Music;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -44,6 +46,7 @@ import android.os.SystemClock;
 import android.text.format.DateUtils;
 import android.util.Log;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +57,7 @@ import java.util.List;
 public final class MPDroidService extends Service implements
         AudioManager.OnAudioFocusChangeListener,
         MPDAsyncHelper.ConnectionInfoListener,
+        MPDConnectionListener,
         StatusChangeListener {
 
     /** Enable this to get various DEBUG messages from this module. */
@@ -62,32 +66,31 @@ public final class MPDroidService extends Service implements
     /** This is the class unique Binder identifier. */
     static final int LOCAL_UID = 200;
 
-    /** Disconnects if no connection exists. */
-    private static final int DISCONNECT_ON_NO_CONNECTION = LOCAL_UID + 1;
-
     /** Request that all clients unbind due to service inactivity. */
-    public static final int REQUEST_UNBIND = LOCAL_UID + 2;
-
-    /** Immediately attempts to stopSelf(). */
-    private static final int STOP_SELF = LOCAL_UID + 3;
+    public static final int REQUEST_UNBIND = LOCAL_UID + 1;
 
     /** Update the clients with the important handler status. */
-    public static final int UPDATE_CLIENT_STATUS = LOCAL_UID + 4;
-
-    /** Sends stop() to all handlers. */
-    private static final int WIND_DOWN_HANDLERS = LOCAL_UID + 5;
+    public static final int UPDATE_CLIENT_STATUS = LOCAL_UID + 2;
 
     /** The main process connection changed. */
-    public static final int CONNECTION_INFO_CHANGED = LOCAL_UID + 6;
+    public static final int CONNECTION_INFO_CHANGED = LOCAL_UID + 3;
 
-    public static final int REFRESH_COVER = LOCAL_UID + 7;
+    public static final int REFRESH_COVER = LOCAL_UID + 4;
 
-    /** The {@code MPDAsyncHelper} for this service. */
-    static final MPDAsyncHelper MPD_ASYNC_HELPER = new MPDAsyncHelper(false);
+    static final String PACKAGE_NAME = "com.namelessdev.mpdroid.service.";
+
+    /** Disconnects if no connection exists. */
+    private static final int DISCONNECT_ON_NO_CONNECTION = LOCAL_UID + 5;
+
+    /** A tag for manually signifying service ownership used by the onTaskRemoved() Intent. */
+    private static final String SERVICE_OWNERSHIP;
+
+    /** Immediately attempts to stopSelf(). */
+    private static final int STOP_SELF = LOCAL_UID + 6;
 
     private static final String TAG = "MPDroidService";
 
-    private static final String FULLY_QUALIFIED_NAME = "com.namelessdev.mpdroid.service." + TAG;
+    private static final String FULLY_QUALIFIED_NAME = PACKAGE_NAME + TAG;
 
     /** Handled in onStartCommand(), this is the persistent service start intent action. */
     public static final String ACTION_START = FULLY_QUALIFIED_NAME + ".ACTION_START";
@@ -95,8 +98,8 @@ public final class MPDroidService extends Service implements
     /** Handled in RemoteControlReceiver, this attempts closing this service. */
     public static final String ACTION_STOP = FULLY_QUALIFIED_NAME + ".ACTION_STOP";
 
-    /** A tag for manually signifying service ownership used by the onTaskRemoved() Intent. */
-    private static final String SERVICE_OWNERSHIP = FULLY_QUALIFIED_NAME + ".SERVICE_OWNED_BY";
+    /** Sends stop() to all handlers. */
+    private static final int WIND_DOWN_HANDLERS = LOCAL_UID + 7;
 
     /** The inner class which handles messages for this service. */
     private final MessageHandler mMessageHandler = new MessageHandler();
@@ -109,7 +112,7 @@ public final class MPDroidService extends Service implements
     /** The Android AudioManager, used by this for audio focus control. */
     private AudioManager mAudioManager = null;
 
-    private Music mCurrentTrack = null;
+    private ConnectionInfo mConnectionInfo;
 
     /** True if audio is focused on this service. */
     private boolean mIsAudioFocusedOnThis = false;
@@ -135,6 +138,13 @@ public final class MPDroidService extends Service implements
 
     /** If this flag is true, and stream stops, notification should shut itself down. */
     private boolean mStreamOwnsService = false;
+
+    static {
+        /**
+         * This is here to workaround a Intellij rearranging bug.
+         */
+        SERVICE_OWNERSHIP = FULLY_QUALIFIED_NAME + ".SERVICE_OWNED_BY";
+    }
 
     /**
      * A function to translate 'what' fields to literal debug name, used primarily for debugging.
@@ -173,50 +183,91 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * The status monitor listener callback method called
-     * upon media server connection change events.
+     * A notification method for Pebble devices.
      *
-     * @param connected      New connection state: true, connected; false, disconnected.
-     * @param connectionLost True when connection was lost, false otherwise.
+     * @param currentTrack The currently playing track.
+     * @return The Intent used to send the Pebble intent.
+     */
+    private static Intent getPebbleIntent(final Music currentTrack) {
+        final Intent intent = new Intent("com.getpebble.action.NOW_PLAYING");
+
+        intent.putExtra(Music.TAG_ARTIST, currentTrack.getArtist());
+        intent.putExtra(Music.TAG_ALBUM, currentTrack.getAlbum());
+        intent.putExtra(Music.TAG_TRACK, currentTrack.getTitle());
+
+        return intent;
+    }
+
+    /**
+     * Called upon connection.
+     *
+     * @param commandErrorCode If this number is non-zero, the number will correspond to a
+     *                         {@link MPDException} error code. If this number is zero, the
+     *                         connection MPD protocol commands were successful.
      */
     @Override
-    public void connectionStateChanged(final boolean connected, final boolean connectionLost) {
-        if (DEBUG) {
-            Log.d(TAG, "connectionStateChanged(" + connected + ", " + connectionLost + ')');
-        }
+    public void connectionConnected(final int commandErrorCode) {
+        stateChanged(MPDStatusMap.STATE_UNKNOWN);
+    }
 
-        if (connected) {
-            stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatus.STATE_UNKNOWN);
-        } else {
-            final long idleDelay = 10000L; /** Give 10 Seconds for Network Problems */
+    /**
+     * Called when connecting.
+     */
+    @Override
+    public void connectionConnecting() {
+    }
 
-            if (!mHandler.hasMessages(DISCONNECT_ON_NO_CONNECTION)) {
-                mHandler.sendEmptyMessageDelayed(DISCONNECT_ON_NO_CONNECTION, idleDelay);
-            }
+    /**
+     * Called upon disconnection.
+     *
+     * @param reason The reason given for disconnection.
+     */
+    @Override
+    public void connectionDisconnected(final String reason) {
+        final long idleDelay = 10000L; /** Give 10 Seconds for Network Problems */
+
+        if (!mHandler.hasMessages(DISCONNECT_ON_NO_CONNECTION)) {
+            mHandler.sendEmptyMessageDelayed(DISCONNECT_ON_NO_CONNECTION, idleDelay);
         }
     }
 
     /**
-     * This method is called by the stateChanged() callback method
-     * inform service handlers about media service status changes.
+     * This is a simple accessor for the {@link MPDApplication} instance.
      *
-     * @param mpdStatus The current {@code MPDStatus}.
+     * @return The MPDApplication instance for this process.
      */
-    private void handlerStateChanged(final MPDStatus mpdStatus) {
+    private MPDApplication getApp() {
+        return (MPDApplication) getApplicationContext();
+    }
+
+    /**
+     * This is a simple accessor for the {@link MPD} instance.
+     *
+     * @return The MPD instance for this process.
+     */
+    private MPD getMPD() {
+        return getApp().getMPD();
+    }
+
+    /**
+     * This method is called by the stateChanged() callback method inform service handlers about
+     * media service status changes.
+     */
+    private void handlerStateChanged() {
         if (mRemoteControlClientHandler != null) {
-            mRemoteControlClientHandler.stateChanged(mpdStatus);
+            mRemoteControlClientHandler.stateChanged();
         }
         if (mStreamHandler != null) {
-            mStreamHandler.stateChanged(mpdStatus);
+            mStreamHandler.stateChanged();
         }
         if (mNotificationHandler != null) {
-            mNotificationHandler.stateChanged(mpdStatus);
+            mNotificationHandler.stateChanged();
         }
     }
 
     /**
-     * This method checks to see if there are active service handlers. At the moment, if
-     * the notification handler is not active, nothing is. Extend as necessary.
+     * This method checks to see if there are active service handlers. At the moment, if the
+     * notification handler is not active, nothing is. Extend as necessary.
      *
      * @return True if this service has active handlers, false otherwise.
      */
@@ -226,21 +277,24 @@ public final class MPDroidService extends Service implements
 
     /** Initialize the {@code MPD} connection, monitors and listeners. */
     private void initializeAsyncHelper() {
-        final SettingsHelper settingsHelper = new SettingsHelper(MPD_ASYNC_HELPER);
-        settingsHelper.updateConnectionSettings();
+        final MPDApplication app = getApp();
+        final MPD mpd = app.getMPD();
 
-        if (!MPD_ASYNC_HELPER.oMPD.isConnected()) {
-            MPD_ASYNC_HELPER.connect();
+        mpd.getConnectionStatus().addListener(this);
+        if (!mpd.isConnected()) {
+            try {
+                app.connect();
+            } catch (final UnknownHostException e) {
+                Log.e(TAG, "Failed to connect due to unknown host.", e);
+            }
         }
 
-        if (!MPD_ASYNC_HELPER.isStatusMonitorAlive()) {
-            MPD_ASYNC_HELPER.startStatusMonitor(new String[]{
-                    MPDStatusMonitor.IDLE_PLAYER,
-                    MPDStatusMonitor.IDLE_PLAYLIST
-            });
+        if (!app.isStatusMonitorAlive()) {
+            app.startIdleMonitor(IdleSubsystemMonitor.IDLE_PLAYER,
+                    IdleSubsystemMonitor.IDLE_PLAYLIST);
         }
 
-        MPD_ASYNC_HELPER.addStatusChangeListener(this);
+        app.addStatusChangeListener(this);
         /**
          * From here, upon successful connection, it will go from connectionStateChanged to
          * stateChanged() where handlers will be started as required.
@@ -271,7 +325,7 @@ public final class MPDroidService extends Service implements
     }
 
     /** Initializes the streaming handler. */
-    private void initializeStream(final MPDStatus mpdStatus) {
+    private void initializeStream() {
         if (DEBUG) {
             Log.d(TAG, "initializeStream()");
         }
@@ -279,18 +333,25 @@ public final class MPDroidService extends Service implements
             if (mStreamHandler == null) {
                 mStreamHandler = new StreamHandler(this, mHandler, mAudioManager);
             }
-            mStreamHandler.start(mpdStatus.getState());
+            mStreamHandler.start(mConnectionInfo);
             mMessageHandler.sendMessageToClients(StreamHandler.IS_ACTIVE, true);
         }
     }
 
-    /** Is the notification persistent when taking override into account? */
+    /**
+     * This method returns whether the notification should be persistent.
+     *
+     * @return True if the notification should be persistent, false otherwise.
+     */
     private boolean isNotificationPersistent() {
-        return !mIsPersistentOverridden &&
-                MPD_ASYNC_HELPER.getConnectionSettings().isNotificationPersistent;
+        return !mIsPersistentOverridden && mConnectionInfo.isNotificationPersistent();
     }
 
-    /** Checks for both service and notification persistence. */
+    /**
+     * This method checks whether this service is busy and should stay active.
+     *
+     * @return True if the service is active, false otherwise.
+     */
     private boolean isServiceBusy() {
         return mIsNotificationStarted || mIsStreamStarted || isNotificationPersistent();
     }
@@ -354,15 +415,27 @@ public final class MPDroidService extends Service implements
      */
     @Override
     public void onConnectionConfigChange(final ConnectionInfo connectionInfo) {
-        if (connectionInfo.streamingServerInfoChanged && mIsStreamStarted) {
+        mConnectionInfo = connectionInfo;
+
+        if (connectionInfo.hasStreamInfoChanged() && mIsStreamStarted) {
             Log.d(TAG, "Streaming information changed, resetting.");
             windDownHandlers(false);
             startStream();
-        } else if (connectionInfo.serverInfoChanged && mIsNotificationStarted) {
+        } else if (connectionInfo.hasServerChanged() && mIsNotificationStarted) {
             Log.d(TAG, "Notification information changed, resetting.");
             windDownHandlers(false);
             startNotification();
         }
+    }
+
+    /**
+     * Called by the system when the service is first created.  Do not call this method directly.
+     */
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        mConnectionInfo = getApp().getConnectionSettings();
     }
 
     /** If handlers have activated, use windDownService rather than stopSelf(). */
@@ -385,7 +458,10 @@ public final class MPDroidService extends Service implements
      * @param intent  The incoming intent used to start the service or containing expected action.
      * @param flags   Additional data about this start request.
      * @param startId A unique integer representing this specific request to start.
-     * @return @see #stopSelfResult(int)
+     * @return The return value indicates what semantics the system should use for the service's
+     * current started state.  It may be one of the constants associated with the
+     * {@link #START_CONTINUATION_MASK} bits.
+     * @see #stopSelfResult(int)
      */
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
@@ -411,11 +487,10 @@ public final class MPDroidService extends Service implements
                         if (mIsStreamStarted && mStreamHandler != null &&
                                 mStreamHandler.isActive()) {
                             /** Should never be disconnected. We're streaming! */
-                            if (MPD_ASYNC_HELPER.oMPD == null ||
-                                    !MPD_ASYNC_HELPER.oMPD.isConnected()) {
+                            if (getMPD() == null || !getMPD().isConnected()) {
                                 initializeAsyncHelper();
                             }
-                            MPDControl.run(MPD_ASYNC_HELPER.oMPD, MPDControl.ACTION_PAUSE);
+                            MPDControl.run(MPDControl.ACTION_PAUSE);
                             stopStream();
                         }
                         break;
@@ -447,50 +522,53 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * If the user swipes MPDroid to close, it closes this service by default; this works
-     * around that behaviour by restarting the service and getting back to where it was.
+     * If the user swipes MPDroid to close, it closes this service by default; this works around
+     * that behaviour by restarting the service and getting back to where it was.
      *
      * @param rootIntent The original root Intent that was used to launch the task that is being
      *                   removed.
      */
     @Override
     public void onTaskRemoved(final Intent rootIntent) {
-        final String pendingAction;
         if (mIsStreamStarted) {
-            pendingAction = StreamHandler.ACTION_START;
+            onTaskRemoved(StreamHandler.ACTION_START);
         } else if (mIsNotificationStarted) {
-            pendingAction = NotificationHandler.ACTION_START;
-        } else {
-            pendingAction = null;
+            onTaskRemoved(NotificationHandler.ACTION_START);
         }
 
-        if (pendingAction != null) {
-            final Intent restartServiceIntent
-                    = new Intent(pendingAction, null, this, RemoteControlReceiver.class);
-            final PendingIntent restartService = PendingIntent
-                    .getBroadcast(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
-            final AlarmManager alarmService =
-                    (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-            /** If notification is persistent, we don't care who owns the service. */
-            if (!isNotificationPersistent()) {
-                if (mNotificationOwnsService) {
-                    restartServiceIntent.putExtra(SERVICE_OWNERSHIP, NotificationHandler.LOCAL_UID);
-                } else if (mStreamOwnsService) {
-                    restartServiceIntent.putExtra(SERVICE_OWNERSHIP, StreamHandler.LOCAL_UID);
-                }
-            }
-
-            alarmService.set(AlarmManager.ELAPSED_REALTIME,
-                    SystemClock.elapsedRealtime() + DateUtils.SECOND_IN_MILLIS,
-                    restartService);
-        }
         super.onTaskRemoved(rootIntent);
     }
 
     /**
-     * Called when all clients have disconnected from a
-     * particular interface published by the service.
+     * This method is used to start a action after this Service gets killed.
+     *
+     * @param action The action to start.
+     */
+    private void onTaskRemoved(final String action) {
+        final Intent restartServiceIntent
+                = new Intent(action, null, this, RemoteControlReceiver.class);
+        final PendingIntent restartService = PendingIntent
+                .getBroadcast(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+        final AlarmManager alarmService =
+                (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        /** If notification is persistent, we don't care who owns the service. */
+        if (!isNotificationPersistent()) {
+            if (mNotificationOwnsService) {
+                restartServiceIntent.putExtra(SERVICE_OWNERSHIP, NotificationHandler.LOCAL_UID);
+            } else if (mStreamOwnsService) {
+                restartServiceIntent.putExtra(SERVICE_OWNERSHIP, StreamHandler.LOCAL_UID);
+            }
+        }
+
+        alarmService.set(AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + DateUtils.SECOND_IN_MILLIS,
+                restartService);
+    }
+
+    /**
+     * Called when all clients have disconnected from a particular interface published by the
+     * service.
      *
      * @param intent Intent used to bind to the service.
      * @return False if onRebind() on further binds is desired, true otherwise.
@@ -516,38 +594,42 @@ public final class MPDroidService extends Service implements
     }
 
     /**
+     * Called upon a change in the Output idle subsystem.
+     */
+    @Override
+    public void outputsChanged() {
+    }
+
+    /**
      * A status monitor listener callback method called upon playlist queue changes.
      *
-     * @param mpdStatus          MPDStatus after playlist change.
      * @param oldPlaylistVersion old playlist version.
      */
     @Override
-    public void playlistChanged(final MPDStatus mpdStatus, final int oldPlaylistVersion) {
+    public void playlistChanged(final int oldPlaylistVersion) {
+        final Music currentTrack = getMPD().getCurrentTrack();
+
         /**
          * This is required because streams will emit a playlist (current queue) event as the
          * metadata will change while the same audio file is playing (no track change).
          */
-        if (mCurrentTrack != null && mCurrentTrack.isStream()) {
-            updateTrack(mpdStatus);
+        if (currentTrack != null && currentTrack.isStream()) {
+            updateTrack(currentTrack);
         }
     }
 
     /**
      * A status monitor listener callback method called upon random state changes.
-     *
-     * @param random new random state: true, on; false, off
      */
     @Override
-    public void randomChanged(final boolean random) {
+    public void randomChanged() {
     }
 
     /**
      * A status monitor listener callback method called upon repeat state changes.
-     *
-     * @param repeating new repeat state: true, on; false, off.
      */
     @Override
-    public void repeatChanged(final boolean repeating) {
+    public void repeatChanged() {
     }
 
     /**
@@ -599,9 +681,9 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * This is the idle delay for shutting down this service after inactivity
-     * (in milliseconds). This idle is also longer than StreamHandler to
-     * avoid being unnecessarily brought up to shut right back down.
+     * This is the idle delay for shutting down this service after inactivity (in milliseconds).
+     * This idle is also longer than StreamHandler to avoid being unnecessarily brought up to shut
+     * right back down.
      */
     private void setupServiceHandler() {
         if (!mHandler.hasMessages(WIND_DOWN_HANDLERS)) {
@@ -629,8 +711,8 @@ public final class MPDroidService extends Service implements
             }
 
             setHandlerActivity(NotificationHandler.LOCAL_UID, true);
-            if (MPD_ASYNC_HELPER.oMPD.isConnected()) {
-                stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatus.STATE_UNKNOWN);
+            if (getMPD().isConnected()) {
+                stateChanged(MPDStatusMap.STATE_UNKNOWN);
             } else {
                 initializeAsyncHelper();
                 /**
@@ -643,8 +725,7 @@ public final class MPDroidService extends Service implements
 
     /**
      * This is the pre-initialization stream method, don't confuse this method and
-     * initializeStream(), this is run once per mIsStreamStarted cycle upon
-     * StreamHandler.START.
+     * initializeStream(), this is run once per mIsStreamStarted cycle upon StreamHandler.START.
      */
     private void startStream() {
         if (!mIsStreamStarted) {
@@ -656,8 +737,8 @@ public final class MPDroidService extends Service implements
             }
 
             setHandlerActivity(StreamHandler.LOCAL_UID, true);
-            if (MPD_ASYNC_HELPER.oMPD.isConnected()) {
-                stateChanged(MPD_ASYNC_HELPER.oMPD.getStatus(), MPDStatus.STATE_UNKNOWN);
+            if (getMPD().isConnected()) {
+                stateChanged(MPDStatusMap.STATE_UNKNOWN);
             } else {
                 initializeAsyncHelper();
                 /**
@@ -671,36 +752,33 @@ public final class MPDroidService extends Service implements
     /**
      * This monitor listener callback method is to inform about media server play state changes.
      *
-     * @param mpdStatus {@code MPDStatus} after event.
-     * @param oldState  previous state.
+     * @param oldState previous state.
      */
     @Override
-    public void stateChanged(final MPDStatus mpdStatus, final int oldState) {
-        switch (mpdStatus.getState()) {
-            case MPDStatus.STATE_PLAYING:
-                stateChangedPlaying(mpdStatus);
+    public void stateChanged(final int oldState) {
+        switch (getMPD().getStatus().getState()) {
+            case MPDStatusMap.STATE_PLAYING:
+                stateChangedPlaying();
                 break;
-            case MPDStatus.STATE_STOPPED:
+            case MPDStatusMap.STATE_STOPPED:
                 windDownHandlers(true);
                 break;
-            case MPDStatus.STATE_PAUSED:
-                if (MPDStatus.STATE_PLAYING != oldState) {
-                    updateTrack(mpdStatus);
+            case MPDStatusMap.STATE_PAUSED:
+                if (MPDStatusMap.STATE_PLAYING != oldState) {
+                    updateTrack();
                 }
                 setupServiceHandler();
                 break;
             default:
                 break;
         }
-        handlerStateChanged(mpdStatus);
+        handlerStateChanged();
     }
 
     /**
      * This method is called during a stateChanged() 'play' state.
-     *
-     * @param mpdStatus {@code MPDStatus} after event.
      */
-    private void stateChangedPlaying(final MPDStatus mpdStatus) {
+    private void stateChangedPlaying() {
         mHandler.removeMessages(WIND_DOWN_HANDLERS);
         final boolean needNotification = mIsNotificationStarted || mIsStreamStarted;
 
@@ -711,20 +789,23 @@ public final class MPDroidService extends Service implements
 
         if (mIsStreamStarted && (mStreamHandler == null ||
                 !mStreamHandler.isActive())) {
-            initializeStream(mpdStatus);
+            initializeStream();
         }
 
-        updateTrack(mpdStatus);
+        updateTrack();
         tryToGetAudioFocus();
     }
 
+    /**
+     * Called when a stored playlist has been modified, renamed, created or deleted.
+     */
     @Override
-    public void stickerChanged(final MPDStatus mpdStatus) {
+    public void stickerChanged() {
     }
 
     /**
-     * This is called to stop the stream. The null checks here are required as these handlers
-     * can be called if the service crashes and the main process status gets out of sync.
+     * This is called to stop the stream. The null checks here are required as these handlers can
+     * be called if the service crashes and the main process status gets out of sync.
      */
     private void stopStream() {
         setHandlerActivity(StreamHandler.LOCAL_UID, false);
@@ -739,19 +820,25 @@ public final class MPDroidService extends Service implements
     }
 
     /**
-     * This status monitor listener callback method is to inform about media server track changes.
-     *
-     * @param mpdStatus {@code MPDStatus} after event.
-     * @param oldTrack  track number before event.
+     * Called when a stored playlist has been modified, renamed, created or deleted.
      */
     @Override
-    public void trackChanged(final MPDStatus mpdStatus, final int oldTrack) {
-        updateTrack(mpdStatus);
+    public void storedPlaylistChanged() {
     }
 
     /**
-     * We try to get audio focus, but don't really try too hard.
-     * We just want the lock screen cover art.
+     * This status monitor listener callback method is to inform about media server track changes.
+     *
+     * @param oldTrack track number before event.
+     */
+    @Override
+    public void trackChanged(final int oldTrack) {
+        updateTrack();
+    }
+
+    /**
+     * We try to get audio focus, but don't really try too hard. We just want the lock screen cover
+     * art.
      */
     private void tryToGetAudioFocus() {
         if (mIsNotificationStarted && !mIsStreamStarted && !mIsAudioFocusedOnThis) {
@@ -766,31 +853,47 @@ public final class MPDroidService extends Service implements
 
     /**
      * Updates the current track of all handlers which require a current track.
-     *
-     * @param mpdStatus A {@code MPDStatus} object.
      */
-    private void updateTrack(final MPDStatus mpdStatus) {
-        final int songPos = mpdStatus.getSongPos();
-        mCurrentTrack = MPD_ASYNC_HELPER.oMPD.getPlaylist().getByIndex(songPos);
+    private void updateTrack() {
+        final MPD mpd = getMPD();
 
-        if (mNotificationHandler != null && mCurrentTrack != null) {
-            mRemoteControlClientHandler.update(mCurrentTrack);
-            mAlbumCoverHandler.update(new AlbumInfo(mCurrentTrack));
-            mNotificationHandler.setNewTrack(mCurrentTrack);
+        try {
+            mpd.getStatus().waitForValidity();
+            mpd.getPlaylist().waitForValidity();
+        } catch (final InterruptedException ignored) {
+        }
+
+        updateTrack(mpd.getCurrentTrack());
+    }
+
+    /**
+     * Updates the current track of all handlers which require a current track.
+     *
+     * @param currentTrack The current track to update handlers to.
+     */
+    private void updateTrack(final Music currentTrack) {
+        if (mNotificationHandler != null && currentTrack != null) {
+            mRemoteControlClientHandler.update(currentTrack);
+            mAlbumCoverHandler.update(new AlbumInfo(currentTrack));
+            mNotificationHandler.setNewTrack(currentTrack);
+            sendBroadcast(getPebbleIntent(currentTrack));
         }
     }
 
     /**
      * This status monitor listener callback method is to inform about media server volume changes.
      *
-     * @param mpdStatus {@code MPDStatus} after event
      * @param oldVolume volume before event
      */
     @Override
-    public void volumeChanged(final MPDStatus mpdStatus, final int oldVolume) {
+    public void volumeChanged(final int oldVolume) {
     }
 
-    /** Handles all resource winding down after handlers have completed their work. */
+    /**
+     * Handles all resource winding down after handlers have completed their work.
+     *
+     * @param stopSelf Whether to stop this service after winding down the handler.
+     */
     private void windDownHandlers(final boolean stopSelf) {
         if (DEBUG) {
             Log.d(TAG, "windDownHandlers()");
@@ -817,8 +920,10 @@ public final class MPDroidService extends Service implements
                  * Don't remove the status change listener here. It
                  * causes a bug with the weak linked list, somehow.
                  */
-                MPD_ASYNC_HELPER.stopStatusMonitor();
-                MPD_ASYNC_HELPER.disconnect();
+                final MPDApplication app = getApp();
+
+                app.stopIdleMonitor();
+                app.removeConnectionLock(this);
             }
         }
 
@@ -848,9 +953,9 @@ public final class MPDroidService extends Service implements
         private final List<Messenger> mServiceClients = new ArrayList<>(3);
 
         /**
-         * This service tries to stop self, and if it can't it gives debug
-         * messages as to possible reasons the service couldn't shut down.
-         * Do not call this or stopSelf() directly, use windDownHandlers().
+         * This service tries to stop self, and if it can't it gives debug messages as to possible
+         * reasons the service couldn't shut down. Do not call this or stopSelf() directly, use
+         * windDownHandlers().
          */
         private void haltService() {
             /** This assumes services have been wound down prior to call. */
@@ -950,14 +1055,18 @@ public final class MPDroidService extends Service implements
             }
         }
 
-        /** Handles the messages received for the outer Service class. */
+        /**
+         * Handles the messages received for the outer Service class.
+         *
+         * @param msg The message to handle.
+         */
         private void handleServiceMessages(final Message msg) {
             final int what = msg.what;
             Log.d(TAG, "Message received: " + getHandlerValue(what));
 
             switch (what) {
                 case DISCONNECT_ON_NO_CONNECTION:
-                    if (MPD_ASYNC_HELPER.oMPD.isConnected()) {
+                    if (getMPD().isConnected()) {
                         break;
                     }
                     /** Fall through */
@@ -971,7 +1080,11 @@ public final class MPDroidService extends Service implements
                     haltService();
                     break;
                 case REFRESH_COVER:
-                    mAlbumCoverHandler.update(new AlbumInfo(mCurrentTrack));
+                    final Music track = getMPD().getCurrentTrack();
+
+                    if (track != null) {
+                        mAlbumCoverHandler.update(new AlbumInfo(track));
+                    }
                     break;
                 case UPDATE_CLIENT_STATUS:
                     sendHandlerStatus();
@@ -994,8 +1107,10 @@ public final class MPDroidService extends Service implements
                     mRemoteControlClientHandler.setMediaPlayerBuffering(true);
                     break;
                 case StreamHandler.REQUEST_NOTIFICATION_STOP:
-                    if (mIsNotificationStarted && MPD_ASYNC_HELPER.oMPD.isConnected() &&
-                            MPD_ASYNC_HELPER.oMPD.getStatus().isState(MPDStatus.STATE_PLAYING)) {
+                    final MPD mpd = getMPD();
+
+                    if (mIsNotificationStarted && mpd.isConnected() &&
+                            mpd.getStatus().isState(MPDStatusMap.STATE_PLAYING)) {
                         tryToGetAudioFocus();
                     }
                     streamRequestsNotificationStop();
@@ -1023,8 +1138,8 @@ public final class MPDroidService extends Service implements
         }
 
         /**
-         * Sends a message to all clients about all important
-         * handlers. This is used to initialize all clients.
+         * Sends a message to all clients about all important handlers. This is used to initialize
+         * all clients.
          *
          * @see #setHandlerActivity If not initializing, this method should be used instead.
          */
@@ -1041,8 +1156,8 @@ public final class MPDroidService extends Service implements
          * Sends a message to all clients about a specific handler.
          *
          * @param what     The what message to sent to bound clients.
-         * @param isActive If the what message requires it,
-         *                 whether to send true or false to clients.
+         * @param isActive If the what message requires it, whether to send true or false to
+         *                 clients.
          */
         private void sendMessageToClients(final int what, final boolean isActive) {
             if (mServiceClients.isEmpty()) {
@@ -1050,10 +1165,14 @@ public final class MPDroidService extends Service implements
                     Log.d(TAG, "No service clients. What: " + ServiceBinder.getHandlerValue(what));
                 }
             } else {
-                final Message msg = ServiceBinder.getBoolMessage(mHandler, what, isActive);
-
                 for (int iterator = mServiceClients.size() - 1; iterator >= 0; iterator--) {
                     try {
+                        /**
+                         * Obtain a new message each time, the message is freed by the Messenger
+                         * after sending.
+                         */
+                        final Message msg = ServiceBinder.getBoolMessage(mHandler, what, isActive);
+
                         mServiceClients.get(iterator).send(msg);
                     } catch (final RemoteException e) {
                         /**
@@ -1070,14 +1189,14 @@ public final class MPDroidService extends Service implements
         /**
          * This processes the incoming (and likely changed) {@code ConnectionSettings} object.
          *
-         * This method is necessary as the {@code MPDAsyncHelper}, which produces the
-         * {@code ConnectionSettings} object, only changes in the remote process upon connection
-         * settings change. It is then parceled, bundled and sent as a message here then processed
-         * back into a {@code ConnectionSettings} object. It is then sent to our
-         * {@code MPDAsyncHelper} instance.
+         * <p>This method is necessary as the {@code MPDAsyncHelper}, which produces the {@code
+         * ConnectionSettings} object, only changes in the remote process upon connection settings
+         * change. It is then parceled, bundled and sent as a message here then processed back into
+         * a {@code ConnectionSettings} object. It is then sent to our {@code MPDAsyncHelper}
+         * instance.</p>
          *
-         * Once sent to this process instance {@code MPDAsyncHelper}, this will then call the
-         * ConnectionInfoListener callback which calls the onConnectionConfigChange().
+         * <p>Once sent to this process instance {@code MPDAsyncHelper}, this will then call the
+         * ConnectionInfoListener callback which calls the onConnectionConfigChange().</p>
          *
          * @param bundle The incoming {@code ConnectionInfo} bundle.
          */
@@ -1087,15 +1206,13 @@ public final class MPDroidService extends Service implements
             } else {
                 final ClassLoader classLoader = ConnectionInfo.class.getClassLoader();
                 bundle.setClassLoader(classLoader);
-                final ConnectionInfo connectionInfo =
-                        bundle.getParcelable(ConnectionInfo.BUNDLE_KEY);
-                MPD_ASYNC_HELPER.setConnectionSettings(connectionInfo);
+
+                mConnectionInfo = bundle.getParcelable(ConnectionInfo.EXTRA);
             }
         }
 
         /**
-         * If the stream handler requests stop, this
-         * method chooses whether to grant the request.
+         * If the stream handler requests stop, this method chooses whether to grant the request.
          */
         private void streamRequestsNotificationStop() {
             if (mStreamOwnsService && !isNotificationPersistent()) {

@@ -1,0 +1,10 @@
+file: http://jay.krivanek.org:8000/xrm-ele.opus#XRMEle
+Album: Some Things
+Date: 2001
+Artist: Lasgo
+Title: Alone
+Genre: Trance
+Track: 0
+Name: [XRM] - Electronic
+Pos: 0
+Id: 5

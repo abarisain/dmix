@@ -1,26 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2010-2016 The MPDroid Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     tools:ignore="ContentDescription">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_marginLeft="10dip"
-        android:layout_marginRight="10dip"
-        android:layout_marginTop="4dip"
-        android:layout_weight="1">
+
+        android:layout_weight="1"
+        android:background="?attr/colorPrimary">
 
         <ImageView
             android:id="@+id/albumCover"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/no_cover_art_big" />
+            android:src="@drawable/no_cover_art_big"
+            android:transitionName="cover" />
 
         <ProgressBar
             android:id="@+id/albumCoverProgress"
@@ -35,43 +50,38 @@
         android:id="@+id/songInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dip"
-        android:background="@drawable/holo_transparent_button"
+        android:background="?attr/nowPlayingSongInfoBackground"
         android:clickable="true"
-        android:paddingBottom="2dip"
-        android:paddingLeft="10dip"
-        android:paddingRight="10dip">
+        android:paddingBottom="16dip"
+        android:paddingLeft="16dip"
+        android:paddingRight="16dip"
+        android:paddingTop="16dip">
 
         <TextView
             android:id="@+id/songName"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:ellipsize="marquee"
-            android:fontFamily="sans-serif-light"
-            android:gravity="center_horizontal"
             android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?attr/nowPlayingPrimaryTextColor"
-            android:textSize="15sp" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/nowplaying_songinfo_body1_text_color" />
 
         <TextView
             android:id="@+id/artistName"
             style="@style/InfoSubText"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/songName"
-            android:layout_marginTop="1dip"
-            android:fontFamily="sans-serif-light"
-            android:gravity="center_horizontal" />
+            android:layout_marginTop="4dip"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="@color/nowplaying_songinfo_body2_text_color" />
 
         <LinearLayout
             android:id="@+id/albumLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/artistName"
-            android:layout_centerHorizontal="true"
-            android:gravity="center_horizontal"
             android:orientation="horizontal">
 
             <TextView
@@ -79,30 +89,31 @@
                 style="@style/InfoSubText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dip"
-                android:fontFamily="sans-serif-light"
-                android:gravity="center_horizontal"
-                android:maxLines="1" />
+                android:layout_marginTop="4dip"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="@color/nowplaying_songinfo_body2_text_color" />
 
             <TextView
                 android:id="@+id/yearName"
                 style="@style/InfoSubText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dip"
-                android:fontFamily="sans-serif-light"
-                android:maxLines="1" />
+                android:layout_marginTop="4dip"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="@color/nowplaying_songinfo_body2_text_color" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/audioName"
             style="@style/InfoSubText"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/albumLayout"
-            android:layout_marginTop="1dip"
-            android:fontFamily="sans-serif-light"
-            android:gravity="center_horizontal" />
+            android:layout_marginTop="4dip"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="@color/nowplaying_songinfo_body2_text_color" />
 
         <RatingBar
             android:id="@+id/songRating"
@@ -124,7 +135,8 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dip"
         android:layout_marginRight="16dip"
-        android:layout_marginTop="5dip">
+        android:layout_marginTop="5dip"
+        android:clipChildren="false">
 
         <TextView
             android:id="@+id/trackTime"
@@ -132,7 +144,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:paddingLeft="10dip"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?attr/nowPlayingPrimaryTextColor"
             android:textSize="12sp" />
@@ -143,7 +154,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:paddingRight="10dip"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?attr/nowPlayingPrimaryTextColor"
             android:textSize="12sp" />
@@ -155,8 +165,6 @@
             android:layout_below="@+id/trackTime"
             android:layout_marginTop="5dip"
             android:max="100"
-            android:paddingLeft="10dip"
-            android:paddingRight="10dip"
             android:progress="0" />
     </RelativeLayout>
 

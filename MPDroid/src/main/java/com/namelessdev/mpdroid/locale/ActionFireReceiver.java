@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.service.MPDroidService;
 import com.namelessdev.mpdroid.service.NotificationHandler;
 import com.namelessdev.mpdroid.service.StreamHandler;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -40,34 +41,41 @@ public class ActionFireReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, final Intent intent) {
         final Bundle bundle = intent.getBundleExtra(LocaleConstants.EXTRA_BUNDLE);
-        if (bundle != null) {
+
+        if (bundle == null) {
+            Log.e(TAG, "Received null bundle");
+        } else {
             final String action = bundle.getString(EditActivity.BUNDLE_ACTION_STRING);
 
-            switch (action) {
-                case NotificationHandler.ACTION_START:
-                case StreamHandler.ACTION_START:
-                    redirectIntentToService(true, intent, action);
-                    break;
-                case NotificationHandler.ACTION_STOP:
-                case StreamHandler.ACTION_STOP:
-                    redirectIntentToService(false, intent, action);
-                    break;
-                default:
-                    int volume = MPDControl.INVALID_INT;
+            if (action == null) {
+                Log.e(TAG, "No bundle action string received.");
+            } else {
+                switch (action) {
+                    case NotificationHandler.ACTION_START:
+                    case StreamHandler.ACTION_START:
+                        redirectIntentToService(true, intent, action);
+                        break;
+                    case NotificationHandler.ACTION_STOP:
+                    case StreamHandler.ACTION_STOP:
+                        redirectIntentToService(false, intent, action);
+                        break;
+                    default:
+                        int volume = MPDControl.INVALID_INT;
 
-                    if (MPDControl.ACTION_VOLUME_SET.equals(action)) {
-                        final String volumeString = bundle
-                                .getString(EditActivity.BUNDLE_ACTION_EXTRA);
-                        if (volumeString != null) {
-                            try {
-                                volume = Integer.parseInt(volumeString);
-                            } catch (final NumberFormatException e) {
-                                Log.e(TAG, "Invalid volume string : " + volumeString, e);
+                        if (MPDControl.ACTION_VOLUME_SET.equals(action)) {
+                            final String volumeString = bundle
+                                    .getString(EditActivity.BUNDLE_ACTION_EXTRA);
+                            if (volumeString != null) {
+                                try {
+                                    volume = Integer.parseInt(volumeString);
+                                } catch (final NumberFormatException e) {
+                                    Log.e(TAG, "Invalid volume string : " + volumeString, e);
+                                }
                             }
                         }
-                    }
-                    MPDControl.run(action, volume);
-                    break;
+                        Tools.runCommand(action, volume);
+                        break;
+                }
             }
         }
     }

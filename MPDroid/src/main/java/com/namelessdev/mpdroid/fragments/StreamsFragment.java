@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,29 +16,30 @@
 
 package com.namelessdev.mpdroid.fragments;
 
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.MPDCommand;
+import com.anpmech.mpd.commandresponse.StreamResponse;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.PlaylistFile;
+import com.anpmech.mpd.item.Stream;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
-import org.a0z.mpd.MPDCommand;
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Item;
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.item.Stream;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
-
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,41 +47,46 @@ import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class StreamsFragment extends BrowseFragment {
+/**
+ * This fragment is used to display a list of Streams in a special playlist on the connected MPD
+ * server.
+ *
+ * This fragment is used to specifically store {@link Stream} URLs with using the URL fragment as
+ * a name place holder. These streams are stored in the {@link Stream#PLAYLIST_NAME} playlist.
+ */
+public class StreamsFragment extends BrowseFragment<Stream> {
 
-    public static final int DELETE = 102;
+    private static final int DELETE = 102;
 
-    public static final int EDIT = 101;
+    private static final int EDIT = 101;
 
-    private static final String FILE_NAME = "streams.xml";
-
-    private static final String SERVER_FILE_NAME = "streams.xml.gz";
-
+    /**
+     * The class log identifier.
+     */
     private static final String TAG = "StreamsFragment";
 
-    ArrayList<Stream> mStreams = new ArrayList<>();
+    /**
+     * This list shows the list of streams prior to ordering.
+     */
+    private final List<Stream> mUnordered = new ArrayList<>();
 
     public StreamsFragment() {
-        super(R.string.addStream, R.string.streamAdded, null);
+        super(R.string.addStream, R.string.streamAdded);
     }
 
     @Override
-    protected void add(final Item item, final boolean replace, final boolean play) {
+    protected void add(final Stream item, final boolean replace, final boolean play) {
         try {
-            final Stream stream = (Stream) item;
-            mApp.oMPDAsyncHelper.oMPD.addStream(
-                    StreamFetcher.instance().get(stream.getUrl(), stream.getName()),
-                    replace, play);
+            mApp.getMPD().addStream(
+                    StreamFetcher.instance().get(item.getUrl(), item.getName()), replace, play);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add stream.", e);
@@ -88,10 +94,10 @@ public class StreamsFragment extends BrowseFragment {
     }
 
     @Override
-    protected void add(final Item item, final String playlist) {
+    protected void add(final Stream item, final PlaylistFile playlist) {
     }
 
-    public void addEdit() {
+    private void addEdit() {
         addEdit(-1, null);
     }
 
@@ -104,9 +110,16 @@ public class StreamsFragment extends BrowseFragment {
         final View view = factory.inflate(R.layout.stream_dialog, null);
         final EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
         final EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
-        final int index = idx;
-        if (index >= 0 && index < mStreams.size()) {
-            final Stream stream = mStreams.get(idx);
+        final int streamTitle;
+
+        if (idx < 0) {
+            streamTitle = R.string.addStream;
+        } else {
+            streamTitle = R.string.editStream;
+        }
+
+        if (idx >= 0 && idx < mUnordered.size()) {
+            final Stream stream = mUnordered.get(idx);
             if (null != nameEdit) {
                 nameEdit.setText(stream.getName());
             }
@@ -116,54 +129,12 @@ public class StreamsFragment extends BrowseFragment {
         } else if (streamUrlToAdd != null && urlEdit != null) {
             urlEdit.setText(streamUrlToAdd);
         }
+
         new AlertDialog.Builder(getActivity())
-                .setTitle(idx < 0 ? R.string.addStream : R.string.editStream)
+                .setTitle(streamTitle)
                 .setView(view)
-                .setPositiveButton(android.R.string.ok, new OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        final String name = null == nameEdit ? null : nameEdit.getText().toString()
-                                .trim();
-                        final String url = null == urlEdit ? null
-                                : urlEdit.getText().toString().trim();
-                        if (null != name && !name.isEmpty() && null != url && !url.isEmpty()) {
-                            if (index >= 0 && index < mStreams.size()) {
-                                final int removedPos = mStreams.get(idx).getPos();
-                                try {
-                                    mApp.oMPDAsyncHelper.oMPD
-                                            .editSavedStream(url, name, removedPos);
-                                } catch (final IOException | MPDException e) {
-                                    Log.e(TAG, "Failed to edit a saved stream.", e);
-                                }
-                                mStreams.remove(idx);
-                                for (final Stream stream : mStreams) {
-                                    if (stream.getPos() > removedPos) {
-                                        stream.setPos(stream.getPos() - 1);
-                                    }
-                                }
-                                mStreams.add(new Stream(url, name, mStreams.size()));
-                            } else {
-                                try {
-                                    mApp.oMPDAsyncHelper.oMPD.saveStream(url, name);
-                                } catch (final IOException | MPDException e) {
-                                    Log.e(TAG, "Failed to save stream.", e);
-                                }
-                                mStreams.add(new Stream(url, name, mStreams.size()));
-                            }
-                            Collections.sort(mStreams);
-                            mItems = mStreams;
-                            if (streamUrlToAdd == null) {
-                                updateList();
-                            } else {
-                                Toast.makeText(getActivity(), R.string.streamSaved,
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        if (streamUrlToAdd != null) {
-                            getActivity().finish();
-                        }
-                    }
-                })
+                .setPositiveButton(android.R.string.ok,
+                        new AddEditOnClickListener(nameEdit, urlEdit, idx, streamUrlToAdd))
                 .setNegativeButton(android.R.string.cancel, new OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, final int which) {
@@ -171,102 +142,64 @@ public class StreamsFragment extends BrowseFragment {
                             getActivity().finish();
                         }
                     }
-                }).setOnCancelListener(new OnCancelListener() {
-            @Override
-            public void onCancel(final DialogInterface dialog) {
-                if (streamUrlToAdd != null) {
-                    getActivity().finish();
-                }
-            }
-        }).show();
+                })
+                .setOnCancelListener(new OnCancelListener() {
+                    @Override
+                    public void onCancel(final DialogInterface dialog) {
+                        if (streamUrlToAdd != null) {
+                            getActivity().finish();
+                        }
+                    }
+                }).show();
     }
 
     @Override
     protected void asyncUpdate() {
-        loadStreams();
+        StreamResponse streamResponse = new StreamResponse();
+
+        /** Many users have playlist support disabled, no need for an exception. */
+        if (mApp.getMPD().isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS)) {
+            try {
+                streamResponse = mApp.getMPD().getSavedStreams();
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Failed to retrieve saved streams.", e);
+            }
+        } else {
+            Log.w(TAG, "Streams fragment can't load streams, playlist support not enabled.");
+        }
+
+        final List<Stream> streams = new ArrayList<>(streamResponse);
+        mUnordered.clear();
+        mUnordered.addAll(streams);
+        Collections.sort(streams);
+        replaceItems(streams);
+    }
+
+    @Override
+    protected Artist getArtist(final Stream item) {
+        return null;
+    }
+
+    /**
+     * This method returns the default string resource.
+     *
+     * @return The default string resource.
+     */
+    @Override
+    @StringRes
+    public int getDefaultTitle() {
+        return R.string.streams;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.streams_list;
     }
 
     @Override
     @StringRes
     public int getLoadingText() {
         return R.string.loadingStreams;
-    }
-
-    private List<Stream> loadOldStreams() {
-        AbstractList<Stream> oldStreams = null;
-        try {
-            final InputStream in = mApp.openFileInput(FILE_NAME);
-            final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            final XmlPullParser xpp = factory.newPullParser();
-
-            xpp.setInput(in, "UTF-8");
-            int eventType = xpp.getEventType();
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG) {
-                    if ("stream".equals(xpp.getName())) {
-                        if (null == oldStreams) {
-                            oldStreams = new ArrayList<>();
-                        }
-                        oldStreams.add(new Stream(xpp.getAttributeValue("", "name"), xpp
-                                .getAttributeValue("", "url"), -1));
-                    }
-                }
-                eventType = xpp.next();
-            }
-            in.close();
-            // Now remove file - all streams will be added to MPD...
-            mApp.deleteFile(FILE_NAME);
-        } catch (final FileNotFoundException ignored) {
-        } catch (final Exception e) {
-            Log.e(TAG, "Error while loading streams", e);
-        }
-        return oldStreams;
-    }
-
-    private void loadStreams() {
-        mStreams = new ArrayList<>();
-
-        // Load streams stored in MPD Streams playlist...
-        List<Music> mpdStreams = null;
-        int iterator = 0;
-
-        /** Many users have playlist support disabled, no need for an exception. */
-        if (mApp.oMPDAsyncHelper.oMPD.isCommandAvailable(MPDCommand.MPD_CMD_LISTPLAYLISTS)) {
-            try {
-                mpdStreams = mApp.oMPDAsyncHelper.oMPD.getSavedStreams();
-            } catch (final IOException | MPDException e) {
-                Log.e(TAG, "Failed to retrieve saved streams.", e);
-            }
-        } else {
-            Log.w(TAG, "Streams fragment can't load streams, playlist support not enabled.");
-            mpdStreams = Collections.emptyList();
-        }
-
-        if (null != mpdStreams) {
-            for (final Music stream : mpdStreams) {
-                mStreams.add(new Stream(stream.getName(), stream.getFullPath(), iterator));
-                iterator++;
-            }
-        }
-
-        // Load any OLD MPDroid streams, and also save these to MPD...
-        final List<Stream> oldStreams = loadOldStreams();
-        if (null != oldStreams) {
-            for (final Stream stream : mStreams) {
-                if (!mStreams.contains(stream)) {
-                    try {
-                        mApp.oMPDAsyncHelper.oMPD.saveStream(stream.getUrl(), stream.getName());
-                    } catch (final IOException | MPDException e) {
-                        Log.e(TAG, "Failed to save a stream.", e);
-                    }
-
-                    stream.setPos(mStreams.size());
-                    mStreams.add(stream);
-                }
-            }
-        }
-        Collections.sort(mStreams);
-        mItems = mStreams;
     }
 
     @Override
@@ -288,99 +221,227 @@ public class StreamsFragment extends BrowseFragment {
             final ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        if (info.id >= 0 && info.id < mStreams.size()) {
-            final Stream stream = mStreams.get((int) info.id);
-            final MenuItem editItem = menu.add(Menu.NONE, EDIT, 0,
-                    R.string.editStream);
+        if (info.id >= 0L && info.id < (long) mItems.size()) {
+            final MenuItem editItem = menu.add(Menu.NONE, EDIT, 0, R.string.editStream);
             editItem.setOnMenuItemClickListener(this);
-            final MenuItem addAndReplaceItem = menu.add(Menu.NONE, DELETE, 0,
-                    R.string.deleteStream);
+            final MenuItem addAndReplaceItem =
+                    menu.add(Menu.NONE, DELETE, 0, R.string.deleteStream);
             addAndReplaceItem.setOnMenuItemClickListener(this);
         }
+
+        menu.setGroupEnabled(PLAYLIST_ADD_GROUP, false);
     }
 
     @Override
-    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.mpd_streamsmenu, menu);
+    protected void onCreateToolbarMenu() {
+        super.onCreateToolbarMenu();
+        mToolbar.inflateMenu(R.menu.mpd_streamsmenu);
     }
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
+        final View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        view.findViewById(R.id.streamAddButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                addEdit();
+            }
+        });
+
+        return view;
     }
 
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
+        addAdapterItem(parent, position);
     }
 
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
-        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        // This is the index in relation to the ordered items.
+        final int infoId = (int) ((AdapterContextMenuInfo) item.getMenuInfo()).id;
+        final Stream stream = mItems.get(infoId);
+        // Index should be used for the index given on the server.
+        final int index = mUnordered.indexOf(stream);
+        boolean clicked = true;
+
         switch (item.getItemId()) {
             case EDIT:
-                addEdit((int) info.id, null);
+                addEdit(index, null);
                 break;
             case DELETE:
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                final OnClickListener oDialogClickListener
+                        = new DeleteDialogClickListener(getContext(), index, mUnordered);
+
                 builder.setTitle(R.string.deleteStream);
                 builder.setMessage(
-                        getResources().getString(R.string.deleteStreamPrompt,
-                                mItems.get((int) info.id).getName()));
-
-                final OnClickListener oDialogClickListener
-                        = new DeleteDialogClickListener(
-                        (int) info.id);
-                builder.setNegativeButton(android.R.string.no, oDialogClickListener);
+                        getResources().getString(R.string.deleteStreamPrompt, stream.getName()));
+                builder.setNegativeButton(android.R.string.no, Tools.NOOP_CLICK_LISTENER);
                 builder.setPositiveButton(R.string.deleteStream, oDialogClickListener);
                 try {
                     builder.show();
-                } catch (final BadTokenException e) {
+                } catch (final BadTokenException ignored) {
                     // Can't display it. Don't care.
                 }
                 break;
             default:
-                return super.onMenuItemClick(item);
+                clicked = super.onMenuItemClick(item);
+                break;
         }
-        return false;
+        return clicked;
     }
 
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
+    protected boolean onToolbarMenuItemClick(final MenuItem item) {
+        final boolean clicked;
+
         switch (item.getItemId()) {
             case R.id.add:
                 addEdit();
-                return true;
+                clicked = true;
+                break;
             default:
-                return false;
+                clicked = super.onToolbarMenuItemClick(item);
+                break;
         }
+
+        return clicked;
     }
 
-    class DeleteDialogClickListener implements OnClickListener {
+    /**
+     * Called when a stored playlist has been modified, renamed, created or deleted.
+     */
+    @Override
+    public void storedPlaylistChanged() {
+        super.storedPlaylistChanged();
 
+        updateList();
+    }
+
+    /**
+     * The click listener used when {@link DialogInterface#BUTTON_POSITIVE} is clicked when a
+     * stream is to be deleted.
+     */
+    private static final class DeleteDialogClickListener implements OnClickListener {
+
+        /**
+         * The MPDApplication instance.
+         */
+        private final MPDApplication mApp;
+
+        /**
+         * The index of the stream to be removed.
+         */
         private final int mItemIndex;
 
-        DeleteDialogClickListener(final int itemIndex) {
+        /**
+         * The name of the stream to be removed.
+         */
+        private final String mStreamName;
+
+        /**
+         * Sole constructor.
+         *
+         * @param context   The context used to get the {@link MPDApplication} instance.
+         * @param itemIndex The index of the item to remove.
+         * @param streams   The current list of streams.
+         */
+        private DeleteDialogClickListener(final Context context, final int itemIndex,
+                final List<Stream> streams) {
             super();
+
+            mApp = (MPDApplication) context.getApplicationContext();
             mItemIndex = itemIndex;
+            mStreamName = streams.get(itemIndex).getName();
         }
 
         @Override
         public void onClick(final DialogInterface dialog, final int which) {
             if (which == DialogInterface.BUTTON_POSITIVE) {
                 try {
-                    mApp.oMPDAsyncHelper.oMPD.removeSavedStream(mStreams.get(mItemIndex).getPos());
+                    mApp.getMPD().removeSavedStream(mItemIndex);
+                    Tools.notifyUser(R.string.streamDeleted, mStreamName);
                 } catch (final IOException | MPDException e) {
                     Log.e(TAG, "Failed to removed a saved stream.", e);
                 }
+            }
+        }
+    }
 
-                final String name = mItems.get(mItemIndex).getName();
-                Tools.notifyUser(R.string.streamDeleted, name);
-                mItems.remove(mItemIndex);
-                mStreams.remove(mItemIndex);
-                updateFromItems();
+    private final class AddEditOnClickListener implements OnClickListener {
+
+        private final int mIndex;
+
+        private final EditText mNameEdit;
+
+        private final CharSequence mStreamUrlToAdd;
+
+        private final EditText mUrlEdit;
+
+        private AddEditOnClickListener(final EditText nameEdit, final EditText urlEdit,
+                final int index, final CharSequence streamUrlToAdd) {
+            super();
+
+            mNameEdit = nameEdit;
+            mUrlEdit = urlEdit;
+            mIndex = index;
+            mStreamUrlToAdd = streamUrlToAdd;
+        }
+
+        /**
+         * Checks the TextView for a getText string, if it exists, trims and returns it.
+         *
+         * @param textView The TextView to check for a getText() string.
+         * @return A trimmed getText string.
+         */
+        private String getText(final TextView textView) {
+            final String result;
+
+            if (textView == null) {
+                result = null;
+            } else {
+                result = textView.getText().toString().trim();
+            }
+
+            return result;
+        }
+
+        @Override
+        public void onClick(final DialogInterface dialog, final int which) {
+            final String name = getText(mNameEdit);
+            final String url = getText(mUrlEdit);
+            mApp.addConnectionLock(this);
+
+            if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(url)) {
+                if (mIndex >= 0 && mIndex < mItems.size()) {
+                    final MPD mpd = mApp.getMPD();
+
+                    try {
+                        mpd.removeSavedStream(mIndex);
+                    } catch (final IOException | MPDException e) {
+                        Log.e(TAG, "Failed to edit a saved stream.", e);
+                    }
+                }
+
+                try {
+                    mApp.getMPD().saveStream(url, name);
+                } catch (final IOException | MPDException e) {
+                    Log.e(TAG, "Failed to save stream.", e);
+                }
+
+                if (mStreamUrlToAdd != null) {
+                    Toast.makeText(getActivity(), R.string.streamSaved,
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            mApp.removeConnectionLock(this);
+            if (mStreamUrlToAdd != null) {
+                getActivity().finish();
             }
         }
     }

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,13 @@
 
 package com.namelessdev.mpdroid.helpers;
 
+import com.anpmech.mpd.commandresponse.MusicResponse;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Music;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.tools.Tools;
-
-import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Music;
 
 import android.util.Log;
 
@@ -53,6 +54,8 @@ public class AlbumCache {
 
     static final boolean GZIP = false;
 
+    private static final String CACHE_FILE_EXTENSION = GZIP ? ".gz" : "";
+
     private static final String TAG = "AlbumCache";
 
     protected static AlbumCache sInstance = null;
@@ -82,7 +85,6 @@ public class AlbumCache {
         Log.d(TAG, "Starting ...");
         setMPD(mpd);
     }
-    // details
 
     public static String albumCode(final String artist, final String album,
             final boolean isAlbumArtist) {
@@ -148,14 +150,20 @@ public class AlbumCache {
         return mAlbumSet;
     }
 
-    public Set<String> getAlbums(final String artist, final boolean albumArtist) {
+    public Set<String> getAlbums(final Artist artist, final boolean albumArtist) {
         final Set<String> albums = new HashSet<>();
-        for (final List<String> ai : mAlbumSet) {
-            if (albumArtist && ai.get(2).equals(artist) ||
-                    !albumArtist && ai.get(1).equals(artist)) {
-                albums.add(ai.get(0));
+
+        if (artist != null) {
+            final String artistName = artist.getName();
+
+            for (final List<String> ai : mAlbumSet) {
+                if (albumArtist && ai.get(2).equals(artistName) ||
+                        !albumArtist && ai.get(1).equals(artistName)) {
+                    albums.add(ai.get(0));
+                }
             }
         }
+
         return albums;
     }
 
@@ -171,7 +179,7 @@ public class AlbumCache {
             }
         }
         final List<String> result;
-        if (artists != null && !artists.isEmpty()) {
+        if (!artists.isEmpty()) {
             result = new ArrayList<>(artists);
             Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
         } else {
@@ -197,18 +205,19 @@ public class AlbumCache {
     }
 
     protected synchronized boolean isUpToDate() {
-        final Date mpdlast = mMPD.getStatistics().getDbUpdate();
+        final Date mpdlast = mMPD.getStatistics().getDBUpdateTime();
         Log.d(TAG, "lastupdate " + mLastUpdate + " mpd date " + mpdlast);
         return (null != mLastUpdate && null != mpdlast && mLastUpdate.after(mpdlast));
     }
 
     protected synchronized boolean load() {
-        final File file = new File(mFilesDir, getFilename() + (GZIP ? ".gz" : ""));
+        final String fileName = getFilename();
+        final File file = new File(mFilesDir, fileName + CACHE_FILE_EXTENSION);
         if (!file.exists()) {
             return false;
         }
         Log.d(TAG, "Loading " + file);
-        final ObjectInputStream restore;
+        ObjectInputStream restore = null;
         boolean loadedOk = false;
         try {
             if (GZIP) {
@@ -226,7 +235,17 @@ public class AlbumCache {
         } catch (final FileNotFoundException ignored) {
         } catch (final Exception e) {
             Log.e(TAG, "Exception.", e);
+        } finally {
+            if (restore != null) {
+                try {
+                    restore.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "Failed to load file: " +
+                            mFilesDir.getPath() + fileName + CACHE_FILE_EXTENSION, e);
+                }
+            }
         }
+
         if (loadedOk) {
             Log.d(TAG, cacheInfo());
         } else {
@@ -278,10 +297,9 @@ public class AlbumCache {
         mAlbumDetails = new HashMap<>();
         mAlbumSet = new HashSet<>();
 
-        final List<Music> allmusic;
+        final MusicResponse allmusic;
         try {
             allmusic = mMPD.listAllInfo();
-            Log.d(TAG, "allmusic " + allmusic.size());
         } catch (final IOException | MPDException e) {
             mEnabled = false;
             mLastUpdate = null;
@@ -295,9 +313,9 @@ public class AlbumCache {
 
         try {
             for (final Music music : allmusic) {
-                final String albumArtist = music.getAlbumArtist();
-                final String artist = music.getArtist();
-                String album = music.getAlbum();
+                final String albumArtist = music.getAlbumArtistName();
+                final String artist = music.getArtistName();
+                String album = music.getAlbumName();
                 if (album == null) {
                     album = "";
                 }
@@ -317,7 +335,7 @@ public class AlbumCache {
                     mAlbumDetails.put(thisAlbum, details);
                 }
                 if (details.mPath == null) {
-                    details.mPath = music.getPath();
+                    details.mPath = music.getParentDirectory();
                 }
                 // if (details.times == null)
                 // details.times = new ArrayList<Long>();
@@ -346,7 +364,8 @@ public class AlbumCache {
     }
 
     protected synchronized boolean save() {
-        final File file = new File(mFilesDir, getFilename() + (GZIP ? ".gz" : ""));
+        final String fileName = getFilename();
+        final File file = new File(mFilesDir, fileName + CACHE_FILE_EXTENSION);
         Log.d(TAG, "Saving to " + file);
         final File backupfile = new File(file.getAbsolutePath() + ".bak");
         if (file.exists()) {
@@ -355,8 +374,9 @@ public class AlbumCache {
             }
             file.renameTo(backupfile);
         }
-        final ObjectOutputStream save;
+        ObjectOutputStream save = null;
         boolean error = false;
+
         try {
             if (GZIP) {
                 save = new ObjectOutputStream(new GZIPOutputStream
@@ -368,12 +388,21 @@ public class AlbumCache {
             save.writeObject(mLastUpdate);
             save.writeObject(mAlbumDetails);
             save.writeObject(mAlbumSet);
-            save.close();
-            Log.d(TAG, "saved to " + file);
         } catch (final Exception e) {
             error = true;
             Log.e(TAG, "Failed to save.", e);
+        } finally {
+            if (save != null) {
+                try {
+                    save.close();
+                    Log.d(TAG, "saved to " + file);
+                } catch (final IOException e) {
+                    Log.e(TAG, "Failed to close file: " +
+                            mFilesDir.getPath() + fileName + CACHE_FILE_EXTENSION, e);
+                }
+            }
         }
+
         if (error) {
             file.delete();
             backupfile.renameTo(file);

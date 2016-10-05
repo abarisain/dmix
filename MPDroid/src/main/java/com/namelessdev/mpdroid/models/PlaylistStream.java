@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,7 @@
 
 package com.namelessdev.mpdroid.models;
 
-import org.a0z.mpd.Tools;
-import org.a0z.mpd.item.Music;
+import com.anpmech.mpd.item.Music;
 
 public class PlaylistStream extends AbstractPlaylistMusic {
 
@@ -27,9 +26,19 @@ public class PlaylistStream extends AbstractPlaylistMusic {
 
     @Override
     public String getPlayListMainLine() {
-        final String name = getName();
+        final CharSequence fileExtension = getFileExtension();
+        String mainline = getName();
 
-        return name.replace('.' + Tools.getExtension(name), "");
+        if (fileExtension != null && !isStream()) {
+            final int extLength = fileExtension.length() + 1;
+            final int mainLength = mainline.length();
+
+            if (extLength < mainLength) {
+                mainline = mainline.substring(mainLength - extLength);
+            }
+        }
+
+        return mainline;
     }
 
     @Override

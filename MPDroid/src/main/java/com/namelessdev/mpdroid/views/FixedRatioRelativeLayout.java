@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,11 +31,11 @@ public class FixedRatioRelativeLayout extends RelativeLayout {
 
     private static final int FIXED_HEIGHT_INT = 1;
 
-    private int mFixedSide = FIXED_HEIGHT_INT;
-
     private static final String FIXED_WIDTH = "width";
 
     private static final int FIXED_WIDTH_INT = 2;
+
+    private int mFixedSide = FIXED_HEIGHT_INT;
 
     public FixedRatioRelativeLayout(final Context context) {
         super(context);

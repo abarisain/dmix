@@ -1,34 +1,52 @@
+/*
+ * Copyright (C) 2010-2016 The MPDroid Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import java.awt.HeadlessException
+
+apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
 buildscript {
     repositories {
-        maven { url 'http://download.crashlytics.com/maven' }
+        maven { url 'https://maven.fabric.io/public' }
     }
 
     dependencies {
-        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+        classpath 'io.fabric.tools:gradle:1.21.2'
     }
 }
 
-apply plugin: 'com.android.application'
-apply plugin: 'crashlytics'
-
 repositories {
     mavenCentral()
-    maven { url 'http://download.crashlytics.com/maven' }
+    maven { url 'https://maven.fabric.io/public' }
 }
 
 def gitShortHash() {
-    return "git rev-parse --short HEAD".execute().text.replace("\n", "")
+    return "git rev-parse --short HEAD".execute().text.trim()
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 21
-        versionCode 54
-        versionName "1.07.2 Final " + gitShortHash()
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 58
+        versionName "1.08 Beta 4 " + gitShortHash()
     }
 
     lintOptions {
@@ -41,53 +59,120 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources true
+        }
+    }
+
     productFlavors {
-        closedbits {
+        all {
+            // Disable Crashlytics by default.
+            ext.enableCrashlytics = false;
+        }
+
+        crashlytics {
             versionName defaultConfig.versionName + "-c"
+            ext.enableCrashlytics = true;
+
+            dependencies {
+                compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+                    transitive = true
+                }
+            }
         }
 
         foss {
             versionName defaultConfig.versionName + "-f"
-            ext.enableCrashlytics = false
+
+            dependencies {
+                testCompile 'junit:junit:4.12'
+                testCompile "org.robolectric:robolectric:3.0"
+            }
+        }
+
+        leakCanary {
+            versionName defaultConfig.versionName + "-l"
+
+            dependencies {
+                debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta1'
+                releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta1'
+            }
         }
     }
 
-    applicationVariants.all { variant ->
+    applicationVariants.all { final variant ->
 
         task("${variant.name}Javadoc", type: Javadoc) {
-            title = "$name $version API"
+            title = "$name $versionName"
             description "Generates Javadoc for $variant.name."
+            group "documentation"
             source = variant.javaCompile.source
             ext.androidJar =
-                    "${android.plugin.sdkHandler.sdkFolder}" +
+                    "${android.sdkDirectory}" +
                             "/platforms/${android.compileSdkVersion}/android.jar"
             classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
 
+            gradle.taskGraph.addTaskExecutionListener new BrowseJavadoc(
+                    mTask: "${variant.name}Javadoc",
+                    mIndexFile: file("${destinationDir}/index.html"))
+
+            dependsOn = [':JMPDCommAndroid:debugJavadoc'];
+
             options {
-                links("http://docs.oracle.com/javase/7/docs/api/");
+                author = true
+                header = project.name
+                memberLevel = JavadocMemberLevel.PRIVATE
+                links("http://docs.oracle.com/javase/8/docs/api",
+                        project.tasks.getByPath(":JMPDCommAndroid:debugJavadoc")
+                                .getDestinationDir()
+                                .toString());
                 linksOffline("http://developer.android.com/reference",
-                        "${android.plugin.sdkHandler.sdkFolder}/docs/reference");
+                        "${android.sdkDirectory}/docs/reference");
+                overview("src/main/overview.html");
+                showAll()
             }
 
-            exclude {
-                ['**/BuildConfig.java', '**/R.java']
-            }
+            exclude '**/BuildConfig.java'
+            exclude '**/R.java'
         }
     }
 }
 
 dependencies {
-
     // Support Libraries
-    compile 'com.android.support:support-v4:21.0.2'
-    compile 'com.android.support:appcompat-v7:21.0.2'
-
+    compile 'com.android.support:support-v4:23.1.1'
+    compile 'com.android.support:palette-v7:23.1.1'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:cardview-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
     // Projects
     compile project(':JMPDCommAndroid')
-
     // Libraries from maven
-    compile 'com.sothree.slidinguppanel:library:2.0.1'
-    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.3'
     compile 'asia.ivity.android:drag-sort-listview:1.0'
-    closedbitsCompile 'com.crashlytics.android:crashlytics:1.+'
+}
+
+class BrowseJavadoc implements TaskExecutionListener {
+
+    String mTask
+
+    File mIndexFile
+
+    @Override
+    void beforeExecute(final Task task) {
+    }
+
+    @Override
+    void afterExecute(final Task task, final TaskState taskState) {
+        if (taskState.executed && !taskState.failure && task.name.equals(mTask)) {
+            println "Javadoc built: " + mIndexFile
+            final def Class desktop = getClass().classLoader.loadClass("java.awt.Desktop")
+
+            try {
+                desktop.newInstance().browse(mIndexFile.toURI())
+            } catch (final HeadlessException ignored) {
+            }
+        }
+    }
 }

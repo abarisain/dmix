@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  Copyright (C) 2011 The Android Open Source Project
+  ~ Copyright (C) 2010-2016 The MPDroid Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-
-
--->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="ActionBar" parent="Widget.AppCompat.ActionBar" />
@@ -32,9 +31,15 @@
         <item name="background">@drawable/tab_indicator_ab_light</item>
     </style>
 
-    <style name="AppThemeBase" parent="Theme.AppCompat" />
+    <style name="AppThemeBase" parent="Theme.AppCompat">
+        <item name="streamsFabBottomMargin">16dp</item>
+        <item name="libraryPagerBottomMargin">?attr/actionBarSize</item>
+    </style>
 
-    <style name="AppThemeBase.Light" parent="Theme.AppCompat.Light.DarkActionBar" />
+    <style name="AppThemeBase.Light" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="streamsFabBottomMargin">16dp</item>
+        <item name="libraryPagerBottomMargin">?attr/actionBarSize</item>
+    </style>
 
     <style name="AppTheme" parent="@style/AppThemeBase">
         <item name="colorPrimary">@color/nowplaying_background</item>
@@ -50,6 +55,7 @@
         <item name="listItemHorizontalSeparatorColor">@color/list_item_horizontal_separator</item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text</item>
         <item name="cardPrimaryTextColor">@color/card_primary_text</item>
+        <item name="cardBackground">@color/card_background_color</item>
         <item name="nowPlayingSliderBackgroundColor">@color/nowplaying_slider_background_color
         </item>
         <item name="repeatDisabled">@drawable/ic_media_repeat</item>
@@ -62,12 +68,15 @@
         <item name="prevIcon">@drawable/ic_media_previous</item>
         <item name="nextIcon">@drawable/ic_media_next</item>
         <item name="volumeIcon">@drawable/ic_action_volume</item>
-        <item name="cardBackground">@drawable/card_dark</item>
         <item name="playQueueIcon">@drawable/ic_action_play_queue</item>
         <item name="overflowButton">@android:style/Widget.Holo.ActionButton.Overflow</item>
         <item name="android:windowBackground">@color/nowplaying_background</item>
         <item name="android:colorBackgroundCacheHint">@color/nowplaying_background</item>
         <item name="android:colorBackground">@color/nowplaying_background</item>
+        <item name="listItemSecondaryTextColor">@color/list_item_secondary_text_color</item>
+        <item name="toolbarPopupTheme">@style/ThemeOverlay.AppCompat</item>
+        <item name="nowPlayingSongInfoBackground">@drawable/nowplaying_songinfo_background_dark
+        </item>
     </style>
 
     <style name="AppTheme.Light" parent="@style/AppThemeBase.Light">
@@ -88,6 +97,7 @@
         <item name="android:textColorPrimary">@android:color/black</item>
         <item name="nowPlayingPrimaryTextColor">@color/nowplaying_primary_text_light</item>
         <item name="cardPrimaryTextColor">@color/card_primary_text_light</item>
+        <item name="cardBackground">@color/card_background_color_light</item>
         <item name="nowPlayingSliderBackgroundColor">
             @color/nowplaying_slider_background_color_light
         </item>
@@ -101,12 +111,14 @@
         <item name="prevIcon">@drawable/ic_media_previous_light</item>
         <item name="nextIcon">@drawable/ic_media_next_light</item>
         <item name="volumeIcon">@drawable/ic_action_volume_light</item>
-        <item name="cardBackground">@drawable/card_light</item>
         <item name="playQueueIcon">@drawable/ic_action_play_queue_light</item>
         <item name="overflowButton">@android:style/Widget.Holo.Light.ActionButton.Overflow</item>
+        <item name="listItemSecondaryTextColor">@color/list_item_secondary_text_color_light</item>
+        <item name="toolbarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="nowPlayingSongInfoBackground">@drawable/nowplaying_songinfo_background</item>
     </style>
 
-    <style name="AppTheme.Settings" parent="@style/AppTheme.Light"></style>
+    <style name="AppTheme.Settings" parent="@style/AppTheme.Light" />
 
     <style name="AppTheme.MainMenu" parent="AppTheme">
         <item name="android:windowActionBarOverlay">true</item>
@@ -118,11 +130,11 @@
         <item name="windowActionBarOverlay">true</item>
     </style>
 
-    <style name="AppTheme.MainMenu.SmallSeekBars" parent="AppTheme.MainMenu">
+    <style name="AppTheme.SmallSeekBars" parent="AppTheme">
         <item name="android:seekBarStyle">@style/SeekBar</item>
     </style>
 
-    <style name="AppTheme.MainMenu.Light.SmallSeekBars" parent="AppTheme.MainMenu.Light">
+    <style name="AppTheme.Light.SmallSeekBars" parent="AppTheme.Light">
         <item name="android:seekBarStyle">@style/SeekBar</item>
     </style>
 

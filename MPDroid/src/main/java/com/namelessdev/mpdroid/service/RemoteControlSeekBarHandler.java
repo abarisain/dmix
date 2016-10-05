@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package com.namelessdev.mpdroid.service;
 
+import com.anpmech.mpd.subsystem.status.TrackPositionListener;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 
-import org.a0z.mpd.MPDStatus;
-import org.a0z.mpd.event.TrackPositionListener;
-
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.media.RemoteControlClient;
 import android.os.Build;
 import android.text.format.DateUtils;
@@ -29,8 +29,8 @@ import android.text.format.DateUtils;
 import java.util.Date;
 
 /**
- * A simple class to enable Android's RemoteControlClient
- * seek bar. (Requires Android 4.3 and higher).
+ * A simple class to enable Android's RemoteControlClient seek bar. (Requires Android 4.3 and
+ * higher).
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class RemoteControlSeekBarHandler implements
@@ -39,11 +39,13 @@ public class RemoteControlSeekBarHandler implements
 
     private static final String TAG = "RemoteControlSeekBarHandler";
 
+    private final MPDApplication mApp;
+
     private final RemoteControlClient mRemoteControlClient;
 
     /**
-     * What was the elapsed time (in ms) when the last status refresh happened?
-     * Use this for guessing the elapsed time for the lock screen.
+     * What was the elapsed time (in ms) when the last status refresh happened? Use this for
+     * guessing the elapsed time for the lock screen.
      */
     private long mLastKnownElapsed = 0L;
 
@@ -54,10 +56,12 @@ public class RemoteControlSeekBarHandler implements
 
     private int mPlaybackState = -1;
 
-    RemoteControlSeekBarHandler(final RemoteControlClient remoteControlClient,
+    RemoteControlSeekBarHandler(final Context serviceContext,
+            final RemoteControlClient remoteControlClient,
             final int controlFlags) {
         super();
 
+        mApp = (MPDApplication) serviceContext.getApplicationContext();
         mRemoteControlClient = remoteControlClient;
 
         mRemoteControlClient.setTransportControlFlags(controlFlags |
@@ -65,8 +69,8 @@ public class RemoteControlSeekBarHandler implements
     }
 
     /**
-     * Android's callback that queries us for the elapsed time. Here, we are guessing the
-     * elapsed time using the last time we updated the elapsed time and its value at the time.
+     * Android's callback that queries us for the elapsed time. Here, we are guessing the elapsed
+     * time using the last time we updated the elapsed time and its value at the time.
      *
      * @return The guessed song position
      */
@@ -99,29 +103,26 @@ public class RemoteControlSeekBarHandler implements
     final void start() {
         mRemoteControlClient.setOnGetPlaybackPositionListener(this);
         mRemoteControlClient.setPlaybackPositionUpdateListener(this);
-        MPDroidService.MPD_ASYNC_HELPER.addTrackPositionListener(this);
+        mApp.addTrackPositionListener(this);
     }
 
     final void stop() {
-        MPDroidService.MPD_ASYNC_HELPER.removeTrackPositionListener(this);
+        mApp.removeTrackPositionListener(this);
         mRemoteControlClient.setOnGetPlaybackPositionListener(null);
         mRemoteControlClient.setPlaybackPositionUpdateListener(null);
     }
 
     /**
      * Used to keep the remote control client track bar updated.
-     *
-     * @param status New MPD status, containing current track position
      */
     @Override
-    public final void trackPositionChanged(final MPDStatus status) {
-        updateSeekTime(status.getElapsedTime());
+    public final void trackPositionChanged() {
+        updateSeekTime(mApp.getMPD().getStatus().getElapsedTime());
     }
 
     /**
-     * Only update the refresh date and elapsed time if it is the first start to
-     * make sure we have initial data, but updateStatus and trackChanged will take care
-     * of that afterwards.
+     * Only update the refresh date and elapsed time if it is the first start to make sure we have
+     * initial data, but updateStatus and trackChanged will take care of that afterwards.
      *
      * @param elapsedTime The current track audio elapsed time.
      */

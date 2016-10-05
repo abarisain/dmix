@@ -1,10 +1,144 @@
-apply plugin: 'java'
+/*
+ * Copyright (C) 2004 Felipe Gustavo de Almeida
+ * Copyright (C) 2010-2016 The MPDroid Project
+ *
+ * All Rights Reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice,this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
-sourceSets.main {
-    java {
-        srcDirs = ['../../src/main/java', 'src/main/java']
+import java.awt.HeadlessException
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+group "com.anpmech.mpd"
+version "1.0-SNAPSHOT"
+
+dependencies {
+    compile 'com.intellij:annotations:12.0'
+    testCompile 'junit:junit:4.12'
+}
+
+repositories {
+    mavenCentral()
+}
+
+final def shortHash() {
+    return "git rev-parse --short HEAD".execute().text.trim()
+}
+
+jar {
+    // This puts the sources in the jar.
+    from sourceSets.main.allSource
+
+    manifest {
+        final def String javaVersion = System.getProperty('java.version')
+        final def String javaVendor = System.getProperty('java.vendor')
+        final def String graVersion = project.gradle.gradleVersion
+        final def String groVersion = GroovySystem.version
+
+        attributes 'Package': "com.anpmech.mpd",
+                'Implementation-Title': project.name,
+                'Implementation-Version': shortHash(),
+                'Built-Date': new Date().dateTimeString,
+                'Built-With': "gradle-" + graVersion + ", groovy-" + groVersion,
+                'Created-By': 'Java ' + javaVersion + ' (' + javaVendor + ')'
     }
-    resources {
-        srcDirs = ['../../src/main/resources']
+}
+
+javadoc {
+    description = "Generates project-level javadoc."
+    title = "${project.name} WIP " + shortHash()
+
+    gradle.taskGraph.addTaskExecutionListener new BrowseJavadoc(
+            mTask: "javadoc",
+            mIndexFile: file("${destinationDir}/index.html"))
+
+    options {
+        memberLevel = JavadocMemberLevel.PRIVATE
+        showAll()
+        author = true
+        header = project.name
+        overview("src/main/overview.html");
+    }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    description "Generates a archive of the " + project.name + " directory."
+    group = "documentation"
+    from 'build/docs/javadoc'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId 'JMPDCommJava'
+            from components.java
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs '../../src/main/java', 'src/main/java'
+        }
+        resources {
+            srcDirs '../../src/main/resources'
+        }
+    }
+
+    test {
+        java {
+            srcDirs '../../src/test/java'
+        }
+
+        resources {
+            srcDirs '../../src/test/resources'
+        }
+    }
+}
+
+class BrowseJavadoc implements TaskExecutionListener {
+
+    String mTask
+
+    File mIndexFile
+
+    @Override
+    void beforeExecute(final Task task) {
+    }
+
+    @Override
+    void afterExecute(final Task task, final TaskState taskState) {
+        if (taskState.executed && !taskState.failure && task.name.equals(mTask)) {
+            println "Javadoc built: " + mIndexFile
+            final def Class desktop = getClass().classLoader.loadClass("java.awt.Desktop");
+
+            try {
+                desktop.newInstance().browse(mIndexFile.toURI())
+            } catch (final HeadlessException ignored) {
+            }
+        }
     }
 }

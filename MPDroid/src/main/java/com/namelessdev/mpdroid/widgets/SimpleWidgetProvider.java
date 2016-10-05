@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,7 @@ import android.widget.RemoteViews;
 
 public class SimpleWidgetProvider extends AppWidgetProvider {
 
-    private static final String TAG = "MPDroidSimpleWidgetProvider";
+    private static final String TAG = "WidgetProvider";
 
     private static SimpleWidgetProvider sInstance;
 
@@ -43,8 +43,10 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
     }
 
     /**
-     * Check against {@link AppWidgetManager} if there are any instances of this
-     * widget.
+     * Check against {@link AppWidgetManager} if there are any instances of this widget.
+     *
+     * @param context The current context.
+     * @return True if an instance already exists, false otherwise.
      */
     private boolean hasInstances(final Context context) {
         final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
@@ -55,6 +57,9 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
     /**
      * Link up various button actions using {@link PendingIntent}.
+     *
+     * @param context The current context.
+     * @param views   The button views.
      */
     protected void linkButtons(final Context context, final RemoteViews views) {
         Intent intent;
@@ -85,8 +90,9 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
     }
 
     /**
-     * Handle a change notification coming over from
-     * {@link android.media.RemoteControlClient}
+     * Handle a change notification coming over from {@link android.media.RemoteControlClient}
+     *
+     * @param service The WidgetHelperService related to this provider.
      */
     void notifyChange(final WidgetHelperService service) {
         if (hasInstances(service)) {
@@ -133,6 +139,8 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
     /**
      * Update all active widget instances by pushing changes
+     *
+     * @param service The WidgetHelperService related to this provider.
      */
     protected void performUpdate(final WidgetHelperService service) {
         final RemoteViews views = new RemoteViews(service.getPackageName(), R.layout.widget_simple);
@@ -142,6 +150,9 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
     /**
      * Set the RemoteViews to use for all AppWidget instances
+     *
+     * @param context The current context.
+     * @param views   The button views.
      */
     protected void pushUpdate(final Context context, final RemoteViews views) {
         final AppWidgetManager gm = AppWidgetManager.getInstance(context);

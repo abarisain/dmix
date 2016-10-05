@@ -1,8 +1,53 @@
+/*
+ * Copyright (C) 2004 Felipe Gustavo de Almeida
+ * Copyright (C) 2010-2016 The MPDroid Project
+ *
+ * All Rights Reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice,this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+import java.awt.HeadlessException
+
 apply plugin: 'com.android.library'
 
+repositories {
+    mavenCentral()
+}
+
+final def shortHash() {
+    "git rev-parse --short HEAD".execute().text.trim()
+}
+
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 23
+        versionCode Integer.parseInt("git rev-list HEAD --count".execute().text.trim())
+        versionName shortHash()
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
 
     lintOptions {
         abortOnError false
@@ -13,37 +58,88 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
-    sourceSets.main {
-        java {
-            srcDirs {
-                ['../../src/main/java', 'src/main/java']
+    sourceSets {
+        main {
+            java {
+                srcDirs '../../src/main/java', 'src/main/java'
+            }
+            resources {
+                srcDirs '../../src/main/resources'
             }
         }
-        resources {
-            srcDirs {
-                ['../../src/main/resources']
+
+        test {
+            java {
+                srcDirs '../../src/test/java'
+            }
+
+            resources {
+                srcDirs '../../src/test/resources'
             }
         }
     }
 
-    libraryVariants.all { variant ->
+    libraryVariants.all { final variant ->
 
         task("${variant.name}Javadoc", type: Javadoc) {
-            title = "$name $version API"
+            title = "$name Android WIP " + shortHash()
             description "Generates Javadoc for $variant.name."
+            group "documentation"
             source = variant.javaCompile.source
-            ext.androidJar = "${android.plugin.sdkHandler.sdkFolder}" +
+            ext.androidJar = "${android.sdkDirectory}" +
                     "/platforms/${android.compileSdkVersion}/android.jar"
             classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
 
+            gradle.taskGraph.addTaskExecutionListener new BrowseJavadoc(
+                    mTask: "${variant.name}Javadoc",
+                    mIndexFile: file("${destinationDir}/index.html"))
+
             options {
-                links("http://docs.oracle.com/javase/7/docs/api/");
+                author = true
+                header = project.name
+                memberLevel = JavadocMemberLevel.PRIVATE
+                links("http://docs.oracle.com/javase/8/docs/api/");
                 linksOffline("http://developer.android.com/reference",
-                        "${android.plugin.sdkHandler.sdkFolder}/docs/reference");
+                        "${android.sdkDirectory}/docs/reference");
+                overview("src/main/overview.html");
+                showAll()
             }
 
-            exclude {
-                ['**/BuildConfig.java', '**/R.java']
+            exclude '**/BuildConfig.java'
+            exclude '**/R.java'
+        }
+    }
+}
+
+dependencies {
+    compile 'com.intellij:annotations:12.0'
+
+    testCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support.test:runner:0.4.1'
+
+    // For JUnit 4
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
+}
+
+class BrowseJavadoc implements TaskExecutionListener {
+
+    String mTask
+
+    File mIndexFile
+
+    @Override
+    void beforeExecute(final Task task) {
+    }
+
+    @Override
+    void afterExecute(final Task task, final TaskState taskState) {
+        if (taskState.executed && !taskState.failure && task.name.equals(mTask)) {
+            println "Javadoc built: " + mIndexFile
+            final def Class desktop = getClass().classLoader.loadClass("java.awt.Desktop")
+
+            try {
+                desktop.newInstance().browse(mIndexFile.toURI())
+            } catch (final HeadlessException ignored) {
             }
         }
     }

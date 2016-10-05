@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,19 +16,23 @@
 
 package com.namelessdev.mpdroid.views;
 
+import com.anpmech.mpd.Tools;
+import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Item;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.cover.CoverAsyncHelper;
+import com.namelessdev.mpdroid.fragments.SongsFragment;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
-import com.namelessdev.mpdroid.helpers.CoverAsyncHelper;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
-import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Item;
-import org.a0z.mpd.item.Music;
-
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.LayoutRes;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -36,7 +40,31 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class AlbumDataBinder extends BaseDataBinder {
+public class AlbumDataBinder<T extends Item<T>> extends BaseDataBinder<T> {
+
+    /**
+     * This is the Artist that has been displayed for the group of Albums being displayed.
+     */
+    private final Artist mDisplayedArtist;
+
+    private final boolean mUseYear;
+
+    /**
+     * Sole constructor.
+     *
+     * @param displayedArtist This is the {@link Artist} for the group of {@link Album}s being
+     *                        displayed. If the Album group has no common artist, this will be
+     *                        null.
+     */
+    public AlbumDataBinder(final Artist displayedArtist) {
+        super();
+
+        final MPDApplication app = MPDApplication.getInstance();
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(app);
+
+        mDisplayedArtist = displayedArtist;
+        mUseYear = settings.getBoolean("enableAlbumYearText", true);
+    }
 
     @Override
     public AbstractViewHolder findInnerViews(final View targetView) {
@@ -57,8 +85,7 @@ public class AlbumDataBinder extends BaseDataBinder {
     }
 
     @Override
-    public boolean isEnabled(final int position, final List<? extends Item> items,
-            final Object item) {
+    public boolean isEnabled(final int position, final List<T> items, final Object item) {
         return true;
     }
 
@@ -84,45 +111,52 @@ public class AlbumDataBinder extends BaseDataBinder {
 
     @Override
     public void onDataBind(final Context context, final View targetView,
-            final AbstractViewHolder viewHolder, final List<? extends Item> items,
-            final Object item, final int position) {
+            final AbstractViewHolder viewHolder, final List<T> items, final Object item,
+            final int position) {
         final AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
         final Album album = (Album) item;
         final Artist artist = album.getArtist();
         final StringBuilder info = new StringBuilder();
         final long songCount = album.getSongCount();
 
-        if (artist != null) {
-            info.append(artist.mainText());
-        }
+        /**
+         * Don't add the artist if it's already been otherwise displayed.
+         */
+        if (mDisplayedArtist == null && artist != null) {
+            info.append(artist);
+        } else {
+            final long date = album.getDate();
 
-        if (album.getYear() > 0L) {
-            if (info.length() != 0) {
-                info.append(SEPARATOR);
-            }
-            info.append(Long.toString(album.getYear()));
-        }
-
-        if (songCount > 0L) {
-            final String trackHeader;
-            final String duration = Music.timeToString(album.getDuration());
-
-            if (info.length() != 0) {
-                info.append(SEPARATOR);
+            // If the artist is displayed do not display extra
+            // information since they do not fit on screen
+            if (mUseYear && date > 0L) {
+                if (info.length() != 0) {
+                    info.append(SEPARATOR);
+                }
+                info.append(date);
             }
 
-            if (songCount > 1L) {
-                trackHeader =
-                        context.getString(R.string.tracksInfoHeaderPlural, songCount, duration);
-            } else {
-                trackHeader = context.getString(R.string.tracksInfoHeader, songCount, duration);
-            }
+            if (songCount > 0L) {
+                final String trackHeader;
+                final CharSequence duration = Tools.timeToString(album.getDuration());
 
-            info.append(trackHeader);
+                if (info.length() != 0) {
+                    info.append(SEPARATOR);
+                }
+
+                if (songCount > 1L) {
+                    trackHeader =
+                            context.getString(R.string.tracksInfoHeaderPlural, songCount, duration);
+                } else {
+                    trackHeader = context.getString(R.string.tracksInfoHeader, songCount, duration);
+                }
+
+                info.append(trackHeader);
+            }
         }
 
         // display "artist - album title"
-        holder.mAlbumName.setText(album.mainText());
+        holder.mAlbumName.setText(album.toString());
         if (info.length() == 0) {
             holder.mAlbumInfo.setVisibility(View.GONE);
         } else {
@@ -131,11 +165,14 @@ public class AlbumDataBinder extends BaseDataBinder {
         }
 
         loadAlbumCovers(holder, album);
+
+        ViewCompat.setTransitionName(holder.mAlbumCover,
+                SongsFragment.COVER_TRANSITION_NAME_BASE + position);
     }
 
     @Override
     public View onLayoutInflation(final Context context, final View targetView,
-            final List<? extends Item> items) {
+            final List<T> items) {
         return setViewVisible(targetView, R.id.albumCover, mEnableCache);
     }
 }

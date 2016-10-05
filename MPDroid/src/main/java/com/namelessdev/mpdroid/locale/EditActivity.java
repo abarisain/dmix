@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014 The MPDroid Project
+ * Copyright (C) 2010-2016 The MPDroid Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,17 @@
 
 package com.namelessdev.mpdroid.locale;
 
+import com.anpmech.mpd.subsystem.status.MPDStatusMap;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.helpers.MPDControl;
 import com.namelessdev.mpdroid.service.NotificationHandler;
 import com.namelessdev.mpdroid.service.StreamHandler;
 
-import org.a0z.mpd.MPDCommand;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -38,7 +37,7 @@ import android.widget.SeekBar;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EditActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+public class EditActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     public static final String BUNDLE_ACTION_EXTRA = "ACTION_EXTRA";
 
@@ -110,7 +109,7 @@ public class EditActivity extends ActionBarActivity implements AdapterView.OnIte
             final int padding = getResources()
                     .getDimensionPixelSize(R.dimen.locale_edit_seekbar_padding);
             seekBar.setPadding(padding, padding, padding, padding);
-            seekBar.setMax(MPDCommand.MAX_VOLUME);
+            seekBar.setMax(MPDStatusMap.VOLUME_MAX);
             final AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setView(seekBar);
             alert.setTitle(item.mLabel);

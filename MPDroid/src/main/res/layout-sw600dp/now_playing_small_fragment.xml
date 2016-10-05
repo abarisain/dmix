@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (C) 2010-2014 The MPDroid Project
+  ~ Copyright (C) 2010-2016 The MPDroid Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -22,18 +22,19 @@
     <RelativeLayout
         android:id="@+id/albumCoverFrame"
         android:layout_width="48dip"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginRight="8dip">
 
         <ImageView
             android:id="@+id/albumCover"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:contentDescription="@string/albumCover"
             android:scaleType="fitCenter"
-            android:src="?attr/noCoverArtIcon" />
+            android:src="?attr/noCoverArtIcon"
+            android:transitionName="cover" />
 
         <ProgressBar
             android:id="@+id/albumCoverProgress"
@@ -46,7 +47,7 @@
 
     <TextView
         android:id="@+id/song_title"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="24dip"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/buttons_container"
@@ -62,7 +63,7 @@
 
     <TextView
         android:id="@+id/song_artist"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="24dip"
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/buttons_container"

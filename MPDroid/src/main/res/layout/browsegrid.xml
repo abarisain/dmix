@@ -1,61 +1,87 @@
-<?xml version="1.0" encoding="utf-8"?>
-<uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout
-    android:id="@+id/pullToRefresh"
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2010-2016 The MPDroid Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<LinearLayout
+    android:id="@+id/browse_root"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <GridView
-        android:id="@+id/grid"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:columnWidth="150dip"
-        android:gravity="center"
-        android:horizontalSpacing="8dp"
-        android:listSelector="#00000000"
-        android:numColumns="auto_fit"
-        android:paddingLeft="8dip"
-        android:paddingRight="8dip"
-        android:scrollbarStyle="outsideOverlay"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="8dp" />
+    <include
+        layout="@layout/toolbar"
+        android:visibility="gone" />
 
-    <RelativeLayout
-        android:id="@+id/loadingLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:visibility="gone">
+    <FrameLayout
+        android:id="@+id/browse_root_frame"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
+        <GridView
+            android:id="@+id/grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:columnWidth="150dip"
+            android:gravity="center"
+            android:horizontalSpacing="8dp"
+            android:listSelector="#00000000"
+            android:numColumns="auto_fit"
+            android:paddingLeft="8dip"
+            android:paddingRight="8dip"
+            android:scrollbarStyle="outsideOverlay"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="8dp" />
 
-        <TextView
-            android:id="@+id/loadingText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/progressBar"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="5dip"
-            android:text="@string/loading" />
-    </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/loadingLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
 
-    <ScrollView
-        android:id="@+id/noResultLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="horizontal"
-        android:visibility="gone">
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/no_result" />
-    </ScrollView>
+            <TextView
+                android:id="@+id/loadingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/progressBar"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dip"
+                android:text="@string/loading" />
+        </RelativeLayout>
 
-</uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout>
+        <ScrollView
+            android:id="@+id/noResultLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/no_result" />
+        </ScrollView>
+
+    </FrameLayout>
+</LinearLayout>

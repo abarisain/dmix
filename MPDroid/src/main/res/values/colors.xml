@@ -1,22 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2010-2016 The MPDroid Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <resources>
     <color name="nowplaying_primary_text">#ffffffff</color>
     <color name="nowplaying_primary_text_light">#ff000000</color>
     <color name="nowplaying_secondary_text">#ff868686</color>
     <color name="card_primary_text">#ffffffff</color>
     <color name="card_primary_text_light">#ff000000</color>
+    <color name="card_background_color">#292929</color>
+    <color name="card_background_color_light">#ffffff</color>
     <color name="compatactionbar_separator">#22ffffff</color>
     <color name="list_item_horizontal_separator">#33FFFFFF</color>
     <color name="list_item_horizontal_separator_light">#FFD3D3D3</color>
     <color name="nowplaying_background">#ff1a1a1a</color>
-    <color name="holo_button_highlight">#9933b5e5</color>
-    <color name="holo_button_highlight_low">#5533b5e5</color>
-    <color name="now_playing_small_separator">@android:color/holo_blue_light</color>
     <color name="notification_separator">#393939</color>
     <color name="actionbar_background_blue">#039be5</color>
     <color name="statusbar_background_blue">#0277bd</color>
     <color name="accent_blue">#4fc3f7</color>
-    <color name="accent_dark">#e0e0e0</color>
+    <color name="nowplaying_songinfo_body1_text_color">@android:color/white</color>
+    <color name="nowplaying_songinfo_body2_text_color">#beffffff</color>
     <color name="nowplaying_slider_background_color">#ff1a1a1a</color>
     <color name="nowplaying_slider_background_color_light">#ffffffff</color>
+    <color name="list_item_secondary_text_color">#8affffff</color>
+    <color name="list_item_secondary_text_color_light">#8a000000</color>
+    <color name="library_tab_text_color_selected">@android:color/white</color>
+    <color name="library_tab_text_color">#aaffffff</color>
 </resources>

@@ -1,42 +1,67 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2010-2016 The MPDroid Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
-    <!--  Unused strings, commented for possible for later use.
-	<string name="aboutDescription">A Propos de MPDroid</string>
-	<string name="albumGridWifiUnavailable">Wi-Fi non disponible, aucune pochette ne sera téléchargée</string>
-	<string name="clientSettings">Paramètres client</string>
-	<string name="configurationName">Nom de la configuration</string>
-	<string name="edit">Modifier</string>
-	<string name="enableLightNowPlayingTheme">Utiliser le thème clair pour "En Cours"</string>
-	<string name="enableLightNowPlayingThemeDescription">Redémarrer l\'application pour voir les changements</string>
-	<string name="manage">Gérer</string>
-	<string name="outputsDescription">Activer/Désactiver les sorties MPD</string>
-	<string name="paused">En pause</string>
-	<string name="playlistNameEditTitle">Nom de la playlist</string>
-	<string name="playlistSave">Sauvegarder la Playlist</string>
-	<string name="random">Random</string>
-	<string name="randomDescription">Activer/Désactiver random</string>
-	<string name="removeSong">Enlever la chanson</string>
-	<string name="repeat">Répeter</string>
-	<string name="repeatDescription">Activer/Désactiver répetition</string>
-	<string name="serverAddress">Addresse du serveur :</string>
-	<string name="serverSettings">Paramètres serveur</string>
-	<string name="skipToHere">Sauter vers ici</string>
-	<string name="streamDetails">Détails du flux :</string>
-	<string name="streamError">Erreur de streaming, flux illisible</string>
-	<string name="streamingManualURL">Utiliser une URL spécifique pour le streaming (icecast)</string>
-	<string name="streamPaused">Streaming en pause</string>
-	<string name="streamPauseBattery">Pour économiser la batterie, coupez le streaming.</string>
-	<string name="streamStopped">Streaming arreté</string>
-	<string name="streamingURLDescription">URL du Stream (avec http://)</string>
-	<string name="stopped">Arreté</string>
-	<string name="track">Piste</string>
-	<string name="volume">Volume</string>
-	<string name="updateDB">Mettre à jour</string>
-	<string name="waitForWLAN">Attente du WIFI …</string>
-	<string name="whatsNew">Quoi de neuf ?</string>
-	<string name="whatsNewDescription">Voir le changelog (ouvre une page web externe)</string>
-	-->
+<resources>
+    <!-- Unused strings, commented for possible for later use.
+    <string name="aboutDescription">A Propos de MPDroid</string>
+    <string name="albumGridWifiUnavailable">Wi-Fi non disponible, aucune pochette ne sera téléchargée</string>
+    <string name="chooseWLAN">Choisissez un réseau wifi</string>
+    <string name="clientSettings">Paramètres client</string>
+    <string name="configurationName">Nom de la configuration</string>
+    <string name="connect">Connecter</string>
+    <string name="deleteServer">Supprimer ce serveur</string>
+    <string name="edit">Modifier</string>
+    <string name="enableLightNowPlayingTheme">Utiliser le thème clair pour "En Cours"</string>
+    <string name="enableLightNowPlayingThemeDescription">Redémarrer l\'application pour voir les changements</string>
+    <string name="hostStreaming">Hôte Streaming</string>
+    <string name="hostStreamingDescription">IP ou nom du serveur streaming</string>
+    <string name="libraryTabActivity">Bibliothèque</string>
+    <string name="manage">Gérer</string>
+    <string name="outputsDescription">Activer/Désactiver les sorties MPD</string>
+    <string name="paused">En pause</string>
+    <string name="playlistNameEditTitle">Nom de la playlist</string>
+    <string name="playlistSave">Sauvegarder la Playlist</string>
+    <string name="portStreaming">Port streaming</string>
+    <string name="portStreamingDescription">Port du streaming MPD (Defaut: 8000)</string>
+    <string name="random">Random</string>
+    <string name="randomDescription">Activer/Désactiver random</string>
+    <string name="removeSong">Enlever la chanson</string>
+    <string name="repeat">Répeter</string>
+    <string name="repeatDescription">Activer/Désactiver répetition</string>
+    <string name="serverAddress">Addresse du serveur :</string>
+    <string name="serverSettings">Paramètres serveur</string>
+    <string name="skipToHere">Sauter vers ici</string>
+    <string name="streamDetails">Détails du flux :</string>
+    <string name="streamError">Erreur de streaming, flux illisible</string>
+    <string name="streamingManualURL">Utiliser une URL spécifique pour le streaming (icecast)</string>
+    <string name="streamPaused">Streaming en pause</string>
+    <string name="streamPauseBattery">Pour économiser la batterie, coupez le streaming.</string>
+    <string name="streamStopped">Streaming arreté</string>
+    <string name="streamingURLDescription">URL du Stream (avec http://)</string>
+    <string name="stopped">Arreté</string>
+    <string name="suffixStreaming">Suffixe url streaming</string>
+    <string name="suffixStreamingDescription">Suffixe à ajouter à l\'url du stream (ex. mpd.mp3)</string>
+    <string name="track">Piste</string>
+    <string name="volume">Volume</string>
+    <string name="updateDB">Mettre à jour</string>
+    <string name="waitForWLAN">Attente du WIFI …</string>
+    <string name="whatsNew">Quoi de neuf ?</string>
+    <string name="whatsNewDescription">Voir le changelog (ouvre une page web externe)</string>
+    <string name="wlanBasedSettingsDescription">Définir l\'addresse/port du serveur MPD (Wi-Fi)</string>
+    -->
 
     <string name="app_name">MPDroid</string>
     <string name="artists">Artistes</string>
@@ -73,8 +98,6 @@
     <string name="artistAdded">Artiste ajouté</string>
     <string name="host">Hôte</string>
     <string name="hostDescription">IP ou nom du serveur MPD</string>
-    <string name="hostStreaming">Hôte Streaming</string>
-    <string name="hostStreamingDescription">IP ou nom du serveur streaming</string>
     <string name="port">Port</string>
     <string name="portDescription">Port du serveur MPD (Defaut: 6600)</string>
     <string name="password">Mot de passe</string>
@@ -92,7 +115,6 @@
     <string name="about">A Propos</string>
     <string name="connectionFailed">Echec de la connexion</string>
     <string name="connectionFailedMessage">Echec de la connexion au serveur MPD ! Verifiez que le serveur est atteignable (%s)</string>
-    <string name="connect">Connecter</string>
     <string name="connecting">Connexion …</string>
     <string name="connectingToServer">Connexion au serveur MPD.</string>
     <string name="connected">Connecté</string>
@@ -102,23 +124,16 @@
     <string name="playlistDeleted">Playlist %s supprimée</string>
     <string name="deletePlaylist">Supprimer la Playlist</string>
     <string name="preferredConnection">Connexion preferée</string>
-    <string name="chooseWLAN">Choisissez un réseau wifi</string>
     <string name="wlanBasedSettings">Connexion par Wi-Fi</string>
     <string name="defaultSettings">Paramètres de connexion par défaut</string>
-    <string name="wlanBasedSettingsDescription">Définir l\'addresse/port du serveur MPD (Wi-Fi)</string>
     <string name="defaultSettingsDescription">Définir l\'addresse/port et mot de passe du serveur MPD par défaut</string>
     <string name="stream">Streaming</string>
     <string name="buffering">Mise en cache …</string>
-    <string name="portStreaming">Port streaming</string>
-    <string name="portStreamingDescription">Port du streaming MPD (Defaut: 8000)</string>
-    <string name="suffixStreaming">Suffixe url streaming</string>
-    <string name="suffixStreamingDescription">Suffixe à ajouter à l\'url du stream (ex. mpd.mp3)</string>
     <string name="aboutText1">MPDroid est un programme open-source. Visitez http://github.com/abarisain/dmix pour voir le code source !</string>
     <string name="aboutText2">MPDroid est un fork de PMix\n (http://code.google.com/p/pmix/). Merci à eux !</string>
     <string name="search">Recherche</string>
     <string name="search_label">MPDroid</string>
     <string name="search_hint">Rechercher …</string>
-    <string name="libraryTabActivity">Bibliothèque</string>
     <string name="warningTitle">Merci de lire ce qui suit.</string>
     <string name="warningText1">Bienvenue dans MPDroid 1.0 !\nCette popup ne s\'affichera qu\'une seule fois.\n\nPremièrement, si vous ne savez pas ce qu\'est un serveur MPD, passez vôtre chemin, cette application n\'est pas faite pour vous.\n\nBug connu important : Le widget plante parfois et cause un drain de batterie.\n\nPour les "anciens" utilisateurs de MPDroid : Merci beaucoup pour votre support et contributions. J\'espère que cette nouvelle version vous plaira.</string>
     <string name="editPlaylist">Modifier</string>
@@ -146,7 +161,6 @@
     <string name="coverFileName">Nom du fichier pochette</string>
     <string name="coverFileNameDescription">Nom de fichier des pochettes, par ex. folder.jpg (cover.jpg pour les utilisateurs de vortexbox)</string>
     <string name="cacheUsage">Espace occupé par le cache</string>
-    <string name="deleteServer">Supprimer ce serveur</string>
     <string name="no_result">Aucun résultat</string>
     <string name="backpressToQuit">Appuyez encore une fois sur retour pour quitter</string>
     <string name="playQueue">File d\'attente</string>
@@ -206,7 +220,6 @@
     <string name="share">Partager</string>
     <string name="sharePrefix">Now Playing :</string>
     <string name="enableTabletUI">Utiliser l\'interface pour tablette</string>
-    <string name="enableTabletUIDescription">Redémarrer l\'application pour voir les changements</string>
     <string name="enableInternetCover">Télécharger les pochettes</string>
     <string name="enableInternetCoverDescription">Obtenir les pochettes via divers services (leur envoie les informations sur la chanson courante)</string>
 
@@ -271,4 +284,8 @@
     <string name="mediaPlayerErrorTimedOut">L\'opération n\'a pas réussi à temps.</string>
     <string name="mediaPlayerErrorUnsupported">Le serveur audio ne gère pas le flux codec.</string>
     <!-- End MediaPlayer Error Strings -->
+
+    <string name="refresh">Rafraîchir</string>
+
+    <string name="songComments">Commentaires</string>
 </resources>
