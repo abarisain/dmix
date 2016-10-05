@@ -17,6 +17,7 @@
 package com.namelessdev.mpdroid.service;
 
 import com.namelessdev.mpdroid.ConnectionInfo;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.RemoteControlReceiver;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
@@ -777,7 +778,20 @@ public final class MPDroidService extends Service implements
             mRemoteControlClientHandler.update(mCurrentTrack);
             mAlbumCoverHandler.update(new AlbumInfo(mCurrentTrack));
             mNotificationHandler.setNewTrack(mCurrentTrack);
+            notifyPebble(mCurrentTrack);
         }
+    }
+
+    private void notifyPebble(Music currentTrack){
+        if (currentTrack != null) {
+            final Intent i = new Intent("com.getpebble.action.NOW_PLAYING");
+            i.putExtra("artist", currentTrack.getArtist());
+            i.putExtra("album", currentTrack.getAlbum());
+            i.putExtra("track", currentTrack.getTitle());
+            Log.d(TAG, "broadcasting intent to pebble");
+            MPDApplication.getInstance().sendBroadcast(i);
+        }
+
     }
 
     /**
