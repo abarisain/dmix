@@ -95,6 +95,8 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
 
     private static final int POPUP_SHARE = 5;
 
+    private static final int POPUP_ADDTOFAVORITES = 9;
+
     private static final int POPUP_STREAM = 4;
 
     private static final String TAG = "NowPlayingFragment";
@@ -433,6 +435,7 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
         menu.add(Menu.NONE, POPUP_FOLDER, Menu.NONE, R.string.goToFolder);
         menu.add(Menu.NONE, POPUP_CURRENT, Menu.NONE, R.string.goToCurrent);
         menu.add(Menu.NONE, POPUP_SHARE, Menu.NONE, R.string.share);
+        menu.add(Menu.NONE, POPUP_ADDTOFAVORITES, Menu.NONE, R.string.addToFavorites);
         popupMenu.setOnMenuItemClickListener(this);
         mPopupMenuTouchListener = PopupMenuCompat.getDragToOpenListener(popupMenu);
 
@@ -611,6 +614,13 @@ public class NowPlayingFragment extends Fragment implements StatusChangeListener
             case POPUP_FOLDER:
                 if (mCurrentSong != null) {
                     intent = simpleLibraryMusicItem(itemId);
+                }
+                break;
+            case POPUP_ADDTOFAVORITES:
+                try {
+                    mApp.oMPDAsyncHelper.oMPD.addToPlaylist("Favorites", mCurrentSong);
+                } catch (final IOException | MPDException e) {
+                    Log.e(TAG, "Failed to add to playlist.", e);
                 }
                 break;
             case POPUP_STREAM:
