@@ -128,7 +128,10 @@ public class StreamFetcher {
                     final String protocol = handler + "://";
                     final int index = line.indexOf(protocol);
                     if (index > -1 && index < 7) {
-                        return line.replace("\n", "").replace("\r", "").substring(index);
+                        String url = line.replace("\n", "").replace("\r", "")
+                                .substring(index);
+                        if (fetch(url) != null)
+                            return url;
                     }
                 }
             }
@@ -166,7 +169,7 @@ public class StreamFetcher {
         return null;
     }
 
-    private String check(final String url) {
+    private static String fetch(final String url) {
         HttpURLConnection connection = null;
         try {
             final URL u = new URL(url);
@@ -178,9 +181,9 @@ public class StreamFetcher {
             if (read < buffer.length) {
                 buffer[read] = '\0';
             }
-            return parse(new String(buffer), mHandlers);
+            return new String(buffer);
         } catch (final IOException e) {
-            Log.e(TAG, "Failed to check and parse an incoming playlist.", e);
+            Log.e(TAG, "Failed to fetch an incoming playlist.", e);
         } finally {
             if (null != connection) {
                 connection.disconnect();
@@ -191,17 +194,19 @@ public class StreamFetcher {
 
     public String get(final String url, final String name) throws MalformedURLException {
         String parsed = null;
+        String secondParse = null;
         if (url.startsWith("http://")) {
-            parsed = check(url);
+            parsed = parse(fetch(url), mHandlers);
             if (null != parsed && parsed.startsWith("http://")) {
-                // If 'check' returned a http link, then see if this points to
+                // If 'fetch' returned a http link, then see if this points to
                 // the stream or if it points to the playlist (which would point
                 // to the stream). This case is mainly for TuneIn links...
-                final String secondParse = check(parsed);
-                if (null != secondParse) {
-                    parsed = secondParse;
-                }
+                secondParse = parse(fetch(parsed), mHandlers);
             }
+        }
+        Log.i("MPDroid", String.format("URL: '%s', PARSED: '%s', SECOND: '%s'", url, parsed, secondParse));
+        if (null != secondParse) {
+            parsed = secondParse;
         }
         return Stream.addStreamName(null == parsed ? url : parsed, name);
     }
