@@ -96,9 +96,9 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
 
     public static final int GOTO_ARTIST = 5;
 
-    public static final int MAIN = 0;
+//    public static final int MAIN = 0;
 
-    public static final int PLAYLIST = 3;
+//    public static final int PLAYLIST = 3;
 
     public static final int POPUP_COVER_BLACKLIST = 10;
 
@@ -136,9 +136,9 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
 
     protected final List<T> mItems = new ArrayList<>();
 
-    final int mIrAdd;
+    protected final int mIrAdd;
 
-    final int mIrAdded;
+    protected final int mIrAdded;
 
     /**
      * This runnable is run in our {@link MPDAsyncWorker} thread.

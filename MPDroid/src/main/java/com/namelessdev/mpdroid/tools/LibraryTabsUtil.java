@@ -41,6 +41,8 @@ public final class LibraryTabsUtil {
 
     public static final String TAB_STREAMS = "streams";
 
+    public static final String TAB_RANDOM = "random";
+
     private static final MPDApplication APP = MPDApplication.getInstance();
 
     private static final String LIBRARY_TABS_DELIMITER = "|";
@@ -50,7 +52,8 @@ public final class LibraryTabsUtil {
             + LIBRARY_TABS_DELIMITER + TAB_PLAYLISTS
             + LIBRARY_TABS_DELIMITER + TAB_STREAMS
             + LIBRARY_TABS_DELIMITER + TAB_FILES
-            + LIBRARY_TABS_DELIMITER + TAB_GENRES;
+            + LIBRARY_TABS_DELIMITER + TAB_GENRES
+            + LIBRARY_TABS_DELIMITER + TAB_RANDOM;
 
     private static final String LIBRARY_TABS_SETTINGS_KEY = "currentLibraryTabs";
 
@@ -63,6 +66,7 @@ public final class LibraryTabsUtil {
         TABS.put(TAB_STREAMS, R.string.streams);
         TABS.put(TAB_FILES, R.string.files);
         TABS.put(TAB_GENRES, R.string.genres);
+        TABS.put(TAB_RANDOM, R.string.random);
     }
 
     private LibraryTabsUtil() {
