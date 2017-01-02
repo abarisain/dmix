@@ -16,25 +16,39 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import com.anpmech.mpd.exception.MPDException;
-import com.anpmech.mpd.item.Artist;
-import com.anpmech.mpd.item.Genre;
-import com.anpmech.mpd.item.PlaylistFile;
-import com.namelessdev.mpdroid.R;
-import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
-import com.namelessdev.mpdroid.tools.Tools;
-
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 
-import java.io.IOException;
-import java.util.Collections;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Artist;
+import com.anpmech.mpd.item.Genre;
+import com.anpmech.mpd.item.PlaylistFile;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.models.GenresGroup;
+import com.namelessdev.mpdroid.tools.Tools;
 
-public class GenresFragment extends BrowseFragment<Genre> {
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+public class GenresFragment extends BrowseFragment<GenresGroup> {
+
+    public static final String PREFERENCE_OPTIMIZE_GENRES = "optimizeGenres";
+
+    public static final String PREFERENCE_GENRE_SEPARATORS = "genreSeparators";
 
     private static final String TAG = "GenresFragment";
 
@@ -43,9 +57,11 @@ public class GenresFragment extends BrowseFragment<Genre> {
     }
 
     @Override
-    protected void add(final Genre item, final boolean replace, final boolean play) {
+    protected void add(final GenresGroup item, final boolean replace, final boolean play) {
         try {
-            mApp.getMPD().add(item, replace, play);
+            for (final Genre genre : item.getGenres()) {
+                mApp.getMPD().add(genre, replace, play);
+            }
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add all from playlist.", e);
@@ -53,9 +69,11 @@ public class GenresFragment extends BrowseFragment<Genre> {
     }
 
     @Override
-    protected void add(final Genre item, final PlaylistFile playlist) {
+    protected void add(final GenresGroup item, final PlaylistFile playlist) {
         try {
-            mApp.getMPD().addToPlaylist(playlist, item);
+            for (final Genre genre : item.getGenres()) {
+                mApp.getMPD().addToPlaylist(playlist, genre);
+            }
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add all genre to playlist.", e);
@@ -65,15 +83,69 @@ public class GenresFragment extends BrowseFragment<Genre> {
     @Override
     protected void asyncUpdate() {
         try {
-            replaceItems(mApp.getMPD().getGenreResponse());
+            replaceItems(groupGenres(mApp.getMPD().getGenreResponse()));
             Collections.sort(mItems);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update list of genres.", e);
         }
     }
 
+    private List<GenresGroup> groupGenres(final Collection<Genre> genres) {
+        final Map<String,GenresGroup> groupMap = new HashMap<>();
+
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mApp);
+        final boolean optimizeGenres = settings.getBoolean(PREFERENCE_OPTIMIZE_GENRES, false);
+        final String genreSeparators = optimizeGenres
+                ? settings.getString(PREFERENCE_GENRE_SEPARATORS, "").replace(" ", "")
+                : "";
+
+        for (final Genre genre : genres) {
+            final String[] genreNames = genreSeparators.isEmpty()
+                    ? new String[] { genre.getName() }
+                    : genre.getName().split("[" + Pattern.quote(genreSeparators) + "]");
+            for (String genreName : genreNames) {
+                if (optimizeGenres) {
+                    genreName = capitalize(genreName.replace("  ", " "));
+                }
+
+                GenresGroup group = groupMap.get(genreName);
+
+                if (group == null) {
+                    group = new GenresGroup(genreName);
+                    groupMap.put(genreName, group);
+                }
+                group.addGenre(genre);
+            }
+        }
+
+        return new LinkedList<>(groupMap.values());
+    }
+
+    @NonNull
+    private String capitalize(String s) {
+        s = s.toLowerCase();
+        for (final Character delimiter : " &-".toCharArray()) {
+            s = capitalize(s, delimiter);
+        }
+        return s;
+    }
+
+    private String capitalize(final String s, final Character delimiter) {
+        String result = "";
+        for (final String word : s.split(delimiter.toString())) {
+            if (!result.isEmpty()) {
+                result += delimiter;
+            }
+            if (!word.isEmpty()) {
+                result += word.substring(0, 1).toUpperCase() +
+                          (word.length() > 1 ? word.substring(1) : "");
+            }
+        }
+        return result;
+    }
+
     @Override
-    protected Artist getArtist(final Genre item) {
+    protected Artist getArtist(final GenresGroup item) {
         return null;
     }
 
@@ -101,8 +173,9 @@ public class GenresFragment extends BrowseFragment<Genre> {
         final Fragment fragment =
                 Fragment.instantiate(getActivity(), ArtistsFragment.class.getName(), bundle);
 
-        bundle.putParcelable(Genre.EXTRA, mItems.get(position));
+        bundle.putParcelable(GenresGroup.EXTRA, mItems.get(position));
 
         ((ILibraryFragmentActivity) getActivity()).pushLibraryFragment(fragment, Artist.EXTRA);
     }
+
 }

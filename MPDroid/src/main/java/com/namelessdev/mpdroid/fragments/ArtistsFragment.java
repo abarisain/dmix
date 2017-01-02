@@ -25,6 +25,7 @@ import com.anpmech.mpd.item.PlaylistFile;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.models.GenresGroup;
 import com.namelessdev.mpdroid.tools.Tools;
 
 import android.app.Activity;
@@ -38,7 +39,9 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
 public class ArtistsFragment extends BrowseFragment<Artist> {
 
@@ -54,7 +57,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
 
     private static final String TAG = "ArtistsFragment";
 
-    private Genre mGenre = null;
+    private GenresGroup mGenresGroup;
 
     public ArtistsFragment() {
         super(R.string.addArtist, R.string.artistAdded);
@@ -89,31 +92,42 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
         try {
             final SharedPreferences settings = PreferenceManager
                     .getDefaultSharedPreferences(MPDApplication.getInstance());
+            final Collection<Artist> artists;
             switch (settings.getString(PREFERENCE_ARTIST_TAG_TO_USE,
                     PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
                 case PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
-                    if (mGenre == null) {
-                        replaceItems(mApp.getMPD().getAlbumArtists());
+                    if (mGenresGroup == null) {
+                        artists = mApp.getMPD().getAlbumArtists();
                     } else {
-                        replaceItems(mApp.getMPD().getAlbumArtists(mGenre));
+                        artists = new HashSet<>();
+                        for (final Genre genre : mGenresGroup.getGenres()) {
+                            artists.addAll(mApp.getMPD().getAlbumArtists(genre));
+                        }
                     }
                     break;
                 case PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
-                    if (mGenre == null) {
-                        replaceItems(mApp.getMPD().getArtists());
+                    if (mGenresGroup == null) {
+                        artists = mApp.getMPD().getArtists();
                     } else {
-                        replaceItems(mApp.getMPD().getArtists(mGenre));
+                        artists = new HashSet<>();
+                        for (final Genre genre : mGenresGroup.getGenres()) {
+                            artists.addAll(mApp.getMPD().getArtists(genre));
+                        }
                     }
                     break;
                 case PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
                 default:
-                    if (mGenre == null) {
-                        replaceItems(mApp.getMPD().getArtistsMerged());
+                    if (mGenresGroup == null) {
+                        artists = mApp.getMPD().getArtistsMerged();
                     } else {
-                        replaceItems(mApp.getMPD().getArtistsMerged(mGenre));
+                        artists = new HashSet<>();
+                        for (final Genre genre : mGenresGroup.getGenres()) {
+                            artists.addAll(mApp.getMPD().getArtistsMerged(genre));
+                        }
                     }
                     break;
             }
+            replaceItems(artists);
             Collections.sort(mItems);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
@@ -146,14 +160,14 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
     public String getTitle() {
         final String title;
 
-        if (mGenre == null) {
+        if (mGenresGroup == null) {
             final Bundle bundle = getArguments();
             String name = null;
             if (bundle != null) {
-                final Genre genre = bundle.getParcelable(Genre.EXTRA);
+                final GenresGroup genresGroup = bundle.getParcelable(GenresGroup.EXTRA);
 
-                if (genre != null) {
-                    name = genre.getName();
+                if (genresGroup != null) {
+                    name = genresGroup.getName();
                 }
             }
 
@@ -163,7 +177,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
                 title = name;
             }
         } else {
-            title = mGenre.toString();
+            title = mGenresGroup.toString();
         }
 
         return title;
@@ -181,7 +195,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
         }
 
         if (bundle != null) {
-            mGenre = bundle.getParcelable(Genre.EXTRA);
+            mGenresGroup = bundle.getParcelable(GenresGroup.EXTRA);
         }
     }
 
@@ -195,7 +209,7 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
         final Fragment fragment;
 
         bundle.putParcelable(Artist.EXTRA, mItems.get(position));
-        bundle.putParcelable(Genre.EXTRA, mGenre);
+        bundle.putParcelable(GenresGroup.EXTRA, mGenresGroup);
 
         if (settings.getBoolean(PREFERENCE_ALBUM_LIBRARY, true)) {
             fragment = Fragment.instantiate(activity, AlbumsGridFragment.class.getName(), bundle);
@@ -208,8 +222,8 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
 
     @Override
     public void onSaveInstanceState(final Bundle outState) {
-        if (mGenre != null) {
-            outState.putParcelable(Genre.EXTRA, mGenre);
+        if (mGenresGroup != null) {
+            outState.putParcelable(GenresGroup.EXTRA, mGenresGroup);
         }
         super.onSaveInstanceState(outState);
     }
