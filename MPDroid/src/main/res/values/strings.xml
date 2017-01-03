@@ -73,6 +73,7 @@
     <string name="playlists">Playlists</string>
     <string name="files">Files</string>
     <string name="albums">Albums</string>
+    <string name="favorites">Favorites</string>
     <string name="settings">Settings</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
@@ -341,4 +342,6 @@
     <string name="songComments">Comments</string>
 
     <string name="activityReload">"Changes occurred, reloading."</string>
+    <string name="addToFavorites">Add to favorites</string>
+    <string name="removeFromFavorites">Remove from favorites</string>
 </resources>
