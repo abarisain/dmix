@@ -79,6 +79,11 @@ public class GenresGroup extends Item<GenresGroup> {
         return name.hashCode();
     }
 
+    @Override
+    public String toString() {
+        return !name.isEmpty() ? name : getGenres().iterator().next().toString();
+    }
+
     /**
      * This class is used to instantiate a Genre Object from a {@code Parcel}.
      */
