@@ -51,6 +51,7 @@ import android.widget.ProgressBar;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 public class AlbumsFragment extends BrowseFragment<Album> {
 
@@ -109,7 +110,8 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         final boolean sortByYear = settings.getBoolean(ALBUM_YEAR_SORT_KEY, false);
 
         try {
-            replaceItems(mApp.getMPD().getAlbums(mArtist, sortByYear, mIsCountDisplayed));
+            //TODO: Why load albums sorted? They become sorted by the following code.
+            replaceItems(loadAlbums(sortByYear));
 
             if (sortByYear) {
                 Collections.sort(mItems, Album.SORT_BY_DATE);
@@ -127,6 +129,10 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }
+    }
+
+    protected List<Album> loadAlbums(final boolean sortByYear) throws IOException, MPDException {
+        return mApp.getMPD().getAlbums(mArtist, sortByYear, mIsCountDisplayed);
     }
 
     /**
@@ -153,10 +159,16 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         updateNowPlayingSmallFragment(albumInfo);
     }
 
-    private void addToFavorites(final MenuItem item){
+    private void addToFavorites(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         Favorites favorites = new Favorites(getActivity());
         favorites.addAlbum(mItems.get((int) info.id));
+    }
+
+    protected void removeFromFavorites(final MenuItem item) {
+        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        Favorites favorites = new Favorites(getActivity());
+        favorites.removeAlbum(mItems.get((int) info.id));
     }
 
     @Override
