@@ -180,6 +180,13 @@
             android:persistent="true"
             android:summary="@string/showAlbumTrackCountDescription"
             android:title="@string/showAlbumTrackCount" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:key="favoriteKey"
+            android:persistent="true"
+            android:summary="@string/favoriteKeyDescription"
+            android:title="@string/favoriteKey" />
     </PreferenceScreen>
 
     <PreferenceScreen

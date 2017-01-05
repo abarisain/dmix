@@ -74,9 +74,9 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
 
     public static final int ADD_TO_FAVORITES = 5;
 
-    public static final int MAIN = 0;
+    //public static final int MAIN = 0;
 
-    public static final int PLAYLIST = 3;
+    //public static final int PLAYLIST = 3;
 
     private static final String PLAY_SERVICES_ACTION_SEARCH
             = "com.google.android.gms.actions.SEARCH_ACTION";
@@ -103,7 +103,7 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
 
     private final ArrayList<Music> mSongResults;
 
-    protected int mJobID = -1;
+    //protected int mJobID = -1;
 
     protected View mLoadingView;
 
@@ -479,8 +479,11 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
             }
             else if (item.getItemId() == ADD_TO_FAVORITES) {
                 if (selectedItem instanceof Album){
-                    Favorites favorites = new Favorites(this);
-                    favorites.addAlbum((Album)selectedItem);
+                    try {
+                        mApp.getFavorites().addAlbum((Album)selectedItem);
+                    } catch (final IOException | MPDException e) {
+                        Log.e(TAG, "Error while set favorite album.", e);
+                    }
                 }
             }
             else{

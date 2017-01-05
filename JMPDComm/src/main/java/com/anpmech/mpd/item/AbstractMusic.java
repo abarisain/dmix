@@ -357,7 +357,7 @@ abstract class AbstractMusic<T extends AbstractMusic<T>> extends AbstractEntry<T
             }
         }
 
-        albumBuilder.setSongDetails(getDate(), findValue(RESPONSE_FILE));
+        albumBuilder.setSongDetails(getDate(), getParentDirectory());
 
         return albumBuilder.build();
     }

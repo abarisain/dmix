@@ -16,120 +16,60 @@
 
 package com.namelessdev.mpdroid.favorites;
 
-import com.anpmech.mpd.item.Album;
-import com.anpmech.mpd.item.AlbumBuilder;
-import com.anpmech.mpd.item.Artist;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
-import java.util.ArrayList;
+import com.anpmech.mpd.MPD;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Album;
+import com.anpmech.mpd.item.Music;
+import com.namelessdev.mpdroid.MPDApplication;
+
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
-/**
- * Created by thaag on 2/14/2016.
- */
 public class Favorites {
 
-    private final Context mContext;
-    private Set<Album> mAlbums = new HashSet<>();
+    private static final String STICKER_ALBUM_FAVORITE = "albumfav";
 
-    public Favorites(Context context){
-        this.mContext = context;
-        loadFavorites();
+    private static final String PREFERENCE_FAVORITE_KEY = "favoriteKey";
+
+    private final MPD mMPD;
+
+    public Favorites(final MPD mpd) {
+        this.mMPD = mpd;
     }
 
-    public void addAlbum(final Album newAlbum) {
-        boolean alreadyInList = false;
-        for (Album album : mAlbums){
-            if (album.equals(newAlbum)){
-                alreadyInList = true;
-                break;
-            }
-        }
-
-        if (!alreadyInList){
-            mAlbums.add(newAlbum);
-        }
-
-        saveFavorites();
-    }
-
-    public void removeAlbum(final Album remAlbum){
-        Iterator<Album> iterator = mAlbums.iterator();
-        while (iterator.hasNext()){
-            Album album = iterator.next();
-            if (album.equals(remAlbum)){
-                iterator.remove();
-                break;
-            }
-        }
-
-        saveFavorites();
-    }
-
-    public Collection<Album> getAlbums() {
-        loadFavorites();
-        return mAlbums;
-    }
-
-    public void loadFavorites() {
-        mAlbums.clear();
-
-        SharedPreferences prefs = mContext.getSharedPreferences("favorites",0);
-        JSONArray jsonFavorites = null;
-        try {
-            jsonFavorites = new JSONArray(prefs.getString("favorites", "{}"));
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        if (jsonFavorites != null){
-            final AlbumBuilder albumBuilder = new AlbumBuilder();
-
-
-            for (int i=0; i<jsonFavorites.length(); i++){
-                try {
-                    JSONObject jsonAlbum = jsonFavorites.getJSONObject(i);
-                    albumBuilder.setBase(jsonAlbum.getString("albumName"), jsonAlbum.getString("albumArtist"), true);
-                    mAlbums.add(albumBuilder.build());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
+    public void addAlbum(final Album album) throws IOException, MPDException {
+        for (final Music song : mMPD.getSongs(album)) {
+            mMPD.getStickerManager().set(song, computeFavoriteStickerKey(), "Y");
         }
     }
 
-    public void saveFavorites(){
-        JSONArray jsonFavorites = new JSONArray();
-        for (Album album : mAlbums){
-            JSONObject jsonAlbum = new JSONObject();
-            try {
-                jsonAlbum.put("albumName", album.getName());
-                jsonAlbum.put("albumArtist", album.getArtist().getName());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            jsonFavorites.put(jsonAlbum);
+    public void removeAlbum(final Album album) throws IOException, MPDException {
+        for (final Music song : mMPD.getSongs(album)) {
+            mMPD.getStickerManager().delete(song, computeFavoriteStickerKey());
         }
-
-        SharedPreferences prefs = mContext.getSharedPreferences("favorites",0);
-        SharedPreferences.Editor editor = prefs.edit();
-
-        editor.putString("favorites", jsonFavorites.toString());
-        editor.apply();
-
     }
+
+    public Collection<Album> getAlbums() throws IOException, MPDException {
+        final Set<Music> songs =
+                mMPD.getStickerManager().find("", computeFavoriteStickerKey()).keySet();
+        final Set<Album> albums = new HashSet<>();
+        for (final Music song : songs) {
+            albums.add(song.getAlbum());
+        }
+        return albums;
+    }
+
+    private static String computeFavoriteStickerKey() {
+        final SharedPreferences settings =
+                PreferenceManager.getDefaultSharedPreferences(MPDApplication.getInstance());
+        final String personalizationKey = settings.getString(PREFERENCE_FAVORITE_KEY, "").trim();
+        return STICKER_ALBUM_FAVORITE +
+                (!personalizationKey.isEmpty() ? "-" + personalizationKey : "");
+    }
+
 }

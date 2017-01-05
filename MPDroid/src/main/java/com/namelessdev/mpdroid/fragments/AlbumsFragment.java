@@ -161,14 +161,20 @@ public class AlbumsFragment extends BrowseFragment<Album> {
 
     private void addToFavorites(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        Favorites favorites = new Favorites(getActivity());
-        favorites.addAlbum(mItems.get((int) info.id));
+        try {
+            mApp.getFavorites().addAlbum(mItems.get((int) info.id));
+        } catch (final IOException | MPDException e) {
+            Log.e(TAG, "Error while set favorite album.", e);
+        }
     }
 
     protected void removeFromFavorites(final MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        Favorites favorites = new Favorites(getActivity());
-        favorites.removeAlbum(mItems.get((int) info.id));
+        try {
+            mApp.getFavorites().removeAlbum(mItems.get((int) info.id));
+        } catch (final IOException | MPDException e) {
+            Log.e(TAG, "Error while remove favorite album.", e);
+        }
     }
 
     @Override

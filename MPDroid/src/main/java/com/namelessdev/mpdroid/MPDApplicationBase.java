@@ -402,7 +402,7 @@ class MPDApplicationBase extends Application implements
             mMPD = new MPD();
         }
 
-        mFavorites = new Favorites(this);
+        mFavorites = new Favorites(mMPD);
 
         mIdleSubsystemMonitor = new IdleSubsystemMonitor(mMPD);
     }
