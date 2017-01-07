@@ -159,24 +159,6 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         updateNowPlayingSmallFragment(albumInfo);
     }
 
-    private void addToFavorites(final MenuItem item) {
-        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        try {
-            mApp.getFavorites().addAlbum(mItems.get((int) info.id));
-        } catch (final IOException | MPDException e) {
-            Log.e(TAG, "Error while set favorite album.", e);
-        }
-    }
-
-    protected void removeFromFavorites(final MenuItem item) {
-        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        try {
-            mApp.getFavorites().removeAlbum(mItems.get((int) info.id));
-        } catch (final IOException | MPDException e) {
-            Log.e(TAG, "Error while remove favorite album.", e);
-        }
-    }
-
     @Override
     protected Artist getArtist(final Album item) {
         return item.getArtist();
@@ -245,8 +227,6 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         final MenuItem resetCoverItem = menu.add(POPUP_COVER_SELECTIVE_CLEAN,
                 POPUP_COVER_SELECTIVE_CLEAN, 0, R.string.resetCover);
         resetCoverItem.setOnMenuItemClickListener(this);
-        final MenuItem addToFavoritesItem = menu.add(POPUP_ADD_TO_FAVORITES, POPUP_ADD_TO_FAVORITES , 0, R.string.addToFavorites);
-        addToFavoritesItem.setOnMenuItemClickListener(this);
     }
 
     @Override
@@ -255,7 +235,6 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         final View view = super.onCreateView(inflater, container, savedInstanceState);
         mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
         return view;
-
     }
 
     @Override
@@ -301,9 +280,6 @@ public class AlbumsFragment extends BrowseFragment<Album> {
                 break;
             case POPUP_COVER_SELECTIVE_CLEAN:
                 cleanupCover(item, false);
-                break;
-            case POPUP_ADD_TO_FAVORITES:
-                addToFavorites(item);
                 break;
             default:
                 result = super.onMenuItemClick(item);

@@ -16,13 +16,8 @@
 
 package com.namelessdev.mpdroid.fragments;
 
-import android.view.ContextMenu;
-import android.view.MenuItem;
-import android.view.View;
-
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
-import com.namelessdev.mpdroid.R;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,31 +28,6 @@ public class FavoritesFragment extends AlbumsGridFragment {
     @Override
     protected List<Album> loadAlbums(boolean sortByYear) throws IOException, MPDException {
         return new ArrayList<>(mApp.getFavorites().getAlbums());
-    }
-
-    @Override
-    public void onCreateContextMenu(final ContextMenu menu, final View v,
-            final ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        final MenuItem removeFromFavoritesItem = menu.add(POPUP_REMOVE_FROM_FAVORITES,
-                POPUP_REMOVE_FROM_FAVORITES, 0, R.string.removeFromFavorites);
-        removeFromFavoritesItem.setOnMenuItemClickListener(this);
-    }
-
-    @Override
-    public boolean onMenuItemClick(final MenuItem item) {
-        boolean result = false;
-
-        switch (item.getGroupId()) {
-            case POPUP_REMOVE_FROM_FAVORITES:
-                removeFromFavorites(item);
-                break;
-            default:
-                result = super.onMenuItemClick(item);
-                break;
-        }
-
-        return result;
     }
 
 }

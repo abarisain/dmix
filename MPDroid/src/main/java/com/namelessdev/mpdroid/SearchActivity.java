@@ -72,8 +72,6 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
 
     public static final int GOTO_ALBUM = 4;
 
-    public static final int ADD_TO_FAVORITES = 5;
-
     //public static final int MAIN = 0;
 
     //public static final int PLAYLIST = 3;
@@ -377,8 +375,6 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
 
         switch (mPager.getCurrentItem()) {
             case RESULT_ALBUM:
-                final MenuItem addToFavoritesIcon = menu.add(Menu.NONE, ADD_TO_FAVORITES, 0, R.string.addToFavorites);
-                addToFavoritesIcon.setOnMenuItemClickListener(this);
                 final Album album = mAlbumResults.get((int) info.id);
                 menu.setHeaderTitle(album.toString());
                 setContextForObject(album);
@@ -477,16 +473,7 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
                     startActivityForResult(intent, -1);
                 }
             }
-            else if (item.getItemId() == ADD_TO_FAVORITES) {
-                if (selectedItem instanceof Album){
-                    try {
-                        mApp.getFavorites().addAlbum((Album)selectedItem);
-                    } catch (final IOException | MPDException e) {
-                        Log.e(TAG, "Error while set favorite album.", e);
-                    }
-                }
-            }
-            else{
+            else {
                 mApp.getAsyncHelper().execAsync(new Runnable() {
                     @Override
                     public void run() {

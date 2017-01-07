@@ -104,10 +104,6 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
 
     public static final int POPUP_COVER_SELECTIVE_CLEAN = 11;
 
-    public static final int POPUP_ADD_TO_FAVORITES = 12;
-
-    public static final int POPUP_REMOVE_FROM_FAVORITES = 24;
-
     /**
      * This is the group number used to enable or disable the playlist add group.
      */

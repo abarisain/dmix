@@ -344,6 +344,4 @@
     <string name="songComments">Comments</string>
 
     <string name="activityReload">"Changes occurred, reloading."</string>
-    <string name="addToFavorites">Add to favorites</string>
-    <string name="removeFromFavorites">Remove from favorites</string>
 </resources>

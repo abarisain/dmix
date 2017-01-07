@@ -28,6 +28,7 @@ import com.namelessdev.mpdroid.MPDApplication;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Favorites {
@@ -52,6 +53,16 @@ public class Favorites {
         for (final Music song : mMPD.getSongs(album)) {
             mMPD.getStickerManager().delete(song, computeFavoriteStickerKey());
         }
+    }
+
+    public boolean isFavorite(final Album album) throws IOException, MPDException {
+        final List<Music> songs = mMPD.getSongs(album);
+        if (songs.isEmpty()) {
+            return false;
+        }
+        final String favorite = mMPD.getStickerManager().get(songs.get(0),
+                computeFavoriteStickerKey());
+        return favorite != null && favorite.length() > 0;
     }
 
     public Collection<Album> getAlbums() throws IOException, MPDException {

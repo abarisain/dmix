@@ -319,7 +319,5 @@
     <string name="shufflePlaylist">Wiedergabeliste mischen</string>
     <string name="playlistShuffled">Wiedergabeliste wurde zufällig gemischt</string>
     <string name="favorites">Favoriten</string>
-    <string name="addToFavorites">Zu Favoriten hinzufügen</string>
-    <string name="removeFromFavorites">Aus Favoriten entfernen</string>
     <!-- End MediaPlayer Error Strings -->
 </resources>
