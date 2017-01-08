@@ -22,6 +22,7 @@ import com.anpmech.mpd.item.Artist;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverAsyncHelper;
+import com.namelessdev.mpdroid.favorites.Favorites;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
@@ -91,6 +92,9 @@ public class AlbumGridDataBinder extends AlbumDataBinder<Album> {
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Unable to determine if album is a favorite.", e);
         }
+
+        holder.mFavoriteButton.setVisibility(
+                Favorites.useFavorites() ? View.VISIBLE : View.GONE);
 
         holder.mFavoriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

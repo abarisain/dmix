@@ -37,6 +37,8 @@ public class Favorites {
 
     private static final String PREFERENCE_FAVORITE_KEY = "favoriteKey";
 
+    private static final String PREFERENCE_USE_FAVORITE = "useFavorites";
+
     private final MPD mMPD;
 
     public Favorites(final MPD mpd) {
@@ -81,6 +83,12 @@ public class Favorites {
         final String personalizationKey = settings.getString(PREFERENCE_FAVORITE_KEY, "").trim();
         return STICKER_ALBUM_FAVORITE +
                 (!personalizationKey.isEmpty() ? "-" + personalizationKey : "");
+    }
+
+    public static boolean useFavorites() {
+        final SharedPreferences settings =
+                PreferenceManager.getDefaultSharedPreferences(MPDApplication.getInstance());
+        return settings.getBoolean(PREFERENCE_USE_FAVORITE, false);
     }
 
 }

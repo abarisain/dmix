@@ -183,6 +183,7 @@
     <string name="sortAlbumsByYearDescription">Sort albums by year</string>
     <string name="showAlbumTrackCount">Album track count</string>
     <string name="showAlbumTrackCountDescription">Show number of tracks on album</string>
+    <string name="useFavorites">Use favorites</string>
     <string name="favoriteKey">Favorite key</string>
     <string name="favoriteKeyDescription">Key to identify personal favorites</string>
     <string name="enableLocalCover">Download local cover art</string>

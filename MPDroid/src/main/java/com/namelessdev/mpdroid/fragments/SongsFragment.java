@@ -29,6 +29,7 @@ import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.cover.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.cover.CoverAsyncHelper;
 import com.namelessdev.mpdroid.cover.CoverManager;
+import com.namelessdev.mpdroid.favorites.Favorites;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -533,6 +534,8 @@ public class SongsFragment extends BrowseFragment<Music> implements
                 return true;
             }
         });
+
+        mFavoriteButton.setVisibility(Favorites.useFavorites() ? View.VISIBLE : View.GONE);
 
         mFavoriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
