@@ -94,7 +94,7 @@ public class AlbumGridDataBinder extends AlbumDataBinder<Album> {
         }
 
         holder.mFavoriteButton.setVisibility(
-                Favorites.useFavorites() ? View.VISIBLE : View.GONE);
+                Favorites.areFavoritesActivated() ? View.VISIBLE : View.GONE);
 
         holder.mFavoriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

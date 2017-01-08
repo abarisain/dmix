@@ -537,7 +537,7 @@ public class SongsFragment extends BrowseFragment<Music> implements
             }
         });
 
-        mFavoriteButton.setVisibility(Favorites.useFavorites() ? View.VISIBLE : View.GONE);
+        mFavoriteButton.setVisibility(Favorites.areFavoritesActivated() ? View.VISIBLE : View.GONE);
 
         mFavoriteButtonChangeListener = new CompoundButton.OnCheckedChangeListener() {
             @Override
