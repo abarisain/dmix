@@ -85,31 +85,34 @@ public class AlbumGridDataBinder extends AlbumDataBinder<Album> {
         final AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
         final Album album = (Album) item;
 
-        final MPDApplication app = MPDApplication.getInstance();
+        holder.mFavoriteButton.setOnCheckedChangeListener(null);
+        if (Favorites.areFavoritesActivated()) {
+            holder.mFavoriteButton.setVisibility(View.VISIBLE);
 
-        try {
-            holder.mFavoriteButton.setChecked(app.getFavorites().isFavorite(album));
-        } catch (final IOException | MPDException e) {
-            Log.e(TAG, "Unable to determine if album is a favorite.", e);
-        }
+            final MPDApplication app = MPDApplication.getInstance();
 
-        holder.mFavoriteButton.setVisibility(
-                Favorites.areFavoritesActivated() ? View.VISIBLE : View.GONE);
-
-        holder.mFavoriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-                try {
-                    if (isChecked) {
-                        app.getFavorites().addAlbum(album);
-                    } else {
-                        app.getFavorites().removeAlbum(album);
-                    }
-                } catch (final IOException | MPDException e) {
-                    Log.e(TAG, "Unable to change favorite state of album.", e);
-                }
+            try {
+                holder.mFavoriteButton.setChecked(app.getFavorites().isFavorite(album));
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Unable to determine if album is a favorite.", e);
             }
-        });
 
+            holder.mFavoriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
+                    try {
+                        if (isChecked) {
+                            app.getFavorites().addAlbum(album);
+                        } else {
+                            app.getFavorites().removeAlbum(album);
+                        }
+                    } catch (final IOException | MPDException e) {
+                        Log.e(TAG, "Unable to change favorite state of album.", e);
+                    }
+                }
+            });
+        } else {
+            holder.mFavoriteButton.setVisibility(View.GONE);
+        }
     }
 }

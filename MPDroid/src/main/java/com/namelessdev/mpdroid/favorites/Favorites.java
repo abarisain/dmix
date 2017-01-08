@@ -66,9 +66,7 @@ public class Favorites {
      * @throws MPDException
      */
     public void addAlbum(final Album album) throws IOException, MPDException {
-        for (final Music song : mMPD.getSongs(album)) {
-            mMPD.getStickerManager().set(song, computeFavoriteStickerKey(), "Y");
-        }
+        mMPD.getStickerManager().set(computeFavoriteStickerKey(), "Y", mMPD.getSongs(album));
         Tools.notifyUser(R.string.addToFavorites, album.getName());
     }
 
@@ -79,9 +77,7 @@ public class Favorites {
      * @throws MPDException
      */
     public void removeAlbum(final Album album) throws IOException, MPDException {
-        for (final Music song : mMPD.getSongs(album)) {
-            mMPD.getStickerManager().delete(song, computeFavoriteStickerKey());
-        }
+        mMPD.getStickerManager().delete(computeFavoriteStickerKey(), mMPD.getSongs(album));
         Tools.notifyUser(R.string.removeFromFavorites, album.getName());
     }
 

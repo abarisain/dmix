@@ -701,12 +701,14 @@ public class SongsFragment extends BrowseFragment<Music> implements
             mTracksInfoContainer.invalidate();
         }
 
-        try {
-            mFavoriteButton.setOnCheckedChangeListener(null); // disable change listening
-            mFavoriteButton.setChecked(mApp.getFavorites().isFavorite(mAlbum));
-            mFavoriteButton.setOnCheckedChangeListener(mFavoriteButtonChangeListener); // re-enable change listening
-        } catch (final IOException | MPDException e) {
-            Log.e(TAG, "Unable to determine if album is a favorite.", e);
+        if (Favorites.areFavoritesActivated()) {
+            try {
+                mFavoriteButton.setOnCheckedChangeListener(null); // disable change listening
+                mFavoriteButton.setChecked(mApp.getFavorites().isFavorite(mAlbum));
+                mFavoriteButton.setOnCheckedChangeListener(mFavoriteButtonChangeListener); // re-enable change listening
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Unable to determine if album is a favorite.", e);
+            }
         }
     }
 

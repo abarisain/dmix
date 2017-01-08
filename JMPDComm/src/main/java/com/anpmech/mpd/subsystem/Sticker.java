@@ -39,6 +39,8 @@ import com.anpmech.mpd.item.FilesystemTreeEntry;
 import com.anpmech.mpd.item.Music;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -183,16 +185,64 @@ public class Sticker {
      *                will be removed.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @deprecated Use {@link #delete(String, FilesystemTreeEntry...)}
      */
+    @Deprecated
     public void delete(final FilesystemTreeEntry entry, final String sticker)
             throws IOException, MPDException {
-        onlyMusicSupported(entry);
+        delete(sticker, entry);
+    }
 
-        if (isAvailable()) {
-            mConnection.send(CMD_ACTION_DELETE, CMD_STICKER_TYPE_SONG, entry.getFullPath(),
-                    sticker);
-        } else {
+    /**
+     * Deletes a sticker from entries.
+     *
+     * @param sticker The sticker key to delete. If null, all stickers associated with this entry
+     *                will be removed.
+     * @param entries The entry to delete the sticker.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void delete(final String sticker, final FilesystemTreeEntry... entries)
+            throws IOException, MPDException {
+        delete(sticker, Arrays.asList(entries));
+    }
+
+    /**
+     * Deletes a sticker from entries.
+     *
+     * @param sticker The sticker key to delete. If null, all stickers associated with this entry
+     *                will be removed.
+     * @param entries The entries to delete the sticker.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void delete(final String sticker,
+                       final Collection<? extends FilesystemTreeEntry> entries)
+            throws IOException, MPDException {
+        if (!isAvailable()) {
             Log.debug(TAG, STICKERS_NOT_AVAILABLE);
+            return;
+        }
+
+        switch (entries.size()) {
+            case 0:
+                break;
+
+            case 1:
+                final FilesystemTreeEntry singleEntry = entries.iterator().next();
+                onlyMusicSupported(singleEntry);
+                mConnection.submit(CMD_ACTION_DELETE, CMD_STICKER_TYPE_SONG,
+                        singleEntry.getFullPath(), sticker);
+                break;
+
+            default:
+                final CommandQueue commands = new CommandQueue();
+                for (final FilesystemTreeEntry entry : entries) {
+                    onlyMusicSupported(entry);
+                    commands.add(CMD_ACTION_DELETE, CMD_STICKER_TYPE_SONG,
+                            entry.getFullPath(), sticker);
+                }
+                mConnection.submit(commands);
         }
     }
 
@@ -429,16 +479,64 @@ public class Sticker {
      * @param value   The sticker value.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @deprecated Use {@link #set(String, String, FilesystemTreeEntry...)}
      */
+    @Deprecated
     public void set(final FilesystemTreeEntry entry, final String sticker, final String value)
             throws IOException, MPDException {
-        onlyMusicSupported(entry);
+        set(sticker, value, entry);
+    }
 
-        if (isAvailable()) {
-            mConnection.send(CMD_ACTION_SET, CMD_STICKER_TYPE_SONG, entry.getFullPath(),
-                    sticker, value);
-        } else {
+    /**
+     * Sets a sticker key-value pair.
+     *
+     * @param sticker The sticker key.
+     * @param value   The sticker value.
+     * @param entries The entries with which to associate the sticker key-value pair.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void set(final String sticker, final String value, final FilesystemTreeEntry... entries)
+            throws IOException, MPDException {
+        set(sticker, value, Arrays.asList(entries));
+    }
+
+    /**
+     * Sets a sticker key-value pair.
+     *
+     * @param sticker The sticker key.
+     * @param value   The sticker value.
+     * @param entries The entries with which to associate the sticker key-value pair.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void set(final String sticker, final String value,
+                    final Collection<? extends FilesystemTreeEntry> entries)
+            throws IOException, MPDException {
+        if (!isAvailable()) {
             Log.debug(TAG, STICKERS_NOT_AVAILABLE);
+            return;
+        }
+
+        switch (entries.size()) {
+            case 0:
+                break;
+
+            case 1:
+                final FilesystemTreeEntry singleEntry = entries.iterator().next();
+                onlyMusicSupported(singleEntry);
+                mConnection.submit(CMD_ACTION_SET, CMD_STICKER_TYPE_SONG,
+                        singleEntry.getFullPath(), sticker, value);
+                break;
+
+            default:
+                final CommandQueue commands = new CommandQueue();
+                for (final FilesystemTreeEntry entry : entries) {
+                    onlyMusicSupported(entry);
+                    commands.add(CMD_ACTION_SET, CMD_STICKER_TYPE_SONG,
+                            entry.getFullPath(), sticker, value);
+                }
+                mConnection.submit(commands);
         }
     }
 
