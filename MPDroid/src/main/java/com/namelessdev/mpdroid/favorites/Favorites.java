@@ -18,12 +18,15 @@ package com.namelessdev.mpdroid.favorites;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Music;
 import com.namelessdev.mpdroid.MPDApplication;
+import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.tools.Tools;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -49,12 +52,14 @@ public class Favorites {
         for (final Music song : mMPD.getSongs(album)) {
             mMPD.getStickerManager().set(song, computeFavoriteStickerKey(), "Y");
         }
+        Tools.notifyUser(R.string.addToFavorites, album.getName());
     }
 
     public void removeAlbum(final Album album) throws IOException, MPDException {
         for (final Music song : mMPD.getSongs(album)) {
             mMPD.getStickerManager().delete(song, computeFavoriteStickerKey());
         }
+        Tools.notifyUser(R.string.removeFromFavorites, album.getName());
     }
 
     public boolean isFavorite(final Album album) throws IOException, MPDException {

@@ -91,7 +91,9 @@ public class SongsFragment extends BrowseFragment<Music> implements
 
     FloatingActionButton mAlbumMenu;
 
-    ToggleButton mFavoriteButton;
+    private ToggleButton mFavoriteButton;
+
+    private CompoundButton.OnCheckedChangeListener mFavoriteButtonChangeListener;
 
     ImageView mCoverArt;
 
@@ -537,7 +539,7 @@ public class SongsFragment extends BrowseFragment<Music> implements
 
         mFavoriteButton.setVisibility(Favorites.useFavorites() ? View.VISIBLE : View.GONE);
 
-        mFavoriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mFavoriteButtonChangeListener = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
                 try {
@@ -550,7 +552,8 @@ public class SongsFragment extends BrowseFragment<Music> implements
                     Log.e(TAG, "Unable to change favorite state of album.", e);
                 }
             }
-        });
+        };
+        mFavoriteButton.setOnCheckedChangeListener(mFavoriteButtonChangeListener);
 
         updateFromItems();
 
@@ -699,7 +702,9 @@ public class SongsFragment extends BrowseFragment<Music> implements
         }
 
         try {
+            mFavoriteButton.setOnCheckedChangeListener(null); // disable change listening
             mFavoriteButton.setChecked(mApp.getFavorites().isFavorite(mAlbum));
+            mFavoriteButton.setOnCheckedChangeListener(mFavoriteButtonChangeListener); // re-enable change listening
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Unable to determine if album is a favorite.", e);
         }
