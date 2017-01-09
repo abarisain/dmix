@@ -96,35 +96,20 @@ public class ArtistsFragment extends BrowseFragment<Artist> {
             switch (settings.getString(PREFERENCE_ARTIST_TAG_TO_USE,
                     PREFERENCE_ARTIST_TAG_TO_USE_BOTH).toLowerCase()) {
                 case PREFERENCE_ARTIST_TAG_TO_USE_ALBUMARTIST:
-                    if (mGenresGroup == null) {
-                        artists = mApp.getMPD().getAlbumArtists();
-                    } else {
-                        artists = new HashSet<>();
-                        for (final Genre genre : mGenresGroup.getGenres()) {
-                            artists.addAll(mApp.getMPD().getAlbumArtists(genre));
-                        }
-                    }
+                    artists = mGenresGroup == null ?
+                            mApp.getMPD().getAlbumArtists() :
+                            mApp.getMPD().getAlbumArtists(mGenresGroup.getGenres());
                     break;
                 case PREFERENCE_ARTIST_TAG_TO_USE_ARTIST:
-                    if (mGenresGroup == null) {
-                        artists = mApp.getMPD().getArtists();
-                    } else {
-                        artists = new HashSet<>();
-                        for (final Genre genre : mGenresGroup.getGenres()) {
-                            artists.addAll(mApp.getMPD().getArtists(genre));
-                        }
-                    }
+                    artists = mGenresGroup == null ?
+                            mApp.getMPD().getArtists() :
+                            mApp.getMPD().getArtists(mGenresGroup.getGenres());
                     break;
                 case PREFERENCE_ARTIST_TAG_TO_USE_BOTH:
                 default:
-                    if (mGenresGroup == null) {
-                        artists = mApp.getMPD().getArtistsMerged();
-                    } else {
-                        artists = new HashSet<>();
-                        for (final Genre genre : mGenresGroup.getGenres()) {
-                            artists.addAll(mApp.getMPD().getArtistsMerged(genre));
-                        }
-                    }
+                    artists = mGenresGroup == null ?
+                            mApp.getMPD().getArtistsMerged() :
+                            mApp.getMPD().getArtistsMerged(mGenresGroup.getGenres());
                     break;
             }
             replaceItems(artists);

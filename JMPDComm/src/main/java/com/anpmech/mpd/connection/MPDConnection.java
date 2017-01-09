@@ -165,8 +165,6 @@ public abstract class MPDConnection implements MPDConnectionListener {
      * @see #connect(InetAddress, int)
      */
     MPDConnection(final int readWriteTimeout, final boolean blockingIO) {
-        super();
-
         mReadWriteTimeout = readWriteTimeout;
 
         if (blockingIO) {

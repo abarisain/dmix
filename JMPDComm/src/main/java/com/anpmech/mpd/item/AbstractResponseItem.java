@@ -110,7 +110,7 @@ public abstract class AbstractResponseItem<T extends AbstractResponseItem<T>> ex
             isEqual = Boolean.TRUE;
         }
 
-        return isEqual.booleanValue();
+        return isEqual;
     }
 
     /**

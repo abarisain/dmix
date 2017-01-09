@@ -59,9 +59,7 @@ public class GenresFragment extends BrowseFragment<GenresGroup> {
     @Override
     protected void add(final GenresGroup item, final boolean replace, final boolean play) {
         try {
-            for (final Genre genre : item.getGenres()) {
-                mApp.getMPD().add(genre, replace, play);
-            }
+            mApp.getMPD().add(item.getGenres(), replace, play);
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add all from playlist.", e);
@@ -71,9 +69,7 @@ public class GenresFragment extends BrowseFragment<GenresGroup> {
     @Override
     protected void add(final GenresGroup item, final PlaylistFile playlist) {
         try {
-            for (final Genre genre : item.getGenres()) {
-                mApp.getMPD().addToPlaylist(playlist, genre);
-            }
+            mApp.getMPD().addToPlaylist(playlist, item.getGenres());
             Tools.notifyUser(mIrAdded, item);
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to add all genre to playlist.", e);
