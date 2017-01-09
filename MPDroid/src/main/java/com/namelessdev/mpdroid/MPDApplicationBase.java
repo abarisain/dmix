@@ -20,6 +20,7 @@ import com.anpmech.mpd.MPD;
 import com.anpmech.mpd.subsystem.status.IdleSubsystemMonitor;
 import com.anpmech.mpd.subsystem.status.StatusChangeListener;
 import com.anpmech.mpd.subsystem.status.TrackPositionListener;
+import com.namelessdev.mpdroid.favorites.Favorites;
 import com.namelessdev.mpdroid.helpers.CachedMPD;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper;
 import com.namelessdev.mpdroid.helpers.UpdateTrackInfo;
@@ -81,6 +82,8 @@ class MPDApplicationBase extends Application implements
     private boolean mIsStreamActive;
 
     private MPD mMPD;
+
+    private Favorites mFavorites;
 
     private MPDAsyncHelper mMPDAsyncHelper;
 
@@ -230,6 +233,10 @@ class MPDApplicationBase extends Application implements
      */
     public MPD getMPD() {
         return mMPD;
+    }
+
+    public Favorites getFavorites(){
+        return mFavorites;
     }
 
     /**
@@ -394,6 +401,8 @@ class MPDApplicationBase extends Application implements
         } else {
             mMPD = new MPD();
         }
+
+        mFavorites = new Favorites(mMPD);
 
         mIdleSubsystemMonitor = new IdleSubsystemMonitor(mMPD);
     }

@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package com.namelessdev.mpdroid.views.holders;
+package com.namelessdev.mpdroid.fragments;
 
-import android.widget.TextView;
-import android.widget.ToggleButton;
+import com.anpmech.mpd.exception.MPDException;
+import com.anpmech.mpd.item.Album;
 
-public class AlbumViewHolder extends AlbumCoverHolder {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-    public TextView mAlbumInfo;
+public class FavoritesFragment extends AlbumsGridFragment {
 
-    public TextView mAlbumName;
-
-    public ToggleButton mFavoriteButton;
+    @Override
+    protected List<Album> loadAlbums(boolean sortByYear) throws IOException, MPDException {
+        return new ArrayList<>(mApp.getFavorites().getAlbums());
+    }
 
 }

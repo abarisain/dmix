@@ -74,7 +74,7 @@
             android:paddingRight="10dp"
             android:singleLine="true" />
 
-        <!--<ImageButton
+        <!-- <ImageButton
             android:id="@+id/menu"
             android:layout_width="40dip"
             android:layout_height="40dip"
@@ -83,5 +83,19 @@
             android:background="@null"
             android:src="@drawable/ic_menu_moreoverflow_card" />-->
 
+        <ToggleButton
+            android:id="@+id/favoriteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:button="@drawable/favorite"
+            android:layout_alignTop="@+id/albumCover"
+            android:layout_marginLeft="5dp"
+            android:background="@android:color/transparent"
+            android:focusable="false"
+            android:textOn=""
+            android:textOff=""
+            android:text="" />
+
     </RelativeLayout>
+
 </android.support.v7.widget.CardView>

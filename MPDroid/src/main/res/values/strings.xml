@@ -73,6 +73,7 @@
     <string name="playlists">Playlists</string>
     <string name="files">Files</string>
     <string name="albums">Albums</string>
+    <string name="favorites">Favorites</string>
     <string name="settings">Settings</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
@@ -182,6 +183,11 @@
     <string name="sortAlbumsByYearDescription">Sort albums by year</string>
     <string name="showAlbumTrackCount">Album track count</string>
     <string name="showAlbumTrackCountDescription">Show number of tracks on album</string>
+    <string name="useFavorites">Use favorites</string>
+    <string name="favoriteKey">Favorite key</string>
+    <string name="favoriteKeyDescription">Key to identify personal favorites</string>
+    <string name="addToFavorites">%s added to favorites</string>
+    <string name="removeFromFavorites">%s removed from favorites</string>
     <string name="enableLocalCover">Download local cover art</string>
     <string name="enableLocalCoverDescription">Get cover art from the server running MPD (requires a web server, read the wiki!)</string>
     <string name="musicPath">Path to music</string>

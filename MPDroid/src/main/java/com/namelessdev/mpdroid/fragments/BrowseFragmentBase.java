@@ -495,11 +495,11 @@ abstract class BrowseFragmentBase<T extends Item<T>> extends Fragment implements
                 }
             }
 
-            if (getArtist(item) != null) {
-                final MenuItem gotoArtistItem =
-                        menu.add(GOTO_ARTIST, GOTO_ARTIST, 0, R.string.goToArtist);
-                gotoArtistItem.setOnMenuItemClickListener(this);
-            }
+            //if (getArtist(item) != null) {
+            //    final MenuItem gotoArtistItem =
+            //            menu.add(GOTO_ARTIST, GOTO_ARTIST, 0, R.string.goToArtist);
+            //    gotoArtistItem.setOnMenuItemClickListener(this);
+            //}
         }
     }
 

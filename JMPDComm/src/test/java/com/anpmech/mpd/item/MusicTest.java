@@ -210,7 +210,7 @@ public final class MusicTest {
             } else {
                 albumBuilder.setAlbumArtist(albumArtistName);
             }
-            final String fullPath = getValue(filePath, AbstractMusic.RESPONSE_FILE);
+            final String fullPath = mMusicList.get(filePath).getParentDirectory();
             final String date = getValue(filePath, AbstractMusic.RESPONSE_DATE);
 
             final long parsedDate;

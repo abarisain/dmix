@@ -180,6 +180,27 @@
             android:persistent="true"
             android:summary="@string/showAlbumTrackCountDescription"
             android:title="@string/showAlbumTrackCount" />
+
+        <PreferenceScreen
+            android:key="category_favorites"
+            android:title="@string/favorites">
+
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="useFavorites"
+                android:persistent="true"
+                android:title="@string/useFavorites" />
+
+            <EditTextPreference
+                android:defaultValue=""
+                android:key="favoriteKey"
+                android:dependency="useFavorites"
+                android:persistent="true"
+                android:summary="@string/favoriteKeyDescription"
+                android:title="@string/favoriteKey" />
+
+        </PreferenceScreen>
+
     </PreferenceScreen>
 
     <PreferenceScreen
@@ -260,6 +281,7 @@
         <PreferenceScreen
             android:key="clearSearchHistory"
             android:title="@string/clearSearchHistory" />
+
     </PreferenceScreen>
 
     <PreferenceScreen android:title="@string/behavior">

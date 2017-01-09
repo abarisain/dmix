@@ -22,6 +22,7 @@ import com.anpmech.mpd.item.Artist;
 import com.anpmech.mpd.item.Item;
 import com.anpmech.mpd.item.Music;
 import com.namelessdev.mpdroid.adapters.SeparatedListAdapter;
+import com.namelessdev.mpdroid.favorites.Favorites;
 import com.namelessdev.mpdroid.helpers.MPDAsyncHelper.AsyncExecListener;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -71,9 +72,9 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
 
     public static final int GOTO_ALBUM = 4;
 
-    public static final int MAIN = 0;
+    //public static final int MAIN = 0;
 
-    public static final int PLAYLIST = 3;
+    //public static final int PLAYLIST = 3;
 
     private static final String PLAY_SERVICES_ACTION_SEARCH
             = "com.google.android.gms.actions.SEARCH_ACTION";
@@ -100,7 +101,7 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
 
     private final ArrayList<Music> mSongResults;
 
-    protected int mJobID = -1;
+    //protected int mJobID = -1;
 
     protected View mLoadingView;
 
@@ -428,7 +429,7 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
             intent.putExtra(Artist.EXTRA, (Parcelable) selectedItem);
             startActivityForResult(intent, -1);
         } else if (selectedItem instanceof Album) {
-            final Intent intent = new Intent(this, SimpleLibraryActivity.class);
+             final Intent intent = new Intent(this, SimpleLibraryActivity.class);
             intent.putExtra(Album.EXTRA, (Parcelable) selectedItem);
             startActivityForResult(intent, -1);
         }
@@ -471,7 +472,8 @@ public class SearchActivity extends MPDActivity implements OnMenuItemClickListen
                     intent.putExtra(Album.EXTRA, music.getAlbum());
                     startActivityForResult(intent, -1);
                 }
-            } else {
+            }
+            else {
                 mApp.getAsyncHelper().execAsync(new Runnable() {
                     @Override
                     public void run() {

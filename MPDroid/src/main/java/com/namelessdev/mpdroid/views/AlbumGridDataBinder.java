@@ -16,16 +16,30 @@
 
 package com.namelessdev.mpdroid.views;
 
+import com.anpmech.mpd.exception.MPDException;
 import com.anpmech.mpd.item.Album;
 import com.anpmech.mpd.item.Artist;
+import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
 import com.namelessdev.mpdroid.cover.CoverAsyncHelper;
+import com.namelessdev.mpdroid.favorites.Favorites;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
+import com.namelessdev.mpdroid.views.holders.AbstractViewHolder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
 
+import android.content.Context;
 import android.support.annotation.LayoutRes;
+import android.util.Log;
+import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.ToggleButton;
+
+import java.io.IOException;
+import java.util.List;
 
 public class AlbumGridDataBinder extends AlbumDataBinder<Album> {
+
+    private static final String TAG = "AlbumGridDataBinder";
 
     /**
      * Sole constructor.
@@ -54,6 +68,51 @@ public class AlbumGridDataBinder extends AlbumDataBinder<Album> {
         // Can't get artwork for missing album name
         if (albumInfo.isValid() && mEnableCache) {
             loadArtwork(coverHelper, albumInfo);
+        }
+    }
+
+    @Override
+    public AbstractViewHolder findInnerViews(final View targetView) {
+        final AlbumViewHolder viewHolder = (AlbumViewHolder) super.findInnerViews(targetView);
+        viewHolder.mFavoriteButton = (ToggleButton) targetView.findViewById(R.id.favoriteButton);
+        return viewHolder;
+    }
+
+    @Override
+    public void onDataBind(Context context, View targetView, AbstractViewHolder viewHolder, List<Album> items, Object item, int position) {
+        super.onDataBind(context, targetView, viewHolder, items, item, position);
+
+        final AlbumViewHolder holder = (AlbumViewHolder) viewHolder;
+        final Album album = (Album) item;
+
+        holder.mFavoriteButton.setOnCheckedChangeListener(null);
+        if (Favorites.areFavoritesActivated()) {
+            holder.mFavoriteButton.setVisibility(View.VISIBLE);
+
+            final MPDApplication app = MPDApplication.getInstance();
+
+            try {
+                holder.mFavoriteButton.setChecked(app.getFavorites().isFavorite(album));
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Unable to determine if album is a favorite.", e);
+            }
+
+            holder.mFavoriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
+                    try {
+                        if (isChecked) {
+                            app.getFavorites().addAlbum(album);
+                        } else {
+                            app.getFavorites().removeAlbum(album);
+                        }
+                    } catch (final IOException | MPDException e) {
+                        Log.e(TAG, "Unable to change favorite state of album.", e);
+                    }
+                }
+            });
+        } else {
+            holder.mFavoriteButton.setVisibility(View.GONE);
         }
     }
 }

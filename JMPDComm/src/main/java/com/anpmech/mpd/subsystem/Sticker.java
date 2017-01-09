@@ -39,6 +39,8 @@ import com.anpmech.mpd.item.FilesystemTreeEntry;
 import com.anpmech.mpd.item.Music;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -137,8 +139,6 @@ public class Sticker {
      * @param connection The connection to use to query the media server for sticker handling.
      */
     public Sticker(final MPDConnection connection) {
-        super();
-
         mConnection = connection;
     }
 
@@ -154,7 +154,7 @@ public class Sticker {
 
         for (final Map.Entry<String, String> entry : response) {
             if (CMD_RESPONSE_FILE.equals(entry.getKey())) {
-                commandQueue.add(MPDCommand.MPD_CMD_LISTALL, entry.getValue());
+                commandQueue.add(MPDCommand.MPD_CMD_LISTALLINFO, entry.getValue());
             }
         }
 
@@ -185,16 +185,64 @@ public class Sticker {
      *                will be removed.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @deprecated Use {@link #delete(String, FilesystemTreeEntry...)}
      */
+    @Deprecated
     public void delete(final FilesystemTreeEntry entry, final String sticker)
             throws IOException, MPDException {
-        onlyMusicSupported(entry);
+        delete(sticker, entry);
+    }
 
-        if (isAvailable()) {
-            mConnection.send(CMD_ACTION_DELETE, CMD_STICKER_TYPE_SONG, entry.getFullPath(),
-                    sticker);
-        } else {
+    /**
+     * Deletes a sticker from entries.
+     *
+     * @param sticker The sticker key to delete. If null, all stickers associated with this entry
+     *                will be removed.
+     * @param entries The entry to delete the sticker.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void delete(final String sticker, final FilesystemTreeEntry... entries)
+            throws IOException, MPDException {
+        delete(sticker, Arrays.asList(entries));
+    }
+
+    /**
+     * Deletes a sticker from entries.
+     *
+     * @param sticker The sticker key to delete. If null, all stickers associated with this entry
+     *                will be removed.
+     * @param entries The entries to delete the sticker.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void delete(final String sticker,
+                       final Collection<? extends FilesystemTreeEntry> entries)
+            throws IOException, MPDException {
+        if (!isAvailable()) {
             Log.debug(TAG, STICKERS_NOT_AVAILABLE);
+            return;
+        }
+
+        switch (entries.size()) {
+            case 0:
+                break;
+
+            case 1:
+                final FilesystemTreeEntry singleEntry = entries.iterator().next();
+                onlyMusicSupported(singleEntry);
+                mConnection.submit(CMD_ACTION_DELETE, CMD_STICKER_TYPE_SONG,
+                        singleEntry.getFullPath(), sticker);
+                break;
+
+            default:
+                final CommandQueue commands = new CommandQueue();
+                for (final FilesystemTreeEntry entry : entries) {
+                    onlyMusicSupported(entry);
+                    commands.add(CMD_ACTION_DELETE, CMD_STICKER_TYPE_SONG,
+                            entry.getFullPath(), sticker);
+                }
+                mConnection.submit(commands);
         }
     }
 
@@ -207,46 +255,60 @@ public class Sticker {
      * @return A map of entries from the media server.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @deprecated Use {@link #find(String, String)} instead.
      */
+    @Deprecated
     public Map<Music, Map<String, String>> find(final FilesystemTreeEntry entry,
             final String name) throws IOException, MPDException {
+        //TODO: why are only music entries supported? Directories are generally the URI to find stickers
         onlyMusicSupported(entry);
 
-        final Map<Music, Map<String, String>> foundStickers;
-        if (isAvailable()) {
-            final CommandResult result =
-                    mConnection.submit(CMD_ACTION_FIND, entry.getFullPath(), name).get();
-            final KeyValueResponse response = new KeyValueResponse(result);
+        final Map<Music,String> foundStickers = find(entry.getFullPath(), name);
 
-            /** Generate a map used to create the result. */
-            final Map<String, Music> musicPair = getMusicPair(response);
-            foundStickers = new HashMap<>(musicPair.size());
-            final Map<String, String> currentTrackStickers = new HashMap<>();
-            Music currentMusic = null;
+        final Map<Music, Map<String, String>> restructuredFoundStickers = new HashMap<>(foundStickers.size());
+        for (final Music song : foundStickers.keySet()) {
+            restructuredFoundStickers.put(song,Collections.singletonMap(name, foundStickers.get(song)));
+        }
+        return restructuredFoundStickers;
+    }
 
-            for (final Map.Entry<String, String> mapEntry : response) {
-                final String key = mapEntry.getKey();
-
-                if (CMD_RESPONSE_FILE.equals(key)) {
-                    /** Clear the old map, start new! */
-                    if (!foundStickers.isEmpty()) {
-                        foundStickers.put(currentMusic, currentTrackStickers);
-                        currentTrackStickers.clear();
-                    }
-
-                    currentMusic = musicPair.get(mapEntry.getValue());
-                } else if (CMD_RESPONSE_STICKER.equals(key)) {
-                    final String value = mapEntry.getValue();
-                    final int delimiterIndex = value.indexOf('=');
-                    final String stickerKey = value.substring(0, delimiterIndex);
-                    final String stickerValue = value.substring(delimiterIndex + 1);
-
-                    currentTrackStickers.put(stickerKey, stickerValue);
-                }
-            }
-        } else {
+    /**
+     * Searches the media server sticker database for matching stickers below the entry given. For
+     * each matching track, it prints the URI and that one sticker's value.
+     *
+     * @param path The to search below in the entry's hierarchy.
+     * @param name  The name to search the stickers for.
+     * @return A map of entries from the media server with the corresponding sticker values.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public Map<Music, String> find(final String path,
+                                   final String name) throws IOException, MPDException {
+        if (!isAvailable()) {
             Log.debug(TAG, STICKERS_NOT_AVAILABLE);
-            foundStickers = Collections.emptyMap();
+            return Collections.emptyMap();
+        }
+
+        final CommandResult result =
+                mConnection.submit(CMD_ACTION_FIND, CMD_STICKER_TYPE_SONG, path, name).get();
+        final KeyValueResponse response = new KeyValueResponse(result);
+
+        /* Generate a map used to create the result. */
+        final Map<String, Music> musicPair = getMusicPair(response);
+        final Map<Music, String> foundStickers = new HashMap<>(musicPair.size());
+        Music currentMusic = null;
+
+        for (final Map.Entry<String, String> mapEntry : response) {
+            final String key = mapEntry.getKey();
+
+            if (CMD_RESPONSE_FILE.equals(key)) {
+                currentMusic = musicPair.get(mapEntry.getValue());
+            } else if (CMD_RESPONSE_STICKER.equals(key)) {
+                final String value = mapEntry.getValue();
+                final int delimiterIndex = value.indexOf('=');
+                final String stickerValue = value.substring(delimiterIndex + 1);
+                foundStickers.put(currentMusic, stickerValue);
+            }
         }
 
         return foundStickers;
@@ -309,6 +371,10 @@ public class Sticker {
      */
     private Map<String, Music> getMusicPair(final KeyValueResponse response)
             throws IOException, MPDException {
+        if (response.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
         final CommandResult result = mConnection.submit(getMusicCommand(response)).get();
         final Map<String, Music> musicPair = new HashMap<>();
 
@@ -413,16 +479,64 @@ public class Sticker {
      * @param value   The sticker value.
      * @throws IOException  Thrown upon a communication error with the server.
      * @throws MPDException Thrown if an error occurs as a result of command execution.
+     * @deprecated Use {@link #set(String, String, FilesystemTreeEntry...)}
      */
+    @Deprecated
     public void set(final FilesystemTreeEntry entry, final String sticker, final String value)
             throws IOException, MPDException {
-        onlyMusicSupported(entry);
+        set(sticker, value, entry);
+    }
 
-        if (isAvailable()) {
-            mConnection.send(CMD_ACTION_SET, CMD_STICKER_TYPE_SONG, entry.getFullPath(),
-                    sticker, value);
-        } else {
+    /**
+     * Sets a sticker key-value pair.
+     *
+     * @param sticker The sticker key.
+     * @param value   The sticker value.
+     * @param entries The entries with which to associate the sticker key-value pair.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void set(final String sticker, final String value, final FilesystemTreeEntry... entries)
+            throws IOException, MPDException {
+        set(sticker, value, Arrays.asList(entries));
+    }
+
+    /**
+     * Sets a sticker key-value pair.
+     *
+     * @param sticker The sticker key.
+     * @param value   The sticker value.
+     * @param entries The entries with which to associate the sticker key-value pair.
+     * @throws IOException  Thrown upon a communication error with the server.
+     * @throws MPDException Thrown if an error occurs as a result of command execution.
+     */
+    public void set(final String sticker, final String value,
+                    final Collection<? extends FilesystemTreeEntry> entries)
+            throws IOException, MPDException {
+        if (!isAvailable()) {
             Log.debug(TAG, STICKERS_NOT_AVAILABLE);
+            return;
+        }
+
+        switch (entries.size()) {
+            case 0:
+                break;
+
+            case 1:
+                final FilesystemTreeEntry singleEntry = entries.iterator().next();
+                onlyMusicSupported(singleEntry);
+                mConnection.submit(CMD_ACTION_SET, CMD_STICKER_TYPE_SONG,
+                        singleEntry.getFullPath(), sticker, value);
+                break;
+
+            default:
+                final CommandQueue commands = new CommandQueue();
+                for (final FilesystemTreeEntry entry : entries) {
+                    onlyMusicSupported(entry);
+                    commands.add(CMD_ACTION_SET, CMD_STICKER_TYPE_SONG,
+                            entry.getFullPath(), sticker, value);
+                }
+                mConnection.submit(commands);
         }
     }
 

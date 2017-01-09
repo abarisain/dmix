@@ -29,6 +29,7 @@ import com.namelessdev.mpdroid.adapters.ArrayAdapter;
 import com.namelessdev.mpdroid.cover.AlbumCoverDownloadListener;
 import com.namelessdev.mpdroid.cover.CoverAsyncHelper;
 import com.namelessdev.mpdroid.cover.CoverManager;
+import com.namelessdev.mpdroid.favorites.Favorites;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.library.SimpleLibraryActivity;
 import com.namelessdev.mpdroid.tools.Tools;
@@ -59,6 +60,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -66,6 +68,7 @@ import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -87,6 +90,10 @@ public class SongsFragment extends BrowseFragment<Music> implements
     Album mAlbum;
 
     FloatingActionButton mAlbumMenu;
+
+    private ToggleButton mFavoriteButton;
+
+    private CompoundButton.OnCheckedChangeListener mFavoriteButtonChangeListener;
 
     ImageView mCoverArt;
 
@@ -530,6 +537,24 @@ public class SongsFragment extends BrowseFragment<Music> implements
             }
         });
 
+        mFavoriteButton.setVisibility(Favorites.areFavoritesActivated() ? View.VISIBLE : View.GONE);
+
+        mFavoriteButtonChangeListener = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
+                try {
+                    if (isChecked) {
+                        mApp.getFavorites().addAlbum(mAlbum);
+                    } else {
+                        mApp.getFavorites().removeAlbum(mAlbum);
+                    }
+                } catch (final IOException | MPDException e) {
+                    Log.e(TAG, "Unable to change favorite state of album.", e);
+                }
+            }
+        };
+        mFavoriteButton.setOnCheckedChangeListener(mFavoriteButtonChangeListener);
+
         updateFromItems();
 
         updateToolbarVisibility();
@@ -607,6 +632,7 @@ public class SongsFragment extends BrowseFragment<Music> implements
         mHeaderToolbar = (Toolbar) view.findViewById(R.id.toolbar);
         mCoverArtProgress = (ProgressBar) view.findViewById(R.id.albumCoverProgress);
         mAlbumMenu = (FloatingActionButton) view.findViewById(R.id.album_menu);
+        mFavoriteButton = (ToggleButton) view.findViewById(R.id.favoriteButton);
     }
 
     @Override
@@ -632,45 +658,58 @@ public class SongsFragment extends BrowseFragment<Music> implements
     @Override
     public void updateFromItems() {
         super.updateFromItems();
-        if (!mItems.isEmpty() && mHeaderArtist != null && mHeaderInfo != null) {
-            final AlbumInfo fixedAlbumInfo;
-            fixedAlbumInfo = getFixedAlbumInfo();
-            final String artist = fixedAlbumInfo.getArtistName();
-            mHeaderArtist.setText(artist);
-            if (mHeaderAlbum != null) {
-                mHeaderAlbum.setText(fixedAlbumInfo.getAlbumName());
-            }
-            // Display album year in header
-            String headerInfos = (String) getHeaderInfoString();
-            if (mAlbum != null && mAlbum.getDate() > 0) {
-                headerInfos = mAlbum.getDate() + ", " + headerInfos;
-            }
-            mHeaderInfo.setText(headerInfos);
-            if (mCoverHelper != null) {
-                // Delay the cover art download for Lollipop transition
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && mFirstRefresh) {
-                    // Hardcode a delay, we don't have a transition end callback ...
-                    // TODO : Refactor this with "onSharedElementEnd", if it's worth it.
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mCoverHelper != null) {
-                                mCoverHelper.downloadCover(fixedAlbumInfo, true);
-                            }
-                        }
-                    }, 500L);
-                } else {
-                    mCoverHelper.downloadCover(fixedAlbumInfo, true);
-                }
-            } else {
-                mCoverArtListener.onCoverNotFound(fixedAlbumInfo);
-            }
-            mFirstRefresh = false;
+        if (mItems.isEmpty() || mHeaderArtist == null || mHeaderInfo == null) {
+            return;
+        }
 
-            // Workaround a kitkat redraw bug, leading to a empty header
-            if (mTracksInfoContainer != null) {
-                mTracksInfoContainer.invalidate();
+        final AlbumInfo fixedAlbumInfo;
+        fixedAlbumInfo = getFixedAlbumInfo();
+        final String artist = fixedAlbumInfo.getArtistName();
+        mHeaderArtist.setText(artist);
+        if (mHeaderAlbum != null) {
+            mHeaderAlbum.setText(fixedAlbumInfo.getAlbumName());
+        }
+        // Display album year in header
+        String headerInfos = (String) getHeaderInfoString();
+        if (mAlbum != null && mAlbum.getDate() > 0) {
+            headerInfos = mAlbum.getDate() + ", " + headerInfos;
+        }
+        mHeaderInfo.setText(headerInfos);
+        if (mCoverHelper != null) {
+            // Delay the cover art download for Lollipop transition
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && mFirstRefresh) {
+                // Hardcode a delay, we don't have a transition end callback ...
+                // TODO : Refactor this with "onSharedElementEnd", if it's worth it.
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mCoverHelper != null) {
+                            mCoverHelper.downloadCover(fixedAlbumInfo, true);
+                        }
+                    }
+                }, 500L);
+            } else {
+                mCoverHelper.downloadCover(fixedAlbumInfo, true);
+            }
+        } else {
+            mCoverArtListener.onCoverNotFound(fixedAlbumInfo);
+        }
+        mFirstRefresh = false;
+
+        // Workaround a kitkat redraw bug, leading to a empty header
+        if (mTracksInfoContainer != null) {
+            mTracksInfoContainer.invalidate();
+        }
+
+        if (Favorites.areFavoritesActivated()) {
+            try {
+                mFavoriteButton.setOnCheckedChangeListener(null); // disable change listening
+                mFavoriteButton.setChecked(mApp.getFavorites().isFavorite(mAlbum));
+                mFavoriteButton.setOnCheckedChangeListener(mFavoriteButtonChangeListener); // re-enable change listening
+            } catch (final IOException | MPDException e) {
+                Log.e(TAG, "Unable to determine if album is a favorite.", e);
             }
         }
     }
+
 }
