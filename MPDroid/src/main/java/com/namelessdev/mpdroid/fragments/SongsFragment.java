@@ -57,7 +57,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -84,33 +83,33 @@ public class SongsFragment extends BrowseFragment<Music> implements
 
     private static final String TAG = "SongsFragment";
 
-    Album mAlbum;
+    protected Album mAlbum;
 
-    FloatingActionButton mAlbumMenu;
+    private FloatingActionButton mAlbumMenu;
 
-    ImageView mCoverArt;
+    private ImageView mCoverArt;
 
-    ProgressBar mCoverArtProgress;
+    private ProgressBar mCoverArtProgress;
 
-    CoverAsyncHelper mCoverHelper;
+    private CoverAsyncHelper mCoverHelper;
 
-    Bitmap mCoverThumbnailBitmap;
+    private Bitmap mCoverThumbnailBitmap;
 
-    boolean mFirstRefresh;
+    private boolean mFirstRefresh;
 
-    Handler mHandler;
+    private Handler mHandler;
 
-    TextView mHeaderAlbum;
+    private TextView mHeaderAlbum;
 
-    TextView mHeaderArtist;
+    private TextView mHeaderArtist;
 
-    TextView mHeaderInfo;
+    private TextView mHeaderInfo;
 
-    Toolbar mHeaderToolbar;
+    private Toolbar mHeaderToolbar;
 
-    View mTracksInfoContainer;
+    private View mTracksInfoContainer;
 
-    String mViewTransitionName;
+    private String mViewTransitionName;
 
     private AlbumCoverDownloadListener mCoverArtListener;
 
@@ -185,10 +184,10 @@ public class SongsFragment extends BrowseFragment<Music> implements
     }
 
     @Override
-    public void asyncUpdate() {
+    protected void asyncUpdate() {
         try {
             if (getActivity() != null) {
-                replaceItems(mApp.getMPD().getSongs(mAlbum));
+                replaceItems(mAlbum != null ? mApp.getMPD().getSongs(mAlbum) : Collections.<Music>emptyList());
                 Collections.sort(mItems);
             }
         } catch (final IOException | MPDException e) {
@@ -344,21 +343,19 @@ public class SongsFragment extends BrowseFragment<Music> implements
     }
 
     @Override
+    protected int getLayoutResId() {
+        return R.layout.songs;
+    }
+
+    @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.songs, container, false);
-        mList = (AbsListView) view.findViewById(R.id.list);
-        registerForContextMenu(mList);
-        mList.setOnItemClickListener(this);
+        final View view = super.onCreateView(inflater, container, savedInstanceState);
+
         mList.setFastScrollEnabled(false);
         if (mList instanceof ListView) {
             ((ListView) mList).setDivider(null);
         }
-
-        mLoadingView = view.findViewById(R.id.loadingLayout);
-        mLoadingTextView = (TextView) view.findViewById(R.id.loadingText);
-        mNoResultView = view.findViewById(R.id.noResultLayout);
-        mLoadingTextView.setText(getLoadingText());
 
         final View headerView = inflater.inflate(R.layout.song_header, mList, false);
         mCoverArt = (ImageView) view.findViewById(R.id.albumCover);

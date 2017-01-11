@@ -179,6 +179,9 @@ abstract class LibraryFragmentBase extends Fragment {
                 case LibraryTabsUtil.TAB_STREAMS:
                     fragment = getFragment(StreamsFragment.class);
                     break;
+                case LibraryTabsUtil.TAB_RANDOM:
+                    fragment = getFragment(RandomBrowseFragment.class);
+                    break;
                 default:
                     throw new IllegalStateException("getItem() called with invalid Item.");
             }
