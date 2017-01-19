@@ -25,6 +25,9 @@ import com.anpmech.mpd.item.PlaylistFile;
 import com.anpmech.mpd.item.Stream;
 import com.namelessdev.mpdroid.MPDApplication;
 import com.namelessdev.mpdroid.R;
+import com.namelessdev.mpdroid.playlists.Playlist;
+import com.namelessdev.mpdroid.playlists.PlaylistEntry;
+import com.namelessdev.mpdroid.playlists.Playlists;
 import com.namelessdev.mpdroid.tools.StreamFetcher;
 import com.namelessdev.mpdroid.tools.Tools;
 
@@ -110,13 +113,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
         final View view = factory.inflate(R.layout.stream_dialog, null);
         final EditText nameEdit = (EditText) view.findViewById(R.id.name_edit);
         final EditText urlEdit = (EditText) view.findViewById(R.id.url_edit);
-        final int streamTitle;
-
-        if (idx < 0) {
-            streamTitle = R.string.addStream;
-        } else {
-            streamTitle = R.string.editStream;
-        }
+        final int streamTitle =  idx < 0 ? R.string.addStream : R.string.editStream;
 
         if (idx >= 0 && idx < mUnordered.size()) {
             final Stream stream = mUnordered.get(idx);
@@ -413,7 +410,17 @@ public class StreamsFragment extends BrowseFragment<Stream> {
         @Override
         public void onClick(final DialogInterface dialog, final int which) {
             final String name = getText(mNameEdit);
-            final String url = getText(mUrlEdit);
+            String url = getText(mUrlEdit);
+
+            // if URL is a playlist, use first entry as stream URL
+            final Playlist playlist = Playlists.create(url);
+            if (playlist != null) {
+                final List<PlaylistEntry> playlistEntries = playlist.getEntries();
+                if (playlistEntries != null && playlistEntries.size() > 0) {
+                    url = playlistEntries.get(0).getUrl();
+                }
+            }
+
             mApp.addConnectionLock(this);
 
             if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(url)) {
@@ -434,8 +441,7 @@ public class StreamsFragment extends BrowseFragment<Stream> {
                 }
 
                 if (mStreamUrlToAdd != null) {
-                    Toast.makeText(getActivity(), R.string.streamSaved,
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.streamSaved, Toast.LENGTH_SHORT).show();
                 }
             }
 
