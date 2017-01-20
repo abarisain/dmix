@@ -37,12 +37,7 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
 
     private final boolean mShowArtist;
 
-    public SongDataBinder() {
-        this(true);
-    }
-
     public SongDataBinder(final boolean showArtist) {
-        super();
         mShowArtist = showArtist;
     }
 
@@ -68,8 +63,13 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
             final int position) {
         final SongViewHolder holder = (SongViewHolder) viewHolder;
         final Music song = (Music) item;
-        final StringBuilder track = new StringBuilder(3);
+        final StringBuilder track = new StringBuilder();
+        final int disc = song.getDisc();
         int trackNumber = song.getTrack();
+
+        if (disc > 0) {
+            track.append(disc).append('-');
+        }
 
         if (trackNumber < 0) {
             trackNumber = 0;
@@ -114,7 +114,6 @@ public class SongDataBinder<T extends Item<T>> implements ArrayDataBinder<T> {
          * Sole constructor.
          */
         private CommentClickListener() {
-            super();
         }
 
         @Override
