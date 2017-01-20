@@ -180,6 +180,24 @@
             android:persistent="true"
             android:summary="@string/showAlbumTrackCountDescription"
             android:title="@string/showAlbumTrackCount" />
+
+        <PreferenceCategory android:title="@string/genres" >
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="optimizeGenres"
+                android:persistent="true"
+                android:summary="@string/optimizeGenresDescription"
+                android:title="@string/optimizeGenres" />
+
+            <EditTextPreference
+                android:defaultValue="/,;|+"
+                android:key="genreSeparators"
+                android:dependency="optimizeGenres"
+                android:persistent="true"
+                android:title="@string/genreSeparators" />
+
+        </PreferenceCategory>
     </PreferenceScreen>
 
     <PreferenceScreen

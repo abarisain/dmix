@@ -164,7 +164,7 @@ public class AbstractResponseObject {
             isEqual = Boolean.TRUE;
         }
 
-        return isEqual.booleanValue();
+        return isEqual;
     }
 
     /**

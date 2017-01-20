@@ -27,6 +27,7 @@ import com.namelessdev.mpdroid.cover.CoverAsyncHelper;
 import com.namelessdev.mpdroid.cover.CoverManager;
 import com.namelessdev.mpdroid.helpers.AlbumInfo;
 import com.namelessdev.mpdroid.library.ILibraryFragmentActivity;
+import com.namelessdev.mpdroid.models.GenresGroup;
 import com.namelessdev.mpdroid.tools.Tools;
 import com.namelessdev.mpdroid.views.AlbumDataBinder;
 import com.namelessdev.mpdroid.views.holders.AlbumViewHolder;
@@ -59,11 +60,11 @@ public class AlbumsFragment extends BrowseFragment<Album> {
 
     private static final String TAG = "AlbumsFragment";
 
-    protected Artist mArtist = null;
+    protected Artist mArtist;
 
     protected ProgressBar mCoverArtProgress;
 
-    protected Genre mGenre = null;
+    private GenresGroup mGenresGroups;
 
     protected boolean mIsCountDisplayed;
 
@@ -116,9 +117,9 @@ public class AlbumsFragment extends BrowseFragment<Album> {
                 Collections.sort(mItems);
             }
 
-            if (mGenre != null) { // filter albums not in genre
+            if (mGenresGroups != null) { // filter albums not in genre
                 for (int i = mItems.size() - 1; i >= 0; i--) {
-                    if (!mApp.getMPD().isAlbumInGenre(mItems.get(i), mGenre)) {
+                    if (!isAlbumInOneGenre(mItems.get(i), mGenresGroups)) {
                         mItems.remove(i);
                     }
                 }
@@ -126,6 +127,15 @@ public class AlbumsFragment extends BrowseFragment<Album> {
         } catch (final IOException | MPDException e) {
             Log.e(TAG, "Failed to update.", e);
         }
+    }
+
+    private boolean isAlbumInOneGenre(final Album album, final GenresGroup genres) throws IOException, MPDException {
+        for (final Genre genre : genres.getGenres()) {
+            if (mApp.getMPD().isAlbumInGenre(album, genre)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -206,7 +216,7 @@ public class AlbumsFragment extends BrowseFragment<Album> {
 
         if (bundle != null) {
             mArtist = bundle.getParcelable(Artist.EXTRA);
-            mGenre = bundle.getParcelable(Genre.EXTRA);
+            mGenresGroups = bundle.getParcelable(GenresGroup.EXTRA);
         }
     }
 
@@ -296,8 +306,8 @@ public class AlbumsFragment extends BrowseFragment<Album> {
             outState.putParcelable(Artist.EXTRA, mArtist);
         }
 
-        if (mGenre != null) {
-            outState.putParcelable(Genre.EXTRA, mGenre);
+        if (mGenresGroups != null) {
+            outState.putParcelable(GenresGroup.EXTRA, mGenresGroups);
         }
         super.onSaveInstanceState(outState);
     }

@@ -318,5 +318,8 @@
     <string name="mediaPlayerErrorUnsupported">Der Stream-Codec wird nicht unterstützt.</string>
     <string name="shufflePlaylist">Wiedergabeliste mischen</string>
     <string name="playlistShuffled">Wiedergabeliste wurde zufällig gemischt</string>
+    <string name="genreSeparators">Genre Trennzeichen</string>
+    <string name="optimizeGenres">Genre optimieren</string>
+    <string name="optimizeGenresDescription">Trenne und formatiere Genre</string>
     <!-- End MediaPlayer Error Strings -->
 </resources>

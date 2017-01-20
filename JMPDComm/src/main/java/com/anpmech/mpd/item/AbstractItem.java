@@ -30,6 +30,7 @@ package com.anpmech.mpd.item;
 
 import java.text.Collator;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -68,46 +69,23 @@ abstract class AbstractItem<T extends AbstractItem<T>> implements Comparable<T> 
     }
 
     /**
-     * This method merges two Item type lists.
-     *
-     * <p>This method removes unknown items and items not of the same name, then adds the remainder
-     * to {@code list1}.</p>
+     * This method merges two Item type lists into {@code list1} and removes unknown items and
+     * items of the same name.
      *
      * @param list1 The first list to merge, the list which will be merged into.
-     * @param list2 The second list to merge, do not reuse this list after calling this method.
+     * @param list2 The second list to merge.
      * @param <T>   Anything that extends an AbstractItem.
      */
     public static <T extends AbstractItem<T>> void merge(final List<T> list1, final List<T> list2) {
+        list1.addAll(list2);
         Collections.sort(list1);
-        Collections.sort(list2);
 
-        final ListIterator<T> iterator2 = list2.listIterator();
-        int position = 0;
-        ListIterator<T> iterator1 = list1.listIterator(position);
-
-        while (iterator2.hasNext()) {
-            final T item2 = iterator2.next();
-
-            if (position != iterator1.previousIndex()) {
-                iterator1 = list1.listIterator(position);
-            }
-            while (iterator1.hasNext()) {
-                final T item1 = iterator1.next();
-
-                if (item1.isUnknown()) {
-                    iterator1.remove();
-                    continue;
-                }
-
-                if (item1.isNameSame(item2)) {
-                    position = iterator1.previousIndex();
-                    iterator2.remove();
-                    break;
-                }
+        for (int i = list1.size()-1; i>= 0; i--) {
+            final T item = list1.get(i);
+            if (item.isUnknown() || i>0 && item.isNameSame(list1.get(i-1))) {
+                list1.remove(i);
             }
         }
-
-        list1.addAll(list2);
     }
 
     /**
