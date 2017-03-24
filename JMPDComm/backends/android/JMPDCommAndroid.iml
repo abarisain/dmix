@@ -101,6 +101,5 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 14 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="annotations-android-14" level="project" />
   </component>
 </module>
