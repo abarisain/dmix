@@ -1,8 +1,7 @@
 apply plugin: 'com.android.library'
-
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    compileSdkVersion 14
+    buildToolsVersion '25.0.2'
 
     lintOptions {
         abortOnError false
@@ -15,36 +14,34 @@ android {
 
     sourceSets.main {
         java {
-            srcDirs {
-                ['../../src/main/java', 'src/main/java']
-            }
+            srcDirs = ['../../src/main/java', 'src/main/java']
         }
         resources {
-            srcDirs {
-                ['../../src/main/resources']
-            }
+            srcDirs = ['../../src/main/resources']
         }
     }
 
-    libraryVariants.all { variant ->
-
-        task("${variant.name}Javadoc", type: Javadoc) {
-            title = "$name $version API"
-            description "Generates Javadoc for $variant.name."
-            source = variant.javaCompile.source
-            ext.androidJar = "${android.plugin.sdkHandler.sdkFolder}" +
-                    "/platforms/${android.compileSdkVersion}/android.jar"
-            classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
-
-            options {
-                links("http://docs.oracle.com/javase/7/docs/api/");
-                linksOffline("http://developer.android.com/reference",
-                        "${android.plugin.sdkHandler.sdkFolder}/docs/reference");
-            }
-
-            exclude {
-                ['**/BuildConfig.java', '**/R.java']
-            }
-        }
-    }
+//    libraryVariants.all { variant ->
+//
+//        task("${variant.name}Javadoc", type: Javadoc) {
+//            title = "$name $version API"
+//            description "Generates Javadoc for $variant.name."
+//            source = variant.javaCompile.source
+//            ext.androidJar = "${android.plugin.sdkHandler.sdkFolder}" +
+//                    "/platforms/${android.compileSdkVersion}/android.jar"
+//            classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+//
+//            options {
+//                links("http://docs.oracle.com/javase/7/docs/api/");
+//                linksOffline("http://developer.android.com/reference",
+//                        "${android.plugin.sdkHandler.sdkFolder}/docs/reference");
+//            }
+//
+//            exclude {
+//                ['**/BuildConfig.java', '**/R.java']
+//            }
+//        }
+//    }
+}
+dependencies {
 }

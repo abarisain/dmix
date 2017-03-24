@@ -20,10 +20,10 @@ import com.namelessdev.mpdroid.fragments.StreamsFragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBarActivity;
 
-public class URIHandlerActivity extends FragmentActivity {
+public class URIHandlerActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -39,7 +39,7 @@ public class URIHandlerActivity extends FragmentActivity {
             finish();
         }
 
-        streamsFragment.addEdit(-1, intent.getDataString());
+        streamsFragment.addEdit(intent.getDataString());
     }
 
 }
