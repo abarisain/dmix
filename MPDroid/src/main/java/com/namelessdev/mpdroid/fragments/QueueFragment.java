@@ -547,9 +547,7 @@ public class QueueFragment extends ListFragment implements StatusChangeListener,
                                         public void onClick(final DialogInterface dialog,
                                                 final int which) {
                                             final String name = input.getText().toString().trim();
-                                            if (!name.isEmpty() && !name
-                                                    .equals(MPD.STREAMS_PLAYLIST)) {
-                                                // TODO: Need to warn user if they attempt to save to MPD.STREAMS_PLAYLIST
+                                            if (!name.isEmpty()) {
                                                 savePlaylist(name);
                                             }
                                         }

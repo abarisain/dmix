@@ -45,14 +45,6 @@ import java.io.IOException;
 
 public class StreamsFragment extends BrowseFragment {
 
-    //    public static final int DELETE = 102;
-    //
-    //    public static final int EDIT = 101;
-    //
-    //    private static final String FILE_NAME = "streams.xml";
-    //
-    //    private static final String SERVER_FILE_NAME = "streams.xml.gz";
-
     private static final String TAG = "StreamsFragment";
 
     public StreamsFragment() {
@@ -162,22 +154,6 @@ public class StreamsFragment extends BrowseFragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
-
-    //    @Override
-    //    public void onCreateContextMenu(final ContextMenu menu, final View v,
-    //            final ContextMenu.ContextMenuInfo menuInfo) {
-    //        super.onCreateContextMenu(menu, v, menuInfo);
-    //        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-    //        if (info.id >= 0 && info.id < mStreams.size()) {
-    //            final Stream stream = mStreams.get((int) info.id);
-    //            final MenuItem editItem = menu.add(Menu.NONE, EDIT, 0,
-    //                    R.string.editStream);
-    //            editItem.setOnMenuItemClickListener(this);
-    //            final MenuItem addAndReplaceItem = menu.add(Menu.NONE, DELETE, 0,
-    //                    R.string.deleteStream);
-    //            addAndReplaceItem.setOnMenuItemClickListener(this);
-    //        }
-    //    }
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
