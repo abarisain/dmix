@@ -32,7 +32,7 @@ Also, MPDroid's speed isn't that great, but considering that MPD's API was never
 
 So, the current roadmap is:
 
-####1.1  
+#### 1.1  
 
  - [ ] Make MPDroid configurable for multiple servers (Better implementation than the hackish WLAN based one)
  - [ ] Add Bonjour support
