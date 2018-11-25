@@ -1,6 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Updated by Matthias Dill 2014/06/10 -->
-<!-- Updated by Matthias Dill 2014/11/10 -->
 <resources>
     <!-- Unused strings, commented for possible for later use.
     <string name="aboutDescription">Über MPDroid</string>
@@ -39,10 +37,6 @@
     <string name="whatsNew">Neue Funktionen</string>
     <string name="whatsNewDescription">Änderungsliste ansehen (öffnet externe Webseite)</string>
     <string name="widget_initial_text">Berühre, um Musik auszuwählen</string>
-    <string name="streamPauseBattery">Um den Akku zu schonen, sollte Streaming gestoppt werden, wenn es nicht verwendet wird</string>
-    <string name="albumTrackSort">Titelnummer</string>
-    <string name="albumTrackSortDescription">Sortiere Titel nach Titelnummer</string>
-    <string name="audioFocusFailed">Kann Streaming nicht starten. Wird von einer anderen Anwendung benutzt.</string>
     -->
 
     <string name="app_name">MPDroid</string>
