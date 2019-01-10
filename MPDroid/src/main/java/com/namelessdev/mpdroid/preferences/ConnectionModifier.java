@@ -16,19 +16,19 @@
 
 package com.namelessdev.mpdroid.preferences;
 
-import com.namelessdev.mpdroid.R;
-
-import org.jetbrains.annotations.Nullable;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
@@ -38,11 +38,21 @@ import android.support.annotation.StringRes;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.cafbit.multicasttest.NetThread;
+import com.example.android.nsdchat.NsdHelper;
+import com.namelessdev.mpdroid.R;
+
+import org.jetbrains.annotations.Nullable;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -177,6 +187,98 @@ public class ConnectionModifier extends PreferenceFragment {
         return result;
     }
 
+
+    /**
+     * This is the settings key used to store the MPD IP address and port.
+     */
+    private static final String KEY_NSD_HOSTANDPORT = "nsdhostandport";
+
+    private NsdHelper mNsdHelper = null;
+    private EditTextPreference prefHost;
+    private EditTextPreference prefPort;
+
+    /**
+     * This method is the Preference for getting MPD server info via NSD
+     *
+     * @param context   The current context.
+     * @param keyPrefix The Wi-Fi Set Service ID.
+     * @return The host name Preference.
+     */
+    private Preference getMPDServer(final Context context, final String keyPrefix) {
+        // try to prevent the Nsd stack from returning IPv6 addresses
+        java.lang.System.setProperty("java.net.preferIPv6Addresses", "false");
+        java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
+
+        final ArrayList<CharSequence> entries = new ArrayList<CharSequence>();
+        final ArrayList<CharSequence> entriesValues = new ArrayList<CharSequence>();
+
+        //entries.add("localhost:6600");
+        //entriesValues.add("127.0.0.1:5500");
+
+        Preference.OnPreferenceChangeListener mChangeListener = new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                Log.d(TAG, "set new value to "+newValue);
+                String splitstr[] = newValue.toString().split(":");
+                prefHost.setText(splitstr[0]);
+                prefPort.setText(splitstr[1]);
+                return true;
+            }
+        };
+
+        final ListPreference prefMPDServer = new ListPreference(context);
+        prefMPDServer.setTitle("Searching for MPD Servers");
+        prefMPDServer.setSummary("");
+        prefMPDServer.setDialogTitle("NO MPD Servers Found");
+        prefMPDServer.setEntries(entries.toArray(new CharSequence[]{}));
+        prefMPDServer.setEntryValues(entriesValues.toArray(new CharSequence[]{}));
+        prefMPDServer.setKey(keyPrefix + KEY_NSD_HOSTANDPORT);
+
+        prefMPDServer.setOnPreferenceChangeListener(mChangeListener);
+
+        Handler mUpdateHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                try {
+                    InetAddress serviceaddress = InetAddress.getByAddress(msg.getData().getByteArray("address"));
+                    Integer serviceport = msg.getData().getInt("port");
+                    String servicename = msg.getData().getString("name") + ":" + serviceport.toString();
+                    Log.d(TAG, "found mpd server "+servicename+" at "+serviceaddress);
+                    for (int i = 0; i < entries.size(); ) {
+                        if (servicename.equals(entries.get(i))) {
+                            entries.remove(i);
+                            entriesValues.remove(i);
+                        }
+                        else {
+                            i++;
+                        }
+                    }
+                    prefMPDServer.setTitle("Found MPD Servers on Local Network");
+                    prefMPDServer.setSummary("Touch to see MPD servers");
+                    prefMPDServer.setDialogTitle("MPD Servers");
+                    entries.add(servicename);
+                    entriesValues.add(serviceaddress.getHostAddress() + ":" + serviceport.toString());
+                    prefMPDServer.setEntries(entries.toArray(new CharSequence[]{}));
+                    prefMPDServer.setEntryValues(entriesValues.toArray(new CharSequence[]{}));
+                } catch (UnknownHostException e) {
+                    Log.d(TAG, "resolving mpd server failed: "+e);
+                }
+            }
+        };
+
+        mNsdHelper = new NsdHelper(context, mUpdateHandler);
+        mNsdHelper.initializeNsd();
+        mNsdHelper.discoverServices("_mpd._tcp");
+
+        // This sends a low-level DNS query to the mDNS daemon on the Android device.
+        // Unfortunately, the Android NsdManager doesn't seem to wake up properly
+        // (at least not up through 8.0.0), so a low-level query to the system's
+        // mDNS daemon is in order.
+        final NetThread mnetThread = new NetThread(context, "_mpd._tcp.local");
+        mnetThread.start();
+
+        return prefMPDServer;
+    }
+
     /**
      * This method is the Preference for modifying the MPD hostname.
      *
@@ -184,8 +286,8 @@ public class ConnectionModifier extends PreferenceFragment {
      * @param keyPrefix The Wi-Fi Set Service ID.
      * @return The host name Preference.
      */
-    private static Preference getHost(final Context context, final String keyPrefix) {
-        final EditTextPreference prefHost = new EditTextPreference(context);
+    private Preference getHost(final Context context, final String keyPrefix) {
+        prefHost = new EditTextPreference(context);
         prefHost.getEditText().setInputType(
                 InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
         prefHost.setDialogTitle(R.string.host);
@@ -261,8 +363,8 @@ public class ConnectionModifier extends PreferenceFragment {
      * @param keyPrefix The Wi-Fi Set Service ID.
      * @return The EditTextPreference for this preference.
      */
-    private static Preference getPort(final Context context, final String keyPrefix) {
-        final EditTextPreference prefPort = new EditTextPreference(context);
+    private Preference getPort(final Context context, final String keyPrefix) {
+        prefPort = new EditTextPreference(context);
         final EditText editText = prefPort.getEditText();
 
         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -321,12 +423,24 @@ public class ConnectionModifier extends PreferenceFragment {
 
         screen.setKey(KEY_CONNECTION_CATEGORY);
         screen.addPreference(getMasterCategory(context, serviceSetId));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            screen.addPreference(getMPDServer(context, serviceSetId));
         screen.addPreference(getHost(context, serviceSetId));
         screen.addPreference(getPort(context, serviceSetId));
         screen.addPreference(getPassword(context, serviceSetId));
         screen.addPreference(getStreamURL(context, serviceSetId));
         screen.addPreference(getPersistentNotification(context, serviceSetId));
         setPreferenceScreen(screen);
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mNsdHelper != null) {
+            mNsdHelper.stopDiscovery();
+            mNsdHelper.tearDown();
+            mNsdHelper = null;
+        }
+        super.onDestroy();
     }
 
     /**
