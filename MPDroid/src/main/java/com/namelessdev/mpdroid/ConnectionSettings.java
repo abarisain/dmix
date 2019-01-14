@@ -138,8 +138,10 @@ public class ConnectionSettings extends PreferenceActivity {
     private void createDynamicSettings(final String keyPrefix,
             final PreferenceCategory toCategory) {
 
-        final ListPreference prefMPDServer = getMPDServer(this, keyPrefix);
-        toCategory.addPreference(prefMPDServer);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            final ListPreference prefMPDServer = getMPDServer(this, keyPrefix);
+            toCategory.addPreference(prefMPDServer);
+        }
 
         prefHost = new EditTextPreference(this);
         prefHost.getEditText().setInputType(
