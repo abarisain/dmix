@@ -16,26 +16,26 @@
 
 package com.namelessdev.mpdroid;
 
+import com.cafbit.multicasttest.NetThread;
+import com.example.android.nsdchat.NsdHelper;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.Preference;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.util.Log;
-
-import com.cafbit.multicasttest.NetThread;
-import com.example.android.nsdchat.NsdHelper;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -88,7 +88,7 @@ public class ConnectionSettings extends PreferenceActivity {
         prefMPDServer.setDialogTitle("NO MPD Servers Found");
         prefMPDServer.setEntries(entries.toArray(new CharSequence[]{}));
         prefMPDServer.setEntryValues(entriesValues.toArray(new CharSequence[]{}));
-        prefMPDServer.setKey(keyPrefix + nsdhostandport);
+        prefMPDServer.setKey(keyPrefix + "nsdhostandport");
 
         prefMPDServer.setOnPreferenceChangeListener(mChangeListener);
 
