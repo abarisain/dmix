@@ -16,28 +16,132 @@
 
 package com.namelessdev.mpdroid;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.preference.Preference;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.util.Log;
+
+import com.cafbit.multicasttest.NetThread;
+import com.example.android.nsdchat.NsdHelper;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 @SuppressWarnings("deprecation")
 public class ConnectionSettings extends PreferenceActivity {
 
     public static final int MAIN = 0;
 
+    private static final String TAG = "ConnectionSettings";
+
     private static final String KEY_CONNECTION_CATEGORY = "connectionCategory";
+
+    private NsdHelper mNsdHelper = null;
+    private EditTextPreference prefHost;
+    private EditTextPreference prefPort;
+
+    /**
+     * This method is the Preference for getting MPD server info via NSD
+     *
+     * @param context   The current context.
+     * @param keyPrefix The Wi-Fi Set Service ID.
+     * @return The host name Preference.
+     */
+    private ListPreference getMPDServer(final Context context, final String keyPrefix) {
+        // try to prevent the Nsd stack from returning IPv6 addresses
+        java.lang.System.setProperty("java.net.preferIPv6Addresses", "false");
+        java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
+
+        final ArrayList<CharSequence> entries = new ArrayList<CharSequence>();
+        final ArrayList<CharSequence> entriesValues = new ArrayList<CharSequence>();
+
+        //entries.add("localhost:6600");
+        //entriesValues.add("127.0.0.1:5500");
+
+        Preference.OnPreferenceChangeListener mChangeListener = new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                Log.d(TAG, "set new value to "+newValue);
+                String splitstr[] = newValue.toString().split(":");
+                prefHost.setText(splitstr[0]);
+                prefPort.setText(splitstr[1]);
+                return true;
+            }
+        };
+
+        final ListPreference prefMPDServer = new ListPreference(context);
+        prefMPDServer.setTitle("Searching for MPD Servers");
+        prefMPDServer.setSummary("");
+        prefMPDServer.setDialogTitle("NO MPD Servers Found");
+        prefMPDServer.setEntries(entries.toArray(new CharSequence[]{}));
+        prefMPDServer.setEntryValues(entriesValues.toArray(new CharSequence[]{}));
+        prefMPDServer.setKey(keyPrefix + nsdhostandport);
+
+        prefMPDServer.setOnPreferenceChangeListener(mChangeListener);
+
+        Handler mUpdateHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                try {
+                    InetAddress serviceaddress = InetAddress.getByAddress(msg.getData().getByteArray("address"));
+                    Integer serviceport = msg.getData().getInt("port");
+                    String servicename = msg.getData().getString("name") + ":" + serviceport.toString();
+                    Log.d(TAG, "found mpd server "+servicename+" at "+serviceaddress);
+                    for (int i = 0; i < entries.size(); ) {
+                        if (servicename.equals(entries.get(i))) {
+                            entries.remove(i);
+                            entriesValues.remove(i);
+                        }
+                        else {
+                            i++;
+                        }
+                    }
+                    prefMPDServer.setTitle("Found MPD Servers on Local Network");
+                    prefMPDServer.setSummary("Touch to see MPD servers");
+                    prefMPDServer.setDialogTitle("MPD Servers");
+                    entries.add(servicename);
+                    entriesValues.add(serviceaddress.getHostAddress() + ":" + serviceport.toString());
+                    prefMPDServer.setEntries(entries.toArray(new CharSequence[]{}));
+                    prefMPDServer.setEntryValues(entriesValues.toArray(new CharSequence[]{}));
+                } catch (UnknownHostException e) {
+                    Log.d(TAG, "resolving mpd server failed: "+e);
+                }
+            }
+        };
+
+        mNsdHelper = new NsdHelper(context, mUpdateHandler);
+        mNsdHelper.initializeNsd();
+        mNsdHelper.discoverServices("_mpd._tcp");
+
+        // This sends a low-level DNS query to the mDNS daemon on the Android device.
+        // Unfortunately, the Android NsdManager doesn't seem to wake up properly
+        // (at least not up through 8.0.0), so a low-level query to the system's
+        // mDNS daemon is in order.
+        final NetThread mnetThread = new NetThread(context, "_mpd._tcp.local");
+        mnetThread.start();
+
+        return prefMPDServer;
+    }
 
     private void createDynamicSettings(final String keyPrefix,
             final PreferenceCategory toCategory) {
 
-        final EditTextPreference prefHost = new EditTextPreference(this);
+        final ListPreference prefMPDServer = getMPDServer(this, keyPrefix);
+        toCategory.addPreference(prefMPDServer);
+
+        prefHost = new EditTextPreference(this);
         prefHost.getEditText().setInputType(
                 InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
         prefHost.setDialogTitle(R.string.host);
@@ -47,7 +151,7 @@ public class ConnectionSettings extends PreferenceActivity {
         prefHost.setKey(keyPrefix + "hostname");
         toCategory.addPreference(prefHost);
 
-        final EditTextPreference prefPort = new EditTextPreference(this);
+        prefPort = new EditTextPreference(this);
         prefPort.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
         prefPort.setDialogTitle(R.string.port);
         prefPort.setTitle(R.string.port);
@@ -126,6 +230,16 @@ public class ConnectionSettings extends PreferenceActivity {
             masterCategory.setTitle(R.string.defaultSettings);
 
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mNsdHelper != null) {
+            mNsdHelper.stopDiscovery();
+            mNsdHelper.tearDown();
+            mNsdHelper = null;
+        }
+        super.onDestroy();
     }
 
     @Override
