@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -89,6 +90,7 @@ public class WifiConnectionSettings extends PreferenceActivity {
         final PreferenceCategory preferenceCategory =
                 (PreferenceCategory) preferenceScreen.findPreference(KEY_WIFI_BASED_CATEGORY);
         List<WifiConfiguration> wifiList = null;
+        WifiInfo currentWifi = null;
 
         if (preference.getKey().equals(KEY_WIFI_BASED_SCREEN)) {
             /** Clear the wifi list. */
@@ -96,6 +98,7 @@ public class WifiConnectionSettings extends PreferenceActivity {
 
             final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
             wifiList = wifiManager.getConfiguredNetworks();
+            currentWifi = wifiManager.getConnectionInfo();
         }
 
         if (wifiList == null) {
@@ -120,7 +123,7 @@ public class WifiConnectionSettings extends PreferenceActivity {
                 ssidItem.setTitle(ssid);
                 ssidItem.setIntent(intent);
 
-                if (WifiConfiguration.Status.CURRENT == wifi.status) {
+                if (currentWifi != null && currentWifi.getSSID().equals(wifi.SSID)) {
                     ssidItem.setSummary(R.string.connected);
                 } else {
                     ssidItem.setSummary(R.string.notInRange);
