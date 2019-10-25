@@ -15,6 +15,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- Wake Lock for Streaming -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Required to get current WiFi network SSID -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name="com.namelessdev.mpdroid.MPDApplication"
