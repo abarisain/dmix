@@ -39,7 +39,7 @@ public final class LibraryTabsUtil {
 
     public static final String TAB_PLAYLISTS = "playlists";
 
-    public static final String TAB_STREAMS = "streams";
+//    public static final String TAB_STREAMS = "streams";
 
     private static final MPDApplication APP = MPDApplication.getInstance();
 
@@ -48,7 +48,7 @@ public final class LibraryTabsUtil {
     private static final String DEFAULT_LIBRARY_TABS = TAB_ARTISTS
             + LIBRARY_TABS_DELIMITER + TAB_ALBUMS
             + LIBRARY_TABS_DELIMITER + TAB_PLAYLISTS
-            + LIBRARY_TABS_DELIMITER + TAB_STREAMS
+//            + LIBRARY_TABS_DELIMITER + TAB_STREAMS
             + LIBRARY_TABS_DELIMITER + TAB_FILES
             + LIBRARY_TABS_DELIMITER + TAB_GENRES;
 
@@ -60,7 +60,7 @@ public final class LibraryTabsUtil {
         TABS.put(TAB_ARTISTS, R.string.artists);
         TABS.put(TAB_ALBUMS, R.string.albums);
         TABS.put(TAB_PLAYLISTS, R.string.playlists);
-        TABS.put(TAB_STREAMS, R.string.streams);
+//        TABS.put(TAB_STREAMS, R.string.streams);
         TABS.put(TAB_FILES, R.string.files);
         TABS.put(TAB_GENRES, R.string.genres);
     }

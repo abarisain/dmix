@@ -147,9 +147,9 @@ public class LibraryFragment extends Fragment {
                 case LibraryTabsUtil.TAB_PLAYLISTS:
                     fragment = new PlaylistsFragment();
                     break;
-                case LibraryTabsUtil.TAB_STREAMS:
-                    fragment = new StreamsFragment();
-                    break;
+//                case LibraryTabsUtil.TAB_STREAMS:
+//                    fragment = new StreamsFragment();
+//                    break;
                 default:
                     fragment = null;
                     break;

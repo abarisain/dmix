@@ -22,7 +22,7 @@ def gitShortHash() {
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    buildToolsVersion '25.0.2'
 
     defaultConfig {
         minSdkVersion 14
@@ -45,49 +45,46 @@ android {
         closedbits {
             versionName defaultConfig.versionName + "-c"
         }
-
         foss {
             versionName defaultConfig.versionName + "-f"
             ext.enableCrashlytics = false
         }
     }
 
-    applicationVariants.all { variant ->
-
-        task("${variant.name}Javadoc", type: Javadoc) {
-            title = "$name $version API"
-            description "Generates Javadoc for $variant.name."
-            source = variant.javaCompile.source
-            ext.androidJar =
-                    "${android.plugin.sdkHandler.sdkFolder}" +
-                            "/platforms/${android.compileSdkVersion}/android.jar"
-            classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
-
-            options {
-                links("http://docs.oracle.com/javase/7/docs/api/");
-                linksOffline("http://developer.android.com/reference",
-                        "${android.plugin.sdkHandler.sdkFolder}/docs/reference");
-            }
-
-            exclude {
-                ['**/BuildConfig.java', '**/R.java']
-            }
-        }
-    }
+//    applicationVariants.all { variant ->
+//
+//        task("${variant.name}Javadoc", type: Javadoc) {
+//            title = "$name $version API"
+//            description "Generates Javadoc for $variant.name."
+//            source = variant.javaCompile.source
+//            ext.androidJar =
+//                    "${android.plugin.sdkHandler.sdkFolder}" +
+//                            "/platforms/${android.compileSdkVersion}/android.jar"
+//            classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+//
+//            options {
+//                links("http://docs.oracle.com/javase/7/docs/api/");
+//                linksOffline("http://developer.android.com/reference",
+//                        "${android.plugin.sdkHandler.sdkFolder}/docs/reference");
+//            }
+//
+//            exclude {
+//                ['**/BuildConfig.java', '**/R.java']
+//            }
+//        }
+//    }
 }
 
 dependencies {
-
     // Support Libraries
     compile 'com.android.support:support-v4:21.0.2'
     compile 'com.android.support:appcompat-v7:21.0.2'
 
     // Projects
     compile project(':JMPDCommAndroid')
-
     // Libraries from maven
     compile 'com.sothree.slidinguppanel:library:2.0.1'
     compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.3'
     compile 'asia.ivity.android:drag-sort-listview:1.0'
-    closedbitsCompile 'com.crashlytics.android:crashlytics:1.+'
+    closedbitsCompile 'com.crashlytics.android:crashlytics:1.1.13'
 }

@@ -59,7 +59,7 @@ import static org.a0z.mpd.Tools.VALUE;
  */
 public class MPD {
 
-    public static final String STREAMS_PLAYLIST = "[Radio Streams]";
+//    public static final String STREAMS_PLAYLIST = "[Radio Streams]";
 
     private static final String TAG = "MPD";
 
@@ -592,12 +592,6 @@ public class MPD {
         }
     }
 
-    public void editSavedStream(final String url, final String name, final Integer pos)
-            throws IOException, MPDException {
-        removeSavedStream(pos);
-        saveStream(url, name);
-    }
-
     public void enableOutput(final int id) throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_OUTPUTENABLE, Integer.toString(id));
     }
@@ -1000,7 +994,7 @@ public class MPD {
         final List<Item> result = new ArrayList<>(response.size());
         for (final String[] pair : Tools.splitResponse(response)) {
             if ("playlist".equals(pair[KEY])) {
-                if (null != pair[VALUE] && !STREAMS_PLAYLIST.equals(pair[VALUE])) {
+                if (null != pair[VALUE]) {
                     result.add(new PlaylistFile(pair[VALUE]));
                 }
             }
@@ -1010,24 +1004,6 @@ public class MPD {
         }
 
         return result;
-    }
-
-    public List<Music> getSavedStreams() throws IOException, MPDException {
-        final List<String> response = mConnection.sendCommand(MPDCommand.MPD_CMD_LISTPLAYLISTS);
-        List<Music> savedStreams = null;
-
-        for (final String[] pair : Tools.splitResponse(response)) {
-            if ("playlist".equals(pair[KEY])) {
-                if (STREAMS_PLAYLIST.equals(pair[VALUE])) {
-                    final String[] args = {pair[VALUE]};
-
-                    savedStreams = genericSearch(MPDCommand.MPD_CMD_PLAYLIST_INFO, args, false);
-                    break;
-                }
-            }
-        }
-
-        return savedStreams;
     }
 
     public List<Music> getSongs(final Album album) throws IOException, MPDException {
@@ -1592,16 +1568,6 @@ public class MPD {
             throws IOException, MPDException {
         mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, playlistName,
                 Integer.toString(pos));
-    }
-
-    public void removeSavedStream(final Integer pos) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_DEL, STREAMS_PLAYLIST,
-                Integer.toString(pos));
-    }
-
-    public void saveStream(final String url, final String name) throws IOException, MPDException {
-        mConnection.sendCommand(MPDCommand.MPD_CMD_PLAYLIST_ADD, STREAMS_PLAYLIST,
-                Stream.addStreamName(url, name));
     }
 
     /**
