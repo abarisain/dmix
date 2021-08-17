@@ -24,3 +24,8 @@ script:
     ## Build the standard MPDroid distribution and check to
     ### make sure the plain Java build didn't break.
     ./gradlew assembleFossDebug JMPDCommJava:Build
+
+cache:
+  directories:
+  - $HOME/.gradle/caches/
+  - $HOME/.gradle/wrapper/
